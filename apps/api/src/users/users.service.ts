@@ -27,6 +27,7 @@ export class UsersService {
     if (tenantId) {
       return await db.select().from(users).where(eq(users.tenantId, tenantId));
     }
+    // If no tenant filter, return all (admin/superuser)
     return await db.select().from(users);
   }
 
