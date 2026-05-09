@@ -1,1 +1,1 @@
-{"devDependencies":{"@tauri-apps/cli":"^2.0.0"},"name":"@smart-erp/desktop","private":true,"scripts":{"build":"tauri build","dev":"tauri dev","tauri":"tauri"},"version":"0.1.0"}
+{"devDependencies":{"@tauri-apps/cli":"^2.0.0"},"name":"@smart-erp/desktop","private":true,"scripts":{"build":"tauri build","dev":"tauri dev","tauri":"tauri"},"version":"0.1.0","dependencies":{"dexie":"4.4.2","dexie-react-hooks":"4.4.0"}}

@@ -1,0 +1,1 @@
+{"compilerOptions":{"noEmit":false,"outDir":"./dist","rootDir":"./src"},"extends":"@smart-erp/tsconfig/base.json","include":["src/**/*"]}

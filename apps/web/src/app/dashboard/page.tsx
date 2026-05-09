@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { usersApi } from '@/lib/api-client';
 import { initSocket, closeSocket } from '@/lib/socket';
-import { LayoutDashboard, Users, Settings, LogOut, Bell } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, LogOut, Bell, Wifi, WifiOff } from 'lucide-react';
+import { syncService } from '@smart-erp/sync';
 
 export default function DashboardPage() {
   const { t } = useTranslation('common');
@@ -16,6 +17,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Array<{ message: string; timestamp: string }>>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -48,13 +50,34 @@ export default function DashboardPage() {
   const fetchUsers = async () => {
     try {
       const response = await usersApi.getAll();
-      setUsers(response.data);
+      const userData = response.data;
+      setUsers(userData);
+      // Cache offline
+      await syncService.syncUsers(userData);
     } catch (err) {
-      console.error('Failed to fetch users:', err);
+      console.error('Failed to fetch users, loading offline cache:', err);
+      const offlineUsers = await syncService.getOfflineUsers();
+      setUsers(offlineUsers);
     } finally {
       setLoading(false);
     }
   };
+
+  // Monitor online status
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      syncService.processQueue();
+      fetchUsers();
+    };
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
