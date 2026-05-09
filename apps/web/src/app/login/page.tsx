@@ -25,6 +25,9 @@ export default function LoginPage() {
       const { access_token, user } = response.data;
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('user', JSON.stringify(user));
+      if (user.tenantId) {
+        localStorage.setItem('tenant_id', user.tenantId);
+      }
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);

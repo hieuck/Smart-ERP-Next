@@ -63,9 +63,10 @@ export default function DashboardPage() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-300">
-              {user?.name || user?.email}
-            </span>
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              <div>{user?.name || user?.email}</div>
+              <div className="text-xs text-gray-400">Role: {user?.role || 'user'} | Tenant: {user?.tenantId?.slice(0, 8)}...</div>
+            </div>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-3 py-1 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition"
