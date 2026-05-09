@@ -1,1 +1,0 @@
-{"compilerOptions":{"esModuleInterop":true,"forceConsistentCasingInFileNames":true,"module":"ESNext","moduleResolution":"bundler","outDir":"./dist","rootDir":"./src","skipLibCheck":true,"strict":true,"target":"ES2022"},"exclude":["node_modules","dist"],"include":["src/**/*","drizzle/**/*"]}

@@ -1,1 +1,0 @@
-{"dependencies":{"drizzle-orm":"^0.30.0","postgres":"^3.4.0"},"devDependencies":{"drizzle-kit":"^0.20.0","typescript":"^5.3.0"},"main":"./src/index.ts","name":"@smarterp/database","private":true,"scripts":{"generate":"drizzle-kit generate","migrate":"node ./scripts/migrate.js","studio":"drizzle-kit studio"},"types":"./src/index.ts","version":"0.0.1"}
