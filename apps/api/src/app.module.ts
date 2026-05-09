@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TenantsModule } from './tenants/tenants.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 
 @Module({
@@ -16,6 +17,7 @@ import { TenantMiddleware } from './common/middleware/tenant.middleware';
     AuthModule,
     UsersModule,
     TenantsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

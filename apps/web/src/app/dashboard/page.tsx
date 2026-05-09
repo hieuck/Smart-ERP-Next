@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { usersApi } from '@/lib/api-client';
-import { LayoutDashboard, Users, Settings, LogOut } from 'lucide-react';
+import { initSocket, closeSocket } from '@/lib/socket';
+import { LayoutDashboard, Users, Settings, LogOut, Bell } from 'lucide-react';
 
 export default function DashboardPage() {
   const { t } = useTranslation('common');
@@ -13,6 +14,8 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<Array<{ message: string; timestamp: string }>>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -24,6 +27,22 @@ export default function DashboardPage() {
 
     setUser(JSON.parse(storedUser));
     fetchUsers();
+
+    // Initialize WebSocket connection
+    const parsedUser = JSON.parse(storedUser);
+    const socket = initSocket(parsedUser.id);
+    socket.on('user.registered', (data) => {
+      setNotifications(prev => [
+        { message: `New user registered: ${data.email}`, timestamp: new Date().toLocaleTimeString() },
+        ...prev.slice(0, 9)
+      ]);
+      // Optionally refresh user list
+      fetchUsers();
+    });
+
+    return () => {
+      closeSocket();
+    };
   }, []);
 
   const fetchUsers = async () => {

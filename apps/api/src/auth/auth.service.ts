@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { User } from '@smart-erp/types';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private notificationsGateway: NotificationsGateway,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -52,6 +54,14 @@ export class AuthService {
       passwordHash: hashedPassword,
       name: name || null,
       tenantId: tenantId || null,
+    });
+    // Broadcast real‑time notification
+    this.notificationsGateway.broadcast('user.registered', {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      tenantId: user.tenantId,
+      timestamp: new Date().toISOString(),
     });
     return this.login(user);
   }
