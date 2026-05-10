@@ -15,21 +15,19 @@ export class SyncBenchmarkInterceptor implements NestInterceptor {
     const clientId = req.body?.clientId || 'unknown';
     const start = Date.now();
     let changesCount = 0;
-
     if (req.body?.changes?.products) changesCount = req.body.changes.products.length;
+    const size = JSON.stringify(req.body).length;
 
     return next.handle().pipe(
       tap({
         next: (res) => {
           const duration = Date.now() - start;
           const status = res?.accepted ? 'success' : 'failure';
-          const size = JSON.stringify(req.body).length;
           this.benchmarkService.record(tenantId, clientId, endpoint, status, duration, changesCount, size).catch(console.error);
         },
         error: (err) => {
           const duration = Date.now() - start;
           const status = err?.response?.status === 409 ? 'conflict' : 'failure';
-          const size = JSON.stringify(req.body).length;
           this.benchmarkService.record(tenantId, clientId, endpoint, status, duration, changesCount, size).catch(console.error);
         },
       }),

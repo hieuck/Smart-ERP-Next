@@ -9,8 +9,8 @@ export const syncBenchmarks = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: 'cascade' }),
     clientId: text('client_id').notNull(),
-    endpoint: text('endpoint').notNull(), // push | pull
-    status: text('status').notNull(),      // success | failure | conflict
+    endpoint: text('endpoint').notNull(),
+    status: text('status').notNull(),
     durationMs: integer('duration_ms').notNull(),
     changesCount: integer('changes_count').default(0),
     sizeBytes: integer('size_bytes').default(0),

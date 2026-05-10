@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '@/lib/api-client';
 import AuthGuard from '@/components/layout/AuthGuard';
-import { BarChart3, Clock, Activity } from 'lucide-react';
+import { BarChart3, Activity } from 'lucide-react';
 
 interface Stat {
   endpoint: string;
@@ -25,7 +25,6 @@ interface Event {
 }
 
 export default function BenchmarksPage() {
-  const { t } = useTranslation('common');
   const [stats, setStats] = useState<Stat[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [hours, setHours] = useState(24);
@@ -99,9 +98,7 @@ export default function BenchmarksPage() {
                         <div className="text-lg font-bold">{Math.round(successStats.avg)} ms</div>
                       </div>
                     </div>
-                    <div className="mt-2 text-sm text-gray-500">
-                      {successStats.count} successful operations
-                    </div>
+                    <div className="mt-2 text-sm text-gray-500">{successStats.count} successful operations</div>
                   </div>
                 );
               })}
