@@ -249,7 +249,10 @@
     "quantity": "Số lượng",
     "batchNumber": "Số lô",
     "expiryDate": "Hạn sử dụng",
-    "serialNumber": "Số serial"
+    "serialNumber": "Số serial",
+    "stockValue": "Giá trị tồn kho",
+    "lowStock": "Sắp hết hàng",
+    "normal": "Bình thường"
   },
 
   "purchasing": {

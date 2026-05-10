@@ -249,7 +249,10 @@
     "quantity": "Quantity",
     "batchNumber": "Batch Number",
     "expiryDate": "Expiry Date",
-    "serialNumber": "Serial Number"
+    "serialNumber": "Serial Number",
+    "stockValue": "Stock Value",
+    "lowStock": "Low Stock",
+    "normal": "Normal"
   },
 
   "purchasing": {
