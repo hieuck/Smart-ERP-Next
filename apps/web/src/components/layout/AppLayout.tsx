@@ -196,6 +196,12 @@ export default function AppLayout({
       icon: <Settings className="w-5 h-5" />,
       href: "/settings",
     },
+    {
+      key: "benchmarks",
+      label: "Sync Benchmarks",
+      icon: <BarChart3 className="w-5 h-5" />,
+      href: "/admin/benchmarks",
+    },
   ];
 
   const activeKey = navItems.find(

@@ -1,8 +1,10 @@
-import { Controller, Post, Body, Req, Get } from '@nestjs/common';
+import { Controller, Post, Body, Req, Get, UseInterceptors } from '@nestjs/common';
 import { SyncService } from './sync.service';
+import { SyncBenchmarkInterceptor } from '../../common/interceptors/sync-benchmark.interceptor';
 import { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
 
 @Controller('sync')
+@UseInterceptors(SyncBenchmarkInterceptor)
 export class SyncController {
   constructor(private syncService: SyncService) {}
 
