@@ -65,7 +65,7 @@ export default function ProductsScreen() {
           <View style={styles.cardRight}>
             <Text style={styles.price}>{formatVND(item.price)}</Text>
             <Text style={[styles.stock, isLow && styles.stockLow]}>
-              {isLow ? '⚠ ' : ''}Tồn: {item.stock}
+              {isLow ? t('inventory.lowStock') : ''} {t('products.stock')}: {item.stock}
             </Text>
           </View>
         </View>
@@ -85,20 +85,20 @@ export default function ProductsScreen() {
           style={styles.searchInput}
           value={search}
           onChangeText={setSearch}
-          placeholder="Tìm theo tên, SKU..."
+          placeholder={t('products.searchPlaceholder')}
           placeholderTextColor="#9ca3af"
           returnKeyType="search"
           onSubmitEditing={handleSearch}
         />
         <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-          <Text style={styles.searchBtnText}>Tìm</Text>
+          <Text style={styles.searchBtnText}>{t('actions.search')}</Text>
         </TouchableOpacity>
       </View>
 
       {loading && !refreshing ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#3b82f6" />
-          <Text style={styles.loadingText}>Đang tải...</Text>
+          <Text style={styles.loadingText}>{t('common.loading')}</Text>
         </View>
       ) : (
         <FlatList
@@ -109,7 +109,7 @@ export default function ProductsScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#3b82f6" />}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
-          ListEmptyComponent={<View style={styles.center}><Text style={styles.emptyText}>Không có sản phẩm nào</Text></View>}
+          ListEmptyComponent={<View style={styles.center}><Text style={styles.emptyText}>{t('common.noData')}</Text></View>}
           ListFooterComponent={hasMore ? <ActivityIndicator style={{ marginVertical: 16 }} color="#3b82f6" /> : null}
         />
       )}
