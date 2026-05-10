@@ -124,7 +124,7 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Đang đăng nhập...
+                  {t('auth.loading')}
                 </>
               ) : (
                 <>
@@ -137,12 +137,12 @@ export default function LoginPage() {
 
           {/* Demo credentials */}
           <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-700">
-            <p className="text-xs text-gray-400 text-center mb-2">Demo nhanh</p>
+            <p className="text-xs text-gray-400 text-center mb-2">{t('auth.demo')}</p>
             <button
               onClick={fillDemo}
               className="w-full py-2 px-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition font-mono"
             >
-              admin@demo.smarterp.vn / demo123456
+              {t('auth.demoCredentials')}
             </button>
           </div>
         </div>
