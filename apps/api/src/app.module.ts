@@ -8,6 +8,7 @@ import { TenantsModule } from './tenants/tenants.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
 import { InsightsModule } from './insights/insights.module';
+import { ProductsModule } from './products/products.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 
 @Module({
@@ -22,6 +23,7 @@ import { TenantMiddleware } from './common/middleware/tenant.middleware';
     NotificationsModule,
     ReportsModule,
     InsightsModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
