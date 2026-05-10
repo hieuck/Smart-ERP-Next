@@ -113,6 +113,18 @@ export default function InventoryPage() {
     }
   };
 
+  const updateReorderPoints = async (productId: string, minStock?: number, reorderQuantity?: number) => {
+    try {
+      await apiClient.patch(`/products/${productId}/reorder-points`, {
+        minStock,
+        reorderQuantity,
+      });
+      fetchData(); // refresh to get updated suggestions
+    } catch (err: any) {
+      alert(err.response?.data?.message ?? 'Cập nhật thất bại');
+    }
+  };
+
   const handleAdjust = async () => {
     if (!adjustForm.productId || adjustForm.quantity <= 0) return;
     setAdjusting(true);
@@ -299,6 +311,76 @@ export default function InventoryPage() {
                           <td className="px-4 py-3 text-right font-bold text-red-600">{p.stock}</td>
                           <td className="px-4 py-3 text-right text-gray-500">{p.minStock ?? 0}</td>
                           <td className="px-4 py-3 text-right text-gray-900 dark:text-white">{formatVND(parseFloat(p.price as any))}</td>
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              onClick={() => {
+                                setAdjustForm((f) => ({ ...f, productId: p.id, productName: p.name, type: 'IN' }));
+                                setShowAdjust(true);
+                              }}
+                              className="px-3 py-1 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                            >
+                              Nhập kho
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'reorder' && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Sản phẩm</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Tồn kho</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Điểm tái đặt</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">SL đặt hàng</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Gợi ý đặt</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                      {reorderSuggestions.length === 0 ? (
+                        <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-400">{t('inventory.noReorderSuggestions')}</td></tr>
+                      ) : reorderSuggestions.map((p) => (
+                        <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <td className="px-4 py-3">
+                            <div>
+                              <p className="font-medium text-gray-900 dark:text-white">{p.name}</p>
+                              <p className="text-xs text-gray-400">{p.sku}</p>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-right font-medium">{p.stock}</td>
+                          <td className="px-4 py-3 text-right">
+                            <input
+                              type="number"
+                              value={p.minStock ?? 0}
+                              onChange={async (e) => {
+                                const newVal = parseInt(e.target.value) || 0;
+                                await updateReorderPoints(p.id, newVal, p.reorderQuantity);
+                              }}
+                              className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-right text-sm"
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <input
+                              type="number"
+                              value={p.reorderQuantity ?? 0}
+                              onChange={async (e) => {
+                                const newVal = parseInt(e.target.value) || 0;
+                                await updateReorderPoints(p.id, p.minStock, newVal);
+                              }}
+                              className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-right text-sm"
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-right font-bold text-blue-600">
+                            {p.suggestedOrderQuantity > 0 ? p.suggestedOrderQuantity : '—'}
+                          </td>
                           <td className="px-4 py-3 text-center">
                             <button
                               onClick={() => {
