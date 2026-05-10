@@ -1,10 +1,42 @@
 import { db, SyncQueueItem } from './db';
 
+/** Token provider interface — implemented differently per platform */
+export interface TokenProvider {
+  getToken(): Promise<string | null>;
+  getTenantId(): Promise<string | null>;
+  getDeviceId(): Promise<string>;
+}
+
+/** Default web implementation using localStorage */
+export class LocalStorageTokenProvider implements TokenProvider {
+  async getToken(): Promise<string | null> {
+    if (typeof localStorage === 'undefined') return null;
+    return localStorage.getItem('access_token');
+  }
+
+  async getTenantId(): Promise<string | null> {
+    if (typeof localStorage === 'undefined') return null;
+    return localStorage.getItem('tenant_id');
+  }
+
+  async getDeviceId(): Promise<string> {
+    if (typeof localStorage === 'undefined') return 'server';
+    let id = localStorage.getItem('device_id');
+    if (!id) {
+      id = `device_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem('device_id', id);
+    }
+    return id;
+  }
+}
+
 export class SyncService {
   private apiBase: string;
+  private tokenProvider: TokenProvider;
 
-  constructor(apiBase: string) {
+  constructor(apiBase: string, tokenProvider?: TokenProvider) {
     this.apiBase = apiBase;
+    this.tokenProvider = tokenProvider ?? new LocalStorageTokenProvider();
   }
 
   // ─── Queue operations ────────────────────────────────────────────────────────
@@ -18,7 +50,7 @@ export class SyncService {
   ): Promise<void> {
     const existing = await db.entities.get(entityId);
     const newVersion = (existing?.version ?? 0) + 1;
-    const deviceId = this.getDeviceId();
+    const deviceId = await this.tokenProvider.getDeviceId();
     const vectorClock = { ...(existing?.vectorClock ?? {}), [deviceId]: newVersion };
 
     await db.syncQueue.add({
@@ -49,8 +81,10 @@ export class SyncService {
   }
 
   private async executeSyncItem(item: SyncQueueItem): Promise<void> {
-    const token = this.getToken();
-    const tenantId = this.getTenantId();
+    const token = await this.tokenProvider.getToken();
+    const tenantId = await this.tokenProvider.getTenantId();
+    const deviceId = await this.tokenProvider.getDeviceId();
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -61,7 +95,7 @@ export class SyncService {
       ...item.data,
       _version: item.version,
       _vectorClock: item.vectorClock,
-      _deviceId: this.getDeviceId(),
+      _deviceId: deviceId,
     };
 
     let url = `${this.apiBase}/${item.entity}`;
@@ -98,7 +132,7 @@ export class SyncService {
     const remoteClock = remoteVersion.vectorClock ?? {};
 
     if (this.isNewer(remoteClock, localClock)) {
-      const merged = await this.mergeData(localItem.data, remoteVersion.data);
+      const merged = { ...localItem.data, ...remoteVersion.data, _mergedAt: Date.now() };
       await db.entities.update(localItem.entityId, {
         data: merged,
         version: remoteVersion.version,
@@ -117,61 +151,27 @@ export class SyncService {
     return newer;
   }
 
-  private async mergeData(local: any, remote: any): Promise<any> {
-    return { ...local, ...remote, _mergedAt: Date.now() };
-  }
-
   // ─── Offline cache helpers ───────────────────────────────────────────────────
 
   async syncUsers(users: any[]): Promise<void> {
     await db.users.bulkPut(users.map((u) => ({ ...u, syncedAt: Date.now() })));
   }
-
-  async getOfflineUsers(): Promise<any[]> {
-    return db.users.toArray();
-  }
+  async getOfflineUsers(): Promise<any[]> { return db.users.toArray(); }
 
   async syncProducts(products: any[]): Promise<void> {
     await db.products.bulkPut(products.map((p) => ({ ...p, syncedAt: Date.now() })));
   }
-
-  async getOfflineProducts(): Promise<any[]> {
-    return db.products.toArray();
-  }
+  async getOfflineProducts(): Promise<any[]> { return db.products.toArray(); }
 
   async syncCustomers(customers: any[]): Promise<void> {
     await db.customers.bulkPut(customers.map((c) => ({ ...c, syncedAt: Date.now() })));
   }
-
-  async getOfflineCustomers(): Promise<any[]> {
-    return db.customers.toArray();
-  }
-
-  // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-  private getToken(): string | null {
-    if (typeof localStorage === 'undefined') return null;
-    return localStorage.getItem('access_token');
-  }
-
-  private getTenantId(): string | null {
-    if (typeof localStorage === 'undefined') return null;
-    return localStorage.getItem('tenant_id');
-  }
-
-  private getDeviceId(): string {
-    if (typeof localStorage === 'undefined') return 'server';
-    let id = localStorage.getItem('device_id');
-    if (!id) {
-      id = `device_${Math.random().toString(36).slice(2, 10)}`;
-      localStorage.setItem('device_id', id);
-    }
-    return id;
-  }
+  async getOfflineCustomers(): Promise<any[]> { return db.customers.toArray(); }
 }
 
+/** Default singleton for web (uses localStorage) */
 export const syncService = new SyncService(
   typeof process !== 'undefined'
-    ? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000'
+    ? (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000')
     : 'http://localhost:3000'
 );

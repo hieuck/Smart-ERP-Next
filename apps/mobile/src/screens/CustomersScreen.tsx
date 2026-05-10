@@ -3,8 +3,8 @@ import {
   View, Text, FlatList, TextInput, TouchableOpacity,
   StyleSheet, ActivityIndicator, RefreshControl,
 } from 'react-native';
-
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+import { api, type PaginatedResponse } from '../lib/api';
+import { formatVND } from '@smart-erp/utils';
 
 interface Customer {
   id: string;
@@ -18,13 +18,10 @@ interface Customer {
   loyaltyPoints: string | null;
 }
 
-const formatVND = (v: string | null) =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(parseFloat(v ?? '0'));
-
 const GROUP_LABELS: Record<string, { label: string; color: string }> = {
-  retail: { label: 'Bán lẻ', color: '#6b7280' },
+  retail:    { label: 'Bán lẻ', color: '#6b7280' },
   wholesale: { label: 'Bán sỉ', color: '#2563eb' },
-  vip: { label: 'VIP', color: '#d97706' },
+  vip:       { label: 'VIP',    color: '#d97706' },
 };
 
 export default function CustomersScreen() {
@@ -37,14 +34,9 @@ export default function CustomersScreen() {
 
   const fetchCustomers = useCallback(async (p = 1, s = search, append = false) => {
     try {
-      const token = '';
       const params = new URLSearchParams({ page: p.toString(), limit: '20' });
       if (s) params.set('search', s);
-      const res = await fetch(`${API_BASE}/customers?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) return;
-      const data = await res.json();
+      const data = await api.get<PaginatedResponse<Customer>>(`/customers?${params}`);
       setCustomers((prev) => append ? [...prev, ...data.items] : data.items);
       setHasMore(p < data.totalPages);
     } catch (err) {
@@ -57,18 +49,8 @@ export default function CustomersScreen() {
 
   useEffect(() => { fetchCustomers(1, search); }, []);
 
-  const handleSearch = () => {
-    setPage(1);
-    setLoading(true);
-    fetchCustomers(1, search);
-  };
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setPage(1);
-    fetchCustomers(1, search);
-  };
-
+  const handleSearch = () => { setPage(1); setLoading(true); fetchCustomers(1, search); };
+  const handleRefresh = () => { setRefreshing(true); setPage(1); fetchCustomers(1, search); };
   const handleLoadMore = () => {
     if (!hasMore || loading) return;
     const next = page + 1;
@@ -95,9 +77,7 @@ export default function CustomersScreen() {
             </View>
           )}
         </View>
-        {item.phone && (
-          <Text style={styles.contact}>📞 {item.phone}</Text>
-        )}
+        {item.phone && <Text style={styles.contact}>📞 {item.phone}</Text>}
         <View style={styles.stats}>
           <View style={styles.stat}>
             <Text style={styles.statLabel}>Tổng mua</Text>
@@ -105,9 +85,7 @@ export default function CustomersScreen() {
           </View>
           <View style={styles.stat}>
             <Text style={styles.statLabel}>Công nợ</Text>
-            <Text style={[styles.statValue, hasDebt && styles.debtValue]}>
-              {formatVND(item.currentDebt)}
-            </Text>
+            <Text style={[styles.statValue, hasDebt && styles.debtValue]}>{formatVND(item.currentDebt)}</Text>
           </View>
           {item.loyaltyPoints && parseFloat(item.loyaltyPoints) > 0 && (
             <View style={styles.stat}>
@@ -153,14 +131,8 @@ export default function CustomersScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#3b82f6" />}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
-          ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Không có khách hàng nào</Text>
-            </View>
-          }
-          ListFooterComponent={
-            hasMore ? <ActivityIndicator style={{ marginVertical: 16 }} color="#3b82f6" /> : null
-          }
+          ListEmptyComponent={<View style={styles.center}><Text style={styles.emptyText}>Không có khách hàng nào</Text></View>}
+          ListFooterComponent={hasMore ? <ActivityIndicator style={{ marginVertical: 16 }} color="#3b82f6" /> : null}
         />
       )}
     </View>
@@ -169,62 +141,19 @@ export default function CustomersScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
-  searchRow: {
-    flexDirection: 'row',
-    gap: 8,
-    padding: 12,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    fontSize: 14,
-    color: '#111827',
-    backgroundColor: '#f9fafb',
-  },
-  searchBtn: {
-    backgroundColor: '#3b82f6',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
-  },
+  searchRow: { flexDirection: 'row', gap: 8, padding: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
+  searchInput: { flex: 1, height: 40, borderWidth: 1, borderColor: '#d1d5db', borderRadius: 10, paddingHorizontal: 12, fontSize: 14, color: '#111827', backgroundColor: '#f9fafb' },
+  searchBtn: { backgroundColor: '#3b82f6', borderRadius: 10, paddingHorizontal: 16, justifyContent: 'center' },
   searchBtnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
   list: { padding: 12, gap: 8 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
+  card: { backgroundColor: '#fff', borderRadius: 12, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 },
   cardTop: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#dbeafe',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#dbeafe', alignItems: 'center', justifyContent: 'center' },
   avatarText: { fontSize: 16, fontWeight: '700', color: '#2563eb' },
   cardInfo: { flex: 1 },
   name: { fontSize: 14, fontWeight: '600', color: '#111827' },
   code: { fontSize: 11, color: '#9ca3af', fontFamily: 'monospace', marginTop: 1 },
-  groupBadge: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
+  groupBadge: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 },
   groupText: { fontSize: 11, fontWeight: '600' },
   contact: { fontSize: 13, color: '#6b7280', marginBottom: 10 },
   stats: { flexDirection: 'row', gap: 16 },

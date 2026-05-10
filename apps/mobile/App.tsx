@@ -6,7 +6,8 @@ import {
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import * as SecureStore from 'expo-secure-store';
 import { initI18n } from '@smart-erp/i18n';
-import { syncService } from '@smart-erp/sync';
+import { SyncService } from '@smart-erp/sync';
+import { SecureStoreTokenProvider } from './src/lib/secureStoreTokenProvider';
 import LoginScreen from './src/screens/LoginScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
 import ProductsScreen from './src/screens/ProductsScreen';
@@ -14,6 +15,12 @@ import OrdersScreen from './src/screens/OrdersScreen';
 import CustomersScreen from './src/screens/CustomersScreen';
 
 initI18n('vi');
+
+// Mobile sync service uses SecureStore instead of localStorage
+const mobileSyncService = new SyncService(
+  process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000',
+  new SecureStoreTokenProvider()
+);
 
 type Screen = 'dashboard' | 'products' | 'orders' | 'customers';
 
@@ -37,7 +44,7 @@ export default function App() {
           if (userStr) {
             setUser(JSON.parse(userStr));
             setAuthState('authenticated');
-            syncService.processQueue().catch(console.error);
+            mobileSyncService.processQueue().catch(console.error);
           } else {
             setAuthState('unauthenticated');
           }
@@ -51,7 +58,7 @@ export default function App() {
   const handleLoginSuccess = (loggedInUser: any, _token: string) => {
     setUser(loggedInUser);
     setAuthState('authenticated');
-    syncService.processQueue().catch(console.error);
+    mobileSyncService.processQueue().catch(console.error);
   };
 
   const handleLogout = async () => {

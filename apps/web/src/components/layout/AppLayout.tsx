@@ -7,7 +7,7 @@ import {
   LayoutDashboard, ShoppingCart, Package, Warehouse,
   Users, Truck, ClipboardList, BarChart3, Settings,
   LogOut, Wifi, WifiOff, ChevronLeft, ChevronRight,
-  Building2, Menu, Sun, Moon, ShoppingBag,
+  Building2, Menu, Sun, Moon, ShoppingBag, CreditCard,
 } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
 
@@ -62,6 +62,8 @@ export default function AppLayout({
     { key: 'customers', label: t('nav.customers'), icon: <Users className="w-5 h-5" />,          href: '/customers' },
     { key: 'suppliers', label: t('nav.suppliers'), icon: <Truck className="w-5 h-5" />,          href: '/suppliers' },
     { key: 'purchasing',label: t('nav.purchasing'),icon: <ClipboardList className="w-5 h-5" />,  href: '/purchasing' },
+    { key: 'payments',  label: t('nav.payments'),  icon: <CreditCard className="w-5 h-5" />,     href: '/payments' },
+    { key: 'warehouses',label: t('nav.warehouses'),icon: <Warehouse className="w-5 h-5" />,      href: '/warehouses' },
     { key: 'reports',   label: t('nav.reports'),   icon: <BarChart3 className="w-5 h-5" />,      href: '/reports' },
     { key: 'settings',  label: t('nav.settings'),  icon: <Settings className="w-5 h-5" />,       href: '/settings' },
   ];

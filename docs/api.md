@@ -167,6 +167,47 @@ Response: `{ "access_token": "...", "user": { "id", "email", "name", "tenantId",
 
 ---
 
+## Payments `/payments`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/payments` | List (page, limit, type: receipt\|payment, method, from, to) |
+| GET | `/payments/summary` | Summary stats (receipt total, payment total, balance) |
+| GET | `/payments/:id` | Get by ID |
+| POST | `/payments` | Create receipt or payment |
+
+**Create body:**
+```json
+{
+  "type": "receipt",
+  "partyType": "customer",
+  "partyName": "Nguyễn Văn A",
+  "amount": 1500000,
+  "method": "cash",
+  "notes": "Thu tiền đơn DH-000001"
+}
+```
+
+---
+
+## Warehouses `/warehouses`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/warehouses` | List all active warehouses |
+| GET | `/warehouses/default` | Get default warehouse |
+| GET | `/warehouses/:id` | Get by ID |
+| POST | `/warehouses` | Create |
+| PATCH | `/warehouses/:id` | Update (set isDefault=true to change default) |
+| DELETE | `/warehouses/:id` | Delete |
+
+**Create body:**
+```json
+{ "code": "KHO-001", "name": "Kho chính", "address": "123 ABC", "isDefault": true }
+```
+
+---
+
 ## Users `/users`
 
 | Method | Path | Description |

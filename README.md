@@ -45,9 +45,9 @@
 ```
 smart-erp-next/
 ├── apps/
-│   ├── api/          # NestJS backend — 12 modules
-│   ├── web/          # Next.js 15 — 11 pages
-│   ├── mobile/       # Expo 52 — 4 screens + auth
+│   ├── api/          # NestJS backend — 15 modules
+│   ├── web/          # Next.js 15 — 27 pages
+│   ├── mobile/       # Expo 52 — 5 screens + auth
 │   ├── desktop/      # Tauri 2 — wraps web app
 │   └── docs/         # Docusaurus 3 — vi/en
 ├── packages/
@@ -78,6 +78,8 @@ smart-erp-next/
 | Khách hàng | ✅ | ✅ | ✅ |
 | Nhà cung cấp | ✅ | ✅ | 🔜 |
 | Mua hàng | ✅ | ✅ | 🔜 |
+| Thu chi | ✅ | ✅ | 🔜 |
+| Quản lý kho | ✅ | ✅ | 🔜 |
 | Báo cáo | ✅ | ✅ | 🔜 |
 | Cài đặt | — | ✅ | 🔜 |
 
@@ -200,6 +202,8 @@ pnpm --filter @smart-erp/docs start     # Docs: http://localhost:3002
 | `/purchasing` | Đơn nhập hàng |
 | `/purchasing/create` | Tạo đơn nhập |
 | `/purchasing/[id]` | Chi tiết + nhận hàng |
+| `/payments` | Thu chi |
+| `/warehouses` | Quản lý kho |
 | `/reports` | Báo cáo |
 | `/settings` | Cài đặt |
 

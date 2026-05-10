@@ -80,6 +80,8 @@
     "customers": "Khách hàng",
     "suppliers": "Nhà cung cấp",
     "purchasing": "Mua hàng",
+    "payments": "Thu chi",
+    "warehouses": "Quản lý kho",
     "reports": "Báo cáo",
     "accounting": "Kế toán",
     "crm": "CRM",
@@ -244,6 +246,36 @@
     "receivedQty": "SL đã nhận",
     "unitCost": "Giá nhập",
     "searchPlaceholder": "Tìm theo mã đơn, nhà cung cấp..."
+  },
+
+  "payments": {
+    "title": "Thu chi",
+    "receipt": "Phiếu thu",
+    "payment": "Phiếu chi",
+    "createReceipt": "Tạo phiếu thu",
+    "createPayment": "Tạo phiếu chi",
+    "code": "Mã phiếu",
+    "type": "Loại",
+    "party": "Đối tượng",
+    "amount": "Số tiền",
+    "method": "Phương thức",
+    "totalReceipt": "Tổng thu",
+    "totalPayment": "Tổng chi",
+    "balance": "Số dư",
+    "notes": "Ghi chú",
+    "paidAt": "Ngày thanh toán",
+    "searchPlaceholder": "Tìm theo mã phiếu, đối tượng..."
+  },
+
+  "warehouses": {
+    "title": "Quản lý kho",
+    "add": "Thêm kho",
+    "code": "Mã kho",
+    "name": "Tên kho",
+    "address": "Địa chỉ",
+    "manager": "Quản lý kho",
+    "isDefault": "Kho mặc định",
+    "searchPlaceholder": "Tìm theo tên, mã kho..."
   },
 
   "reports": {

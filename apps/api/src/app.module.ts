@@ -14,6 +14,8 @@ import { OrdersModule } from './orders/orders.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { PurchasingModule } from './purchasing/purchasing.module';
+import { PaymentsModule } from './payments/payments.module';
+import { WarehousesModule } from './warehouses/warehouses.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { db } from '@smart-erp/database';
 import { DRIZZLE } from './common/drizzle.decorator';
@@ -33,6 +35,8 @@ import { DRIZZLE } from './common/drizzle.decorator';
     SuppliersModule,
     InventoryModule,
     PurchasingModule,
+    PaymentsModule,
+    WarehousesModule,
   ],
   controllers: [AppController],
   providers: [

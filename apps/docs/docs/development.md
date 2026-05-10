@@ -92,6 +92,8 @@ pnpm --filter @smart-erp/docs start     # Docs: http://localhost:3002
 | Suppliers | `/suppliers` | CRUD |
 | Orders | `/orders` | Tạo đơn, state machine, payment |
 | Purchasing | `/purchasing` | Đơn nhập, nhận hàng từng phần |
+| Payments | `/payments` | Phiếu thu/chi, summary |
+| Warehouses | `/warehouses` | CRUD, default warehouse |
 | Inventory | `/inventory` | Điều chỉnh kho, lịch sử, low-stock |
 | Reports | `/reports` | Revenue, profit, top-products, inventory, customers |
 | Insights | `/insights` | Dashboard analytics |
@@ -124,6 +126,8 @@ pnpm --filter @smart-erp/docs start     # Docs: http://localhost:3002
 | `/purchasing` | Đơn nhập hàng |
 | `/purchasing/create` | Tạo đơn nhập |
 | `/purchasing/[id]` | Chi tiết + nhận hàng |
+| `/payments` | Thu chi (phiếu thu/chi) |
+| `/warehouses` | Quản lý kho |
 | `/reports` | Báo cáo (doanh thu, lợi nhuận, tồn kho) |
 | `/settings` | Cài đặt hệ thống |
 

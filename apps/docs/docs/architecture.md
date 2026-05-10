@@ -1,78 +1,100 @@
 # Kiến trúc hệ thống
 
-Smart ERP Next được xây dựng theo kiến trúc monorepo, chia sẻ code giữa các nền tảng.
+Smart ERP Next được xây dựng theo kiến trúc monorepo, chia sẻ code giữa tất cả các nền tảng.
 
 ## Cấu trúc thư mục
 
 ```
 smart-erp-next/
 ├── apps/
-│   ├── api/          # Backend NestJS
-│   ├── web/          # Web app Next.js 15
-│   ├── mobile/       # Mobile app Expo 52
+│   ├── api/          # Backend NestJS — 15 modules
+│   ├── web/          # Web app Next.js 15 — 26 pages
+│   ├── mobile/       # Mobile app Expo 52 — 5 screens
 │   ├── desktop/      # Desktop app Tauri 2
-│   └── docs/         # Docusaurus 3
+│   └── docs/         # Docusaurus 3 (vi/en)
 ├── packages/
-│   ├── database/     # Drizzle ORM schemas
-│   ├── i18n/         # i18next translations (vi/en)
+│   ├── database/     # Drizzle ORM schemas + SQL migrations
+│   ├── i18n/         # i18next vi/en (200+ keys)
 │   ├── types/        # Shared TypeScript types
 │   ├── validation/   # Zod schemas
-│   ├── sync/         # Offline sync + CRDT
-│   ├── ui/           # Shared UI components
+│   ├── sync/         # Offline sync + CRDT (Dexie)
+│   ├── ui/           # Shared React components (11 components)
+│   ├── hooks/        # Shared React hooks (6 hooks)
+│   ├── utils/        # Pure TS utilities (no React dep)
 │   ├── config-eslint/
 │   └── config-typescript/
-└── docs/             # API docs
+└── docs/             # API reference
 ```
 
 ## Công nghệ
 
 | Thành phần | Công nghệ |
 |-----------|-----------|
-| Monorepo | pnpm + Turborepo |
-| Backend | NestJS, JWT, bcrypt, Socket.IO |
-| Database | PostgreSQL, Drizzle ORM |
-| Web | Next.js 15, Tailwind CSS, React 19 |
-| Mobile | Expo 52, React Native 0.76 |
+| Monorepo | pnpm 9 + Turborepo 2 |
+| Backend | NestJS 10, JWT, bcrypt, Socket.IO 4 |
+| Database | PostgreSQL 14+, Drizzle ORM |
+| Web | Next.js 15, React 19, Tailwind CSS 3 |
+| Mobile | Expo 52, React Native 0.76, SecureStore |
 | Desktop | Tauri 2 (Rust + WebView) |
 | i18n | i18next, react-i18next |
 | Validation | Zod + class-validator |
 | Offline | Dexie (IndexedDB) + CRDT vector clocks |
+| Real-time | Socket.IO 4 |
 
-## Database Schema
+## Database Schema (12 tables)
 
 ```
 tenants
-  └── users (role: admin/manager/user/accountant/warehouse/sales)
-  └── products
-        └── product_categories (hierarchical)
-        └── inventory_transactions
-  └── customers (groups: retail/wholesale/vip)
-  └── suppliers
-  └── warehouses
-  └── orders
-        └── order_items (snapshot tên/SKU lúc bán)
-  └── purchase_orders
-        └── purchase_order_items
-  └── payments (phiếu thu/chi)
+  ├── users (roles: admin/manager/accountant/warehouse/sales/user)
+  ├── products
+  │     ├── product_categories (hierarchical, self-referencing)
+  │     └── inventory_transactions (IN/OUT/ADJUSTMENT)
+  ├── customers (groups: retail/wholesale/vip)
+  ├── suppliers
+  ├── warehouses (isDefault flag)
+  ├── orders
+  │     └── order_items (snapshot productName/SKU at sale time)
+  ├── purchase_orders
+  │     └── purchase_order_items
+  └── payments (type: receipt/payment)
 ```
+
+## API Modules (15)
+
+| Module | Endpoint | Mô tả |
+|--------|----------|-------|
+| Auth | `/auth` | Login, register, JWT |
+| Users | `/users` | CRUD, tenant-scoped, stats |
+| Tenants | `/tenants` | Multi-tenant management |
+| Products | `/products` | CRUD, stock adjust, transactions |
+| Customers | `/customers` | CRUD, debt tracking |
+| Suppliers | `/suppliers` | CRUD |
+| Warehouses | `/warehouses` | CRUD, default warehouse |
+| Orders | `/orders` | Create, state machine, payment |
+| Purchasing | `/purchasing` | PO create, confirm, receive |
+| Inventory | `/inventory` | Adjust, history, low-stock |
+| Payments | `/payments` | Receipt/payment, summary |
+| Reports | `/reports` | Revenue, profit, top-products |
+| Insights | `/insights` | Dashboard analytics |
+| Notifications | WS `/notifications` | Real-time events |
 
 ## Luồng dữ liệu
 
 ```
 Client (web/mobile/desktop)
   │
-  ├── Online: HTTP/WebSocket → NestJS API → PostgreSQL
+  ├── Online:  HTTP/WebSocket → NestJS API → PostgreSQL
   │
-  └── Offline: IndexedDB (Dexie) → Sync Queue → processQueue() khi online
-                                              → CRDT conflict resolution
+  └── Offline: IndexedDB (Dexie) → SyncQueue → processQueue() khi online
+                                             → CRDT conflict resolution (vector clocks)
 ```
 
-## Multi-tenant
+## Multi-tenant Security
 
 Mỗi request được inject `tenantId` qua:
-1. JWT payload (`tenantId` field)
-2. `X-Tenant-ID` header (fallback)
-3. Tất cả queries đều filter theo `tenantId`
+1. **JWT payload** — `req.user.tenantId` (primary, từ login)
+2. **X-Tenant-ID header** — fallback cho external integrations
+3. **Tất cả DB queries** đều filter theo `tenantId` — không bao giờ cross-tenant
 
 ## RBAC (Role-Based Access Control)
 
@@ -80,26 +102,42 @@ Mỗi request được inject `tenantId` qua:
 |------|-------|
 | admin | Toàn quyền |
 | manager | Xem + sửa tất cả, không xóa |
-| accountant | Kế toán, báo cáo |
-| warehouse | Kho hàng, nhập/xuất |
-| sales | Bán hàng, khách hàng |
+| accountant | Kế toán, báo cáo, thu chi |
+| warehouse | Kho hàng, nhập/xuất, mua hàng |
+| sales | Bán hàng, khách hàng, đơn hàng |
 | user | Chỉ xem |
 
 ## Offline-first & CRDT Sync
 
-1. Mọi thao tác được ghi vào `syncQueue` (IndexedDB)
-2. Khi online, `processQueue()` gửi lên server
-3. Conflict (HTTP 409) được giải quyết bằng vector clock
-4. Last-write-wins với merge strategy per entity type
+```
+1. User action → queueOperation(entity, action, data, entityId)
+2. Ghi vào IndexedDB syncQueue với vector clock
+3. processQueue() chạy background khi online
+4. HTTP 409 Conflict → resolveConflict() với last-write-wins
+5. Sau sync thành công → cập nhật entity version
+```
 
-## Real-time (Socket.IO)
+**TokenProvider interface** — abstracted để dùng được trên cả web (localStorage) và mobile (SecureStore):
 
-Events:
-- `user.registered` — Người dùng mới đăng ký
-- `order.created` — Đơn hàng mới
-- `order.status_changed` — Trạng thái đơn thay đổi
-- `stock.low` — Cảnh báo sắp hết hàng
-- `payment.received` — Nhận thanh toán
+```typescript
+interface TokenProvider {
+  getToken(): Promise<string | null>;
+  getTenantId(): Promise<string | null>;
+  getDeviceId(): Promise<string>;
+}
+```
+
+## Real-time Events (Socket.IO)
+
+| Event | Trigger |
+|-------|---------|
+| `user.registered` | Đăng ký tài khoản mới |
+| `order.created` | Tạo đơn hàng mới |
+| `order.status_changed` | Thay đổi trạng thái đơn |
+| `order.payment_received` | Nhận thanh toán |
+| `stock.low` | Tồn kho dưới mức tối thiểu |
+| `stock.adjusted` | Điều chỉnh tồn kho |
+| `system.alert` | Cảnh báo hệ thống |
 
 ## Bản địa hóa (i18n)
 
@@ -107,4 +145,18 @@ Events:
 - Hỗ trợ: `vi`, `en`
 - Package: `@smart-erp/i18n`
 - Namespace: `common` (tất cả modules)
-- Cấu trúc key: `module.key` (ví dụ: `products.title`, `orders.status`)
+- Key pattern: `module.key` (ví dụ: `products.title`, `orders.status`)
+- 200+ keys mỗi ngôn ngữ
+
+## Packages
+
+| Package | Mô tả | Dùng ở |
+|---------|-------|--------|
+| `@smart-erp/database` | Drizzle schemas, migrations | API |
+| `@smart-erp/i18n` | i18next vi/en | Web, Mobile |
+| `@smart-erp/types` | TypeScript types | Tất cả |
+| `@smart-erp/validation` | Zod schemas | Web, API |
+| `@smart-erp/sync` | Offline sync + CRDT | Web, Mobile |
+| `@smart-erp/ui` | React components | Web |
+| `@smart-erp/hooks` | React hooks | Web |
+| `@smart-erp/utils` | Pure TS utilities | Tất cả |

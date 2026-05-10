@@ -80,6 +80,8 @@
     "customers": "Customers",
     "suppliers": "Suppliers",
     "purchasing": "Purchasing",
+    "payments": "Payments",
+    "warehouses": "Warehouses",
     "reports": "Reports",
     "accounting": "Accounting",
     "crm": "CRM",
@@ -244,6 +246,36 @@
     "receivedQty": "Received Qty",
     "unitCost": "Unit Cost",
     "searchPlaceholder": "Search by PO code, supplier..."
+  },
+
+  "payments": {
+    "title": "Payments",
+    "receipt": "Receipt",
+    "payment": "Payment",
+    "createReceipt": "Create Receipt",
+    "createPayment": "Create Payment",
+    "code": "Code",
+    "type": "Type",
+    "party": "Party",
+    "amount": "Amount",
+    "method": "Method",
+    "totalReceipt": "Total Receipts",
+    "totalPayment": "Total Payments",
+    "balance": "Balance",
+    "notes": "Notes",
+    "paidAt": "Paid At",
+    "searchPlaceholder": "Search by code, party..."
+  },
+
+  "warehouses": {
+    "title": "Warehouses",
+    "add": "Add Warehouse",
+    "code": "Code",
+    "name": "Name",
+    "address": "Address",
+    "manager": "Manager",
+    "isDefault": "Default Warehouse",
+    "searchPlaceholder": "Search by name, code..."
   },
 
   "reports": {

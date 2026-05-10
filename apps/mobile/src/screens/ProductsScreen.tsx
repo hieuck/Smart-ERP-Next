@@ -3,8 +3,8 @@ import {
   View, Text, FlatList, TextInput, TouchableOpacity,
   StyleSheet, ActivityIndicator, RefreshControl,
 } from 'react-native';
-
-const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+import { api, type PaginatedResponse } from '../lib/api';
+import { formatVND } from '@smart-erp/utils';
 
 interface Product {
   id: string;
@@ -19,11 +19,6 @@ interface Product {
   isActive: boolean;
 }
 
-const formatVND = (v: string | number) =>
-  new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-    typeof v === 'string' ? parseFloat(v) : v
-  );
-
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,14 +29,9 @@ export default function ProductsScreen() {
 
   const fetchProducts = useCallback(async (p = 1, s = search, append = false) => {
     try {
-      const token = ''; // TODO: get from SecureStore
       const params = new URLSearchParams({ page: p.toString(), limit: '20' });
       if (s) params.set('search', s);
-      const res = await fetch(`${API_BASE}/products?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) return;
-      const data = await res.json();
+      const data = await api.get<PaginatedResponse<Product>>(`/products?${params}`);
       setProducts((prev) => append ? [...prev, ...data.items] : data.items);
       setHasMore(p < data.totalPages);
     } catch (err) {
@@ -54,18 +44,8 @@ export default function ProductsScreen() {
 
   useEffect(() => { fetchProducts(1, search); }, []);
 
-  const handleSearch = () => {
-    setPage(1);
-    setLoading(true);
-    fetchProducts(1, search);
-  };
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setPage(1);
-    fetchProducts(1, search);
-  };
-
+  const handleSearch = () => { setPage(1); setLoading(true); fetchProducts(1, search); };
+  const handleRefresh = () => { setRefreshing(true); setPage(1); fetchProducts(1, search); };
   const handleLoadMore = () => {
     if (!hasMore || loading) return;
     const next = page + 1;
@@ -100,7 +80,6 @@ export default function ProductsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Search */}
       <View style={styles.searchRow}>
         <TextInput
           style={styles.searchInput}
@@ -130,14 +109,8 @@ export default function ProductsScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#3b82f6" />}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
-          ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Không có sản phẩm nào</Text>
-            </View>
-          }
-          ListFooterComponent={
-            hasMore ? <ActivityIndicator style={{ marginVertical: 16 }} color="#3b82f6" /> : null
-          }
+          ListEmptyComponent={<View style={styles.center}><Text style={styles.emptyText}>Không có sản phẩm nào</Text></View>}
+          ListFooterComponent={hasMore ? <ActivityIndicator style={{ marginVertical: 16 }} color="#3b82f6" /> : null}
         />
       )}
     </View>
@@ -146,43 +119,12 @@ export default function ProductsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
-  searchRow: {
-    flexDirection: 'row',
-    gap: 8,
-    padding: 12,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    fontSize: 14,
-    color: '#111827',
-    backgroundColor: '#f9fafb',
-  },
-  searchBtn: {
-    backgroundColor: '#3b82f6',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
-  },
+  searchRow: { flexDirection: 'row', gap: 8, padding: 12, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
+  searchInput: { flex: 1, height: 40, borderWidth: 1, borderColor: '#d1d5db', borderRadius: 10, paddingHorizontal: 12, fontSize: 14, color: '#111827', backgroundColor: '#f9fafb' },
+  searchBtn: { backgroundColor: '#3b82f6', borderRadius: 10, paddingHorizontal: 16, justifyContent: 'center' },
   searchBtnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
   list: { padding: 12, gap: 8 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
+  card: { backgroundColor: '#fff', borderRadius: 12, padding: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   cardInfo: { flex: 1, marginRight: 12 },
   cardRight: { alignItems: 'flex-end' },
@@ -191,14 +133,7 @@ const styles = StyleSheet.create({
   price: { fontSize: 15, fontWeight: '700', color: '#3b82f6' },
   stock: { fontSize: 12, color: '#6b7280', marginTop: 2 },
   stockLow: { color: '#ef4444', fontWeight: '600' },
-  tag: {
-    marginTop: 8,
-    alignSelf: 'flex-start',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
+  tag: { marginTop: 8, alignSelf: 'flex-start', backgroundColor: '#f3f4f6', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 },
   tagText: { fontSize: 11, color: '#6b7280' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 48 },
   loadingText: { marginTop: 8, color: '#9ca3af', fontSize: 14 },
