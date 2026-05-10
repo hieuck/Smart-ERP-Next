@@ -34,7 +34,7 @@ export default function ReorderPointsScreen() {
       const res = await apiClient.get('/inventory/reorder-suggestions');
       setSuggestions(res.data);
     } catch (err: any) {
-      Alert.alert('Lỗi', err.response?.data?.message || 'Không thể tải gợi ý');
+      Alert.alert(t('common.error'), err.response?.data?.message || t('inventory.fetchSuggestionsError'));
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function ReorderPointsScreen() {
       });
       await fetchSuggestions(); // refresh list
     } catch (err: any) {
-      Alert.alert('Lỗi', err.response?.data?.message || 'Cập nhật thất bại');
+      Alert.alert(t('common.error'), err.response?.data?.message || t('inventory.updateFailed'));
     } finally {
       setUpdating(null);
     }
