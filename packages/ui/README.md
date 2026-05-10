@@ -1,16 +1,16 @@
 # @smart-erp/ui - Shared UI Components
 
-## TŠĽēng quan
+## Tổng quan
 
-Package UI d√Ļng chung cho tŠļ•t cŠļ£ c√°c nŠĽĀn tŠļ£ng (Web, Desktop, Mobile), ńĎ∆įŠĽ£c x√Ęy dŠĽĪng vŠĽõi React, TypeScript v√† Tailwind CSS (hoŠļ∑c CSS variables).
+Package UI dùng chung cho tất cả các nền tảng (Web, Desktop, Mobile), được xây dựng với React, TypeScript và Tailwind CSS (hoặc CSS variables).
 
-## T√≠nh nńÉng
+## Tính năng
 
-- **Button**: HŠĽó trŠĽ£ nhiŠĽĀu variants (default, destructive, outline, secondary, ghost, link) v√† sizes
-- **ThemeProvider**: ChŠĽß ńĎŠĽĀ s√°ng/tŠĽĎi/hŠĽá thŠĽĎng
-- **cn utility**: HŠĽ£p nhŠļ•t class names vŠĽõi Tailwind merge
+- **Button**: Hỗ trợ nhiều variants (default, destructive, outline, secondary, ghost, link) và sizes
+- **ThemeProvider**: Chủ đề sáng/tối/hệ thống
+- **cn utility**: Hợp nhất class names với Tailwind merge
 
-## SŠĽ≠ dŠĽ•ng
+## Sử dụng
 
 ```tsx
 import { Button, ThemeProvider, useTheme } from '@smart-erp/ui';
@@ -35,11 +35,11 @@ function MyComponent() {
 
 ## Encoding
 
-TŠļ•t cŠļ£ file ńĎŠĽĀu l∆įu vŠĽõi **UTF-8 kh√īng BOM** ńĎŠĽÉ hŠĽó trŠĽ£ tiŠļŅng ViŠĽát trong comments v√† chuŠĽói.
+Tất cả file đều lưu với **UTF-8 không BOM** để hỗ trợ tiếng Việt trong comments và chuỗi.
 
-## T√≠ch hŠĽ£p v√†o c√°c app
+## Tích hợp vào các app
 
-Th√™m v√†o `package.json` cŠĽßa tŠĽęng app:
+Thêm vào `package.json` của từng app:
 
 ```json
 "dependencies": {
