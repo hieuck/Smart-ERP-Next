@@ -1,49 +1,53 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor để thêm token
+// Attach JWT token to every request
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (typeof localStorage !== "undefined") {
+    const token = localStorage.getItem("access_token");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Response interceptor để xử lý lỗi auth
+// Handle 401 — redirect to login
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
-// Auth API
+// ── Auth ─────────────────────────────────────────────────────────────────────
 export const authApi = {
   login: (email: string, password: string) =>
-    apiClient.post('/auth/login', { email, password }),
-  register: (data: { email: string; password: string; name?: string; tenantId?: string }) =>
-    apiClient.post('/auth/register', data),
+    apiClient.post("/auth/login", { email, password }),
+  register: (data: {
+    email: string;
+    password: string;
+    name?: string;
+    tenantId?: string;
+  }) => apiClient.post("/auth/register", data),
 };
 
-// Users API
+// ── Users ─────────────────────────────────────────────────────────────────────
 export const usersApi = {
-  getAll: () => apiClient.get('/users'),
+  getAll: (search?: string) =>
+    apiClient.get("/users", { params: search ? { search } : undefined }),
+  getStats: () => apiClient.get("/users/stats"),
   getOne: (id: string) => apiClient.get(`/users/${id}`),
-  create: (data: any) => apiClient.post('/users', data),
+  create: (data: any) => apiClient.post("/users", data),
   update: (id: string, data: any) => apiClient.patch(`/users/${id}`, data),
   delete: (id: string) => apiClient.delete(`/users/${id}`),
 };

@@ -17,6 +17,7 @@ export const products = pgTable(
     cost: numeric('cost', { precision: 18, scale: 2 }).default('0'),
     stock: integer('stock').notNull().default(0),
     minStock: integer('min_stock').default(0),
+    reorderQuantity: integer('reorder_quantity').default(0),
     isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
