@@ -50,8 +50,9 @@ export default function InventoryPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [activeTab, setActiveTab] = useState<'transactions' | 'lowstock' | 'reorder'>('transactions');
+  const [activeTab, setActiveTab] = useState<'transactions' | 'lowstock' | 'reorder' | 'replenishment'>('transactions');
   const [reorderSuggestions, setReorderSuggestions] = useState<any[]>([]);
+  const [replenishmentSuggestions, setReplenishmentSuggestions] = useState<any[]>([]);
 
   // Adjust modal
   const [showAdjust, setShowAdjust] = useState(false);
@@ -70,11 +71,12 @@ export default function InventoryPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [summaryRes, txRes, lowRes, reorderRes] = await Promise.allSettled([
+      const [summaryRes, txRes, lowRes, reorderRes, replenishRes] = await Promise.allSettled([
         apiClient.get('/inventory/summary'),
         apiClient.get('/inventory/transactions', { params: { page, limit: 30 } }),
         apiClient.get('/inventory/low-stock'),
         apiClient.get('/inventory/reorder-suggestions'),
+        apiClient.get('/inventory/replenishment-suggestions'),
       ]);
       if (summaryRes.status === 'fulfilled') setSummary(summaryRes.value.data);
       if (txRes.status === 'fulfilled') {
@@ -84,6 +86,7 @@ export default function InventoryPage() {
       }
       if (lowRes.status === 'fulfilled') setLowStockItems(lowRes.value.data ?? []);
       if (reorderRes.status === 'fulfilled') setReorderSuggestions(reorderRes.value.data);
+      if (replenishRes.status === 'fulfilled') setReplenishmentSuggestions(replenishRes.value.data);
     } finally {
       setLoading(false);
     }
@@ -193,6 +196,7 @@ export default function InventoryPage() {
             { key: 'transactions' as const, label: `Lịch sử (${total})` },
             { key: 'lowstock' as const, label: `Sắp hết (${lowStockItems.length})` },
             { key: 'reorder' as const, label: `Điểm tái đặt (${reorderSuggestions.length})` },
+            { key: 'replenishment' as const, label: `Gợi ý AI (${replenishmentSuggestions.length})` },
           ].map((tab) => (
             <button
               key={tab.key}
