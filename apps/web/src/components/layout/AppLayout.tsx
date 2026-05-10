@@ -202,6 +202,12 @@ export default function AppLayout({
       icon: <BarChart3 className="w-5 h-5" />,
       href: "/admin/benchmarks",
     },
+    {
+      key: "performance",
+      label: "Performance",
+      icon: <TrendingUp className="w-5 h-5" />,
+      href: "/admin/performance",
+    },
   ];
 
   const activeKey = navItems.find(

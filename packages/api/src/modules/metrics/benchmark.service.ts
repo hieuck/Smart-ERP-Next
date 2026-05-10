@@ -49,4 +49,30 @@ export class BenchmarkService {
 
     return { stats: results, recentEvents };
   }
+
+  async getTimeseries(tenantId: string, hours = 24, intervalSeconds = 3600) {
+    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+    const bucket = sql`date_trunc('hour', ${syncBenchmarks.createdAt})`; // customizable with intervalSeconds
+
+    const results = await this.db
+      .select({
+        time: bucket,
+        endpoint: syncBenchmarks.endpoint,
+        p95: sql<number>`percentile_cont(0.95) WITHIN GROUP (ORDER BY ${syncBenchmarks.durationMs})`,
+        p99: sql<number>`percentile_cont(0.99) WITHIN GROUP (ORDER BY ${syncBenchmarks.durationMs})`,
+        avg: sql<number>`avg(${syncBenchmarks.durationMs})`,
+        count: sql<number>`count(*)`,
+      })
+      .from(syncBenchmarks)
+      .where(
+        and(
+          eq(syncBenchmarks.tenantId, tenantId),
+          sql`${syncBenchmarks.createdAt} >= ${cutoff}`,
+        ),
+      )
+      .groupBy(sql`bucket`, syncBenchmarks.endpoint)
+      .orderBy(sql`bucket`);
+
+    return results;
+  }
 }

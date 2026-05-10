@@ -11,4 +11,10 @@ export class BenchmarksController {
     const hoursNum = hours ? parseInt(hours, 10) : 24;
     return this.benchmarkService.getStats(req.user.tenantId, hoursNum);
   }
+
+  @Get('sync/timeseries')
+  async getSyncTimeseries(@Req() req: RequestWithUser, @Query('hours') hours?: string) {
+    const hoursNum = hours ? parseInt(hours, 10) : 24;
+    return this.benchmarkService.getTimeseries(req.user.tenantId, hoursNum);
+  }
 }
