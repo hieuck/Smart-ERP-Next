@@ -84,20 +84,20 @@ export default function DashboardScreen({ user }: DashboardScreenProps) {
           </Text>
         </View>
         <View>
-          <Text style={styles.welcomeText}>Xin chào,</Text>
+          <Text style={styles.welcomeText}>{t('dashboard.welcome')}</Text>
           <Text style={styles.userName} numberOfLines={1}>{user?.name ?? user?.email}</Text>
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Tổng quan hôm nay</Text>
+      <Text style={styles.sectionTitle}>{t('dashboard.sectionTitle')}</Text>
 
       <View style={styles.statsGrid}>
         {[
-          { label: 'Doanh thu', value: formatVND(stats.todayRevenue), color: '#3b82f6' },
-          { label: 'Đơn hàng', value: stats.todayOrders.toString(), color: '#10b981' },
-          { label: 'Khách hàng', value: stats.totalCustomers.toLocaleString('vi-VN'), color: '#8b5cf6' },
+          { label: t('dashboard.todayRevenue'), value: formatVND(stats.todayRevenue), color: '#3b82f6' },
+          { label: t('dashboard.todayOrders'), value: stats.todayOrders.toString(), color: '#10b981' },
+          { label: t('dashboard.newCustomers'), value: stats.totalCustomers.toLocaleString('vi-VN'), color: '#8b5cf6' },
           {
-            label: 'Sắp hết hàng',
+            label: t('dashboard.lowStock'),
             value: stats.lowStockCount.toString(),
             color: stats.lowStockCount > 0 ? '#ef4444' : '#10b981',
             danger: stats.lowStockCount > 0,
@@ -112,7 +112,7 @@ export default function DashboardScreen({ user }: DashboardScreenProps) {
 
       {stats.insights.length > 0 && (
         <>
-          <Text style={styles.sectionTitle}>Nhận xét</Text>
+          <Text style={styles.sectionTitle}>{t('dashboard.insights')}</Text>
           <View style={styles.insightsContainer}>
             {stats.insights.map((insight, i) => (
               <View key={i} style={[
@@ -129,7 +129,7 @@ export default function DashboardScreen({ user }: DashboardScreenProps) {
 
       {stats.recentOrders.length > 0 && (
         <>
-          <Text style={styles.sectionTitle}>Đơn hàng gần đây</Text>
+          <Text style={styles.sectionTitle}>{t('dashboard.recentOrders')}</Text>
           <View style={styles.ordersContainer}>
             {stats.recentOrders.map((order) => (
               <View key={order.id} style={styles.orderRow}>

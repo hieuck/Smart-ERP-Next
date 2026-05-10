@@ -114,7 +114,10 @@
     "customer": "Customer",
     "total": "Total",
     "status": "Status",
-    "time": "Time"
+    "time": "Time",
+    "welcome": "Welcome,",
+    "sectionTitle": "Today's Overview",
+    "insights": "Insights"
   },
 
   "products": {

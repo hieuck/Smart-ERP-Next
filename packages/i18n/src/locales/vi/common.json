@@ -114,7 +114,10 @@
     "customer": "Khách hàng",
     "total": "Tổng tiền",
     "status": "Trạng thái",
-    "time": "Thời gian"
+    "time": "Thời gian",
+    "welcome": "Xin chào,",
+    "sectionTitle": "Tổng quan hôm nay",
+    "insights": "Nhận xét"
   },
 
   "products": {
