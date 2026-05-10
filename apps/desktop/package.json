@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tauri build",
     "dev": "tauri dev",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "test:e2e": "playwright test"
   },
   "version": "0.1.0",
   "dependencies": {
