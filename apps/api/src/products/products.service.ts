@@ -4,6 +4,7 @@ import { products } from '@smart-erp/database/schema';
 import { eq } from 'drizzle-orm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { QueryProductDto } from './dto/query-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -20,8 +21,42 @@ export class ProductsService {
     return product;
   }
 
-  async findAll() {
-    return await db.select().from(products);
+  async findAll(query: QueryProductDto) {
+    let sql = db.select().from(products);
+    const conditions = [];
+
+    if (query.search) {
+      conditions.push(sql`(name LIKE ${`%${query.search}%`} OR sku LIKE ${`%${query.search}%`})`);
+    }
+    if (query.categoryId) {
+      conditions.push(sql`category_id = ${query.categoryId}`);
+    }
+    if (query.minPrice !== undefined) {
+      conditions.push(sql`price >= ${query.minPrice}`);
+    }
+    if (query.maxPrice !== undefined) {
+      conditions.push(sql`price <= ${query.maxPrice}`);
+    }
+    if (query.isActive !== undefined) {
+      conditions.push(sql`is_active = ${query.isActive}`);
+    }
+
+    if (conditions.length > 0) {
+      sql = sql.where(sql`${conditions.join(' AND ')}`);
+    }
+
+    const total = (await sql)[0] ? (await sql).length : 0;
+
+    const offset = (query.page - 1) * query.limit;
+    const data = await sql.limit(query.limit).offset(offset);
+
+    return {
+      data,
+      total,
+      page: query.page,
+      limit: query.limit,
+      totalPages: Math.ceil(total / query.limit),
+    };
   }
 
   async findOne(id: string) {
