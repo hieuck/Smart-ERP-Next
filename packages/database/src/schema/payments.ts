@@ -38,6 +38,8 @@ export const payments = pgTable(
     codeIdx: index('payments_code_idx').on(table.code),
     referenceIdx: index('payments_reference_idx').on(table.referenceId),
     paidAtIdx: index('payments_paid_at_idx').on(table.paidAt),
+    // Composite index for tenant+status (common in payment filtering)
+    tenantStatusIdx: index('payments_tenant_status_idx').on(table.tenantId, table.status),
   })
 );
 
