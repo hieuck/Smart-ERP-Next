@@ -190,17 +190,45 @@ export class ProductsService {
     return updated;
   }
 
-  async getTransactions(tenantId: string, productId: string) {
-    return db
-      .select()
-      .from(inventoryTransactions)
-      .where(
-        and(
-          eq(inventoryTransactions.tenantId, tenantId),
-          eq(inventoryTransactions.productId, productId),
-        ),
-      )
-      .orderBy(desc(inventoryTransactions.createdAt))
-      .limit(50);
+  async importFromCsv(tenantId: string, buffer: Buffer) {
+    const csv = buffer.toString('utf8');
+    const lines = csv.split('\n').filter(l => l.trim());
+    if (lines.length < 2) throw new BadRequestException('CSV must have headers and data');
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const required = ['sku', 'name', 'price'];
+    for (const f of required) if (!headers.includes(f)) throw new BadRequestException(`Missing column: ${f}`);
+
+    const results: { created: number; updated: number; errors: string[] } = { created: 0, updated: 0, errors: [] };
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim());
+      const row = Object.fromEntries(headers.map((h, idx) => [h, values[idx]]));
+      if (!row.sku) { results.errors.push(`Line ${i+1}: missing sku`); continue; }
+      const exist = await this.findBySku(tenantId, row.sku).catch(() => null);
+      const dto: any = {
+        sku: row.sku,
+        name: row.name,
+        price: parseFloat(row.price),
+        description: row.description,
+        category: row.category,
+        unit: row.unit,
+        cost: row.cost ? parseFloat(row.cost) : undefined,
+        stock: row.stock ? parseInt(row.stock) : 0,
+        minStock: row.minstock ? parseInt(row.minstock) : 0,
+        isActive: row.isactive !== 'false',
+      };
+      try {
+        if (exist) {
+          await this.update(tenantId, exist.id, dto);
+          results.updated++;
+        } else {
+          await this.create(tenantId, dto);
+          results.created++;
+        }
+      } catch (err: any) {
+        results.errors.push(`Line ${i+1}: ${err.message}`);
+      }
+    }
+    return results;
   }
 }
