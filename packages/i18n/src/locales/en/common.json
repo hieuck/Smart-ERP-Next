@@ -508,5 +508,33 @@
     "deleteSuccess": "Currency deleted successfully",
     "confirmDelete": "Are you sure you want to delete this currency?",
     "cannotDeleteBase": "Cannot delete the base currency of the tenant"
+  },
+  "approvals": {
+    "title": "Approvals",
+    "rules": "Approval Rules",
+    "ruleName": "Rule name",
+    "documentType": "Document type",
+    "minAmount": "Min amount",
+    "maxAmount": "Max amount",
+    "priority": "Priority",
+    "createRule": "Create rule",
+    "editRule": "Edit rule",
+    "deleteRule": "Delete rule",
+    "submitForApproval": "Submit for approval",
+    "approve": "Approve",
+    "reject": "Reject",
+    "comments": "Comments",
+    "status": {
+      "pending": "Pending approval",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "not_required": "No approval required"
+    },
+    "notifications": {
+      "submitted": "Document submitted for approval",
+      "approved": "Document approved",
+      "rejected": "Document rejected",
+      "needApproval": "Your approval is needed"
+    }
   }
 }

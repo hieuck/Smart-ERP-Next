@@ -508,5 +508,33 @@
     "deleteSuccess": "Xóa tiền tệ thành công",
     "confirmDelete": "Bạn có chắc chắn muốn xóa tiền tệ này?",
     "cannotDeleteBase": "Không thể xóa tiền tệ cơ sở của tổ chức"
+  },
+  "approvals": {
+    "title": "Phê duyệt",
+    "rules": "Quy tắc phê duyệt",
+    "ruleName": "Tên quy tắc",
+    "documentType": "Loại chứng từ",
+    "minAmount": "Số tiền tối thiểu",
+    "maxAmount": "Số tiền tối đa",
+    "priority": "Ưu tiên",
+    "createRule": "Tạo quy tắc",
+    "editRule": "Sửa quy tắc",
+    "deleteRule": "Xóa quy tắc",
+    "submitForApproval": "Gửi phê duyệt",
+    "approve": "Phê duyệt",
+    "reject": "Từ chối",
+    "comments": "Nhận xét",
+    "status": {
+      "pending": "Chờ phê duyệt",
+      "approved": "Đã phê duyệt",
+      "rejected": "Bị từ chối",
+      "not_required": "Không cần phê duyệt"
+    },
+    "notifications": {
+      "submitted": "Chứng từ đã được gửi phê duyệt",
+      "approved": "Chứng từ đã được phê duyệt",
+      "rejected": "Chứng từ bị từ chối",
+      "needApproval": "Cần phê duyệt của bạn"
+    }
   }
 }
