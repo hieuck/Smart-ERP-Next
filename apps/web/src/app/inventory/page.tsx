@@ -491,7 +491,7 @@ export default function InventoryPage() {
                     type="text"
                     value={adjustForm.productSearch}
                     onChange={(e) => setAdjustForm((f) => ({ ...f, productSearch: e.target.value }))}
-                    placeholder="Tìm sản phẩm..."
+                    placeholder={t('products.searchPlaceholder')}
                     className="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   />
                   {searchResults.length > 0 && (
