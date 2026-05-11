@@ -13,6 +13,7 @@
   "version": "0.1.0",
   "dependencies": {
     "@smart-erp/shared": "workspace:*",
+    "@tauri-apps/plugin-updater": "2.10.1",
     "dexie": "4.4.2",
     "dexie-react-hooks": "4.4.0"
   }
