@@ -120,4 +120,18 @@ Transform tasks into verifiable goals:
 - "Add validation" → "Write tests for invalid inputs, then make them pass"
 - "Fix the bug" → "Write a test that reproduces it, then make it pass"
 
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication.
+## 7. Internationalization (i18n) & Vietnamese Encoding
+
+**CRITICAL FOR VIETNAMESE LANGUAGE SUPPORT**
+
+- **NEVER hardcode Vietnamese text** anywhere in the codebase. Use i18n keys with `t('namespace.key')` in frontend and English in backend (API error responses are in English).
+- **All source files must be UTF-8 without BOM** – Vietnamese characters (ă, â, đ, ê, ô, ơ, ư) will break otherwise.
+- **Use LF line endings** (not CRLF) for all source files. Git normalizes on commit.
+- **i18n keys follow dot notation**: `module.key.subkey` (e.g., `products.searchPlaceholder`).
+- **Add new keys to both** `packages/i18n/src/locales/vi/common.json` **and** `en/common.json` simultaneously.
+- **Backend exception messages:** use English; they may be displayed to frontend via alerts.
+
+**Encoding check (Windows PowerShell):** `Get-Content -Encoding UTF8 <file>`
+**Encoding check (Linux/macOS):** `file -bi <file>`
+
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and no hardcoded Vietnamese strings remain.
