@@ -89,6 +89,15 @@ export class ProductsController {
     );
   }
 
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  async importProducts(
+    @Request() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.productsService.importFromCsv(req.user.tenantId, file.buffer);
+  }
+
   @Get(':id/transactions')
   getTransactions(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.getTransactions(req.user.tenantId, id);
