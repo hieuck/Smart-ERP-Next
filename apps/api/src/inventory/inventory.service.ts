@@ -56,7 +56,7 @@ export class InventoryService {
       .from(products)
       .where(and(eq(products.tenantId, tenantId), eq(products.id, productId)));
 
-    if (!product) throw new ConflictException("Sản phẩm không tồn tại");
+    if (!product) throw new ConflictException("Product not found");
 
     const previousStock = product.stock;
     const newStock =
@@ -64,7 +64,7 @@ export class InventoryService {
 
     if (newStock < 0) {
       throw new ConflictException(
-        `Tồn kho không đủ. Hiện có: ${previousStock}, yêu cầu: ${quantity}`,
+        `Insufficient stock. Available: ${previousStock}, requested: ${quantity}`,
       );
     }
 
