@@ -20,7 +20,7 @@ export class PurchasingService {
 
   async create(tenantId: string, userId: string, dto: CreatePurchaseOrderDto) {
     if (!dto.items?.length) {
-      throw new BadRequestException('Đơn nhập phải có ít nhất 1 sản phẩm');
+      throw new BadRequestException('Purchase order must have at least 1 product');
     }
 
     const productIds = dto.items.map((i) => i.productId);
