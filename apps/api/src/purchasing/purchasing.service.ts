@@ -114,7 +114,7 @@ export class PurchasingService {
       .select()
       .from(purchaseOrders)
       .where(and(eq(purchaseOrders.tenantId, tenantId), eq(purchaseOrders.id, id)));
-    if (!po) throw new NotFoundException('Không tìm thấy đơn nhập hàng');
+    if (!po) throw new NotFoundException('Purchase order not found');
 
     const items = await db
       .select()
@@ -213,7 +213,7 @@ export class PurchasingService {
       .select()
       .from(purchaseOrders)
       .where(and(eq(purchaseOrders.tenantId, tenantId), eq(purchaseOrders.id, id)));
-    if (!po) throw new NotFoundException('Không tìm thấy đơn nhập hàng');
+    if (!po) throw new NotFoundException('Purchase order not found');
     if (po.status === 'received') {
       throw new BadRequestException('Không thể hủy đơn đã nhận hàng');
     }
