@@ -1,0 +1,6 @@
+fastapi==0.115.11
+uvicorn==0.34.2
+pandas==2.2.3
+prophet==1.1.6
+scikit-learn==1.5.2
+numpy==1.26.4
