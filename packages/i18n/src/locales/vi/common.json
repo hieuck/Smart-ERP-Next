@@ -153,6 +153,7 @@
     "deleteSuccess": "Đã xóa sản phẩm",
     "createSuccess": "Đã tạo sản phẩm",
     "updateSuccess": "Đã cập nhật sản phẩm",
+    "translations": "Bản dịch",
     "units": {
       "piece": "Cái",
       "kg": "Kg",
@@ -174,6 +175,9 @@
     "add": "Tạo đơn hàng",
     "createOrder": "Tạo đơn (POS)",
     "code": "Mã đơn",
+    "comments": "Nhận xét",
+    "noComments": "Chưa có nhận xét nào",
+    "commentPlaceholder": "Viết nhận xét...",
     "customer": "Khách hàng",
     "date": "Ngày tạo",
     "total": "Tổng tiền",

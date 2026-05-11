@@ -153,6 +153,7 @@
     "deleteSuccess": "Product deleted",
     "createSuccess": "Product created",
     "updateSuccess": "Product updated",
+    "translations": "Translations",
     "units": {
       "piece": "Piece",
       "kg": "Kg",
@@ -174,6 +175,9 @@
     "add": "Create Order",
     "createOrder": "Create Order (POS)",
     "code": "Order Code",
+    "comments": "Comments",
+    "noComments": "No comments yet",
+    "commentPlaceholder": "Write a comment...",
     "customer": "Customer",
     "date": "Date",
     "total": "Total",

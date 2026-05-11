@@ -19,6 +19,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { PurchasingModule } from './purchasing/purchasing.module';
 import { PaymentsModule } from './payments/payments.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
+import { CommentsModule } from './comments/comments.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { db } from '@smart-erp/database';
 import { DRIZZLE } from './common/drizzle.decorator';
@@ -43,6 +44,7 @@ import { DRIZZLE } from './common/drizzle.decorator';
     PurchasingModule,
     PaymentsModule,
     WarehousesModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [
