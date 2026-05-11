@@ -119,8 +119,13 @@
     "sectionTitle": "Today's Overview",
     "insights": "Insights",
     "recentActivities": "Recent Activities",
-    "noActivities": "No recent activities"
-  },
+<![DSML[    "noActivities": "No recent activities",
+    "cashflowForecast": "Cash Flow Forecast",
+    "forecastPeriod": "Forecast period",
+    "netCashflow": "Net cash flow (30 days)",
+    "avgDailyInflow": "Avg daily inflow",
+    "avgDailyOutflow": "Avg daily outflow"
+  },]]>
 
   "products": {
     "title": "Products",

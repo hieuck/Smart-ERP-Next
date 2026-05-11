@@ -119,7 +119,12 @@
     "sectionTitle": "Tổng quan hôm nay",
     "insights": "Nhận xét",
     "recentActivities": "Hoạt động gần đây",
-    "noActivities": "Chưa có hoạt động nào"
+    "noActivities": "Chưa có hoạt động nào",
+    "cashflowForecast": "Dự báo dòng tiền",
+    "forecastPeriod": "Thời gian dự báo",
+    "netCashflow": "Dòng tiền ròng (30 ngày)",
+    "avgDailyInflow": "TB thu mỗi ngày",
+    "avgDailyOutflow": "TB chi mỗi ngày"
   },
 
   "products": {
