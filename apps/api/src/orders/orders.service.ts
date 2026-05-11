@@ -151,7 +151,7 @@ export class OrdersService {
       .select()
       .from(orders)
       .where(and(eq(orders.tenantId, tenantId), eq(orders.id, id)));
-    if (!order) throw new NotFoundException('Không tìm thấy đơn hàng');
+    if (!order) throw new NotFoundException('Order not found');
 
     const items = await db
       .select()
@@ -174,7 +174,7 @@ export class OrdersService {
       .select()
       .from(orders)
       .where(and(eq(orders.tenantId, tenantId), eq(orders.id, id)));
-    if (!order) throw new NotFoundException('Không tìm thấy đơn hàng');
+    if (!order) throw new NotFoundException('Order not found');
 
     const allowed = validTransitions[order.status] ?? [];
     if (!allowed.includes(status)) {
