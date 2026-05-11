@@ -411,6 +411,7 @@
   },
 
   "common": {
+    "noNotifications": "Không có thông báo nào",
     "loading": "Đang tải...",
     "saving": "Đang lưu...",
     "products": "sản phẩm",

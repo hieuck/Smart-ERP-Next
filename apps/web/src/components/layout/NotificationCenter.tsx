@@ -113,7 +113,7 @@ export default function NotificationCenter() {
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-gray-400 text-sm">
-                Không có thông báo nào
+                {t('common.noNotifications')}
               </div>
             ) : (
               notifications.map((n) => {

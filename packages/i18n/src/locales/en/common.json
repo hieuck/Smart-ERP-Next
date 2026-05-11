@@ -411,6 +411,7 @@
   },
 
   "common": {
+    "noNotifications": "No notifications",
     "loading": "Loading...",
     "saving": "Saving...",
     "products": "products",
