@@ -288,7 +288,12 @@
     "updateFailed": "Update failed",
     "adjustFailed": "Adjustment failed",
     "noTransactions": "No transactions",
-    "allInStock": "All products are in stock ✓"
+    "allInStock": "All products are in stock ✓",
+    "demandForecast": "Demand Forecast (30 days)",
+    "avgDailyDemand": "Avg daily demand",
+    "total30d": "Total next 30d",
+    "reorderSuggestion": "Suggested reorder",
+    "insufficientData": "Insufficient sales data for forecast"
   },
 
   "purchasing": {

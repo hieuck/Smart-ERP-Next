@@ -288,7 +288,12 @@
     "updateFailed": "Cập nhật thất bại",
     "adjustFailed": "Điều chỉnh thất bại",
     "noTransactions": "Chưa có giao dịch",
-    "allInStock": "Tất cả sản phẩm đều đủ hàng ✓"
+    "allInStock": "Tất cả sản phẩm đều đủ hàng ✓",
+    "demandForecast": "Dự báo nhu cầu (30 ngày)",
+    "avgDailyDemand": "Trung bình ngày",
+    "total30d": "Tổng 30 ngày tới",
+    "reorderSuggestion": "Gợi ý đặt hàng",
+    "insufficientData": "Chưa đủ dữ liệu bán hàng"
   },
 
   "purchasing": {
