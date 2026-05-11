@@ -4,7 +4,7 @@ test('offline product creation syncs after reconnect', async ({ page }) => {
   // Start Tauri app (assumes dev server running)
   await page.goto('http://localhost:1420');
 
-  // Login (use data-testid if available, otherwise attributes)
+  // Login
   await page.fill('input[name="email"]', 'admin@example.com');
   await page.fill('input[name="password"]', 'password123');
   await page.click('button:has-text("Login")');
@@ -21,21 +21,15 @@ test('offline product creation syncs after reconnect', async ({ page }) => {
   await page.fill('input[name="price"]', '199.99');
   await page.click('button:has-text("Save")');
 
-  // Offline product visible in list (from local DB)
+  // Offline product visible in list
   await expect(page.locator('text=Offline Desktop Test')).toBeVisible();
 
-  // Go online
+  // Go online and sync
   await page.context().setOffline(false);
+  await page.click('button[title="Sync offline changes"]');
+  await expect(page.locator('text=Sync completed')).toBeVisible();
 
-  // Wait for network to be restored and sync button enabled
-  await expect(async () => {
-    const syncButton = page.locator('button[title="Sync offline changes"]');
-    await expect(syncButton).toBeEnabled();
-    await syncButton.click();
-    await expect(page.locator('text=Sync completed')).toBeVisible();
-  }).toPass({ timeout: 10000 });
-
-  // Reload and verify product persists
+  // Reload and check
   await page.reload();
   await expect(page.locator('text=Offline Desktop Test')).toBeVisible();
 });

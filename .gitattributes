@@ -1,0 +1,43 @@
+# Auto detect text files and force LF line endings
+* text=auto eol=lf
+
+# Explicitly treat these as text (will get LF normalization)
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.xml text eol=lf
+*.svg text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=lf
+*.sql text eol=lf
+
+# Explicitly treat these as binary (no line ending conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.7z binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.bin binary
+*.lock binary
+*.db binary
+*.sqlite binary
+*.log binary
+*.tmp binary
+*.cache binary

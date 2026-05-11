@@ -32,7 +32,7 @@ describe('Offline sync', () => {
     // Go online
     await device.setDisableNetwork(false);
 
-    // Trigger sync (manual sync button)
+    // Trigger sync (manual sync button action)
     await element(by.id('sync-button')).tap();
     await expect(element(by.text('Sync completed'))).toBeVisible();
 
