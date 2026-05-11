@@ -226,7 +226,7 @@ export class PurchasingService {
       .set({ status, updatedAt: new Date() })
       .where(and(eq(purchaseOrders.tenantId, tenantId), eq(purchaseOrders.id, id)))
       .returning();
-    if (!updated) throw new NotFoundException('Không tìm thấy đơn nhập hàng');
+    if (!updated) throw new NotFoundException('Purchase order not found');
     return updated;
   }
 }
