@@ -15,6 +15,7 @@ import { SuppliersModule } from './suppliers/suppliers.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { CurrenciesModule } from './currencies/currencies.module';
 import { ApprovalsModule } from './approvals/approvals.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { PurchasingModule } from './purchasing/purchasing.module';
 import { PaymentsModule } from './payments/payments.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
@@ -38,6 +39,7 @@ import { DRIZZLE } from './common/drizzle.decorator';
     InventoryModule,
     CurrenciesModule,
     ApprovalsModule,
+    NotificationsModule,
     PurchasingModule,
     PaymentsModule,
     WarehousesModule,
