@@ -23,7 +23,7 @@ export class OrdersService {
 
   async create(tenantId: string, userId: string, dto: CreateOrderDto) {
     if (!dto.items?.length) {
-      throw new BadRequestException('Đơn hàng phải có ít nhất 1 sản phẩm');
+      throw new BadRequestException('Order must have at least 1 product');
     }
 
     // Fetch products for snapshot
@@ -37,7 +37,7 @@ export class OrdersService {
     let subtotal = 0;
     const itemsData = dto.items.map((item) => {
       const product = productMap.get(item.productId);
-      if (!product) throw new BadRequestException(`Sản phẩm ${item.productId} không tồn tại`);
+      if (!product) throw new BadRequestException(`Product ${item.productId} not found`);
       const lineDiscount = item.discountAmount ?? 0;
       const lineTotal = item.quantity * item.unitPrice - lineDiscount;
       subtotal += lineTotal;
@@ -179,7 +179,7 @@ export class OrdersService {
     const allowed = validTransitions[order.status] ?? [];
     if (!allowed.includes(status)) {
       throw new BadRequestException(
-        `Không thể chuyển từ "${order.status}" sang "${status}"`
+        `Cannot transition from "${order.status}" to "${status}"`
       );
     }
 
