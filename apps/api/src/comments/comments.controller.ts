@@ -9,8 +9,8 @@ export class CommentsController {
 
   @Get()
   async getComments(@Request() req: any, @Param('orderId') orderId: string) {
-    const comments = await this.commentsService.getByOrder(req.user.tenantId, orderId);
-    return { items: comments };
+    const items = await this.commentsService.getByOrder(req.user.tenantId, orderId);
+    return { items };
   }
 
   @Post()

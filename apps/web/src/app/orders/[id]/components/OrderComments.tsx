@@ -12,7 +12,6 @@ interface Comment {
   content: string;
   createdAt: string;
   user: { name: string };
-  mentions?: string[];
 }
 
 export function OrderComments({ orderId }: { orderId: string }) {
@@ -35,7 +34,6 @@ export function OrderComments({ orderId }: { orderId: string }) {
 
   useEffect(() => {
     fetchComments();
-    // Poll every 5 seconds for simplicity; WebSocket could be used
     const interval = setInterval(fetchComments, 5000);
     return () => clearInterval(interval);
   }, [orderId]);
@@ -78,9 +76,7 @@ export function OrderComments({ orderId }: { orderId: string }) {
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2].map((i) => (
-            <div key={i} className="animate-pulse h-16 bg-gray-100 dark:bg-gray-700 rounded"></div>
-          ))}
+          {[1, 2].map(i => <div key={i} className="animate-pulse h-16 bg-gray-100 dark:bg-gray-700 rounded"></div>)}
         </div>
       ) : comments.length === 0 ? (
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
@@ -88,7 +84,7 @@ export function OrderComments({ orderId }: { orderId: string }) {
         </p>
       ) : (
         <div className="space-y-4 max-h-80 overflow-y-auto mb-4">
-          {comments.map((comment) => (
+          {comments.map(comment => (
             <div key={comment.id} className="flex gap-3">
               <div className="flex-1">
                 <div className="flex items-center justify-between">
@@ -116,7 +112,7 @@ export function OrderComments({ orderId }: { orderId: string }) {
         <input
           type="text"
           value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
+          onChange={e => setNewComment(e.target.value)}
           placeholder={t('orders.commentPlaceholder')}
           className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
         />

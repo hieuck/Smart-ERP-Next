@@ -1,23 +1,23 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Comment } from './comment.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { db } from '@smart-erp/database';
+import { comments } from '@smart-erp/database/schema';
+import { eq, and, desc } from '@smart-erp/database/drizzle';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class CommentsService {
-  constructor(
-    @InjectRepository(Comment)
-    private commentRepo: Repository<Comment>,
-    private notificationsGateway: NotificationsGateway,
-  ) {}
+  constructor(private notificationsGateway: NotificationsGateway) {}
 
-  async getByOrder(tenantId: string, orderId: string): Promise<Comment[]> {
-    return this.commentRepo.find({
-      where: { tenantId, orderId },
-      relations: ['user'],
-      order: { createdAt: 'ASC' },
-    });
+  async getByOrder(tenantId: string, orderId: string) {
+    const rows = await db
+      .select()
+      .from(comments)
+      .where(and(eq(comments.tenantId, tenantId), eq(comments.orderId, orderId)))
+      .orderBy(desc(comments.createdAt))
+      .limit(50)
+      .leftJoin(users, eq(comments.userId, users.id));
+    // Fetch user names separately if needed
+    return rows;
   }
 
   async add(
@@ -26,29 +26,32 @@ export class CommentsService {
     userId: string,
     content: string,
     mentions: string[] = [],
-  ): Promise<Comment> {
-    const comment = this.commentRepo.create({
-      tenantId,
-      orderId,
-      userId,
-      content,
-      mentions,
-    });
-    const saved = await this.commentRepo.save(comment);
-
+  ) {
+    const [newComment] = await db
+      .insert(comments)
+      .values({
+        tenantId,
+        orderId,
+        userId,
+        content,
+        mentions,
+      })
+      .returning();
     // Broadcast to all users in the tenant (or specific mentions)
     this.notificationsGateway.broadcastToTenant(tenantId, 'comment.added', {
       orderId,
-      comment: { ...saved, user: await this.commentRepo.findOne({ where: { id: saved.id }, relations: ['user'] }) },
+      comment: newComment,
     });
-
-    return saved;
+    return newComment;
   }
 
   async delete(tenantId: string, commentId: string, userId: string): Promise<void> {
-    const comment = await this.commentRepo.findOne({ where: { id: commentId, tenantId } });
-    if (!comment) throw new Error('Comment not found');
-    if (comment.userId !== userId) throw new Error('Not authorized to delete this comment');
-    await this.commentRepo.remove(comment);
+    const [existing] = await db
+      .select()
+      .from(comments)
+      .where(and(eq(comments.id, commentId), eq(comments.tenantId, tenantId)));
+    if (!existing) throw new NotFoundException('Comment not found');
+    if (existing.userId !== userId) throw new NotFoundException('Not authorized');
+    await db.delete(comments).where(eq(comments.id, commentId));
   }
 }

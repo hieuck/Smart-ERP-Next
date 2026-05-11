@@ -316,6 +316,7 @@ export default function OrderDetailPage() {
             </div>
           </div>
         </div>
+        <OrderComments orderId={id} />
       </div>
     </AuthGuard>
   );
