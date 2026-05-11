@@ -140,6 +140,8 @@
     "outOfStock": "Hết hàng",
     "inStock": "Còn hàng",
     "searchPlaceholder": "Tìm theo tên, SKU...",
+    "notFound": "Không tìm thấy sản phẩm",
+    "searchPrompt": "Nhập tên hoặc SKU để tìm sản phẩm",
     "confirmDelete": "Bạn có chắc muốn xóa sản phẩm này?",
     "deleteSuccess": "Đã xóa sản phẩm",
     "createSuccess": "Đã tạo sản phẩm",

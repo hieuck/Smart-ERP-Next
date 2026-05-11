@@ -268,12 +268,12 @@ export default function POSPage() {
             ) : productSearch ? (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                 <Package className="w-12 h-12 mb-3 opacity-30" />
-                <p className="text-sm">Không tìm thấy sản phẩm</p>
+                <p className="text-sm">{t('products.notFound')}</p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-gray-400">
                 <Search className="w-12 h-12 mb-3 opacity-30" />
-                <p className="text-sm">Nhập tên hoặc SKU để tìm sản phẩm</p>
+                <p className="text-sm">{t('products.searchPrompt')}</p>
               </div>
             )}
           </div>

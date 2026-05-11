@@ -140,6 +140,8 @@
     "outOfStock": "Out of Stock",
     "inStock": "In Stock",
     "searchPlaceholder": "Search by name, SKU...",
+    "notFound": "No products found",
+    "searchPrompt": "Enter name or SKU to search for products",
     "confirmDelete": "Are you sure you want to delete this product?",
     "deleteSuccess": "Product deleted",
     "createSuccess": "Product created",
