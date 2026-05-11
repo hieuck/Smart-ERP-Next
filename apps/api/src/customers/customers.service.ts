@@ -19,7 +19,7 @@ export class CustomersService {
         and(eq(customers.tenantId, tenantId), eq(customers.code, dto.code)),
       );
     if (existing.length > 0) {
-      throw new ConflictException("Mã khách hàng đã tồn tại");
+      throw new ConflictException("Customer code already exists");
     }
     const [customer] = await db
       .insert(customers)
@@ -89,7 +89,7 @@ export class CustomersService {
       .select()
       .from(customers)
       .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)));
-    if (!customer) throw new NotFoundException("Không tìm thấy khách hàng");
+    if (!customer) throw new NotFoundException("Customer not found");
     return customer;
   }
 
@@ -105,7 +105,7 @@ export class CustomersService {
       .set(values)
       .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
       .returning();
-    if (!customer) throw new NotFoundException("Không tìm thấy khách hàng");
+    if (!customer) throw new NotFoundException("Customer not found");
     return customer;
   }
 
@@ -114,7 +114,7 @@ export class CustomersService {
       .delete(customers)
       .where(and(eq(customers.tenantId, tenantId), eq(customers.id, id)))
       .returning();
-    if (!customer) throw new NotFoundException("Không tìm thấy khách hàng");
+    if (!customer) throw new NotFoundException("Customer not found");
     return customer;
   }
 }
