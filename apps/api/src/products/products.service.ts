@@ -97,7 +97,7 @@ export class ProductsService {
       .select()
       .from(products)
       .where(and(eq(products.tenantId, tenantId), eq(products.id, id)));
-    if (!product) throw new NotFoundException("Không tìm thấy sản phẩm");
+    if (!product) throw new NotFoundException("Product not found");
     return product;
   }
 
@@ -106,7 +106,7 @@ export class ProductsService {
       .select()
       .from(products)
       .where(and(eq(products.tenantId, tenantId), eq(products.sku, sku)));
-    if (!product) throw new NotFoundException("Không tìm thấy sản phẩm");
+    if (!product) throw new NotFoundException("Product not found");
     return product;
   }
 
@@ -123,7 +123,7 @@ export class ProductsService {
       .set(values)
       .where(and(eq(products.tenantId, tenantId), eq(products.id, id)))
       .returning();
-    if (!product) throw new NotFoundException("Không tìm thấy sản phẩm");
+    if (!product) throw new NotFoundException("Product not found");
     return product;
   }
 
@@ -132,7 +132,7 @@ export class ProductsService {
       .delete(products)
       .where(and(eq(products.tenantId, tenantId), eq(products.id, id)))
       .returning();
-    if (!product) throw new NotFoundException("Không tìm thấy sản phẩm");
+    if (!product) throw new NotFoundException("Product not found");
     return product;
   }
 
