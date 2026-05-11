@@ -35,7 +35,7 @@ export default function NotificationCenter() {
       const messages: Record<string, string> = {
         'order.created': `Đơn hàng mới: ${data.code} — ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(parseFloat(data.total ?? '0'))}`,
         'order.status_changed': `Đơn ${data.code} → ${data.status}`,
-        'stock.low': `Sắp hết hàng: ${data.productName}`,
+        'stock.low': `${t('inventory.lowStock')}: ${data.productName}`,
         'order.payment_received': `Nhận thanh toán đơn ${data.code}`,
         'system.alert': data.message ?? 'Thông báo hệ thống',
       };
