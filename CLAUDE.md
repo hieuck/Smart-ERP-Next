@@ -40,6 +40,7 @@ Behavioral guidelines for AI-assisted development on this project.
 - Add keys to BOTH `vi/common.json` AND `en/common.json`
 - Vietnamese is the default language (`fallbackLng: 'vi'`)
 - Key pattern: `module.key` e.g. `products.title`, `orders.status`
+- For mobile and desktop apps, import from `@smart-erp/i18n` – the same keys are shared across all platforms
 
 ### API Rules
 

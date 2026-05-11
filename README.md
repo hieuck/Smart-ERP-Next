@@ -34,6 +34,14 @@
 | Desktop      | Tauri 2 (Rust + WebView)                |
 | Docs         | Docusaurus 3 (vi/en)                    |
 | i18n         | i18next — vi mặc định, en hỗ trợ        |
+
+## 🌍 Internationalization
+
+The application is fully internationalized with support for:
+- **Vietnamese (vi)** – default language
+- **English (en)**
+
+All user‑facing text uses i18n keys from the `@smart-erp/i18n` package. To add translations, edit the JSON files in `packages/i18n/src/locales/`.
 | Validation   | Zod (frontend) + class-validator (API)  |
 | Offline Sync | Dexie (IndexedDB) + CRDT vector clocks  |
 | Real-time    | Socket.IO 4                             |
