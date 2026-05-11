@@ -297,7 +297,8 @@
     "balance": "Balance",
     "notes": "Notes",
     "paidAt": "Paid At",
-    "searchPlaceholder": "Search by code, party..."
+    "searchPlaceholder": "Search by code, party...",
+    "partySearchPlaceholder": "Customer / supplier name..."
   },
 
   "warehouses": {

@@ -297,7 +297,8 @@
     "balance": "Số dư",
     "notes": "Ghi chú",
     "paidAt": "Ngày thanh toán",
-    "searchPlaceholder": "Tìm theo mã phiếu, đối tượng..."
+    "searchPlaceholder": "Tìm theo mã phiếu, đối tượng...",
+    "partySearchPlaceholder": "Tên khách hàng / nhà cung cấp..."
   },
 
   "warehouses": {
