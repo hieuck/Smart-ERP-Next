@@ -92,7 +92,7 @@ export default function OrderDetailPage() {
       const res = await ordersApi.updateStatus(id, status, cancelReason);
       setOrder((prev) => prev ? { ...prev, ...res.data } : null);
     } catch (err: any) {
-      alert(err.response?.data?.message ?? 'Cập nhật thất bại');
+      alert(err.response?.data?.message ?? t('orders.updateFailed'));
     } finally {
       setUpdating(false);
     }

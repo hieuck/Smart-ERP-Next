@@ -183,6 +183,7 @@
     "empty": "Chưa có đơn hàng",
     "createButton": "Tạo đơn hàng",
     "searchPlaceholder": "Tìm theo mã đơn, khách hàng...",
+    "updateFailed": "Cập nhật thất bại",
     "confirmDelete": "Bạn có chắc muốn hủy đơn hàng này?",
     "channels": {
       "pos": "Tại quầy",

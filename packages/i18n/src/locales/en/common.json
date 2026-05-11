@@ -183,6 +183,7 @@
     "empty": "No orders yet",
     "createButton": "Create order",
     "searchPlaceholder": "Search by order code, customer...",
+    "updateFailed": "Update failed",
     "confirmDelete": "Are you sure you want to cancel this order?",
     "channels": {
       "pos": "In-store",
