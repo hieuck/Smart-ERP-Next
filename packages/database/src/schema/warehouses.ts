@@ -20,6 +20,8 @@ export const warehouses = pgTable(
   (table) => ({
     tenantIdx: index('warehouses_tenant_idx').on(table.tenantId),
     codeIdx: index('warehouses_code_idx').on(table.code),
+    // Composite index for tenant+name (common in warehouse listing searches)
+    tenantNameIdx: index('warehouses_tenant_name_idx').on(table.tenantId, table.name),
   })
 );
 
