@@ -12,7 +12,7 @@ export class SuppliersService {
       .select()
       .from(suppliers)
       .where(and(eq(suppliers.tenantId, tenantId), eq(suppliers.code, dto.code)));
-    if (existing.length > 0) throw new ConflictException('Mã nhà cung cấp đã tồn tại');
+    if (existing.length > 0) throw new ConflictException('Supplier code already exists');
 
     const [supplier] = await db
       .insert(suppliers)
@@ -63,7 +63,7 @@ export class SuppliersService {
       .select()
       .from(suppliers)
       .where(and(eq(suppliers.tenantId, tenantId), eq(suppliers.id, id)));
-    if (!supplier) throw new NotFoundException('Không tìm thấy nhà cung cấp');
+    if (!supplier) throw new NotFoundException('Supplier not found');
     return supplier;
   }
 
@@ -73,7 +73,7 @@ export class SuppliersService {
       .set({ ...dto, updatedAt: new Date() })
       .where(and(eq(suppliers.tenantId, tenantId), eq(suppliers.id, id)))
       .returning();
-    if (!supplier) throw new NotFoundException('Không tìm thấy nhà cung cấp');
+    if (!supplier) throw new NotFoundException('Supplier not found');
     return supplier;
   }
 
@@ -82,7 +82,7 @@ export class SuppliersService {
       .delete(suppliers)
       .where(and(eq(suppliers.tenantId, tenantId), eq(suppliers.id, id)))
       .returning();
-    if (!supplier) throw new NotFoundException('Không tìm thấy nhà cung cấp');
+    if (!supplier) throw new NotFoundException('Supplier not found');
     return supplier;
   }
 }
