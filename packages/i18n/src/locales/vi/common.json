@@ -458,6 +458,9 @@
     "phone": "Số điện thoại",
     "avatarHelp": "Nhấn vào biểu tượng máy ảnh để đổi ảnh đại diện",
     "theme": "Giao diện",
+    "themeLight": "Sáng",
+    "themeDark": "Tối",
+    "themeSystem": "Theo hệ thống",
     "language": "Ngôn ngữ"
   },
     "conflictTitle": "Phát hiện xung đột đồng bộ",
