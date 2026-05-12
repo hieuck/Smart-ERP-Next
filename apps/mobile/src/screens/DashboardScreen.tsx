@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { api } from '../lib/api';
 import { formatVND } from '@smart-erp/utils';
+import { ActivityList } from '../components/ActivityList';
 
 interface DashboardData {
   todayRevenue: number;
@@ -154,6 +155,8 @@ export default function DashboardScreen({ user }: DashboardScreenProps) {
           </View>
         </>
       )}
+
+      <ActivityList />
 
       <View style={{ height: 24 }} />
     </ScrollView>
