@@ -43,8 +43,7 @@ export default function InventoryScreen() {
         api.get<LowStockItem[]>("/inventory/low-stock"),
       ]);
       if (summaryData.status === "fulfilled") setSummary(summaryData.value);
-      if (lowStockData.status === "fulfilled")
-        setLowStockItems(lowStockData.value);
+      if (lowStockData.status === "fulfilled") setLowStockItems(lowStockData.value);
     } catch (err) {
       console.error("Inventory fetch error:", err);
     } finally {
@@ -55,7 +54,7 @@ export default function InventoryScreen() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -73,81 +72,41 @@ export default function InventoryScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Tab selector */}
       <View style={styles.tabRow}>
-        {[
-          { key: "summary" as const, label: t('inventory.summary') },
-          {
-            key: "lowstock" as const,
-            label: `${t('inventory.lowStock')} (${lowStockItems.length})`,
-          },
-        ].map((tab) => (
-          <TouchableOpacity
-            key={tab.key}
-            onPress={() => setActiveTab(tab.key)}
-            style={[styles.tab, activeTab === tab.key && styles.tabActive]}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === tab.key && styles.tabTextActive,
-              ]}
-            >
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <TouchableOpacity
+          onPress={() => setActiveTab("summary")}
+          style={[styles.tab, activeTab === "summary" && styles.tabActive]}
+        >
+          <Text style={[styles.tabText, activeTab === "summary" && styles.tabTextActive]}>
+            Tổng quan
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setActiveTab("lowstock")}
+          style={[styles.tab, activeTab === "lowstock" && styles.tabActive]}
+        >
+          <Text style={[styles.tabText, activeTab === "lowstock" && styles.tabTextActive]}>
+            Sắp hết ({lowStockItems.length})
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {activeTab === "summary" && summary && (
         <FlatList
           data={[
-            {
-              label: t('inventory.totalProducts'),
-              value: summary.totalProducts.toLocaleString("vi-VN"),
-              color: "#3b82f6",
-            },
-            {
-              label: t('inventory.totalUnits'),
-              value: summary.totalUnits.toLocaleString("vi-VN"),
-              color: "#10b981",
-            },
-            {
-              label: t('inventory.stockValue'),
-              value: formatVND(summary.totalValue),
-              color: "#8b5cf6",
-            },
-            {
-              label: t('inventory.lowStock'),
-              value: summary.lowStock.toString(),
-              color: summary.lowStock > 0 ? "#f59e0b" : "#10b981",
-              danger: summary.lowStock > 0,
-            },
-            {
-              label: t('inventory.outOfStock'),
-              value: summary.outOfStock.toString(),
-              color: summary.outOfStock > 0 ? "#ef4444" : "#10b981",
-              danger: summary.outOfStock > 0,
-            },
+            { label: "Tổng sản phẩm", value: summary.totalProducts.toLocaleString("vi-VN"), color: "#3b82f6" },
+            { label: "Tổng đơn vị", value: summary.totalUnits.toLocaleString("vi-VN"), color: "#10b981" },
+            { label: "Giá trị tồn kho", value: formatVND(summary.totalValue), color: "#8b5cf6" },
+            { label: "Sắp hết hàng", value: summary.lowStock.toString(), color: summary.lowStock > 0 ? "#f59e0b" : "#10b981", danger: summary.lowStock > 0 },
+            { label: "Hết hàng", value: summary.outOfStock.toString(), color: summary.outOfStock > 0 ? "#ef4444" : "#10b981", danger: summary.outOfStock > 0 },
           ]}
           keyExtractor={(item) => item.label}
           contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor="#3b82f6"
-            />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#3b82f6" />}
           renderItem={({ item }) => (
             <View style={[styles.summaryCard, { borderLeftColor: item.color }]}>
               <Text style={styles.summaryLabel}>{item.label}</Text>
-              <Text
-                style={[
-                  styles.summaryValue,
-                  item.danger && { color: item.color },
-                ]}
-              >
+              <Text style={[styles.summaryValue, item.danger && { color: item.color }]}>
                 {item.value}
               </Text>
             </View>
@@ -160,50 +119,28 @@ export default function InventoryScreen() {
           data={lowStockItems}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor="#3b82f6"
-            />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#3b82f6" />}
           ListEmptyComponent={
             <View style={styles.center}>
               <Text style={styles.emptyIcon}>✅</Text>
-              <Text style={styles.emptyText}>{t('inventory.allStockOK')}</Text>
+              <Text style={styles.emptyText}>Tất cả kho đều ổn</Text>
             </View>
           }
           renderItem={({ item }) => {
             const isOut = item.stock === 0;
             return (
-              <View
-                style={[styles.lowStockCard, isOut && styles.outOfStockCard]}
-              >
+              <View style={[styles.lowStockCard, isOut && styles.outOfStockCard]}>
                 <View style={styles.lowStockLeft}>
-                  <Text style={styles.productName} numberOfLines={1}>
-                    {item.name}
-                  </Text>
+                  <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
                   <Text style={styles.productSku}>{item.sku}</Text>
                 </View>
                 <View style={styles.lowStockRight}>
-                  <View
-                    style={[
-                      styles.stockBadge,
-                      { backgroundColor: isOut ? "#fee2e2" : "#fef3c7" },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.stockText,
-                        { color: isOut ? "#dc2626" : "#d97706" },
-                      ]}
-                    >
-                      {isOut ? t('inventory.outOfStock') : `${t('inventory.stock', 'Còn')} ${item.stock}`}
+                  <View style={[styles.stockBadge, { backgroundColor: isOut ? "#fee2e2" : "#fef3c7" }]}>
+                    <Text style={[styles.stockText, { color: isOut ? "#dc2626" : "#d97706" }]}>
+                      {isOut ? "Hết hàng" : `Còn ${item.stock}`}
                     </Text>
                   </View>
-                  <Text style={styles.minStock}>
-                    Tối thiểu: {item.minStock ?? 0}
-                  </Text>
+                  <Text style={styles.minStock}>Tối thiểu: {item.minStock ?? 0}</Text>
                 </View>
               </View>
             );
@@ -216,12 +153,7 @@ export default function InventoryScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9fafb" },
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 48,
-  },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 48 },
   loadingText: { marginTop: 8, color: "#9ca3af", fontSize: 14 },
   emptyIcon: { fontSize: 40, marginBottom: 12 },
   emptyText: { color: "#6b7280", fontSize: 14 },
@@ -234,51 +166,26 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     gap: 4,
   },
-  tab: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
+  tab: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, marginBottom: 8 },
   tabActive: { backgroundColor: "#eff6ff" },
   tabText: { fontSize: 13, color: "#6b7280", fontWeight: "500" },
   tabTextActive: { color: "#2563eb", fontWeight: "700" },
   list: { padding: 16, gap: 10 },
   summaryCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: "#fff", borderRadius: 12, padding: 16, borderLeftWidth: 4,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2,
   },
   summaryLabel: { fontSize: 13, color: "#6b7280", marginBottom: 4 },
   summaryValue: { fontSize: 22, fontWeight: "700", color: "#111827" },
   lowStockCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 14,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: "#fff", borderRadius: 12, padding: 14, flexDirection: "row",
+    justifyContent: "space-between", alignItems: "center",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2,
   },
   outOfStockCard: { borderWidth: 1, borderColor: "#fecaca" },
   lowStockLeft: { flex: 1, marginRight: 12 },
   productName: { fontSize: 14, fontWeight: "600", color: "#111827" },
-  productSku: {
-    fontSize: 11,
-    color: "#9ca3af",
-    fontFamily: "monospace",
-    marginTop: 2,
-  },
+  productSku: { fontSize: 11, color: "#9ca3af", fontFamily: "monospace", marginTop: 2 },
   lowStockRight: { alignItems: "flex-end", gap: 4 },
   stockBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   stockText: { fontSize: 12, fontWeight: "700" },

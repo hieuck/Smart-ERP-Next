@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 
 interface Product {
@@ -28,7 +27,6 @@ interface Forecast {
 }
 
 export default function ForecastScreen() {
-  const { t } = useTranslation('common');
   const [products, setProducts] = useState<Product[]>([]);
   const [forecasts, setForecasts] = useState<Record<string, Forecast>>({});
   const [loading, setLoading] = useState(true);
@@ -42,10 +40,10 @@ export default function ForecastScreen() {
   const fetchProducts = async () => {
     try {
       const res = await api.get('/products', { params: { limit: 50 } });
-      setProducts(res.data.items);
+      setProducts(res.data.items || []);
     } catch (err) {
       console.error(err);
-      Alert.alert(t('common.error'), t('inventory.fetchProductsError'));
+      Alert.alert('Lỗi', 'Không thể tải danh sách sản phẩm');
     } finally {
       setLoading(false);
     }
@@ -54,18 +52,8 @@ export default function ForecastScreen() {
   const runForecast = async (productId: string) => {
     setForecasting(productId);
     try {
-      // Fetch last 30 days of sales for this product
-      const salesRes = await api.get('/orders', {
-        params: { productId, limit: 30, status: 'delivered' },
-      });
-      const salesHistory = salesRes.data.items.map((order: any) => ({
-        date: new Date(order.createdAt).toISOString().split('T')[0],
-        quantity: order.items?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0,
-      }));
-
       const forecastRes = await api.post('/ai/forecast', {
         product_id: productId,
-        sales_history: salesHistory,
         lookahead_days: 14,
       });
 
@@ -75,30 +63,29 @@ export default function ForecastScreen() {
       }));
     } catch (err) {
       console.error(err);
-      Alert.alert(t('common.error'), t('inventory.forecastError'));
+      Alert.alert('Lỗi', 'Không thể dự báo');
     } finally {
       setForecasting(null);
     }
   };
 
   const getStatus = (stock: number, minStock: number) => {
-    if (stock <= 0) return { label: t('inventory.outOfStock'), color: '#dc2626' };
-    if (stock <= minStock) return { label: t('inventory.lowStock'), color: '#f59e0b' };
-    return { label: t('inventory.normal'), color: '#10b981' };
+    if (stock <= 0) return { label: 'Hết hàng', color: '#dc2626' };
+    if (stock <= minStock) return { label: 'Sắp hết', color: '#f59e0b' };
+    return { label: 'Bình thường', color: '#10b981' };
   };
 
   if (loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={styles.loadingText}>{t('common.loading')}</Text>
+        <Text style={styles.loadingText}>Đang tải...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Product list */}
       <ScrollView style={styles.productList}>
         {products.map((product) => {
           const min = product.minStock ?? 0;
@@ -125,13 +112,11 @@ export default function ForecastScreen() {
                 </View>
               </View>
               <View style={styles.productFooter}>
-                <Text style={styles.stockText}>
-                  {t('products.stock')}: {product.stock}
-                </Text>
+                <Text style={styles.stockText}>Tồn: {product.stock}</Text>
                 {isForecasting && <ActivityIndicator size="small" color="#3b82f6" />}
                 {hasForecast && !isForecasting && (
                   <Text style={styles.suggestedText}>
-                    {t('inventory.suggestedOrder')}: {forecasts[product.id].suggested_order_quantity}
+                    Gợi ý: {forecasts[product.id].suggested_order_quantity}
                   </Text>
                 )}
               </View>
@@ -140,7 +125,6 @@ export default function ForecastScreen() {
         })}
       </ScrollView>
 
-      {/* Forecast details panel */}
       {selectedProduct && forecasts[selectedProduct] && (
         <ScrollView style={styles.detailPanel}>
           <View style={styles.detailHeader}>
@@ -148,26 +132,26 @@ export default function ForecastScreen() {
               {products.find(p => p.id === selectedProduct)?.name}
             </Text>
             <Text style={styles.suggestedOrder}>
-              {t('inventory.suggestedOrder')}: {forecasts[selectedProduct].suggested_order_quantity}
+              Gợi ý đặt hàng: {forecasts[selectedProduct].suggested_order_quantity}
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>{t('inventory.dailyDemand')}</Text>
+          <Text style={styles.sectionTitle}>Dự báo 7 ngày tới</Text>
           <View style={styles.table}>
             <View style={styles.tableHeader}>
-              <Text style={styles.tableHeaderCell}>{t('inventory.date')}</Text>
-              <Text style={styles.tableHeaderCell}>{t('inventory.predicted')}</Text>
-              <Text style={styles.tableHeaderCell}>Lower</Text>
-              <Text style={styles.tableHeaderCell}>Upper</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 0.8 }]}>Ngày</Text>
+              <Text style={styles.tableHeaderCell}>Dự báo</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 0.6 }]}>Thấp</Text>
+              <Text style={[styles.tableHeaderCell, { flex: 0.6 }]}>Cao</Text>
             </View>
             {forecasts[selectedProduct].predicted_daily_demand.slice(0, 7).map((day, idx) => (
               <View key={idx} style={styles.tableRow}>
-                <Text style={styles.tableCell}>{day.date}</Text>
+                <Text style={[styles.tableCell, { flex: 0.8 }]}>{day.date}</Text>
                 <Text style={styles.tableCell}>{day.quantity}</Text>
-                <Text style={styles.tableCell}>
+                <Text style={[styles.tableCell, { flex: 0.6 }]}>
                   {forecasts[selectedProduct].confidence_lower[idx]?.quantity ?? '—'}
                 </Text>
-                <Text style={styles.tableCell}>
+                <Text style={[styles.tableCell, { flex: 0.6 }]}>
                   {forecasts[selectedProduct].confidence_upper[idx]?.quantity ?? '—'}
                 </Text>
               </View>
@@ -185,16 +169,8 @@ const styles = StyleSheet.create({
   loadingText: { marginTop: 8, color: '#9ca3af', fontSize: 14 },
   productList: { flex: 1 },
   productCard: {
-    backgroundColor: '#fff',
-    marginHorizontal: 12,
-    marginTop: 8,
-    padding: 12,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: '#fff', marginHorizontal: 12, marginTop: 8, padding: 12, borderRadius: 12,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2,
   },
   selectedCard: { borderWidth: 2, borderColor: '#3b82f6' },
   productHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
