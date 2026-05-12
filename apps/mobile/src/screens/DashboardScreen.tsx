@@ -44,6 +44,7 @@ export default function DashboardScreen({ user }: DashboardScreenProps) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastSync, setLastSync] = useState<Date | null>(null);
+  const [lastSync, setLastSync] = useState<Date | null>(null);
 
   const fetchLastSync = async () => {
     const ts = await syncService.getLastSyncTime();
@@ -179,6 +180,14 @@ export default function DashboardScreen({ user }: DashboardScreenProps) {
       )}
 
       <ActivityList />
+
+      {lastSync && (
+        <View style={styles.lastSyncContainer}>
+          <Text style={styles.lastSyncText}>
+            {t('dashboard.lastSync')}: {lastSync.toLocaleString()}
+          </Text>
+        </View>
+      )}
 
       <View style={{ height: 24 }} />
     </ScrollView>
