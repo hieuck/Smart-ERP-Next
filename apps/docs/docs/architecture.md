@@ -52,6 +52,8 @@ tenants
   │     ├── product_categories (hierarchical, self-referencing)
   │     └── inventory_transactions (IN/OUT/ADJUSTMENT)
   ├── customers (groups: retail/wholesale/vip)
+  ├── crm_leads (sources: website/referral/trade_show/social_media/email_campaign, statuses: new/contacted/qualified/won/lost)
+  ├── crm_leads (sources: website/referral/trade_show/social_media/email_campaign, statuses: new/contacted/qualified/won/lost)
   ├── suppliers
   ├── warehouses (isDefault flag)
   ├── orders
@@ -79,6 +81,10 @@ tenants
 | Reports       | `/reports`          | Revenue, profit, top-products    |
 | Insights      | `/insights`         | Dashboard analytics              |
 | Notifications | WS `/notifications` | Real-time events                 |
+| Accounting    | `/accounting`       | Chart of accounts, journal entries |
+| CRM           | `/crm/leads`        | Lead management, NBA              |
+| Accounting    | `/accounting`       | Chart of accounts, journal entries |
+| CRM           | `/crm/leads`        | Lead management, NBA              |
 
 ## Luồng dữ liệu
 

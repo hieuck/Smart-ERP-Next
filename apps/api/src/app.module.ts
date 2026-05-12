@@ -21,7 +21,7 @@ import { WarehousesModule } from './warehouses/warehouses.module';
 import { CommentsModule } from './comments/comments.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { AccountingModule } from './accounting/accounting.module';
-import { AccountingModule } from './accounting/accounting.module';
+import { CrmModule } from './crm/crm.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { db } from '@smart-erp/database';
 import { DRIZZLE } from './common/drizzle.decorator';
@@ -48,6 +48,7 @@ import { DRIZZLE } from './common/drizzle.decorator';
     CommentsModule,
     SchedulerModule,
     AccountingModule,
+    CrmModule,
   ],
   controllers: [AppController],
   providers: [
