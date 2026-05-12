@@ -19,7 +19,6 @@ export function QuickActions() {
       navigation.navigate(action.route as never);
     } else if (action.action === 'sync') {
       await syncService.sync();
-      // optionally show toast
     }
   };
 
