@@ -20,27 +20,28 @@ interface Product {
 }
 
 export default function ProductsScreen() {
+  const { t } = useTranslation('common');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
 
-  const fetchProducts = useCallback(async (p = 1, s = search, append = false) => {
+  const fetchProducts = async (p = 1, s = search, append = false) => {
     try {
-      const params = new URLSearchParams({ page: p.toString(), limit: '20' });
-      if (s) params.set('search', s);
-      const data = await api.get<PaginatedResponse<Product>>(`/products?${params}`);
-      setProducts((prev) => append ? [...prev, ...data.items] : data.items);
-      setHasMore(p < data.totalPages);
+      const data = await getProducts(p, s, 20);
+      setProducts((prev) => append ? [...prev, ...data] : data);
+      setHasMore(data.length === 20);
+      setIsOffline(false);
     } catch (err) {
-      console.error('Products fetch error:', err);
+      setIsOffline(true);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [search]);
+  };
 
   useEffect(() => { fetchProducts(1, search); }, []);
 
@@ -80,6 +81,11 @@ export default function ProductsScreen() {
 
   return (
     <View style={styles.container}>
+      {isOffline && (
+        <View style={{ backgroundColor: '#fef3c7', padding: 8 }}>
+          <Text style={{ color: '#92400e', textAlign: 'center' }}>{t('common.offline_mode')}</Text>
+        </View>
+      )}
       <View style={styles.searchRow}>
         <TextInput
           style={styles.searchInput}
