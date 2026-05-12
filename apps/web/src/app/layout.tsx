@@ -4,9 +4,7 @@ import './globals.css';
 import { I18nProvider } from '@/components/providers/i18n-provider';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { SyncConflictModal } from '@/components/SyncConflictModal';
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -70,8 +68,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </ThemeProvider>
           </ToastProvider>
         </I18nProvider>
-      <SyncConflictModal />
-</body>
+        <SyncConflictModal />
+      </body>
     </html>
   );
 }

@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller, Get, Post, Body, Param, Put, Delete,
+  UseGuards, Request, ParseUUIDPipe, Query,
+} from '@nestjs/common';
 import { CurrenciesService } from './currencies.service';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
+import { ExchangeRateDto, UpdateExchangeRateDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('currencies')
 @UseGuards(JwtAuthGuard)
@@ -10,31 +13,93 @@ export class CurrenciesController {
   constructor(private readonly currenciesService: CurrenciesService) {}
 
   @Post()
-  create(@CurrentUser('tenantId') tenantId: string, @Body() dto: CreateCurrencyDto) {
-    return this.currenciesService.create(tenantId, dto);
+  create(@Request() req: any, @Body() dto: CreateCurrencyDto) {
+    return this.currenciesService.create(req.user.tenantId, dto);
   }
 
   @Get()
-  findAll(@CurrentUser('tenantId') tenantId: string) {
-    return this.currenciesService.findAll(tenantId);
+  findAll(@Request() req: any) {
+    return this.currenciesService.findAll(req.user.tenantId);
   }
 
   @Get(':id')
-  findOne(@CurrentUser('tenantId') tenantId: string, @Param('id') id: string) {
-    return this.currenciesService.findOne(tenantId, id);
+  findOne(@Request() req: any, @Param('id') id: string) {
+    return this.currenciesService.findOne(req.user.tenantId, id);
+  }
+
+  @Get('base')
+  getBase(@Request() req: any) {
+    return this.currenciesService.getBaseCurrency(req.user.tenantId);
   }
 
   @Put(':id')
   update(
-    @CurrentUser('tenantId') tenantId: string,
+    @Request() req: any,
     @Param('id') id: string,
     @Body() dto: Partial<CreateCurrencyDto>
   ) {
-    return this.currenciesService.update(tenantId, id, dto);
+    return this.currenciesService.update(req.user.tenantId, id, dto);
   }
 
   @Delete(':id')
-  remove(@CurrentUser('tenantId') tenantId: string, @Param('id') id: string) {
-    return this.currenciesService.remove(tenantId, id);
+  remove(@Request() req: any, @Param('id') id: string) {
+    return this.currenciesService.remove(req.user.tenantId, id);
+  }
+
+  @Get('convert')
+  convert(
+    @Request() req: any,
+    @Query('from') fromCurrency: string,
+    @Query('to') toCurrency: string,
+    @Query('amount') amount: number,
+    @Query('atDate') atDate?: string,
+  ) {
+    return this.currenciesService.convertAmount(
+      req.user.tenantId,
+      parseFloat(amount.toString()) || 0,
+      fromCurrency,
+      toCurrency,
+      atDate
+    );
+  }
+
+  // Exchange Rate endpoints
+  @Post('rates')
+  createExchangeRate(@Request() req: any, @Body() dto: ExchangeRateDto) {
+    return this.currenciesService.createExchangeRate(req.user.tenantId, dto);
+  }
+
+  @Get('rates')
+  getExchangeRates(@Request() req: any, @Query('base') base?: string) {
+    return this.currenciesService.getExchangeRates(req.user.tenantId, base);
+  }
+
+  @Get('rates/:from/:to')
+  getExchangeRate(
+    @Request() req: any,
+    @Param('from') fromCurrency: string,
+    @Param('to') toCurrency: string,
+    @Query('atDate') atDate?: string
+  ) {
+    return this.currenciesService.getExchangeRate(
+      req.user.tenantId,
+      fromCurrency,
+      toCurrency,
+      atDate
+    );
+  }
+
+  @Put('rates/:id')
+  updateExchangeRate(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() dto: UpdateExchangeRateDto
+  ) {
+    return this.currenciesService.updateExchangeRate(req.user.tenantId, id, dto);
+  }
+
+  @Delete('rates/:id')
+  removeExchangeRate(@Request() req: any, @Param('id') id: string) {
+    return this.currenciesService.removeExchangeRate(req.user.tenantId, id);
   }
 }
