@@ -32,8 +32,6 @@ export class LocalStorageTokenProvider implements TokenProvider {
 
 import { emitSyncEvent } from '@smart-erp/sync-status';
 
-import { emitSyncEvent } from '@smart-erp/sync-status';
-
 export class SyncService {
   private apiBase: string;
   private tokenProvider: TokenProvider;

@@ -21,7 +21,6 @@ import OrdersScreen from "./src/screens/OrdersScreen";
 import CustomersScreen from "./src/screens/CustomersScreen";
 import InventoryScreen from "./src/screens/InventoryScreen";
 import LeadsScreen from "./src/screens/LeadsScreen";
-import LeadsScreen from "./src/screens/LeadsScreen";
 
 initI18n("vi");
 
