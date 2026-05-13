@@ -17,6 +17,8 @@ export type NotificationEvent =
   | 'order.payment_received'
   | 'stock.low'
   | 'stock.adjusted'
+  | 'lead.created'
+  | 'lead.converted'
   | 'system.alert';
 
 @WebSocketGateway({
