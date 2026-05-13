@@ -749,7 +749,10 @@
       "product": "product",
       "customer": "customer",
       "supplier": "supplier",
-      "inventory": "inventory"
+      "inventory": "inventory",
+      "lead": "lead",
+      "payment": "payment",
+      "journalEntry": "journal entry"
     }
   },
   "advanced_reports": {

@@ -20,7 +20,7 @@ export class ActivityLog {
   action: string; // created, updated, deleted, approved, rejected, stock_adjusted
 
   @Column()
-  entityType: string; // order, product, customer, supplier, inventory
+  entityType: string; // order, product, customer, supplier, inventory, lead, payment, journalEntry
 
   @Column()
   entityId: string;

@@ -597,9 +597,29 @@
     "themeSystem": "Theo hệ thống",
     "language": "Ngôn ngữ"
   },
-  "conflictTitle": "Phát hiện xung đột đồng bộ",
-  "localVersion": "Bản cục bộ",
-  "remoteVersion": "Bản máy chủ",
-  "keepLocal": "Giữ bản cục bộ",
-  "keepRemote": "Giữ bản máy chủ"
+  "sync": {
+    "conflictTitle": "Phát hiện xung đột đồng bộ",
+    "localVersion": "Bản cục bộ",
+    "remoteVersion": "Bản máy chủ",
+    "keepLocal": "Giữ bản cục bộ",
+    "keepRemote": "Giữ bản máy chủ"
+  },
+  "activity": {
+    "created": "đã tạo",
+    "updated": "đã cập nhật",
+    "deleted": "đã xóa",
+    "approved": "đã duyệt",
+    "rejected": "đã từ chối",
+    "stock_adjusted": "điều chỉnh tồn kho",
+    "entityTypes": {
+      "order": "đơn hàng",
+      "product": "sản phẩm",
+      "customer": "khách hàng",
+      "supplier": "nhà cung cấp",
+      "inventory": "kho",
+      "lead": "lead",
+      "payment": "phiếu thu/chi",
+      "journalEntry": "bút toán"
+    }
+  }
 }
