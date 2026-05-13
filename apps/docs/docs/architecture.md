@@ -36,7 +36,7 @@ smart-erp-next/
 | Database    | PostgreSQL 14+, Drizzle ORM                                |
 | Web         | Next.js 15, React 19, Tailwind CSS 3                       |
 | Mobile      | Expo 52, React Native 0.76, SecureStore                    |
-| Desktop     | Tauri 2 (Rust + WebView)                                   |
+| Desktop     | Tauri 2 (Rust + Vite + React)                              |
 | i18n        | i18next, react-i18next                                     |
 | Validation  | Zod + class-validator                                      |
 | Shared core | `@smart-erp/shared` platform/module/localization contracts |
@@ -52,7 +52,6 @@ tenants
   │     ├── product_categories (hierarchical, self-referencing)
   │     └── inventory_transactions (IN/OUT/ADJUSTMENT)
   ├── customers (groups: retail/wholesale/vip)
-  ├── crm_leads (sources: website/referral/trade_show/social_media/email_campaign, statuses: new/contacted/qualified/won/lost)
   ├── crm_leads (sources: website/referral/trade_show/social_media/email_campaign, statuses: new/contacted/qualified/won/lost)
   ├── suppliers
   ├── warehouses (isDefault flag)
