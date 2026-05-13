@@ -382,7 +382,9 @@
   },
   "purchasing": {
     "title": "Mua hàng",
+    "subtitle": "{{count}} đơn nhập",
     "add": "Tạo đơn nhập",
+    "addItem": "Thêm mặt hàng",
     "code": "Mã đơn nhập",
     "supplier": "Nhà cung cấp",
     "expectedDate": "Ngày dự kiến nhận",
@@ -391,8 +393,16 @@
     "receivedQty": "SL đã nhận",
     "unitCost": "Giá nhập",
     "total": "Tổng tiền",
+    "tax": "Thuế",
     "status": "Trạng thái",
     "createdAt": "Ngày tạo",
+    "items": "Sản phẩm",
+    "selectSupplierAndItems": "Vui lòng chọn nhà cung cấp và thêm ít nhất 1 mặt hàng",
+    "createError": "Tạo đơn nhập thất bại. Vui lòng thử lại.",
+    "receiveError": "Xác nhận nhận hàng thất bại.",
+    "cancelError": "Hủy đơn nhập thất bại.",
+    "orders": "đơn nhập",
+    "empty": "Chưa có đơn nhập nào",
     "searchPlaceholder": "Tìm theo mã đơn, nhà cung cấp..."
   },
   "pos": {

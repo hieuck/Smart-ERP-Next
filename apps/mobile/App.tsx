@@ -22,6 +22,7 @@ import CustomersScreen from "./src/screens/CustomersScreen";
 import InventoryScreen from "./src/screens/InventoryScreen";
 import SuppliersScreen from "./src/screens/SuppliersScreen";
 import WarehousesScreen from "./src/screens/WarehousesScreen";
+import PurchasingScreen from "./src/screens/PurchasingScreen";
 import LeadsScreen from "./src/screens/LeadsScreen";
 import POSScreen from "./src/screens/POSScreen";
 import AccountingScreen from "./src/screens/AccountingScreen";
@@ -33,7 +34,7 @@ const mobileSyncService = new SyncService(
   new SecureStoreTokenProvider(),
 );
 
-type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses";
+type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing";
 
 const NAV_ITEMS: { key: Screen; label: string; icon: string }[] = [
   { key: "dashboard", label: "Tổng quan", icon: "📊" },
@@ -44,6 +45,7 @@ const NAV_ITEMS: { key: Screen; label: string; icon: string }[] = [
   { key: "suppliers", label: "Nhà CC", icon: "🏢" },
   { key: "warehouses", label: "Kho", icon: "🏬" },
   { key: "customers", label: "Khách hàng", icon: "👥" },
+  { key: "purchasing", label: "Mua hàng", icon: "🛒" },
   { key: "leads", label: "Leads", icon: "🎯" },
   { key: "accounting", label: "Kế toán", icon: "💰" },
 ];
@@ -127,6 +129,8 @@ export default function App() {
         return <SuppliersScreen />;
       case "warehouses":
         return <WarehousesScreen />;
+      case "purchasing":
+        return <PurchasingScreen />;
     }
   };
 
