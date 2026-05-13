@@ -18,10 +18,13 @@ import {
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { QueryProductDto } from "./dto/query-product.dto";
+import { ActivityService } from "../modules/activity/activity.service";
 
 @Injectable()
 export class ProductsService {
-  async create(tenantId: string, dto: CreateProductDto) {
+  constructor(private activityService: ActivityService) {}
+
+  async create(tenantId: string, dto: CreateProductDto, userId?: string) {
     const existing = await db
       .select()
       .from(products)
@@ -40,6 +43,14 @@ export class ProductsService {
         isActive: dto.isActive ?? true,
       })
       .returning();
+
+    if (userId) {
+      await this.activityService.log(tenantId, userId, 'created', 'product', product.id, {
+        name: product.name,
+        sku: product.sku,
+      });
+    }
+
     return product;
   }
 
@@ -122,7 +133,7 @@ export class ProductsService {
     return product;
   }
 
-  async update(tenantId: string, id: string, dto: UpdateProductDto) {
+  async update(tenantId: string, id: string, dto: UpdateProductDto, userId?: string) {
     const values = {
       ...dto,
       price: dto.price?.toString(),
@@ -136,15 +147,30 @@ export class ProductsService {
       .where(and(eq(products.tenantId, tenantId), eq(products.id, id)))
       .returning();
     if (!product) throw new NotFoundException("Product not found");
+
+    if (userId) {
+      await this.activityService.log(tenantId, userId, 'updated', 'product', id, {
+        changes: Object.keys(dto),
+      });
+    }
+
     return product;
   }
 
-  async remove(tenantId: string, id: string) {
+  async remove(tenantId: string, id: string, userId?: string) {
     const [product] = await db
       .delete(products)
       .where(and(eq(products.tenantId, tenantId), eq(products.id, id)))
       .returning();
     if (!product) throw new NotFoundException("Product not found");
+
+    if (userId) {
+      await this.activityService.log(tenantId, userId, 'deleted', 'product', id, {
+        name: product.name,
+        sku: product.sku,
+      });
+    }
+
     return product;
   }
 

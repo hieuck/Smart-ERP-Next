@@ -24,7 +24,7 @@ export class ProductsController {
 
   @Post()
   create(@Request() req: any, @Body() dto: CreateProductDto) {
-    return this.productsService.create(req.user.tenantId, dto);
+    return this.productsService.create(req.user.tenantId, dto, req.user.sub);
   }
 
   @Get()
@@ -58,12 +58,12 @@ export class ProductsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateProductDto,
   ) {
-    return this.productsService.update(req.user.tenantId, id, dto);
+    return this.productsService.update(req.user.tenantId, id, dto, req.user.sub);
   }
 
   @Delete(':id')
   remove(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
-    return this.productsService.remove(req.user.tenantId, id);
+    return this.productsService.remove(req.user.tenantId, id, req.user.sub);
   }
 
   @Patch(':id/stock')
