@@ -7,7 +7,7 @@ import { ActivityLog } from './activity.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([ActivityLog])],
   controllers: [ActivityController],
-  providers: [ActivityService, SocketGateway],
+  providers: [ActivityService],
   exports: [ActivityService],
 })
 export class ActivityModule {}
