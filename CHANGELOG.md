@@ -8,6 +8,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- **AI-Powered Demand Forecasting**: ForecastService uses real order history (90-day) with statistical prediction, confidence levels, and reorder recommendations
+- Demand forecast API endpoints: `/analytics/forecast/demand` (global) and `/analytics/forecast/product/:id` (per-product)
+- Enhanced Web Forecast page with MAPE, recommended reorder quantity, confidence level, historical average
+- Updated Mobile ForecastScreen with real API data and improved UI
+- DemandForecastWidget component for product detail pages showing 30-day forecast metrics
+- i18n keys for forecast metrics (vi/en): mape, confidence, historical average, reorder suggestion
+
+### Added
+- **Quick-create purchase order from reorder suggestions** (Web + Mobile + API)
+- Lot tracking & serial numbers: product_lots, product_serials schemas, CRUD API
+- Warehouse transfers: draft→approved→shipped→received workflow
+- Activity logging for lot and transfer operations
+- Multi-platform inventory parity: Desktop InventoryScreen, Mobile inventory upgrade
+- Suppliers, Warehouses, Purchasing screens for mobile (native parity)
+- Mobile ReportsScreen: sales summary, top products/customers, inventory report
+- Per-item qty and exclude controls in quick-create PO modal
+- Warehouse and expected date fields in quick-create PO
+- Post-create navigation to purchasing list (Web + Mobile)
+
+### Added
 - **Web client offline sync**: Dexie-powered offline storage, background sync with CRDT merge
 - Sync button + status indicator in app header
 - Products page now works offline and syncs when online
