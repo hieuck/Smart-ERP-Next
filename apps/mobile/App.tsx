@@ -22,6 +22,7 @@ import CustomersScreen from "./src/screens/CustomersScreen";
 import InventoryScreen from "./src/screens/InventoryScreen";
 import LeadsScreen from "./src/screens/LeadsScreen";
 import POSScreen from "./src/screens/POSScreen";
+import AccountingScreen from "./src/screens/AccountingScreen";
 
 initI18n("vi");
 
@@ -30,15 +31,13 @@ const mobileSyncService = new SyncService(
   new SecureStoreTokenProvider(),
 );
 
-type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads";
+type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting";
 
 const NAV_ITEMS: { key: Screen; label: string; icon: string }[] = [
   { key: "dashboard", label: "Tổng quan", icon: "📊" },
   { key: "pos", label: "POS", icon: "🛒" },
-  { key: "products", label: "Sản phẩm", icon: "📦" },
   { key: "orders", label: "Đơn hàng", icon: "📋" },
-  { key: "customers", label: "Khách hàng", icon: "👥" },
-  { key: "inventory", label: "Kho hàng", icon: "🏭" },
+  { key: "accounting", label: "Kế toán", icon: "💰" },
   { key: "leads", label: "Leads", icon: "🎯" },
 ];
 
@@ -115,6 +114,8 @@ export default function App() {
         return <LeadsScreen />;
       case "pos":
         return <POSScreen />;
+      case "accounting":
+        return <AccountingScreen />;
     }
   };
 

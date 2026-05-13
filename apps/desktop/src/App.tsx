@@ -5,9 +5,10 @@ import type { NavItem } from '@smart-erp/ui';
 import { Dashboard } from './components/Dashboard';
 import { CRMScreen } from './components/CRMScreen';
 import { POSScreen } from './components/POSScreen';
+import { AccountingScreen } from './components/AccountingScreen';
 import { syncService } from './lib/sync-service';
 
-type Screen = 'dashboard' | 'pos' | 'crm' | 'products' | 'orders' | 'inventory';
+type Screen = 'dashboard' | 'pos' | 'crm' | 'products' | 'orders' | 'inventory' | 'accounting';
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Tổng quan', href: '/dashboard' },
@@ -16,6 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'products', label: 'Sản phẩm', href: '/products' },
   { key: 'inventory', label: 'Kho hàng', href: '/inventory' },
   { key: 'crm', label: 'CRM', href: '/crm' },
+  { key: 'accounting', label: 'Kế toán', href: '/accounting' },
 ];
 
 export default function DesktopApp() {
@@ -46,6 +48,8 @@ export default function DesktopApp() {
         return <CRMScreen />;
       case 'pos':
         return <POSScreen />;
+      case 'accounting':
+        return <AccountingScreen />;
       case 'products':
         return <div className="p-8 text-gray-500">Sản phẩm</div>;
       case 'orders':
