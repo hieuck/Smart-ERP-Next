@@ -10,24 +10,28 @@ export class EcommerceController {
 
   // existing endpoints omitted
 
-  @Post('stores/:storeId/sync/tiktokshop')
-  async syncTikTokShop(@Param('storeId') storeId: string, @CurrentUser() user: any) {
-    await this.ecommerceService.syncTikTokShopProducts(storeId);
-    await this.ecommerceService.syncTikTokShopOrders(storeId);
-    return { message: 'TikTok Shop sync completed' };
+  @Get('stores')
+  async getStores(@CurrentUser() user: any) {
+    return this.ecommerceService.getStores(user.tenantId);
   }
 
-  @Post('stores/:storeId/sync/amazon')
-  async syncAmazon(@Param('storeId') storeId: string, @CurrentUser() user: any) {
-    await this.ecommerceService.syncAmazonProducts(storeId);
-    await this.ecommerceService.syncAmazonOrders(storeId);
-    return { message: 'Amazon sync completed' };
+  @Post('stores')
+  async createStore(@CurrentUser() user: any, @Body() dto: any) {
+    return this.ecommerceService.createStore(user.tenantId, dto);
   }
 
-  @Post('stores/:storeId/sync/ebay')
-  async syncEbay(@Param('storeId') storeId: string, @CurrentUser() user: any) {
-    await this.ecommerceService.syncEbayProducts(storeId);
-    await this.ecommerceService.syncEbayOrders(storeId);
-    return { message: 'eBay sync completed' };
+  @Post('sync/all')
+  async syncAll(@CurrentUser() user: any) {
+    return this.ecommerceService.syncAllStores(user.tenantId);
+  }
+
+  @Post('stores/:storeId/sync')
+  async syncStore(@Param('storeId') storeId: string, @CurrentUser() user: any) {
+    return this.ecommerceService.syncAllStores(user.tenantId, storeId);
+  }
+
+  @Get('logs')
+  async getSyncLogs(@CurrentUser() user: any, @Query('storeId') storeId?: string) {
+    return this.ecommerceService.getSyncLogs(user.tenantId, storeId);
   }
 }

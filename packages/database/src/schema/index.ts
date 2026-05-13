@@ -24,6 +24,4 @@ export * from './sync_benchmarks';
 export * from './product_lots';
 export * from './product_serials';
 export * from './warehouse_transfers';
-export * from './product_lots';
-export * from './product_serials';
-export * from './warehouse_transfers';
+export * from './ecommerce_stores';

@@ -10,6 +10,8 @@ export const products = pgTable(
       .references(() => tenants.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     sku: text('sku').notNull().unique(),
+    externalId: text('external_id'),
+    externalPlatform: text('external_platform'),
     description: text('description'),
     category: text('category'), // simple category, can be extended later
     unit: text('unit').default('piece'), // piece, kg, box, etc.

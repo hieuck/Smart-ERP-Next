@@ -38,6 +38,8 @@ export const orders = pgTable(
     trackingCode: text('tracking_code'),
     notes: text('notes'),
     tags: text('tags'), // JSON array as text
+    externalId: text('external_id'),
+    externalPlatform: text('external_platform'),
     cancelReason: text('cancel_reason'),
     confirmedAt: timestamp('confirmed_at'),
     shippedAt: timestamp('shipped_at'),
