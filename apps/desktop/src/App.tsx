@@ -6,6 +6,7 @@ import { Dashboard } from './components/Dashboard';
 import { CRMScreen } from './components/CRMScreen';
 import { POSScreen } from './components/POSScreen';
 import { AccountingScreen } from './components/AccountingScreen';
+import { InventoryScreen } from './components/InventoryScreen';
 import { syncService } from './lib/sync-service';
 
 type Screen = 'dashboard' | 'pos' | 'crm' | 'products' | 'orders' | 'inventory' | 'accounting';
@@ -55,7 +56,7 @@ export default function DesktopApp() {
       case 'orders':
         return <div className="p-8 text-gray-500">Đơn hàng</div>;
       case 'inventory':
-        return <div className="p-8 text-gray-500">Kho hàng</div>;
+        return <InventoryScreen />;
       default:
         return <Dashboard />;
     }

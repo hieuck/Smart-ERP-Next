@@ -5,4 +5,5 @@ export * from './product';
 export * from './customer';
 export * from './order';
 export * from './lead';
-export * from './lead';
+export * from './inventory';
+export * from './inventory';
