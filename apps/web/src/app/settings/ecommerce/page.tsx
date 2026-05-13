@@ -34,11 +34,15 @@ export default function EcommerceSettingsPage() {
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState('woocommerce');
-  const [shopeeConfig, setShopeeConfig] = useState({ partnerId: '', partnerKey: '', shopId: '' });
-  const [tiktokConfig, setTiktokConfig] = useState({ appKey: '', appSecret: '', shopId: '' });
-  const [amazonConfig, setAmazonConfig] = useState({ clientId: '', clientSecret: '', refreshToken: '', sellerId: '', region: 'na' });
-  const [ebayConfig, setEbayConfig] = useState({ appId: '', certId: '', devId: '', userToken: '', siteId: '0' });
+  const [activeTab, setActiveTab] = useState('shopee');
+  const [creating, setCreating] = useState(false);
+
+  // Form states
+  const [newStore, setNewStore] = useState({
+    platform: 'shopee',
+    name: '',
+    configJson: '{}'
+  });
 
   const loadStores = async () => {
     setLoadingStores(true);
@@ -75,7 +79,7 @@ export default function EcommerceSettingsPage() {
   const syncAll = async () => {
     try {
       await apiClient.post('/ecommerce/sync/all');
-      toast.success(t('actions.success'));
+      toast.success(t('actions.success','Thao tác thành công'));
       await loadStores();
       await loadLogs(selectedStoreId);
     } catch {
@@ -86,7 +90,7 @@ export default function EcommerceSettingsPage() {
   const syncStore = async (storeId: string) => {
     try {
       await apiClient.post(`/ecommerce/stores/${storeId}/sync`);
-      toast.success(t('actions.success'));
+      toast.success(t('actions.success','Thao tác thành công'));
       await loadStores();
       setSelectedStoreId(storeId);
       await loadLogs(storeId);
@@ -95,17 +99,34 @@ export default function EcommerceSettingsPage() {
     }
   };
 
-  const saveTikTok = async () => {
+  const handleCreateStore = async () => {
+    if (!newStore.name) {
+      toast.error(t('validation.required', { field: t('ecommerce.create.name') }));
+      return;
+    }
+
+    setCreating(true);
     try {
+      // Validate JSON
+      JSON.parse(newStore.configJson);
+
       await apiClient.post('/ecommerce/stores', {
-        platform: 'tiktokshop',
-        name: 'TikTok Shop',
-        configJson: JSON.stringify(tiktokConfig),
+        platform: newStore.platform,
+        name: newStore.name,
+        configJson: newStore.configJson,
       });
-      toast.success(t('ecommerce.tiktokSaved'));
+
+      toast.success(t('actions.success', 'Thao tác thành công'));
+      setNewStore({ platform: 'shopee', name: '', configJson: '{}' });
       await loadStores();
-    } catch {
-      toast.error(t('common.error'));
+    } catch (err: any) {
+      if (err instanceof SyntaxError) {
+        toast.error(t('ecommerce.create.invalidJson', 'JSON không hợp lệ'));
+      } else {
+        toast.error(t('common.error'));
+      }
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -123,28 +144,32 @@ export default function EcommerceSettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between border-b pb-2 mb-3">
             <h2 className="text-base font-semibold">{t('ecommerce.stores.title')}</h2>
           </div>
 
-          <div className="mt-3 space-y-2">
+          <div className="space-y-2">
             {loadingStores && (
-              <div className="text-sm text-gray-500">{t('common.loading')}</div>
+              <div className="text-sm text-gray-400 py-4 text-center">{t('common.loading')}</div>
             )}
 
             {!loadingStores && stores.length === 0 && (
-              <div className="text-sm text-gray-500">{t('ecommerce.logs.empty')}</div>
+              <div className="text-sm text-gray-400 py-4 text-center">{t('ecommerce.logs.empty')}</div>
             )}
 
             {stores.map((s) => (
               <div
                 key={s.id}
-                className="border border-gray-200 rounded-lg p-3 flex items-start justify-between gap-3"
+                className={`border rounded-lg p-3 flex items-start justify-between gap-3 transition ${selectedStoreId === s.id ? 'border-blue-500 bg-blue-50/30' : 'border-gray-200'}`}
               >
                 <div className="min-w-0">
                   <div className="font-medium text-gray-900 truncate">{s.name}</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {s.platform} · {s.lastSyncStatus ?? '—'}
+                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                    <span className="uppercase font-bold text-blue-600">{s.platform}</span>
+                    <span>·</span>
+                    <span className={s.lastSyncStatus === 'success' ? 'text-green-600' : s.lastSyncStatus === 'failed' ? 'text-red-600' : ''}>
+                      {s.lastSyncStatus ?? '—'}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -161,28 +186,42 @@ export default function EcommerceSettingsPage() {
         </Card>
 
         <Card className="p-4">
-          <h2 className="text-base font-semibold">{t('ecommerce.logs.title')}</h2>
+          <div className="flex items-center justify-between border-b pb-2 mb-3">
+            <h2 className="text-base font-semibold">{t('ecommerce.logs.title')}</h2>
+            {selectedStoreId && (
+              <button onClick={() => { setSelectedStoreId(null); loadLogs(null); }} className="text-xs text-blue-600 hover:underline">
+                {t('common.viewAll', 'Xem tất cả')}
+              </button>
+            )}
+          </div>
 
-          <div className="mt-3 space-y-2">
+          <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
             {loadingLogs && (
-              <div className="text-sm text-gray-500">{t('common.loading')}</div>
+              <div className="text-sm text-gray-400 py-4 text-center">{t('common.loading')}</div>
             )}
 
             {!loadingLogs && logs.length === 0 && (
-              <div className="text-sm text-gray-500">{t('ecommerce.logs.empty')}</div>
+              <div className="text-sm text-gray-400 py-4 text-center">{t('ecommerce.logs.empty')}</div>
             )}
 
             {!loadingLogs && logs.map((l) => (
-              <div key={l.id} className="border border-gray-200 rounded-lg p-3">
+              <div key={l.id} className="border border-gray-100 rounded-lg p-3 bg-gray-50/50">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="text-sm font-medium">{l.status}</div>
-                  <div className="text-xs text-gray-500">{new Date(l.startedAt).toLocaleString('vi-VN')}</div>
+                  <div className={`text-xs font-bold uppercase ${l.status === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                    {l.status}
+                  </div>
+                  <div className="text-[10px] text-gray-400 font-mono">
+                    {new Date(l.startedAt).toLocaleString('vi-VN')}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-600 mt-1">
-                  {l.syncType} · {l.itemsProcessed}
+                <div className="text-xs text-gray-600 mt-1 flex justify-between">
+                  <span>{l.syncType}</span>
+                  <span className="font-medium text-gray-900">{l.itemsProcessed}</span>
                 </div>
                 {l.errorMessage && (
-                  <div className="text-xs text-red-600 mt-1">{l.errorMessage}</div>
+                  <div className="text-[10px] text-red-500 mt-1 bg-red-50 p-1 rounded border border-red-100">
+                    {l.errorMessage}
+                  </div>
                 )}
               </div>
             ))}
@@ -190,61 +229,56 @@ export default function EcommerceSettingsPage() {
         </Card>
       </div>
 
-      <Tabs value={activeTab} onChange={setActiveTab}>
-        <Tab value="woocommerce" label="WooCommerce" />
-        <Tab value="shopify" label="Shopify" />
-        <Tab value="shopee" label="Shopee" />
-        <Tab value="tiktokshop" label="TikTok Shop" />
-        <Tab value="amazon" label="Amazon" />
-        <Tab value="ebay" label="eBay" />
-      </Tabs>
-
-      {activeTab === 'tiktokshop' && (
-        <Card className="mt-4 p-4">
+      <Card className="p-6">
+        <h2 className="text-lg font-bold mb-4">{t('ecommerce.create.title')}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <Input label={t('ecommerce.tiktokAppKey')} value={tiktokConfig.appKey} onChange={e => setTiktokConfig({ ...tiktokConfig, appKey: e.target.value })} />
-            <Input label={t('ecommerce.tiktokAppSecret')} type="password" value={tiktokConfig.appSecret} onChange={e => setTiktokConfig({ ...tiktokConfig, appSecret: e.target.value })} />
-            <Input label={t('ecommerce.tiktokShopId')} value={tiktokConfig.shopId} onChange={e => setTiktokConfig({ ...tiktokConfig, shopId: e.target.value })} />
-            <Button onClick={saveTikTok}>{t('actions.save')}</Button>
+            <Select
+              label={t('ecommerce.create.platform')}
+              value={newStore.platform}
+              onChange={(v) => {
+                setNewStore({ ...newStore, platform: v });
+                setActiveTab(v);
+              }}
+              options={[
+                { value: 'shopee', label: 'Shopee' },
+                { value: 'lazada', label: 'Lazada' },
+                { value: 'tiktokshop', label: 'TikTok Shop' },
+                { value: 'shopify', label: 'Shopify' },
+                { value: 'amazon', label: 'Amazon' },
+                { value: 'ebay', label: 'eBay' },
+                { value: 'woocommerce', label: 'WooCommerce' },
+              ]}
+            />
+            <Input
+              label={t('ecommerce.create.name')}
+              placeholder="e.g. My Online Store"
+              value={newStore.name}
+              onChange={(e) => setNewStore({ ...newStore, name: e.target.value })}
+            />
+            <div className="pt-2">
+              <Button onClick={handleCreateStore} disabled={creating} className="w-full">
+                {creating ? t('common.processing') : t('ecommerce.actions.createStore')}
+              </Button>
+            </div>
           </div>
-        </Card>
-      )}
 
-      {activeTab === 'amazon' && (
-        <Card className="mt-4 p-4">
-          <div className="space-y-4">
-            <Input label={t('ecommerce.amazonClientId')} value={amazonConfig.clientId} onChange={e => setAmazonConfig({ ...amazonConfig, clientId: e.target.value })} />
-            <Input label={t('ecommerce.amazonClientSecret')} type="password" value={amazonConfig.clientSecret} onChange={e => setAmazonConfig({ ...amazonConfig, clientSecret: e.target.value })} />
-            <Input label={t('ecommerce.amazonRefreshToken')} type="password" value={amazonConfig.refreshToken} onChange={e => setAmazonConfig({ ...amazonConfig, refreshToken: e.target.value })} />
-            <Input label={t('ecommerce.amazonSellerId')} value={amazonConfig.sellerId} onChange={e => setAmazonConfig({ ...amazonConfig, sellerId: e.target.value })} />
-            <Select label={t('ecommerce.amazonRegion')} value={amazonConfig.region} onChange={v => setAmazonConfig({ ...amazonConfig, region: v })} options={[
-              { value: 'na', label: 'North America' },
-              { value: 'eu', label: 'Europe' },
-              { value: 'fe', label: 'Far East' },
-            ]} />
-            <Button onClick={async () => {
-              await apiClient.post('/ecommerce/stores', { platform: 'amazon', name: 'Amazon Store', configJson: JSON.stringify(amazonConfig) });
-              toast.success(t('ecommerce.amazonSaved'));
-            }}>{t('actions.save')}</Button>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              {t('ecommerce.create.configJson')}
+            </label>
+            <textarea
+              className="w-full h-32 p-3 text-sm font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600"
+              value={newStore.configJson}
+              onChange={(e) => setNewStore({ ...newStore, configJson: e.target.value })}
+              placeholder='{"apiKey": "...", "apiSecret": "..."}'
+            />
+            <p className="text-[10px] text-gray-400 italic">
+              * {t('ecommerce.create.configHelp', 'Nhập cấu hình API dưới dạng JSON chuẩn.')}
+            </p>
           </div>
-        </Card>
-      )}
-
-      {activeTab === 'ebay' && (
-        <Card className="mt-4 p-4">
-          <div className="space-y-4">
-            <Input label={t('ecommerce.ebayAppId')} value={ebayConfig.appId} onChange={e => setEbayConfig({ ...ebayConfig, appId: e.target.value })} />
-            <Input label={t('ecommerce.ebayCertId')} type="password" value={ebayConfig.certId} onChange={e => setEbayConfig({ ...ebayConfig, certId: e.target.value })} />
-            <Input label={t('ecommerce.ebayDevId')} type="password" value={ebayConfig.devId} onChange={e => setEbayConfig({ ...ebayConfig, devId: e.target.value })} />
-            <Input label={t('ecommerce.ebayUserToken')} type="password" value={ebayConfig.userToken} onChange={e => setEbayConfig({ ...ebayConfig, userToken: e.target.value })} />
-            <Input label={t('ecommerce.ebaySiteId')} value={ebayConfig.siteId} onChange={e => setEbayConfig({ ...ebayConfig, siteId: e.target.value })} />
-            <Button onClick={async () => {
-              await apiClient.post('/ecommerce/stores', { platform: 'ebay', name: 'eBay Store', configJson: JSON.stringify(ebayConfig) });
-              toast.success(t('ecommerce.ebaySaved'));
-            }}>{t('actions.save')}</Button>
-          </div>
-        </Card>
-      )}
+        </div>
+      </Card>
     </div>
   );
 }
