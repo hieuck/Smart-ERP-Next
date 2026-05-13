@@ -399,6 +399,7 @@
     "items": "Sản phẩm",
     "selectSupplierAndItems": "Vui lòng chọn nhà cung cấp và thêm ít nhất 1 mặt hàng",
     "createError": "Tạo đơn nhập thất bại. Vui lòng thử lại.",
+    "createSuccess": "Đã tạo đơn nhập thành công",
     "receiveError": "Xác nhận nhận hàng thất bại.",
     "cancelError": "Hủy đơn nhập thất bại.",
     "orders": "đơn nhập",

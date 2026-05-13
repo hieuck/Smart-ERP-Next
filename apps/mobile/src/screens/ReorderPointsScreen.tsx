@@ -7,6 +7,8 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
+  Modal,
 } from 'react-native';
 import { useTranslation } from '@smart-erp/i18n';
 import { api } from '../lib/api';
@@ -21,17 +23,29 @@ interface ReorderSuggestion {
   suggestedOrderQuantity: number;
 }
 
+interface Supplier {
+  id: string;
+  code: string;
+  name: string;
+}
+
 export default function ReorderPointsScreen() {
   const { t } = useTranslation();
   const [suggestions, setSuggestions] = useState<ReorderSuggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
 
+  const [showCreatePo, setShowCreatePo] = useState(false);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [supplierSearch, setSupplierSearch] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [creatingPo, setCreatingPo] = useState(false);
+
   const fetchSuggestions = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/inventory/reorder-suggestions');
-      setSuggestions(res.data || []);
+      const res = await api.get<ReorderSuggestion[]>('/inventory/reorder-suggestions');
+      setSuggestions(res || []);
     } catch (err: any) {
       Alert.alert(t('common.error'), err.response?.data?.message || t('inventory.fetchSuggestionsError'));
     } finally {
@@ -48,9 +62,44 @@ export default function ReorderPointsScreen() {
       });
       await fetchSuggestions();
     } catch (err: any) {
-      Alert.alert(t('common.error'), err.response?.data?.message || t('inventory.updateFailed'));
+      Alert.alert(t('common.error'), err.message || t('inventory.updateFailed'));
     } finally {
       setUpdating(null);
+    }
+  };
+
+  const fetchSuppliers = async () => {
+    try {
+      const res = await api.get<{ items: Supplier[] }>('/suppliers?limit=20');
+      setSuppliers(res.items ?? []);
+    } catch {
+      setSuppliers([]);
+    }
+  };
+
+  const handleOpenCreatePo = async () => {
+    setSelectedSupplier(null);
+    setSupplierSearch('');
+    setShowCreatePo(true);
+    await fetchSuppliers();
+  };
+
+  const handleCreatePo = async () => {
+    if (!selectedSupplier) return;
+    setCreatingPo(true);
+    try {
+      await api.post('/purchasing/from-reorder-suggestions', {
+        supplierId: selectedSupplier.id,
+        items: suggestions
+          .filter((s) => s.suggestedOrderQuantity > 0)
+          .map((s) => ({ productId: s.id, quantity: s.suggestedOrderQuantity })),
+      });
+      setShowCreatePo(false);
+      Alert.alert(t('pos.success'), t('purchasing.createSuccess', 'Đã tạo đơn nhập'));
+    } catch (err: any) {
+      Alert.alert(t('common.error'), err.message || t('purchasing.createError'));
+    } finally {
+      setCreatingPo(false);
     }
   };
 
@@ -69,7 +118,15 @@ export default function ReorderPointsScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>{t('inventory.reorderPoints')}</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>{t('inventory.reorderPoints')}</Text>
+        {suggestions.length > 0 && (
+          <TouchableOpacity style={styles.createPoBtn} onPress={handleOpenCreatePo}>
+            <Text style={styles.createPoBtnText}>{t('purchasing.add')}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       {suggestions.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>{t('inventory.noReorderSuggestions')}</Text>
@@ -123,6 +180,53 @@ export default function ReorderPointsScreen() {
           </View>
         ))
       )}
+
+      {/* Create PO Modal */}
+      <Modal visible={showCreatePo} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>{t('purchasing.selectSupplierAndItems')}</Text>
+
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t('suppliers.searchPlaceholder')}
+              value={supplierSearch}
+              onChangeText={setSupplierSearch}
+              placeholderTextColor="#9ca3af"
+            />
+
+            <ScrollView style={{ maxHeight: 280 }}>
+              {suppliers
+                .filter((s) => !supplierSearch || s.name.toLowerCase().includes(supplierSearch.toLowerCase()))
+                .map((s) => (
+                  <TouchableOpacity
+                    key={s.id}
+                    style={[styles.supplierRow, selectedSupplier?.id === s.id && styles.supplierRowActive]}
+                    onPress={() => setSelectedSupplier(s)}
+                  >
+                    <Text style={styles.supplierName}>{s.name}</Text>
+                    <Text style={styles.supplierCode}>{s.code}</Text>
+                  </TouchableOpacity>
+                ))}
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.modalBtn} onPress={() => setShowCreatePo(false)}>
+                <Text style={styles.modalBtnText}>{t('common.cancel')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalBtnPrimary, (!selectedSupplier || creatingPo) && styles.modalBtnDisabled]}
+                onPress={handleCreatePo}
+                disabled={!selectedSupplier || creatingPo}
+              >
+                <Text style={styles.modalBtnPrimaryText}>
+                  {creatingPo ? t('common.processing') : t('purchasing.add')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -150,4 +254,106 @@ const styles = StyleSheet.create({
     paddingVertical: 6, width: 100, textAlign: 'right', fontSize: 14, color: '#0f172a',
   },
   inlineLoader: { marginTop: 12 },
+
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  createPoBtn: {
+    backgroundColor: '#2563eb',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  createPoBtnText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    maxHeight: '70%',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 12,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 10,
+    color: '#0f172a',
+  },
+  supplierRow: {
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
+  },
+  supplierRowActive: {
+    borderColor: '#2563eb',
+    backgroundColor: '#eff6ff',
+  },
+  supplierName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0f172a',
+  },
+  supplierCode: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 12,
+  },
+  modalBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    borderRadius: 8,
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  modalBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#334155',
+  },
+  modalBtnPrimary: {
+    flex: 1,
+    borderRadius: 8,
+    backgroundColor: '#2563eb',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  modalBtnDisabled: {
+    backgroundColor: '#93c5fd',
+  },
+  modalBtnPrimaryText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#fff',
+  },
 });

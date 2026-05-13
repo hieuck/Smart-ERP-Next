@@ -399,6 +399,7 @@
     "items": "Items",
     "selectSupplierAndItems": "Please select a supplier and add at least one item",
     "createError": "Failed to create purchase order. Please try again.",
+    "createSuccess": "Purchase order created successfully",
     "receiveError": "Failed to confirm receipt.",
     "cancelError": "Failed to cancel purchase order.",
     "orders": "purchase orders",
