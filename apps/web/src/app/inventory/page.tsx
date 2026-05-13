@@ -35,11 +35,11 @@ interface InventorySummary {
 const formatVND = (v: number) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v);
 
-const TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  IN: { label: '{t('inventory.stockIn')}', color: 'text-green-600 bg-green-50 dark:bg-green-900/20' },
-  OUT: { label: 'Xuất kho', color: 'text-red-600 bg-red-50 dark:bg-red-900/20' },
-  ADJUSTMENT: { label: 'Điều chỉnh', color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' },
-};
+const TYPE_CONFIG = {
+  IN: { color: 'text-green-600 bg-green-50 dark:bg-green-900/20' },
+  OUT: { color: 'text-red-600 bg-red-50 dark:bg-red-900/20' },
+  ADJUSTMENT: { color: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20' },
+} as const;
 
 export default function InventoryPage() {
   const { t } = useTranslation('common');
@@ -50,9 +50,8 @@ export default function InventoryPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [activeTab, setActiveTab] = useState<'transactions' | 'lowstock' | 'reorder' | 'replenishment'>('transactions');
+  const [activeTab, setActiveTab] = useState<'transactions' | 'lowstock' | 'reorder'>('transactions');
   const [reorderSuggestions, setReorderSuggestions] = useState<any[]>([]);
-  const [replenishmentSuggestions, setReplenishmentSuggestions] = useState<any[]>([]);
 
   // Adjust modal
   const [showAdjust, setShowAdjust] = useState(false);
@@ -71,12 +70,11 @@ export default function InventoryPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [summaryRes, txRes, lowRes, reorderRes, replenishRes] = await Promise.allSettled([
+      const [summaryRes, txRes, lowRes, reorderRes] = await Promise.allSettled([
         apiClient.get('/inventory/summary'),
         apiClient.get('/inventory/transactions', { params: { page, limit: 30 } }),
         apiClient.get('/inventory/low-stock'),
         apiClient.get('/inventory/reorder-suggestions'),
-        apiClient.get('/inventory/replenishment-suggestions'),
       ]);
       if (summaryRes.status === 'fulfilled') setSummary(summaryRes.value.data);
       if (txRes.status === 'fulfilled') {
@@ -86,7 +84,6 @@ export default function InventoryPage() {
       }
       if (lowRes.status === 'fulfilled') setLowStockItems(lowRes.value.data ?? []);
       if (reorderRes.status === 'fulfilled') setReorderSuggestions(reorderRes.value.data);
-      if (replenishRes.status === 'fulfilled') setReplenishmentSuggestions(replenishRes.value.data);
     } finally {
       setLoading(false);
     }
@@ -104,25 +101,13 @@ export default function InventoryPage() {
     return () => clearTimeout(t);
   }, [adjustForm.productSearch]);
 
-  const updateReorderPoints = async (productId: string, minStock?: number, reorderQuantity?: number) => {
+  const handleUpdateReorder = async (productId: string, minStock?: number, reorderQuantity?: number) => {
     try {
       await apiClient.patch(`/products/${productId}/reorder-points`, {
         minStock,
         reorderQuantity,
       });
-      fetchData(); // refresh to get updated suggestions
-    } catch (err: any) {
-      alert(err.response?.data?.message ?? t('inventory.updateFailed'));
-    }
-  };
-
-  const updateReorderPoints = async (productId: string, minStock?: number, reorderQuantity?: number) => {
-    try {
-      await apiClient.patch(`/products/${productId}/reorder-points`, {
-        minStock,
-        reorderQuantity,
-      });
-      fetchData(); // refresh to get updated suggestions
+      fetchData();
     } catch (err: any) {
       alert(err.response?.data?.message ?? t('inventory.updateFailed'));
     }
@@ -160,7 +145,7 @@ export default function InventoryPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('inventory.title')}</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Quản lý tồn kho</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('inventory.summary')}</p>
             </div>
           </div>
           <button
@@ -168,7 +153,7 @@ export default function InventoryPage() {
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
           >
             <RefreshCw className="w-4 h-4" />
-            Điều chỉnh kho
+            {t('inventory.adjustment')}
           </button>
         </div>
 
@@ -176,11 +161,11 @@ export default function InventoryPage() {
         {summary && (
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              { label: 'Tổng sản phẩm', value: summary.totalProducts, color: 'text-gray-900 dark:text-white' },
-              { label: 'Tổng đơn vị', value: summary.totalUnits.toLocaleString('vi-VN'), color: 'text-gray-900 dark:text-white' },
-              { label: 'Giá trị tồn kho', value: formatVND(summary.totalValue), color: 'text-blue-600' },
+              { label: t('inventory.totalProducts'), value: summary.totalProducts, color: 'text-gray-900 dark:text-white' },
+              { label: t('inventory.totalUnits'), value: summary.totalUnits.toLocaleString('vi-VN'), color: 'text-gray-900 dark:text-white' },
+              { label: t('inventory.stockValue'), value: formatVND(summary.totalValue), color: 'text-blue-600' },
               { label: t('inventory.lowStock'), value: summary.lowStock, color: summary.lowStock > 0 ? 'text-yellow-600' : 'text-gray-900 dark:text-white' },
-              { label: 'Hết hàng', value: summary.outOfStock, color: summary.outOfStock > 0 ? 'text-red-600' : 'text-gray-900 dark:text-white' },
+              { label: t('inventory.outOfStock'), value: summary.outOfStock, color: summary.outOfStock > 0 ? 'text-red-600' : 'text-gray-900 dark:text-white' },
             ].map((card) => (
               <div key={card.label} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                 <p className="text-xs text-gray-500 dark:text-gray-400">{card.label}</p>
@@ -193,10 +178,9 @@ export default function InventoryPage() {
         {/* Tabs */}
         <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-xl w-fit">
           {[
-            { key: 'transactions' as const, label: `Lịch sử (${total})` },
-            { key: 'lowstock' as const, label: `Sắp hết (${lowStockItems.length})` },
-            { key: 'reorder' as const, label: `Điểm tái đặt (${reorderSuggestions.length})` },
-            { key: 'replenishment' as const, label: `Gợi ý AI (${replenishmentSuggestions.length})` },
+            { key: 'transactions' as const, label: `${t('inventory.transactions')} (${total})` },
+            { key: 'lowstock' as const, label: `${t('inventory.lowStock')} (${lowStockItems.length})` },
+            { key: 'reorder' as const, label: `${t('inventory.reorderPoints')} (${reorderSuggestions.length})` },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -229,26 +213,26 @@ export default function InventoryPage() {
                     <table className="w-full text-sm">
                       <thead className="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Loại</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Sản phẩm</th>
-                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">SL</th>
-                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Trước</th>
-                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Sau</th>
-                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Ghi chú</th>
-                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Thời gian</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('inventory.stockIn')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('nav.products')}</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.quantity')}</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.currentStock')}</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.stock')}</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('inventory.reason')}</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('common.time')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {transactions.length === 0 ? (
                           <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-400">{t('inventory.noTransactions')}</td></tr>
                         ) : transactions.map((tx) => {
-                          const typeInfo = TYPE_LABELS[tx.type] ?? { label: tx.type, color: 'text-gray-600 bg-gray-50' };
+                          const cfg = TYPE_CONFIG[tx.type as keyof typeof TYPE_CONFIG] ?? TYPE_CONFIG.IN;
                           return (
                             <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                               <td className="px-4 py-3">
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${typeInfo.color}`}>
+                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.color}`}>
                                   {tx.type === 'IN' ? <ArrowDown className="w-3 h-3" /> : tx.type === 'OUT' ? <ArrowUp className="w-3 h-3" /> : <RefreshCw className="w-3 h-3" />}
-                                  {typeInfo.label}
+                                  {tx.type === 'IN' ? t('inventory.stockIn') : tx.type === 'OUT' ? t('inventory.stockOut') : t('inventory.adjustment')}
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-gray-700 dark:text-gray-300 font-mono text-xs">{tx.productId.slice(0, 8)}…</td>
@@ -268,7 +252,7 @@ export default function InventoryPage() {
                 </div>
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-500">{total} giao dịch</p>
+                    <p className="text-sm text-gray-500">{total} {t('inventory.transactions')}</p>
                     <div className="flex gap-1">
                       <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
                         className="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 text-sm disabled:opacity-40">
@@ -291,11 +275,11 @@ export default function InventoryPage() {
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 dark:bg-gray-700">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Sản phẩm</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Tồn kho</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Tối thiểu</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Giá bán</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Thao tác</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('nav.products')}</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.stock')}</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.minStock')}</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('products.price')}</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">{t('common.actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -340,12 +324,12 @@ export default function InventoryPage() {
                   <table className="w-full text-sm">
                     <thead className="bg-gray-50 dark:bg-gray-700">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Sản phẩm</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Tồn kho</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Điểm tái đặt</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">SL đặt hàng</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Gợi ý đặt</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Thao tác</th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('nav.products')}</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.stock')}</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.minStock')}</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.reorderQuantity')}</th>
+                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('inventory.suggestedOrder')}</th>
+                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">{t('common.actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -366,7 +350,7 @@ export default function InventoryPage() {
                               value={p.minStock ?? 0}
                               onChange={async (e) => {
                                 const newVal = parseInt(e.target.value) || 0;
-                                await updateReorderPoints(p.id, newVal, p.reorderQuantity);
+                                await handleUpdateReorder(p.id, newVal, p.reorderQuantity);
                               }}
                               className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-right text-sm"
                             />
@@ -377,77 +361,7 @@ export default function InventoryPage() {
                               value={p.reorderQuantity ?? 0}
                               onChange={async (e) => {
                                 const newVal = parseInt(e.target.value) || 0;
-                                await updateReorderPoints(p.id, p.minStock, newVal);
-                              }}
-                              className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-right text-sm"
-                            />
-                          </td>
-                          <td className="px-4 py-3 text-right font-bold text-blue-600">
-                            {p.suggestedOrderQuantity > 0 ? p.suggestedOrderQuantity : '—'}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <button
-                              onClick={() => {
-                                setAdjustForm((f) => ({ ...f, productId: p.id, productName: p.name, type: 'IN' }));
-                                setShowAdjust(true);
-                              }}
-                              className="px-3 py-1 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                            >
-                              {t('inventory.stockIn')}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'reorder' && (
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
-                      <tr>
-                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Sản phẩm</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Tồn kho</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Điểm tái đặt</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">SL đặt hàng</th>
-                        <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Gợi ý đặt</th>
-                        <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Thao tác</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                      {reorderSuggestions.length === 0 ? (
-                        <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-400">{t('inventory.noReorderSuggestions')}</td></tr>
-                      ) : reorderSuggestions.map((p) => (
-                        <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                          <td className="px-4 py-3">
-                            <div>
-                              <p className="font-medium text-gray-900 dark:text-white">{p.name}</p>
-                              <p className="text-xs text-gray-400">{p.sku}</p>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-right font-medium">{p.stock}</td>
-                          <td className="px-4 py-3 text-right">
-                            <input
-                              type="number"
-                              value={p.minStock ?? 0}
-                              onChange={async (e) => {
-                                const newVal = parseInt(e.target.value) || 0;
-                                await updateReorderPoints(p.id, newVal, p.reorderQuantity);
-                              }}
-                              className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-right text-sm"
-                            />
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <input
-                              type="number"
-                              value={p.reorderQuantity ?? 0}
-                              onChange={async (e) => {
-                                const newVal = parseInt(e.target.value) || 0;
-                                await updateReorderPoints(p.id, p.minStock, newVal);
+                                await handleUpdateReorder(p.id, p.minStock, newVal);
                               }}
                               className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-right text-sm"
                             />
@@ -481,7 +395,7 @@ export default function InventoryPage() {
       {showAdjust && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Điều chỉnh tồn kho</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('inventory.adjustment')}</h2>
             <div className="space-y-4">
               {/* Product search */}
               {!adjustForm.productId ? (
@@ -503,7 +417,7 @@ export default function InventoryPage() {
                           className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 text-sm"
                         >
                           <span className="font-medium">{p.name}</span>
-                          <span className="text-gray-400 ml-2 text-xs">{p.sku} · Tồn: {p.stock}</span>
+                          <span className="text-gray-400 ml-2 text-xs">{p.sku} · {t('inventory.stock')}: {p.stock}</span>
                         </button>
                       ))}
                     </div>
@@ -512,7 +426,7 @@ export default function InventoryPage() {
               ) : (
                 <div className="flex items-center justify-between bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg">
                   <span className="text-sm font-medium text-blue-700 dark:text-blue-300">{adjustForm.productName}</span>
-                  <button onClick={() => setAdjustForm((f) => ({ ...f, productId: '', productName: '' }))} className="text-blue-400 hover:text-blue-600 text-xs">Đổi</button>
+                  <button onClick={() => setAdjustForm((f) => ({ ...f, productId: '', productName: '' }))} className="text-blue-400 hover:text-blue-600 text-xs">{t('common.change','Đổi')}</button>
                 </div>
               )}
 
@@ -528,14 +442,14 @@ export default function InventoryPage() {
                         : 'border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
-                    {TYPE_LABELS[type].label}
+                    {type === 'IN' ? t('inventory.stockIn') : type === 'OUT' ? t('inventory.stockOut') : t('inventory.adjustment')}
                   </button>
                 ))}
               </div>
 
               {/* Quantity */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Số lượng</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('inventory.quantity')}</label>
                 <input
                   type="number"
                   value={adjustForm.quantity}
@@ -547,12 +461,12 @@ export default function InventoryPage() {
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ghi chú</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('inventory.reason')}</label>
                 <input
                   type="text"
                   value={adjustForm.notes}
                   onChange={(e) => setAdjustForm((f) => ({ ...f, notes: e.target.value }))}
-                  placeholder="Lý do điều chỉnh..."
+                  placeholder={t('inventory.notes','Lý do điều chỉnh...')}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 />
               </div>
@@ -561,14 +475,14 @@ export default function InventoryPage() {
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowAdjust(false)}
                 className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm">
-                Hủy
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleAdjust}
                 disabled={!adjustForm.productId || adjusting}
                 className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white font-bold rounded-xl transition text-sm"
               >
-                {adjusting ? 'Đang xử lý...' : 'Xác nhận'}
+                {adjusting ? t('common.processing') : t('common.confirm')}
               </button>
             </div>
           </div>
