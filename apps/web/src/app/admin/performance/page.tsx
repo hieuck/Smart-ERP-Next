@@ -123,7 +123,7 @@ export default function PerformancePage() {
                       <th className="px-4 py-2 text-right">p95 (ms)</th>
                       <th className="px-4 py-2 text-right">p99 (ms)</th>
                       <th className="px-4 py-2 text-right">Avg (ms)</th>
-                    </td>
+                    </tr>
                   </thead>
                   <tbody className="divide-y">
                     {data.map((row, idx) => (
@@ -136,7 +136,7 @@ export default function PerformancePage() {
                       </tr>
                     ))}
                   </tbody>
-                </td>
+                </table>
               </div>
             </div>
           </div>

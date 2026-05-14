@@ -22,10 +22,22 @@
 | Monorepo shared packages |          ✅           |    ❌    |   ❌    |  ❌  |   ❌    |
 | Lot tracking + Expiry    |          ✅           |    ❌    |   ❌    |  ❌  |   ❌    |
 | Multi-warehouse transfer |          ✅           |    ❌    |   ❌    |  ❌  |   ❌    |
-| Lot tracking + Expiry    |          ✅           |    ❌    |   ❌    |  ❌  |   ❌    |
-| Multi-warehouse transfer |          ✅           |    ❌    |   ❌    |  ❌  |   ❌    |
+| AI Business Intelligence | ✅ Predictive Stock   |    ❌    |   ❌    |  ❌  | Partial |
+| Omnichannel Hub          | ✅ Shopee/Lazada/TikTok| Partial  | ✅       |  ❌  | Partial |
 
 ---
+
+## Tính năng nổi bật
+
+### 🧠 AI-Powered Business Intelligence
+- **Dự báo nhu cầu (Demand Forecasting)**: Sử dụng lịch sử bán hàng thực tế để dự báo tồn kho cần thiết.
+- **Gợi ý nhập hàng tự động**: Tính toán số lượng đặt hàng tối ưu dựa trên tốc độ bán và lead time.
+
+### 🌐 E-commerce Integration Hub (Omnichannel)
+- **Đồng bộ đa sàn**: Kết nối Shopee, Lazada, TikTok Shop, Amazon, eBay, Shopify.
+- **Chống bán quá đà (Oversell Protection)**: Cơ chế giữ hàng (reservation) ngay khi có đơn từ sàn.
+- **Tồn kho khả dụng thông minh**: Tự động trừ safety buffer trước khi đẩy số lượng lên marketplace.
+- **Real-time Sync Logs**: Theo dõi chi tiết từng lần đồng bộ dữ liệu.
 
 ## Offline‑First & Real‑Time
 - **Real‑time activity notifications** via WebSockets (tenant‑scoped)

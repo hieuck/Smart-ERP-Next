@@ -8,6 +8,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- **Omnichannel Inventory Hub (Full Stack)**:
+  - Backend: `inventory_reservations` schema and APIs for oversell prevention
+  - API: Stock push to marketplaces (Shopee/Lazada/TikTok/Amazon/eBay)
+  - Web: E-commerce Integration UI (Stores, Logs, Settings)
+  - Web: "Omnichannel" tab in Inventory page with manual push actions
+  - Mobile: Native "Omnichannel" screen with navigation and status tracking
+- **AI-Powered Demand Forecasting**:
+  - ForecastService uses real order history (90-day) with statistical prediction
+  - Multi-platform support: Web and Mobile analytics screens
+- **Stability**: Fixed critical JSX errors in Inventory and Admin Performance pages.
+
+### Added
 - **AI-Powered Demand Forecasting**: ForecastService uses real order history (90-day) with statistical prediction, confidence levels, and reorder recommendations
 - Demand forecast API endpoints: `/analytics/forecast/demand` (global) and `/analytics/forecast/product/:id` (per-product)
 - Enhanced Web Forecast page with MAPE, recommended reorder quantity, confidence level, historical average
