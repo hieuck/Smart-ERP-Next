@@ -423,14 +423,24 @@
       "status": "Status",
       "draft": "Draft",
       "approved": "Approved",
+      "inTransit": "In Transit",
       "shipped": "Shipped",
       "received": "Received",
       "cancelled": "Cancelled",
       "ship": "Ship",
       "receive": "Receive",
+      "confirm": "Confirm Transfer",
+      "notes": "Notes",
       "items": "Items",
       "quantityShipped": "Qty Shipped",
-      "quantityReceived": "Qty Received"
+      "quantityReceived": "Qty Received",
+      "createSuccess": "Transfer created successfully",
+      "receiveSuccess": "Goods received successfully"
+    },
+    "metrics": {
+      "totalProducts": "Total Products",
+      "transfersInTransit": "Transfers In Transit",
+      "warehousePerformance": "Warehouse Performance"
     }
   },
   "purchasing": {

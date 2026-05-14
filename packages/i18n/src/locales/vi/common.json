@@ -161,9 +161,21 @@
       "status": "Trạng thái",
       "draft": "Nháp",
       "approved": "Đã duyệt",
+      "inTransit": "Đang vận chuyển",
       "shipped": "Đang giao",
       "received": "Đã nhận",
-      "cancelled": "Đã hủy"
+      "cancelled": "Đã hủy",
+      "confirm": "Xác nhận chuyển",
+      "receive": "Nhận hàng",
+      "notes": "Ghi chú",
+      "items": "Danh sách sản phẩm",
+      "createSuccess": "Tạo phiếu chuyển kho thành công",
+      "receiveSuccess": "Nhận hàng thành công"
+    },
+    "metrics": {
+      "totalProducts": "Tổng sản phẩm",
+      "transfersInTransit": "Đơn đang vận chuyển",
+      "warehousePerformance": "Hiệu suất kho"
     }
   },
   "products": {
