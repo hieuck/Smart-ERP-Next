@@ -8,12 +8,13 @@ import { NotificationsGateway } from '../notifications/notifications.gateway';
 export class ChatService {
   constructor(private notificationsGateway: NotificationsGateway) {}
 
-  async sendMessage(tenantId: string, fromUserId: string, toUserId: string, content: string) {
+  async sendMessage(tenantId: string, fromUserId: string, toUserId: string, content: string, mentions?: string[]) {
     const [msg] = await db.insert(messages).values({
       tenantId,
       fromUserId,
       toUserId,
       content,
+      mentions,
       sentAt: new Date(),
     }).returning();
 
@@ -22,8 +23,21 @@ export class ChatService {
       id: msg.id,
       fromUserId,
       content,
+      mentions,
       sentAt: msg.sentAt,
     });
+
+    // Notify mentioned users
+    if (mentions?.length) {
+      mentions.forEach((userId) => {
+        this.notificationsGateway.sendToUser(userId, 'chat.mention', {
+          id: msg.id,
+          fromUserId,
+          content,
+          mentionedBy: fromUserId,
+        });
+      });
+    }
 
     return msg;
   }

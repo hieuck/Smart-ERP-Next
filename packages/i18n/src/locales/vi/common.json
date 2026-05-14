@@ -399,7 +399,9 @@
       "payment": "phiếu thu/chi",
       "journalEntry": "bút toán",
       "comment": "bình luận",
-      "chat": "chat",
+      "chat": "Tin nhắn",
+      "chat.mention": "đã nhắn đến bạn",
+      "chat.newMessage": "Tin nhắn mới",
       "lot": "lô hàng",
       "transfer": "chuyển kho"
     }

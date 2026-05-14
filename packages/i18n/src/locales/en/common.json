@@ -772,7 +772,9 @@
   "chat": {
     "users": "Users",
     "typeMessage": "Type a message...",
-    "selectUser": "Select a user to start chatting"
+    "selectUser": "Select a user to start chatting",
+    "mention": "mentioned you",
+    "newMessage": "New message"
   },
   "common": {
     "noNotifications": "No notifications",
