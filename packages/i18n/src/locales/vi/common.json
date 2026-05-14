@@ -140,6 +140,12 @@
     "total30d": "Dự kiến 30 ngày",
     "reorderSuggestion": "Gợi ý nhập hàng",
     "demandForecast": "Dự báo nhu cầu (AI)",
+    "recommendationTitle": "Gợi ý nhập hàng thông minh",
+    "productId": "Mã sản phẩm",
+    "currentStock": "Tồn kho hiện tại",
+    "suggestedReorder": "Số lượng gợi ý",
+    "recommendationMessage": "Nên nhập hàng để đáp ứng nhu cầu dự báo.",
+    "noReorderNeeded": "Tồn kho hiện tại đủ để đáp ứng nhu cầu.",
     "lots": {
       "title": "Quản lý lô hàng",
       "add": "Thêm lô hàng",
