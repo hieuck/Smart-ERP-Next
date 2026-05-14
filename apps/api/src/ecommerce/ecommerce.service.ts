@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { db } from '@smart-erp/database';
-import { eq, and, sql } from '@smart-erp/database/drizzle';
+import { eq, and, sql, desc } from '@smart-erp/database/drizzle';
 import {
   ecommerceStores,
   ecommerceSyncLogs,
@@ -11,6 +11,7 @@ import {
 import { TikTokShopClient, TikTokShopConfig } from './tiktokshop.client';
 import { AmazonClient, AmazonConfig } from './amazon.client';
 import { EbayClient, EbayConfig } from './ebay.client';
+import { ShopeeClient, ShopeeConfig } from './shopee.client';
 
 export interface SyncResult {
   storeId: string;
@@ -182,6 +183,164 @@ export class EcommerceService {
     return total;
   }
 
+  // ---------- Shopee ----------
+
+  async syncShopeeProducts(storeId: string) {
+    const store = await this.getStore(storeId);
+    const config: ShopeeConfig = JSON.parse(store.configJson || '{}');
+    const client = new ShopeeClient(config);
+    let page = 1;
+    let total = 0;
+    let hasMore = true;
+    while (hasMore) {
+      const res = await client.getProducts(page, 50);
+      for (const product of res.products) {
+        await this.upsertProductFromShopee(store.tenantId, product);
+        total++;
+      }
+      hasMore = res.pagination.hasNext;
+      page++;
+    }
+    return total;
+  }
+
+  async syncShopeeOrders(storeId: string, since?: string) {
+    const store = await this.getStore(storeId);
+    const config: ShopeeConfig = JSON.parse(store.configJson || '{}');
+    const client = new ShopeeClient(config);
+    let page = 1;
+    let total = 0;
+    let hasMore = true;
+    while (hasMore) {
+      const res = await client.getOrders(since, page, 50);
+      for (const order of res.orders) {
+        await this.upsertOrderFromShopee(store.tenantId, order);
+        total++;
+      }
+      hasMore = res.pagination.hasMore;
+      page++;
+    }
+    return total;
+  }
+
+  private async upsertProductFromShopee(tenantId: string, shopeeProduct: any) {
+    const existing = await db
+      .select()
+      .from(products)
+      .where(and(eq(products.tenantId, tenantId), eq(products.externalId, shopeeProduct.id)))
+      .then((r) => r[0]);
+    const productData = {
+      name: shopeeProduct.name,
+      sku: shopeeProduct.sku || shopeeProduct.id,
+      price: shopeeProduct.price || 0,
+      stock: shopeeProduct.stock || 0,
+      description: shopeeProduct.description || '',
+      images: JSON.stringify(shopeeProduct.images || []),
+      isActive: shopeeProduct.status === 'active',
+      externalId: shopeeProduct.id,
+      externalPlatform: 'shopee',
+    };
+    if (existing) {
+      await db.update(products).set(productData).where(eq(products.id, existing.id));
+    } else {
+      await db.insert(products).values({ ...productData, tenantId });
+    }
+  }
+
+  private async upsertOrderFromShopee(tenantId: string, shopeeOrder: any) {
+    const orderData = {
+      tenantId,
+      code: shopeeOrder.orderSn,
+      customerName: shopeeOrder.recipientName || shopeeOrder.buyerName || '',
+      customerPhone: shopeeOrder.recipientPhone || '',
+      total: shopeeOrder.totalAmount || 0,
+      status: shopeeOrder.status,
+      channel: 'shopee',
+      externalId: shopeeOrder.orderSn,
+      externalPlatform: 'shopee',
+    };
+    await this.upsertOrder(tenantId, orderData);
+  }
+
+  // ---------- Shopee ----------
+
+  async syncShopeeProducts(storeId: string) {
+    const store = await this.getStore(storeId);
+    const config: ShopeeConfig = JSON.parse(store.configJson || '{}');
+    const client = new ShopeeClient(config);
+    let page = 1;
+    let total = 0;
+    let hasMore = true;
+    while (hasMore) {
+      const res = await client.getProducts(page, 50);
+      for (const product of res.products) {
+        await this.upsertProductFromShopee(store.tenantId, product);
+        total++;
+      }
+      hasMore = res.pagination.hasNext;
+      page++;
+    }
+    return total;
+  }
+
+  async syncShopeeOrders(storeId: string, since?: string) {
+    const store = await this.getStore(storeId);
+    const config: ShopeeConfig = JSON.parse(store.configJson || '{}');
+    const client = new ShopeeClient(config);
+    let page = 1;
+    let total = 0;
+    let hasMore = true;
+    while (hasMore) {
+      const res = await client.getOrders(since, page, 50);
+      for (const order of res.orders) {
+        await this.upsertOrderFromShopee(store.tenantId, order);
+        total++;
+      }
+      hasMore = res.pagination.hasMore;
+      page++;
+    }
+    return total;
+  }
+
+  private async upsertProductFromShopee(tenantId: string, shopeeProduct: any) {
+    const existing = await db
+      .select()
+      .from(products)
+      .where(and(eq(products.tenantId, tenantId), eq(products.externalId, shopeeProduct.id)))
+      .then((r) => r[0]);
+    const productData = {
+      name: shopeeProduct.name,
+      sku: shopeeProduct.sku || shopeeProduct.id,
+      price: shopeeProduct.price || 0,
+      stock: shopeeProduct.stock || 0,
+      description: shopeeProduct.description || '',
+      images: JSON.stringify(shopeeProduct.images || []),
+      isActive: shopeeProduct.status === 'active',
+      externalId: shopeeProduct.id,
+      externalPlatform: 'shopee',
+    };
+    if (existing) {
+      await db.update(products).set(productData).where(eq(products.id, existing.id));
+    } else {
+      await db.insert(products).values({ ...productData, tenantId });
+    }
+  }
+
+  private async upsertOrderFromShopee(tenantId: string, shopeeOrder: any) {
+    const orderData = {
+      tenantId,
+      code: shopeeOrder.orderSn,
+      customerName: shopeeOrder.recipientName || shopeeOrder.buyerName || '',
+      customerPhone: shopeeOrder.recipientPhone || '',
+      total: shopeeOrder.totalAmount || 0,
+      status: shopeeOrder.status,
+      channel: 'shopee',
+      externalId: shopeeOrder.orderSn,
+      externalPlatform: 'shopee',
+    };
+    await this.upsertOrder(tenantId, orderData);
+  }
+
   // ---------- eBay ----------
 
   async syncEbayProducts(storeId: string) {
@@ -229,6 +388,7 @@ export class EcommerceService {
       case 'tiktokshop': total = await this.syncTikTokShopProducts(storeId); break;
       case 'amazon': total = await this.syncAmazonProducts(storeId); break;
       case 'ebay': total = await this.syncEbayProducts(storeId); break;
+      case 'shopee': total = await this.syncShopeeProducts(storeId); break;
       default: throw new HttpException(`Unsupported platform for products: ${store.platform}`, HttpStatus.BAD_REQUEST);
     }
     return total;
@@ -241,6 +401,7 @@ export class EcommerceService {
       case 'tiktokshop': total = await this.syncTikTokShopOrders(storeId); break;
       case 'amazon': total = await this.syncAmazonOrders(storeId); break;
       case 'ebay': total = await this.syncEbayOrders(storeId); break;
+      case 'shopee': total = await this.syncShopeeOrders(storeId); break;
       default: throw new HttpException(`Unsupported platform for orders: ${store.platform}`, HttpStatus.BAD_REQUEST);
     }
     return total;
