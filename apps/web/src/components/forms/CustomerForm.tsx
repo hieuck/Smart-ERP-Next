@@ -73,7 +73,7 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
       }
       router.push('/customers');
     } catch (err: any) {
-      setError(err.response?.data?.message ?? 'Lưu thất bại');
+      setError(err.response?.data?.message ?? t('common.error'));
     } finally {
       setSaving(false);
     }
@@ -114,7 +114,7 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
           <ArrowLeft className="w-5 h-5 text-gray-500" />
         </button>
         <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-          {mode === 'create' ? t('customers.add') : 'Sửa khách hàng'}
+          {mode === 'create' ? t('customers.add') : t('customers.edit')}
         </h1>
       </div>
 
@@ -127,26 +127,26 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
 
         {/* Basic info */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Thông tin cơ bản</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('customers.basicInfo')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label={t('customers.code')} name="code" required placeholder="KH-001" />
-            <Field label={t('customers.name')} name="name" required placeholder="Nguyễn Văn A" />
-            <Field label={t('customers.phone')} name="phone" type="tel" placeholder="0901234567" />
-            <Field label={t('customers.email')} name="email" type="email" placeholder="email@example.com" />
-            <Field label={t('customers.taxCode')} name="taxCode" placeholder="0123456789" />
-            <Field label={t('customers.contactPerson')} name="contactPerson" placeholder="Người liên hệ" />
+            <Field label={t('customers.code')} name="code" required placeholder={t('customers.placeholders.code')} />
+            <Field label={t('customers.name')} name="name" required placeholder={t('customers.placeholders.name')} />
+            <Field label={t('customers.phone')} name="phone" type="tel" placeholder={t('customers.placeholders.phone')} />
+            <Field label={t('customers.email')} name="email" type="email" placeholder={t('customers.placeholders.email')} />
+            <Field label={t('customers.taxCode')} name="taxCode" placeholder={t('customers.placeholders.taxCode')} />
+            <Field label={t('customers.contactPerson')} name="contactPerson" placeholder={t('customers.placeholders.contactPerson')} />
           </div>
         </div>
 
         {/* Address */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Địa chỉ</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('customers.addressSection')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
-              <Field label={t('customers.address')} name="address" placeholder="Số nhà, tên đường" />
+              <Field label={t('customers.address')} name="address" placeholder={t('customers.placeholders.address')} />
             </div>
-            <Field label={t('customers.ward')} name="ward" placeholder="Phường/Xã" />
-            <Field label={t('customers.district')} name="district" placeholder="Quận/Huyện" />
+            <Field label={t('customers.ward')} name="ward" placeholder={t('customers.placeholders.ward')} />
+            <Field label={t('customers.district')} name="district" placeholder={t('customers.placeholders.district')} />
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {t('customers.province')}
@@ -157,7 +157,7 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               >
-                <option value="">-- Chọn tỉnh/thành --</option>
+                <option value="">{t('customers.placeholders.province')}</option>
                 {PROVINCES_VN.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
@@ -168,7 +168,7 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
 
         {/* Business settings */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Cài đặt kinh doanh</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">{t('customers.businessSection')}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -180,22 +180,22 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               >
-                <option value="retail">Bán lẻ</option>
-                <option value="wholesale">Bán sỉ</option>
-                <option value="vip">VIP</option>
+                <option value="retail">{t('customers.groups.retail')}</option>
+                <option value="wholesale">{t('customers.groups.wholesale')}</option>
+                <option value="vip">{t('customers.groups.vip')}</option>
               </select>
             </div>
             <Field label={`${t('customers.debtLimit')} (VND)`} name="debtLimit" type="number" placeholder="0" />
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Ghi chú
+                {t('customers.notes')}
               </label>
               <textarea
                 name="notes"
                 value={form.notes}
                 onChange={handleChange}
                 rows={3}
-                placeholder="Ghi chú về khách hàng..."
+                placeholder={t('customers.placeholders.notes')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
               />
             </div>
@@ -209,7 +209,7 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
                 className="w-4 h-4 text-blue-600 rounded"
               />
               <label htmlFor="isActive" className="text-sm text-gray-700 dark:text-gray-300">
-                Đang hoạt động
+                {t('customers.active')}
               </label>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            {saving ? 'Đang lưu...' : t('actions.save')}
+            {saving ? t('common.processing') : t('actions.save')}
           </button>
         </div>
       </form>
