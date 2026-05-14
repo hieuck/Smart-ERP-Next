@@ -32,6 +32,8 @@
 ### 🧠 AI-Powered Business Intelligence
 - **Dự báo nhu cầu (Demand Forecasting)**: Sử dụng lịch sử bán hàng thực tế để dự báo tồn kho cần thiết.
 - **Gợi ý nhập hàng tự động**: Tính toán số lượng đặt hàng tối ưu dựa trên tốc độ bán và lead time.
+- **Inventory Recommendation Service**: AI‑driven reorder suggestions via `/inventory-recommendation/suggest` endpoint.
+- **Forecast Dashboard**: Visual demand forecast UI with i18n support.
 
 ### 🌐 E-commerce Integration Hub (Omnichannel)
 - **Đồng bộ đa sàn**: Kết nối Shopee, Lazada, TikTok Shop, Amazon, eBay, Shopify.
