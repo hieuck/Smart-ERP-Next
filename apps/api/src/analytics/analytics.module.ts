@@ -8,10 +8,25 @@ import { ClvService } from './clv.service';
 import { ClvController } from './clv.controller';
 import { ChurnPredictionService } from './churn.service';
 import { ChurnController } from './churn.controller';
+import { PredictiveAnalyticsService } from './predictive-analytics.service';
+import { PredictiveAnalyticsController } from './predictive-analytics.controller';
 
 @Module({
-  providers: [AnalyticsService, AnomalyService, CashflowForecastService, ClvService, ChurnPredictionService],
-  controllers: [AnalyticsController, CashflowController, ClvController, ChurnController],
+  providers: [
+    AnalyticsService,
+    AnomalyService,
+    CashflowForecastService,
+    ClvService,
+    ChurnPredictionService,
+    PredictiveAnalyticsService,
+  ],
+  controllers: [
+    AnalyticsController,
+    CashflowController,
+    ClvController,
+    ChurnController,
+    PredictiveAnalyticsController,
+  ],
   exports: [AnalyticsService],
 })
 export class AnalyticsModule {}

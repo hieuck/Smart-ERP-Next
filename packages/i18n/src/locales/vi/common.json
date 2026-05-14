@@ -422,5 +422,22 @@
       "allSuccess": "Đồng bộ tất cả các kênh thành công",
       "failed": "Đồng bộ thất bại"
     }
+  },
+  "analytics": {
+    "title": "Phân tích dự đoán",
+    "clv": "Giá trị vòng đời khách hàng",
+    "clvScore": "Điểm CLV",
+    "churnRisk": "Rủi ro rời bỏ",
+    "churnRisk.low": "Thấp",
+    "churnRisk.medium": "Trung bình",
+    "churnRisk.high": "Cao",
+    "salesTrend": "Xu hướng bán hàng",
+    "growthRate": "Tăng trưởng",
+    "atRisk": "Khách hàng có nguy cơ rời bỏ",
+    "totalRevenue": "Tổng doanh thu",
+    "avgOrderValue": "Giá trị đơn hàng TB",
+    "topCustomers": "Khách hàng hàng đầu",
+    "predictive.title": "Phân tích dự đoán",
+    "predictive.subtitle": "Dự báo xu hướng và hành vi khách hàng"
   }
 }
