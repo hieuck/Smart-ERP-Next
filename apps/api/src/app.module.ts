@@ -1,6 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ForecastModule } from './forecast/forecast.module';
-import { ForecastModule } from './forecast/forecast.module';
+import { InventoryRecommendationModule } from './inventory-recommendation/inventory-recommendation.module';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -33,8 +33,8 @@ import { DRIZZLE } from './common/drizzle.decorator';
   imports: [
     // Forecast feature
     ForecastModule,
-    // Forecast feature
-    ForecastModule,
+    // Inventory recommendation
+    InventoryRecommendationModule,
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     AuthModule,
     UsersModule,
