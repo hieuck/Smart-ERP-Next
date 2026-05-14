@@ -51,7 +51,7 @@ export default function AccountingScreen() {
     >
       <View style={styles.header}>
         <Text style={styles.title}>{t('nav.accounting')}</Text>
-        <Text style={styles.subtitle}>{t('accounting.financeOverview', 'Tổng quan tài chính')}</Text>
+        <Text style={styles.subtitle}>{t('accounting.financeOverview')}</Text>
       </View>
 
       <View style={styles.statsGrid}>
@@ -61,23 +61,23 @@ export default function AccountingScreen() {
         </View>
 
         <View style={[styles.statCard, styles.expenseCard]}>
-          <Text style={styles.statLabel}>Tổng chi phí</Text>
+          <Text style={styles.statLabel}>{t('accounting.totalExpense')}</Text>
           <Text style={[styles.statValue, styles.textRed]}>{formatVND(data?.totalExpense || 0)}</Text>
         </View>
 
         <View style={[styles.statCard, styles.incomeCard]}>
-          <Text style={styles.statLabel}>Lợi nhuận ròng</Text>
+          <Text style={styles.statLabel}>{t('accounting.netIncome')}</Text>
           <Text style={[styles.statValue, styles.textBlue]}>{formatVND(data?.netIncome || 0)}</Text>
         </View>
 
         <View style={[styles.statCard, styles.cashCard]}>
-          <Text style={styles.statLabel}>Số dư tiền mặt</Text>
+          <Text style={styles.statLabel}>{t('accounting.cashBalance')}</Text>
           <Text style={styles.statValue}>{formatVND(data?.cashBalance || 0)}</Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tài khoản ngân hàng</Text>
+        <Text style={styles.sectionTitle}>{t('accounting.bankAccounts')}</Text>
         <View style={styles.bankItem}>
           <View>
             <Text style={styles.bankName}>Vietcombank</Text>

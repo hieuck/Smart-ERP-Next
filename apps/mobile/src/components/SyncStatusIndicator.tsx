@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { useTranslation } from '@smart-erp/i18n';
 import { syncService } from '../lib/sync-service';
 
 interface SyncStatusProps {
@@ -7,6 +8,7 @@ interface SyncStatusProps {
 }
 
 export function SyncStatusIndicator({ onPress }: SyncStatusProps) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<'idle' | 'syncing' | 'error' | 'offline'>('idle');
   const [pendingChanges, setPendingChanges] = useState(0);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
@@ -51,13 +53,13 @@ export function SyncStatusIndicator({ onPress }: SyncStatusProps) {
   const getStatusConfig = () => {
     switch (status) {
       case 'syncing':
-        return { color: '#3b82f6', label: 'Đang đồng bộ...', icon: '↻' };
+        return { color: '#3b82f6', label: t('sync.status.syncing'), icon: '↻' };
       case 'error':
-        return { color: '#ef4444', label: 'Lỗi đồng bộ', icon: '⚠️' };
+        return { color: '#ef4444', label: t('sync.status.error'), icon: '⚠️' };
       case 'offline':
-        return { color: '#6b7280', label: 'Ngoại tuyến', icon: '📴' };
+        return { color: '#6b7280', label: t('sync.status.offline'), icon: '📴' };
       default:
-        return { color: '#10b981', label: 'Đã đồng bộ', icon: '✓' };
+        return { color: '#10b981', label: t('sync.status.idle'), icon: '✓' };
     }
   };
 
@@ -70,11 +72,11 @@ export function SyncStatusIndicator({ onPress }: SyncStatusProps) {
       <View style={styles.textContainer}>
         <Text style={[styles.label, { color: config.color }]}>{config.label}</Text>
         {pendingChanges > 0 && (
-          <Text style={styles.pending}>{pendingChanges} thay đổi đang chờ</Text>
+          <Text style={styles.pending}>{t('common.sync.pendingChanges', { count: pendingChanges })}</Text>
         )}
         {lastSyncTime && status === 'idle' && (
           <Text style={styles.lastSync}>
-            Lần cuối: {lastSyncTime.toLocaleTimeString('vi-VN')}
+            {t('common.sync.lastSync')}: {lastSyncTime.toLocaleTimeString('vi-VN')}
           </Text>
         )}
       </View>
