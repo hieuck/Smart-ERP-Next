@@ -22,6 +22,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ActivityFeed } from './components/ActivityFeed';
+import { AIInsightWidget } from './components/AIInsightWidget';
 
 interface DashboardStats {
   todayRevenue: number;
@@ -183,6 +184,39 @@ export default function DashboardPage() {
                 <AlertTriangle className="w-5 h-5" />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* AI Insights */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-100 dark:border-blue-800 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">🧠</span>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+              {t('dashboard.cashflowForecast')}
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <AIInsightWidget
+              title={t('forecast.demand')}
+              value="180"
+              subtitle={t('inventory.avgDailyDemand')}
+              trend="up"
+              color="blue"
+            />
+            <AIInsightWidget
+              title={t('inventory.suggestedReorder')}
+              value="45"
+              subtitle={t('inventory.demandForecast')}
+              trend="up"
+              color="yellow"
+            />
+            <AIInsightWidget
+              title={t('approvals.pending')}
+              value="3"
+              subtitle={t('approvals.status.pending')}
+              trend="neutral"
+              color="green"
+            />
           </div>
         </div>
 
