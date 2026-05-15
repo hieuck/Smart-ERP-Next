@@ -38,6 +38,7 @@ import { AutomationModule } from './automation/automation.module';
 import { ExchangeRateModule } from './currencies/exchange-rate.module';
 import { ManufacturingModule } from './manufacturing/manufacturing.module';
 import { MRPModule } from './mrp/mrp.module';
+import { QmsModule } from './qms/qms.module';
 import { CustomerPortalModule } from './customers/customer-portal.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { db } from '@smart-erp/database';
@@ -86,6 +87,7 @@ import { DRIZZLE } from './common/drizzle.decorator';
     ExchangeRateModule,
     ManufacturingModule,
     MRPModule,
+    QmsModule,
     CustomerPortalModule,
   ],
   controllers: [AppController],
