@@ -659,6 +659,33 @@
   "brandColorPurple": "Tím",
   "brandColorOrange": "Cam",
   "brandColorRed": "Đỏ",
+  "hr": {
+    "title": "Nhân sự",
+    "payroll": {
+      "title": "Quản lý lương",
+      "processing": "Đang xử lý lương",
+      "employee": "Nhân viên",
+      "salary": "Lương",
+      "tax": "Thuế",
+      "deduction": "Khấu trừ",
+      "netSalary": "Lương ròng",
+      "baseSalary": "Lương cơ bản",
+      "allowances": "Phụ cấp",
+      "deductions": "Khấu trừ",
+      "status": {
+        "draft": "Nháp",
+        "processing": "Đang xử lý",
+        "completed": "Hoàn thành",
+        "cancelled": "Đã hủy"
+      }
+    },
+    "employee": {
+      "title": "Quản lý nhân viên",
+      "add": "Thêm nhân viên",
+      "edit": "Sửa nhân viên",
+      "delete": "Xóa nhân viên"
+    }
+  },
   "chat": {
     "mention": "đã nhắn đến bạn",
     "newMessage": "Tin nhắn mới"

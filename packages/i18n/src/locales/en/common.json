@@ -1139,5 +1139,32 @@
   "brandColorGreen": "Green",
   "brandColorPurple": "Purple",
   "brandColorOrange": "Orange",
-  "brandColorRed": "Red"
+  "brandColorRed": "Red",
+  "hr": {
+    "title": "Human Resources",
+    "payroll": {
+      "title": "Payroll Management",
+      "processing": "Processing Payroll",
+      "employee": "Employee",
+      "salary": "Salary",
+      "tax": "Tax",
+      "deduction": "Deduction",
+      "netSalary": "Net Salary",
+      "baseSalary": "Base Salary",
+      "allowances": "Allowances",
+      "deductions": "Deductions",
+      "status": {
+        "draft": "Draft",
+        "processing": "Processing",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "employee": {
+      "title": "Employee Management",
+      "add": "Add Employee",
+      "edit": "Edit Employee",
+      "delete": "Delete Employee"
+    }
+  }
 }
