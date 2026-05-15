@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # AI Forecasting Service (Python + Prophet ML)
+  ai-forecast:
+    build:
+      context: ./apps/ai-forecast
+      dockerfile: Dockerfile
+    container_name: smart-erp-ai-forecast
+    ports:
+      - "${AI_FORECAST_PORT:-8000}:8000"
+    environment:
+      - PORT=8000
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - smart-erp-network
+
+  # API Server (NestJS) - uncomment when ready
+  # api:
+  #   build:
+  #     context: ./apps/api
+  #     dockerfile: Dockerfile
+  #   container_name: smart-erp-api
+  #   ports:
+  #     - "${API_PORT:-3000}:3000"
+  #   environment:
+  #     - DATABASE_URL=${DATABASE_URL}
+  #     - JWT_SECRET=${JWT_SECRET}
+  #     - AI_FORECAST_URL=http://ai-forecast:8000
+  #   depends_on:
+  #     - ai-forecast
+  #     - postgres
+  #   networks:
+  #     - smart-erp-network
+
+  # PostgreSQL Database - uncomment when ready
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: smart-erp-postgres
+  #   ports:
+  #     - "${DB_PORT:-5432}:5432"
+  #   environment:
+  #     - POSTGRES_DB=smart_erp
+  #     - POSTGRES_USER=${DB_USER:-smart_erp}
+  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - smart-erp-network
+
+networks:
+  smart-erp-network:
+    driver: bridge
+
+# volumes:
+#   postgres_data:
