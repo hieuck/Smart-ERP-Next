@@ -48,7 +48,7 @@ export class WebhooksService {
     return this.drizzle.db
       .select()
       .from(webhookSubscriptions)
-      .where(and(eq(webhookSubscriptions.tenantId, tenantId), eq(webhookSubscriptions.isActive, true));
+      .where(and(eq(webhookSubscriptions.tenantId, tenantId), eq(webhookSubscriptions.isActive, true)));
   }
 
   /** Delete a subscription */
@@ -56,7 +56,7 @@ export class WebhooksService {
     await this.drizzle.db
       .update(webhookSubscriptions)
       .set({ isActive: false })
-      .where(and(eq(webhookSubscriptions.id, subscriptionId), eq(webhookSubscriptions.tenantId, tenantId);
+      .where(and(eq(webhookSubscriptions.id, subscriptionId), eq(webhookSubscriptions.tenantId, tenantId)));
   }
 
   /** Dispatch webhook to all matching subscriptions */

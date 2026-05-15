@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ForecastService } from '../forecast/forecast.service';
-import { ActivityService } from '../modules/activity/activity.module';
+import { ActivityService } from '../modules/activity/activity.service';
 import axios from 'axios';
 
 /**
