@@ -24,6 +24,7 @@ import { HealthModule } from './health/health.module';
 import { CommentsModule } from './comments/comments.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
 import { AccountingModule } from './accounting/accounting.module';
+import { HrModule } from './hr/hr.module';
 import { CrmModule } from './crm/crm.module';
 import { ActivityModule } from './modules/activity/activity.module';
 import { ExportModule } from './exports/export.module';
@@ -67,6 +68,7 @@ import { DRIZZLE } from './common/drizzle.decorator';
     CommentsModule,
     SchedulerModule,
     AccountingModule,
+    HrModule,
     CrmModule,
     ActivityModule,
     HealthModule,
