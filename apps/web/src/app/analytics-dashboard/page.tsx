@@ -17,29 +17,50 @@ interface KPIResult {
   periodComparison: { revenueChange: number; ordersChange: number; customersChange: number };
 }
 
+interface AIInsight {
+  type: string;
+  severity: 'info' | 'warning' | 'critical';
+  message: string;
+  metric: string;
+  value: number;
+}
+
+const SEVERITY_STYLES: Record<string, string> = {
+  info: 'bg-blue-50 border-blue-400 text-blue-800',
+  warning: 'bg-yellow-50 border-yellow-400 text-yellow-800',
+  critical: 'bg-red-50 border-red-400 text-red-800',
+};
+
+const SEVERITY_ICONS: Record<string, string> = {
+  info: 'ℹ️',
+  warning: '⚠️',
+  critical: '🚨',
+};
+
 export default function AnalyticsDashboardPage() {
   const { t } = useTranslation('common');
   const [kpis, setKpis] = useState<KPIResult | null>(null);
   const [revenueChart, setRevenueChart] = useState<any[]>([]);
   const [topProducts, setTopProducts] = useState<any[]>([]);
+  const [insights, setInsights] = useState<AIInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<'today' | 'week' | 'month' | 'quarter'>('month');
 
-  useEffect(() => {
-    fetchData();
-  }, [period]);
+  useEffect(() => { fetchData(); }, [period]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [kpiRes, chartRes, productsRes] = await Promise.all([
+      const [kpiRes, chartRes, productsRes, insightsRes] = await Promise.all([
         apiClient.get('/analytics-dashboard/kpis', { params: { period } }),
         apiClient.get('/analytics-dashboard/revenue-chart', { params: { days: 30 } }),
         apiClient.get('/analytics-dashboard/top-products', { params: { limit: 10 } }),
+        apiClient.get('/analytics-dashboard/ai-insights'),
       ]);
       setKpis(kpiRes.data);
       setRevenueChart(chartRes.data || []);
       setTopProducts(productsRes.data || []);
+      setInsights(insightsRes.data || []);
     } catch { /* ignore */ }
     finally { setLoading(false); }
   };
@@ -50,16 +71,12 @@ export default function AnalyticsDashboardPage() {
     <AuthGuard>
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
+          <h1 className="text-2xl font-bold">{t('analytics.title')}</h1>
           <div className="flex gap-2">
             {(['today', 'week', 'month', 'quarter'] as const).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
+              <button key={p} onClick={() => setPeriod(p)}
                 className={`px-3 py-1 text-sm rounded-lg ${period === p ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-              >
-                {p}
-              </button>
+              >{p}</button>
             ))}
           </div>
         </div>
@@ -68,30 +85,41 @@ export default function AnalyticsDashboardPage() {
           <div className="text-center py-16">{t('common.loading')}</div>
         ) : kpis && (
           <>
+            {/* AI Insights */}
+            {insights.length > 0 && (
+              <div className="space-y-2">
+                <h2 className="text-lg font-semibold">AI Insights</h2>
+                {insights.map((insight, i) => (
+                  <div key={i} className={`rounded-lg border-l-4 p-3 ${SEVERITY_STYLES[insight.severity]}`}>
+                    <span className="mr-2">{SEVERITY_ICONS[insight.severity]}</span>
+                    {insight.message}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* KPI Cards */}
             <div className="grid grid-cols-4 gap-4">
-              <KPICard label="Revenue" value={formatVND(kpis.totalRevenue)} change={kpis.periodComparison.revenueChange} color="blue" />
-              <KPICard label="Orders" value={kpis.totalOrders.toString()} change={kpis.periodComparison.ordersChange} color="green" />
-              <KPICard label="Avg Order" value={formatVND(kpis.avgOrderValue)} color="purple" />
-              <KPICard label="Customers" value={kpis.totalCustomers.toString()} color="orange" />
-              <KPICard label="Low Stock" value={kpis.lowStockCount.toString()} color={kpis.lowStockCount > 0 ? 'red' : 'green'} />
-              <KPICard label="In Production" value={kpis.productionInProgress.toString()} color="blue" />
-              <KPICard label="Quality Pass" value={`${kpis.qualityPassRate}%`} color={kpis.qualityPassRate >= 80 ? 'green' : 'yellow'} />
+              <KPICard label={t('analytics.revenue')} value={formatVND(kpis.totalRevenue)} change={kpis.periodComparison.revenueChange} color="blue" />
+              <KPICard label={t('analytics.orders')} value={kpis.totalOrders.toString()} change={kpis.periodComparison.ordersChange} color="green" />
+              <KPICard label={t('analytics.avgOrder')} value={formatVND(kpis.avgOrderValue)} color="purple" />
+              <KPICard label={t('analytics.customers')} value={kpis.totalCustomers.toString()} color="orange" />
+              <KPICard label={t('analytics.lowStock')} value={kpis.lowStockCount.toString()} color={kpis.lowStockCount > 0 ? 'red' : 'green'} />
+              <KPICard label={t('analytics.inProduction')} value={kpis.productionInProgress.toString()} color="blue" />
+              <KPICard label={t('analytics.qualityPass')} value={`${kpis.qualityPassRate}%`} color={kpis.qualityPassRate >= 80 ? 'green' : 'yellow'} />
             </div>
 
             {/* Revenue Chart */}
             <div className="bg-white rounded-xl shadow p-4">
-              <h2 className="text-lg font-semibold mb-4">Revenue (30 days)</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('analytics.revenueChart')}</h2>
               <div className="flex items-end gap-1 h-48">
                 {revenueChart.map((d: any, i: number) => {
                   const height = (Number(d.revenue || 0) / maxRevenue) * 100;
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center">
-                      <div
-                        className="w-full bg-blue-500 rounded-t hover:bg-blue-600 transition-colors"
+                      <div className="w-full bg-blue-500 rounded-t hover:bg-blue-600 transition-colors"
                         style={{ height: `${Math.max(height, 2)}%` }}
-                        title={`${d.date}: ${formatVND(d.revenue)}`}
-                      />
+                        title={`${d.date}: ${formatVND(d.revenue)}`} />
                     </div>
                   );
                 })}
@@ -100,7 +128,7 @@ export default function AnalyticsDashboardPage() {
 
             {/* Top Products */}
             <div className="bg-white rounded-xl shadow p-4">
-              <h2 className="text-lg font-semibold mb-4">Top Products</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('analytics.topProducts')}</h2>
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr>

@@ -169,4 +169,73 @@ export class AnalyticsDashboardService {
 
     return { startDate, prevStartDate, prevEndDate };
   }
+
+  // ── AI Insights & Anomaly Detection ──
+
+  async getAIInsights(tenantId: string): Promise<{ type: string; severity: 'info' | 'warning' | 'critical'; message: string; metric: string; value: number }[]> {
+    const insights: { type: string; severity: 'info' | 'warning' | 'critical'; message: string; metric: string; value: number }[] = [];
+
+    // Revenue anomaly detection
+    const revenueData = await this.drizzle.db.execute(sql`
+      SELECT DATE(created_at) as date, SUM(total) as daily_revenue
+      FROM orders
+      WHERE tenant_id = ${tenantId} AND status IN ('confirmed','delivered','completed')
+        AND created_at >= NOW() - INTERVAL '14 days'
+      GROUP BY DATE(created_at) ORDER BY date ASC`
+    );
+    const revData = revenueData as any[];
+    if (revData.length >= 7) {
+      const values = revData.map((d: any) => Number(d.daily_revenue || 0));
+      const avg = values.reduce((a: number, b: number) => a + b, 0) / values.length;
+      const stdDev = Math.sqrt(values.reduce((sum: number, v: number) => sum + Math.pow(v - avg, 2), 0) / values.length);
+      const lastValue = values[values.length - 1];
+
+      if (lastValue < avg - 2 * stdDev) {
+        insights.push({ type: 'anomaly', severity: 'critical', message: 'Revenue dropped significantly below normal', metric: 'revenue', value: lastValue });
+      } else if (lastValue < avg - stdDev) {
+        insights.push({ type: 'anomaly', severity: 'warning', message: 'Revenue below average trend', metric: 'revenue', value: lastValue });
+      } else if (lastValue > avg + 2 * stdDev) {
+        insights.push({ type: 'trend', severity: 'info', message: 'Revenue spike detected — above normal range', metric: 'revenue', value: lastValue });
+      }
+    }
+
+    // Low stock alert
+    const lowStock = await this.drizzle.db.execute(sql`
+      SELECT COUNT(*) as count FROM products
+      WHERE tenant_id = ${tenantId} AND is_active = true AND current_stock <= min_stock`
+    );
+    const lowStockCount = Number((lowStock as any[])?.[0]?.count || 0);
+    if (lowStockCount > 0) {
+      insights.push({ type: 'inventory', severity: lowStockCount > 10 ? 'critical' : 'warning', message: `${lowStockCount} products below minimum stock level`, metric: 'lowStock', value: lowStockCount });
+    }
+
+    // Quality alert
+    const quality = await this.drizzle.db.execute(sql`
+      SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN verdict = 'fail' THEN 1 ELSE 0 END) as failed
+      FROM qms_inspections
+      WHERE tenant_id = ${tenantId} AND inspection_date >= NOW() - INTERVAL '7 days'`
+    );
+    const qual = (quality as any[])[0] || { total: 0, failed: 0 };
+    const failRate = Number(qual.total) > 0 ? (Number(qual.failed) / Number(qual.total)) * 100 : 0;
+    if (failRate > 20) {
+      insights.push({ type: 'quality', severity: 'critical', message: `Quality fail rate at ${failRate.toFixed(1)}% — above 20% threshold`, metric: 'qualityFailRate', value: failRate });
+    } else if (failRate > 10) {
+      insights.push({ type: 'quality', severity: 'warning', message: `Quality fail rate at ${failRate.toFixed(1)}% — monitor closely`, metric: 'qualityFailRate', value: failRate });
+    }
+
+    // Production bottleneck
+    const prod = await this.drizzle.db.execute(sql`
+      SELECT COUNT(*) as count FROM production_orders
+      WHERE tenant_id = ${tenantId} AND status = 'in_progress'
+        AND started_at < NOW() - INTERVAL '7 days'`
+    );
+    const staleProd = Number((prod as any[])?.[0]?.count || 0);
+    if (staleProd > 0) {
+      insights.push({ type: 'production', severity: 'warning', message: `${staleProd} production orders stuck in progress for over 7 days`, metric: 'staleProduction', value: staleProd });
+    }
+
+    return insights;
+  }
 }

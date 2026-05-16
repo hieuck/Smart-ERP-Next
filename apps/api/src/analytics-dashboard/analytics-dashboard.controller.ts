@@ -29,4 +29,10 @@ export class AnalyticsDashboardController {
   async getTopProducts(@Request() req: any, @Query('limit') limit?: number) {
     return this.service.getTopProducts(req.user.tenantId, limit || 10);
   }
+
+  @ApiOperation({ summary: 'Get AI-powered insights and anomaly detection' })
+  @Get('ai-insights')
+  async getAIInsights(@Request() req: any) {
+    return this.service.getAIInsights(req.user.tenantId);
+  }
 }
