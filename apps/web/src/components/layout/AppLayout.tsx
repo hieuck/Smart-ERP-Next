@@ -27,6 +27,7 @@ import {
   RefreshCw,
   TrendingUp,
   FileText,
+  Clock,
 } from "lucide-react";
 import NotificationCenter from "./NotificationCenter";
 import { syncService } from "../../lib/sync-service";
@@ -188,6 +189,12 @@ export default function AppLayout({
       label: t("nav.einvoice") || "Hóa đơn điện tử",
       icon: <FileText className="w-5 h-5" />,
       href: "/e-invoice",
+    },
+    {
+      key: "attendance",
+      label: t("attendance.title") || "Chấm công",
+      icon: <Clock className="w-5 h-5" />,
+      href: "/hr/attendance",
     },
     {
       key: "users",
