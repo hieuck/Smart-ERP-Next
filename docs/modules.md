@@ -142,3 +142,17 @@ Phân hệ quản lý vòng đời tài sản, từ khâu mua sắm, theo dõi v
 **Tính năng vượt trội:**
 - **Automated Depreciation Schedule**: Không còn phải tính toán thủ công trên Excel. Hệ thống tự động tạo các bút toán khấu hao hàng tháng dựa trên phương pháp đường thẳng.
 - **Asset Maintenance Link**: Tích hợp trực tiếp với phân hệ `Field Service` để quản lý lịch bảo trì định kỳ cho máy móc, thiết bị.
+
+---
+
+## Phân tích Thông minh (BI) & Dự báo AI `/insights`
+Trung tâm chỉ huy dành cho lãnh đạo, chuyển đổi dữ liệu thô thành các quyết định chiến lược thông qua biểu đồ và trí tuệ nhân tạo.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| GET    | `/insights/dashboard` | Tổng hợp dữ liệu BI: Doanh thu, Xu hướng, Kho hàng và Dự báo AI |
+
+**Tính năng vượt trội:**
+- **Native BI Dashboard**: Hiển thị biểu đồ xu hướng doanh thu ngay trên Mobile mà không cần qua bên thứ ba (Native advantage over Odoo web views).
+- **AI Revenue Prediction**: Sử dụng thuật toán Linear Regression để dự báo doanh thu tháng tới dựa trên dữ liệu lịch sử 3 tháng gần nhất.
+- **Smart Insights Overlay**: Tự động đưa ra các cảnh báo thông minh (Growth, Warning, Stock Alert) giúp lãnh đạo phản ứng kịp thời với biến động thị trường.

@@ -9,6 +9,7 @@ import { formatVND } from '@smart-erp/utils';
 import { ActivityList } from '../components/ActivityList';
 import { QuickActions } from '../components/QuickActions';
 import { syncService } from '../lib/sync-service';
+import { BiChart } from '../components/BiChart';
 
 interface DashboardData {
   todayRevenue: number;
@@ -23,6 +24,11 @@ interface DashboardData {
     status: string;
     createdAt: string;
   }[];
+  revenueChart: { date: string; revenue: number }[];
+  metrics?: {
+    predictedNextMonth: number;
+    revenueTrend: number;
+  };
   insights: { type: string; severity: string; message: string }[];
 }
 
@@ -117,6 +123,26 @@ export default function DashboardScreen({ user }: DashboardScreenProps) {
         ))}
       </View>
 
+      {stats.revenueChart && stats.revenueChart.length > 0 && (
+        <BiChart 
+          data={stats.revenueChart} 
+          title={t('dashboard.revenueTrend', 'Xu hướng Doanh thu (7 ngày)')} 
+        />
+      )}
+
+      {stats.metrics?.predictedNextMonth && (
+        <View style={styles.aiPredictionCard}>
+          <View style={styles.aiIcon}>
+            <Text style={{ fontSize: 20 }}>🤖</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.aiTitle}>Dự báo AI (Tháng tới)</Text>
+            <Text style={styles.aiValue}>{formatVND(stats.metrics.predictedNextMonth)}</Text>
+            <Text style={styles.aiHint}>Dựa trên xu hướng tăng trưởng {stats.metrics.revenueTrend}%</Text>
+          </View>
+        </View>
+      )}
+
       {stats.insights.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>{t('dashboard.insights')}</Text>
@@ -207,4 +233,25 @@ const styles = StyleSheet.create({
   statusText: { fontSize: 10, fontWeight: '600' },
   lastSyncContainer: { marginTop: 12, paddingHorizontal: 16, alignItems: 'flex-end' },
   lastSyncText: { fontSize: 11, color: '#9ca3af' },
+  aiPredictionCard: {
+    backgroundColor: '#1e1b4b',
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  aiIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  aiTitle: { color: '#a5b4fc', fontSize: 12, fontWeight: '600' },
+  aiValue: { color: '#fff', fontSize: 22, fontWeight: '800', marginTop: 2 },
+  aiHint: { color: '#818cf8', fontSize: 11, marginTop: 4 },
 });
