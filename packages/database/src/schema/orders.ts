@@ -56,8 +56,6 @@ export const orders = pgTable(
     createdAtIdx: index('orders_created_at_idx').on(table.createdAt),
     // Composite index for tenant+created_at (common in dashboard and reports)
     tenantCreatedAtIdx: index('orders_tenant_created_at_idx').on(table.tenantId, table.createdAt),
-    // Composite index for tenant+status (already exists below? Actually we already added earlier – ensure no duplicate)
-    tenantStatusIdx: index('orders_tenant_status_idx').on(table.tenantId, table.status),
     // Composite index for tenant+status (common in order list queries)
     tenantStatusIdx: index('orders_tenant_status_idx').on(table.tenantId, table.status),
   })

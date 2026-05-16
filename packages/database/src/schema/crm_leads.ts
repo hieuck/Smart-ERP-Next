@@ -28,9 +28,9 @@ export const crmLeads = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('crm_leads_tenant_idx').on(table.tenantId),
-    index('crm_leads_status_idx').on(table.status),
-    index('crm_leads_email_idx').on(table.email),
-  ]
+  (table) => ({
+    idx1: index('crm_leads_tenant_idx').on(table.tenantId),
+    idx2: index('crm_leads_status_idx').on(table.status),
+    idx3: index('crm_leads_email_idx').on(table.email),
+  })
 );

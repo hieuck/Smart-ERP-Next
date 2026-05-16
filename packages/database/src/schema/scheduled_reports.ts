@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, jsonb, boolean, index } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { reportTemplates } from './report_templates';
 
@@ -17,10 +17,10 @@ export const scheduledReports = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('scheduled_reports_tenant_idx').on(table.tenantId),
-    index('scheduled_reports_template_idx').on(table.templateId),
-  ]
+  (table) => ({
+    idx1: index('scheduled_reports_tenant_idx').on(table.tenantId),
+    idx2: index('scheduled_reports_template_idx').on(table.templateId),
+  })
 );
 
 export type ScheduledReport = typeof scheduledReports.$inferSelect;

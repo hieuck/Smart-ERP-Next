@@ -12,10 +12,10 @@ export const exchangeRates = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('exchange_rates_from_to_idx').on(table.fromCurrencyId, table.toCurrencyId),
-    index('exchange_rates_effective_idx').on(table.effectiveDate),
-  ]
+  (table) => ({
+    fromToIdx: index('exchange_rates_from_to_idx').on(table.fromCurrencyId, table.toCurrencyId),
+    effectiveIdx: index('exchange_rates_effective_idx').on(table.effectiveDate),
+  })
 );
 
 export type ExchangeRate = typeof exchangeRates.$inferSelect;

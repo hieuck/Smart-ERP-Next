@@ -15,9 +15,9 @@ export const reportTemplates = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('report_templates_tenant_idx').on(table.tenantId),
-  ]
+  (table) => ({
+    idx1: index('report_templates_tenant_idx').on(table.tenantId),
+  })
 );
 
 export type ReportTemplate = typeof reportTemplates.$inferSelect;

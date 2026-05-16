@@ -17,11 +17,11 @@ export const notifications = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     readAt: timestamp('read_at'),
   },
-  (table) => [
-    index('notifications_tenant_user_idx').on(table.tenantId, table.userId),
-    index('notifications_user_read_idx').on(table.userId, table.isRead),
-    index('notifications_created_at_idx').on(table.createdAt),
-  ]
+  (table) => ({
+    idx1: index('notifications_tenant_user_idx').on(table.tenantId, table.userId),
+    idx2: index('notifications_user_read_idx').on(table.userId, table.isRead),
+    idx3: index('notifications_created_at_idx').on(table.createdAt),
+  })
 );
 
 export type Notification = typeof notifications.$inferSelect;

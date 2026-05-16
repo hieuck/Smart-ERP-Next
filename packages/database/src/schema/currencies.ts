@@ -14,10 +14,10 @@ export const currencies = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('currencies_tenant_idx').on(table.tenantId),
-    index('currencies_code_idx').on(table.code),
-  ]
+  (table) => ({
+    idx1: index('currencies_tenant_idx').on(table.tenantId),
+    idx2: index('currencies_code_idx').on(table.code),
+  })
 );
 
 export type Currency = typeof currencies.$inferSelect;

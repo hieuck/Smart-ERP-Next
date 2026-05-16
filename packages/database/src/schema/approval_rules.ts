@@ -16,10 +16,10 @@ export const approvalRules = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('approval_rules_tenant_idx').on(table.tenantId),
-    index('approval_rules_doc_type_idx').on(table.documentType),
-  ]
+  (table) => ({
+    idx1: index('approval_rules_tenant_idx').on(table.tenantId),
+    idx2: index('approval_rules_doc_type_idx').on(table.documentType),
+  })
 );
 
 export type ApprovalRule = typeof approvalRules.$inferSelect;

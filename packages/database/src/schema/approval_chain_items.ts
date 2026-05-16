@@ -16,10 +16,10 @@ export const approvalChainItems = pgTable(
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },
-  (table) => [
-    index('approval_chain_items_request_idx').on(table.requestId),
-    index('approval_chain_items_approver_idx').on(table.approverId),
-  ]
+  (table) => ({
+    idx1: index('approval_chain_items_request_idx').on(table.requestId),
+    idx2: index('approval_chain_items_approver_idx').on(table.approverId),
+  })
 );
 
 export type ApprovalChainItem = typeof approvalChainItems.$inferSelect;
