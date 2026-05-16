@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
-import { purchaseOrders, suppliers } from '@smart-erp/database';
+import { purchaseOrders, suppliers, warehouseTasks } from '@smart-erp/database';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface SupplierPortalPurchaseOrder {
@@ -97,6 +97,16 @@ export class SupplierCollaborationService {
       .update(purchaseOrders)
       .set({ status: 'in_transit', updatedAt: new Date() })
       .where(eq(purchaseOrders.id, purchaseOrderId));
+
+    // Automatically create a 'putaway' (receiving) task in WMS
+    await this.drizzle.db.insert(warehouseTasks).values({
+      tenantId,
+      type: 'putaway',
+      status: 'pending',
+      referenceType: 'purchase_order',
+      referenceId: purchaseOrderId,
+      priority: 'medium',
+    });
 
     return { ...order, status: 'in_transit' };
   }

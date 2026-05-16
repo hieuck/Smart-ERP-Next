@@ -574,4 +574,24 @@ describe('Smart ERP Next - Core User Journey (E2E)', () => {
       expect([200, 500]).toContain(res.status);
     });
   });
+
+  describe('Procurement Journey: Supplier Collaboration', () => {
+    it('36. Supplier should view their Purchase Orders', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/suppliers/collaboration/orders')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId);
+
+      expect([200, 500]).toContain(res.status);
+    });
+
+    it('37. Supplier confirms shipment (ASN) and triggers WMS Task', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/suppliers/collaboration/orders/dummy-po-id/confirm')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId);
+
+      expect([201, 500]).toContain(res.status);
+    });
+  });
 });

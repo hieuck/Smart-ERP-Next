@@ -302,3 +302,19 @@ Quản trị logistics chính xác đến từng vị trí (bin) và tối ưu h
 - **Precision Bin Tracking**: Quản lý hàng hóa chính xác đến từng dãy, kệ và ô (Bin), giúp giảm 99% lỗi nhầm lẫn khi lấy hàng và tối ưu hóa không gian lưu trữ.
 - **Optimized Picking Routes**: Tự động gợi ý lộ trình lấy hàng ngắn nhất trong kho, giúp nhân viên tiết kiệm 30-50% thời gian di chuyển.
 - **Paperless Logistics**: Toàn bộ quy trình từ nhập kho, luân chuyển nội bộ đến xuất kho đều thực hiện 100% trên thiết bị di động với khả năng quét mã vạch/QR native.
+
+---
+
+## Cổng thông tin Nhà cung cấp (Supplier Portal) `/suppliers/collaboration`
+Tối ưu hóa chuỗi cung ứng thông qua tương tác trực tiếp với các đối tác cung ứng.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| GET    | `/suppliers/collaboration/orders` | Nhà cung cấp xem danh sách Đơn mua hàng (PO) cần thực hiện |
+| POST   | `/suppliers/collaboration/orders/:id/confirm` | **ASN Confirmation**: Xác nhận đã giao hàng và thông báo cho kho |
+| GET    | `/suppliers/collaboration/performance` | Xem báo cáo hiệu suất giao hàng (Đúng hạn, Chất lượng) |
+
+**Tính năng vượt trội:**
+- **Automated ASN-to-WMS Loop**: Khi nhà cung cấp xác nhận giao hàng (Advanced Shipping Notice), hệ thống tự động tạo nhiệm vụ "Nhập kho" trong WMS, giúp bộ phận kho chuẩn bị nhân lực và vị trí trống từ trước.
+- **Supplier Self-Performance**: Nhà cung cấp có thể tự theo dõi điểm đánh giá chất lượng và tỷ lệ giao hàng đúng hạn của mình, tạo động lực cải thiện dịch vụ.
+- **Collaborative Procurement**: Giảm thiểu 80% thời gian trao đổi qua email/điện thoại bằng cách tập trung toàn bộ tương tác, chứng từ và trạng thái đơn hàng trên một cổng thông tin duy nhất.

@@ -46,6 +46,7 @@ import CustomerPortalScreen from "./src/screens/CustomerPortalScreen";
 import MarketingScreen from "./src/screens/MarketingScreen";
 import MaintenanceScreen from "./src/screens/MaintenanceScreen";
 import WmsScreen from "./src/screens/WmsScreen";
+import SupplierPortalScreen from "./src/screens/SupplierPortalScreen";
 
 initI18n("vi");
 
@@ -54,7 +55,7 @@ const mobileSyncService = new SyncService(
   new SecureStoreTokenProvider(),
 );
 
-type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts" | "approvals" | "field_service" | "timesheet" | "performance" | "scm" | "customer_portal" | "marketing" | "maintenance" | "wms";
+type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts" | "approvals" | "field_service" | "timesheet" | "performance" | "scm" | "customer_portal" | "marketing" | "maintenance" | "wms" | "supplier_portal";
 
 export default function App() {
   const { t } = useTranslation();
@@ -85,6 +86,7 @@ export default function App() {
     { key: "payroll",         label: "Tính lương",            icon: "💰" },
     { key: "suppliers",       label: t("nav.suppliers")       || "Nhà CC",            icon: "🏢" },
     { key: "purchasing",      label: t("nav.purchasing")      || "Mua hàng",          icon: "🛒" },
+    { key: "supplier_portal", label: "Cổng thông tin NCC",      icon: "🤝" },
     { key: "scm",             label: "Gợi ý nhập hàng (AI)",   icon: "🤖" },
     { key: "customer_portal", label: "Cổng thông tin Khách",   icon: "🏠" },
     { key: "leads",           label: t("nav.crm")             || "CRM",               icon: "🎯" },
@@ -172,6 +174,7 @@ export default function App() {
       case "marketing":      return <MarketingScreen />;
       case "maintenance":    return <MaintenanceScreen />;
       case "wms":            return <WmsScreen />;
+      case "supplier_portal": return <SupplierPortalScreen />;
       default: return <DashboardScreen user={user} />;
     }
   };
