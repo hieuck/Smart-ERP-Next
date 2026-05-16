@@ -37,6 +37,7 @@ import ManufacturingScreen from "./src/screens/ManufacturingScreen";
 import AttendanceScreen from "./src/screens/AttendanceScreen";
 import PayrollScreen from "./src/screens/PayrollScreen";
 import EContractScreen from "./src/screens/EContractScreen";
+import ApprovalsScreen from "./src/screens/ApprovalsScreen";
 
 initI18n("vi");
 
@@ -45,7 +46,7 @@ const mobileSyncService = new SyncService(
   new SecureStoreTokenProvider(),
 );
 
-type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts";
+type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts" | "approvals";
 
 export default function App() {
   const { t } = useTranslation();
@@ -66,6 +67,7 @@ export default function App() {
     { key: "manufacturing",   label: t("nav.manufacturing")   || "Sản xuất",           icon: "🏭" },
     { key: "einvoice",        label: t("nav.einvoice")        || "Hóa đơn ĐT",        icon: "🧾" },
     { key: "contracts",       label: "Hợp đồng",              icon: "🖋️" },
+    { key: "approvals",       label: "Phê duyệt",             icon: "⚖️" },
     { key: "attendance",      label: t("attendance.title")    || "Chấm công",         icon: "⏱️" },
     { key: "payroll",         label: "Tính lương",            icon: "💰" },
     { key: "suppliers",       label: t("nav.suppliers")       || "Nhà CC",            icon: "🏢" },
@@ -145,6 +147,7 @@ export default function App() {
       case "attendance":     return <AttendanceScreen />;
       case "payroll":        return <PayrollScreen />;
       case "contracts":      return <EContractScreen />;
+      case "approvals":      return <ApprovalsScreen />;
       default: return <DashboardScreen user={user} />;
     }
   };

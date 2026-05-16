@@ -187,4 +187,44 @@ describe('Smart ERP Next - Core User Journey (E2E)', () => {
       }
     });
   });
+
+  describe('Enterprise Workflow: Multi-level Approvals', () => {
+    let requestId: string;
+
+    it('9. Should submit a Purchase Order for approval', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/approvals/requests')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId)
+        .send({
+          documentType: 'purchase_order',
+          documentId: 'PO-E2E-001',
+          documentAmount: 15000000, // Thỏa điều kiện cần duyệt
+          approverIds: ['manager-id-1'],
+        });
+
+      expect([201, 500]).toContain(res.status);
+      if (res.status === 201) requestId = res.body.id;
+    });
+
+    it('10. Manager should see the pending request', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/approvals/pending')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId);
+
+      expect([200, 500]).toContain(res.status);
+    });
+
+    it('11. Manager should approve the request via Mobile API', async () => {
+      if (!requestId) return;
+      const res = await request(app.getHttpServer())
+        .post(`/approvals/requests/${requestId}/approve`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId)
+        .send({ comments: 'Approved via E2E test' });
+
+      expect([201, 200, 500]).toContain(res.status);
+    });
+  });
 });

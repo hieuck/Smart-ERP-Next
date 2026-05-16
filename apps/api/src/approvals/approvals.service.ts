@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { approvalRequests, approvalChainItems, NewApprovalRequest, NewApprovalChainItem, ApprovalRequest } from '@smart-erp/database';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { ApprovalRulesService } from './approval-rules.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 
@@ -157,6 +157,28 @@ export class ApprovalsService {
       .set({ status: 'rejected', updatedAt: new Date() });
 
     this.notificationsGateway.notifyApprovalDecision(tenantId, requestId, 'rejected', 'Request rejected');
+  }
+
+  async getPendingApprovals(tenantId: string, approverId: string) {
+    return this.drizzle.db
+      .select({
+        id: approvalRequests.id,
+        documentType: approvalRequests.documentType,
+        documentId: approvalRequests.documentId,
+        status: approvalRequests.status,
+        requestedBy: approvalRequests.requestedBy,
+        createdAt: approvalRequests.createdAt,
+      })
+      .from(approvalChainItems)
+      .innerJoin(approvalRequests, eq(approvalChainItems.requestId, approvalRequests.id))
+      .where(
+        and(
+          eq(approvalRequests.tenantId, tenantId),
+          eq(approvalChainItems.approverId, approverId),
+          eq(approvalChainItems.status, 'pending')
+        )
+      )
+      .orderBy(desc(approvalRequests.createdAt));
   }
 
   async getRequest(tenantId: string, requestId: string): Promise<ApprovalRequest> {

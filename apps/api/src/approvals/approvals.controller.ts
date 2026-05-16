@@ -87,4 +87,9 @@ export class ApprovalsController {
   getRequest(@CurrentUser('tenantId') tenantId: string, @Param('id') id: string) {
     return this.approvalsService.getRequest(tenantId, id);
   }
+
+  @Get('pending')
+  getPending(@CurrentUser('tenantId') tenantId: string, @CurrentUser('sub') userId: string) {
+    return this.approvalsService.getPendingApprovals(tenantId, userId);
+  }
 }
