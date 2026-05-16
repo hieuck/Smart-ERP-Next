@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, Input, Button, Switch, useToast, Spinner } from '@smart-erp/ui';
+import { Card, Input, Button, Switch, useToast, Spinner } from '@smart-erp/shared';
 import { apiClient } from '@/lib/api-client';
 
 export default function XeroSettingsPage() {

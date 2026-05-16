@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext } from 'react';
 import { useNotifications, type NotificationVariant } from '@smart-erp/hooks';
-import { ToastContainer } from '@smart-erp/ui';
+import { ToastContainer } from '@smart-erp/shared';
 
 interface ToastContextValue {
   success: (msg: string) => void;

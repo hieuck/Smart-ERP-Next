@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Chart } from '@smart-erp/ui';
+import { Chart } from '@smart-erp/shared';
 import { apiClient } from '@/lib/api-client';
 
 interface ForecastData {
