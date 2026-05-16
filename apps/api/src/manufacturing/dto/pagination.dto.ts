@@ -1,0 +1,1 @@
+﻿import { IsInt, IsOptional, Min, Max, IsString, MinLength } from "class-validator"; export class PaginationParamsDto { @IsInt() @Min(1) @Max(100) limit?: number; @IsInt() @Min(1) @Max(10000) page?: number; }

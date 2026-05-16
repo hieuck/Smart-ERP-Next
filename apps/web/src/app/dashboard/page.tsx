@@ -83,12 +83,11 @@ const mockStats: DashboardStats = {
     { date: 'T7', revenue: 16_800_000 },
     { date: 'CN', revenue: 12_500_000 },
   ],
-  recentOrders: [
-    { id: '1', code: 'DH-001', customerName: 'Nguyễn Văn A', total: 1_250_000, status: 'delivered', createdAt: new Date().toISOString() },
-    { id: '2', code: 'DH-002', customerName: 'Trần Thị B', total: 850_000, status: 'processing', createdAt: new Date().toISOString() },
-    { id: '3', code: 'DH-003', customerName: 'Lê Văn C', total: 2_100_000, status: 'confirmed', createdAt: new Date().toISOString() },
-    { id: '4', code: 'DH-004', customerName: 'Phạm Thị D', total: 450_000, status: 'shipped', createdAt: new Date().toISOString() },
-    { id: '5', code: 'DH-005', customerName: 'Hoàng Văn E', total: 3_200_000, status: 'draft', createdAt: new Date().toISOString() },
+    { id: '1', code: 'DH-001', customerName: 'Customer A', total: 1_250_000, status: 'delivered', createdAt: new Date().toISOString() },
+    { id: '2', code: 'DH-002', customerName: 'Customer B', total: 850_000, status: 'processing', createdAt: new Date().toISOString() },
+    { id: '3', code: 'DH-003', customerName: 'Customer C', total: 2_100_000, status: 'confirmed', createdAt: new Date().toISOString() },
+    { id: '4', code: 'DH-004', customerName: 'Customer D', total: 450_000, status: 'shipped', createdAt: new Date().toISOString() },
+    { id: '5', code: 'DH-005', customerName: 'Customer E', total: 3_200_000, status: 'draft', createdAt: new Date().toISOString() },
   ],
   topProducts: [
     { id: '1', name: 'Sản phẩm A', sku: 'SP-001', sold: 142, revenue: 7_100_000 },
@@ -248,7 +247,7 @@ export default function DashboardPage() {
                   tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}M`}
                 />
                 <Tooltip
-                  formatter={(value) => [formatVND(Number(value ?? 0)), 'Doanh thu']}
+                  formatter={(value) => [formatVND(Number(value ?? 0)), t('analytics.revenue')]}
                 />
                 <Area
                   type="monotone"

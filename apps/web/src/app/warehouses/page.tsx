@@ -126,14 +126,14 @@ export default function WarehousesPage() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Đang tải...
+            {t('common.loading', 'Loading...')}
           </div>
         ) : warehouses.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
             <Warehouse className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-            <p className="text-gray-500 dark:text-gray-400">Chưa có kho nào. Tạo kho đầu tiên.</p>
+            <p className="text-gray-500 dark:text-gray-400">{t('warehouses.noWarehouses', 'No warehouses yet. Create the first one.')}</p>
             <button onClick={openCreate} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">
-              Tạo kho
+              {t('warehouses.createWarehouse', 'Create Warehouse')}
             </button>
           </div>
         ) : (
@@ -260,11 +260,11 @@ export default function WarehousesPage() {
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)}
                   className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm">
-                  Hủy
+                  {t('common.cancel', 'Cancel')}
                 </button>
                 <button type="submit" disabled={saving}
                   className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition text-sm disabled:opacity-50">
-                  {saving ? 'Đang lưu...' : 'Lưu'}
+                  {saving ? t('common.saving', 'Saving...') : t('common.save', 'Save')}
                 </button>
               </div>
             </form>
