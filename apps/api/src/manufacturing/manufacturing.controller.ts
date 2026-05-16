@@ -77,4 +77,35 @@ export class ManufacturingController {
   async calculateVariance(@Request() req: any, @Param('id') id: string) {
     return this.service.calculateVarianceAnalysis(req.user.tenantId, id);
   }
+
+  // ─── Routing Operations ───────────────────────────────────────────────────────
+
+  @ApiOperation({ summary: 'Get routing steps for a product' })
+  @Get('routing/:productId')
+  async getRouting(@Request() req: any, @Param('productId') productId: string) {
+    return this.service.getRoutingSteps(productId, req.user.tenantId);
+  }
+
+  @ApiOperation({ summary: 'Add routing step' })
+  @Post('routing')
+  async addRoutingStep(@Request() req: any, @Body() body: {
+    productId: string;
+    operationName: string;
+    description?: string;
+    sequenceOrder: number;
+    workCenter?: string;
+    setupTimeMinutes?: number;
+    cycleTimeMinutes: number;
+    laborCostPerHour?: number;
+    overheadCostPerHour?: number;
+    requiresQC?: boolean;
+  }) {
+    return this.service.addRoutingStep(req.user.tenantId, body);
+  }
+
+  @ApiOperation({ summary: 'Delete routing step' })
+  @Delete('routing/:id')
+  async removeRoutingStep(@Request() req: any, @Param('id') id: string) {
+    return this.service.removeRoutingStep(req.user.tenantId, id);
+  }
 }

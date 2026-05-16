@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
-import { products, billsOfMaterials, productionOrders, inventoryTransactions } from '@smart-erp/database';
+import { products, billsOfMaterials, bomRoutings, productionOrders, inventoryTransactions } from '@smart-erp/database';
 import { eq, and, desc, sql } from 'drizzle-orm';
 
 export interface BomItem {
@@ -355,6 +355,108 @@ export class ManufacturingService {
       materialVariance,
       materialVariancePercent,
       isOverBudget: materialVariance > 0,
+    };
+  }
+
+  // ─── Routing Operations ───────────────────────────────────────────────────────
+
+  /** Get routing steps for a product */
+  async getRoutingSteps(productId: string, tenantId: string) {
+    return this.drizzle.db
+      .select()
+      .from(bomRoutings)
+      .where(and(
+        eq(bomRoutings.productId, productId),
+        eq(bomRoutings.tenantId, tenantId),
+      ))
+      .orderBy(bomRoutings.sequenceOrder);
+  }
+
+  /** Add a routing step */
+  async addRoutingStep(tenantId: string, data: {
+    productId: string;
+    operationName: string;
+    description?: string;
+    sequenceOrder: number;
+    workCenter?: string;
+    setupTimeMinutes?: number;
+    cycleTimeMinutes: number;
+    laborCostPerHour?: number;
+    overheadCostPerHour?: number;
+    requiresQC?: boolean;
+  }) {
+    const [step] = await this.drizzle.db.insert(bomRoutings).values({
+      tenantId,
+      productId: data.productId,
+      operationName: data.operationName,
+      description: data.description,
+      sequenceOrder: data.sequenceOrder,
+      workCenter: data.workCenter,
+      setupTimeMinutes: String(data.setupTimeMinutes || 0),
+      cycleTimeMinutes: String(data.cycleTimeMinutes),
+      laborCostPerHour: String(data.laborCostPerHour || 0),
+      overheadCostPerHour: String(data.overheadCostPerHour || 0),
+      requiresQC: data.requiresQC || false,
+    }).returning();
+
+    return step;
+  }
+
+  /** Remove a routing step */
+  async removeRoutingStep(tenantId: string, stepId: string) {
+    await this.drizzle.db
+      .delete(bomRoutings)
+      .where(and(
+        eq(bomRoutings.id, stepId),
+        eq(bomRoutings.tenantId, tenantId),
+      ));
+    return { deleted: true };
+  }
+
+  /** Calculate full production cost including routing labor costs */
+  async calculateFullProductionCost(tenantId: string, productId: string, quantity: number) {
+    // Material cost from BOM
+    const materialCost = await this.calculateProductionCost(tenantId, productId, quantity);
+
+    // Labor + overhead cost from routing
+    const steps = await this.getRoutingSteps(productId, tenantId);
+    let totalLaborFromRouting = 0;
+    let totalOverheadFromRouting = 0;
+    let totalTimeMinutes = 0;
+
+    const routingBreakdown = steps.map((step: any) => {
+      const setupMin = Number(step.setupTimeMinutes) || 0;
+      const cycleMin = Number(step.cycleTimeMinutes) || 0;
+      const totalMin = setupMin + cycleMin * quantity;
+      const laborHours = totalMin / 60;
+      const laborCost = laborHours * (Number(step.laborCostPerHour) || 0);
+      const overheadCost = laborHours * (Number(step.overheadCostPerHour) || 0);
+
+      totalLaborFromRouting += laborCost;
+      totalOverheadFromRouting += overheadCost;
+      totalTimeMinutes += totalMin;
+
+      return {
+        operation: step.operationName,
+        workCenter: step.workCenter,
+        totalMinutes: Math.round(totalMin * 100) / 100,
+        laborCost: Math.round(laborCost),
+        overheadCost: Math.round(overheadCost),
+      };
+    });
+
+    const grandTotal = materialCost.totalMaterialCost
+      + Math.round(totalLaborFromRouting)
+      + Math.round(totalOverheadFromRouting);
+
+    return {
+      ...materialCost,
+      routingBreakdown,
+      totalLaborFromRouting: Math.round(totalLaborFromRouting),
+      totalOverheadFromRouting: Math.round(totalOverheadFromRouting),
+      totalTimeMinutes: Math.round(totalTimeMinutes),
+      grandTotal,
+      unitCostFull: quantity > 0 ? Math.round(grandTotal / quantity) : 0,
     };
   }
 }
