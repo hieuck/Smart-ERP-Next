@@ -3,11 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from '@smart-erp/i18n';
 import { apiClient } from '@/lib/api-client';
-import { Button } from '@smart-erp/ui/button';
-import { Input } from '@smart-erp/ui/input';
-import { Select } from '@smart-erp/ui/select';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@smart-erp/ui/table';
-import { DatePicker } from '@smart-erp/ui/date-picker';
+import { Button, Input, Select, Table, DatePicker } from '@smart-erp/shared';
 import { Download } from 'lucide-react';
 import AuthGuard from '@/components/layout/AuthGuard';
 

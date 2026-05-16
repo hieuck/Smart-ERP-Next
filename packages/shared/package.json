@@ -3,15 +3,44 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./utils/formatters": {
+      "types": "./dist/utils/formatters.d.ts",
+      "import": "./dist/utils/formatters.js",
+      "require": "./dist/utils/formatters.cjs"
+    },
+    "./ui/*": {
+      "types": "./dist/ui/*.d.ts",
+      "import": "./dist/ui/*.js",
+      "require": "./dist/ui/*.cjs"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "lint": "eslint src/**/*.ts",
-    "type-check": "tsc --noEmit"
+    "build": "tsc -b",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.tsx\"",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
   },
   "devDependencies": {
-    "@smart-erp/tsconfig": "workspace:*",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.0",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "prettier": "^3",
+    "jest": "^29",
+    "ts-jest": "^29",
+    "@testing-library/react": "^14"
   }
 }
