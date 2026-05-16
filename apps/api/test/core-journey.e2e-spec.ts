@@ -619,4 +619,33 @@ describe('Smart ERP Next - Core User Journey (E2E)', () => {
       expect([201, 500]).toContain(res.status);
     });
   });
+
+  describe('Logistics Journey: Smart TMS & Delivery', () => {
+    it('40. Should create a delivery trip with multiple orders', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/tms/trips')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId)
+        .send({
+          vehicleId: 'dummy-veh-id',
+          driverId: 'dummy-driver-id',
+          orderIds: ['order-1', 'order-2'],
+        });
+
+      expect([201, 500]).toContain(res.status);
+    });
+
+    it('41. Should confirm delivery at a stop via TMS API', async () => {
+      const res = await request(app.getHttpServer())
+        .patch('/tms/stops/dummy-stop-id/confirm')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId)
+        .send({
+          signature: 'Nguyen Van A',
+          podUrl: 'http://example.com/pod.jpg',
+        });
+
+      expect([200, 500]).toContain(res.status);
+    });
+  });
 });

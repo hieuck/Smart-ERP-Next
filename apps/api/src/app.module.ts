@@ -53,12 +53,14 @@ import { DRIZZLE } from './common/drizzle.decorator';
 import { MarketingModule } from './marketing/marketing.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { WmsModule } from './wms/wms.module';
+import { TmsModule } from './tms/tms.module';
 
 @Module({
   imports: [
     MarketingModule,
     MaintenanceModule,
     WmsModule,
+    TmsModule,
     // Cache layer for performance
     CacheModule.register({ isGlobal: true, ttl: 60, max: 100 }),
     // Forecast feature

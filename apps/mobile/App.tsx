@@ -48,6 +48,7 @@ import MaintenanceScreen from "./src/screens/MaintenanceScreen";
 import WmsScreen from "./src/screens/WmsScreen";
 import SupplierPortalScreen from "./src/screens/SupplierPortalScreen";
 import ProjectAdvancedScreen from "./src/screens/ProjectAdvancedScreen";
+import TmsScreen from "./src/screens/TmsScreen";
 
 initI18n("vi");
 
@@ -56,7 +57,7 @@ const mobileSyncService = new SyncService(
   new SecureStoreTokenProvider(),
 );
 
-type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts" | "approvals" | "field_service" | "timesheet" | "performance" | "scm" | "customer_portal" | "marketing" | "maintenance" | "wms" | "supplier_portal" | "project_advanced";
+type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts" | "approvals" | "field_service" | "timesheet" | "performance" | "scm" | "customer_portal" | "marketing" | "maintenance" | "wms" | "supplier_portal" | "project_advanced" | "tms";
 
 export default function App() {
   const { t } = useTranslation();
@@ -74,6 +75,7 @@ export default function App() {
     { key: "products", label: t("nav.products") || "Sản phẩm", icon: "📦" },
     { key: "inventory", label: t("nav.inventory") || "Kho (Cơ bản)", icon: "🏭" },
     { key: "wms",       label: "Kho thông minh (WMS)",   icon: "🏗️" },
+    { key: "tms",       label: "Giao nhận (TMS)",       icon: "🚚" },
     { key: "quality",        label: t("nav.quality")        || "Chất lượng",        icon: "✅" },
     { key: "manufacturing",   label: t("nav.manufacturing")   || "Sản xuất",           icon: "🏭" },
     { key: "einvoice",        label: t("nav.einvoice")        || "Hóa đơn ĐT",        icon: "🧾" },
@@ -179,6 +181,7 @@ export default function App() {
       case "wms":            return <WmsScreen />;
       case "supplier_portal": return <SupplierPortalScreen />;
       case "project_advanced": return <ProjectAdvancedScreen />;
+      case "tms":            return <TmsScreen />;
       default: return <DashboardScreen user={user} />;
     }
   };
