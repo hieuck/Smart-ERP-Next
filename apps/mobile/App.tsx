@@ -39,6 +39,7 @@ import PayrollScreen from "./src/screens/PayrollScreen";
 import EContractScreen from "./src/screens/EContractScreen";
 import ApprovalsScreen from "./src/screens/ApprovalsScreen";
 import FieldServiceScreen from "./src/screens/FieldServiceScreen";
+import TimesheetScreen from "./src/screens/TimesheetScreen";
 
 initI18n("vi");
 
@@ -47,7 +48,7 @@ const mobileSyncService = new SyncService(
   new SecureStoreTokenProvider(),
 );
 
-type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts" | "approvals" | "field_service";
+type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts" | "approvals" | "field_service" | "timesheet";
 
 export default function App() {
   const { t } = useTranslation();
@@ -70,7 +71,8 @@ export default function App() {
     { key: "contracts",       label: "Hợp đồng",              icon: "🖋️" },
     { key: "approvals",       label: "Phê duyệt",             icon: "⚖️" },
     { key: "field_service",   label: "Kỹ thuật/Dịch vụ",      icon: "🛠️" },
-    { key: "attendance",      label: t("attendance.title")    || "Chấm công",         icon: "⏱️" },
+    { key: "timesheet",       label: "Ghi nhận giờ",          icon: "⏱️" },
+    { key: "attendance",      label: t("attendance.title")    || "Chấm công",         icon: "📅" },
     { key: "payroll",         label: "Tính lương",            icon: "💰" },
     { key: "suppliers",       label: t("nav.suppliers")       || "Nhà CC",            icon: "🏢" },
     { key: "purchasing",      label: t("nav.purchasing")      || "Mua hàng",          icon: "🛒" },
@@ -151,6 +153,7 @@ export default function App() {
       case "contracts":      return <EContractScreen />;
       case "approvals":      return <ApprovalsScreen />;
       case "field_service":  return <FieldServiceScreen />;
+      case "timesheet":      return <TimesheetScreen />;
       default: return <DashboardScreen user={user} />;
     }
   };

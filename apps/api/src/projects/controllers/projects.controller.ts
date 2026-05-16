@@ -1,39 +1,50 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards, Request, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { ProjectsService } from '../services/projects.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('Project Management')
 @UseGuards(JwtAuthGuard)
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @ApiOperation({ summary: 'Create a new project' })
   @Post()
   create(@Request() req: any, @Body() dto: any) {
     return this.projectsService.createProject(req.user.tenantId, dto);
   }
 
+  @ApiOperation({ summary: 'List all projects' })
   @Get()
-  findAll(@Request() req: any, @Query('page') page?: string, @Query('limit') limit?: string, @Query('status') status?: string, @Query('priority') priority?: string) {
-    return this.projectsService.findAll(req.user.tenantId, { page: page ? parseInt(page) : undefined, limit: limit ? parseInt(limit) : undefined, status, priority });
+  findAll(@Request() req: any, @Query('page') page?: string, @Query('status') status?: string) {
+    return this.projectsService.findAll(req.user.tenantId, { 
+      page: page ? parseInt(page) : undefined, 
+      status 
+    });
   }
 
+  @ApiOperation({ summary: 'Get project details' })
   @Get(':id')
-  findOne(@Request() req: any, @Param('id', ParseIntPipe) id: number) {
+  findOne(@Request() req: any, @Param('id') id: string) {
     return this.projectsService.findOne(req.user.tenantId, id);
   }
 
-  @Patch(':id')
-  update(@Request() req: any, @Param('id', ParseIntPipe) id: number, @Body() dto: any) {
-    return this.projectsService.updateProject(req.user.tenantId, id, dto);
+  @ApiOperation({ summary: 'Submit a timesheet entry for a project' })
+  @Post(':id/timesheets')
+  submitTimesheet(@Request() req: any, @Param('id') id: string, @Body() dto: any) {
+    return this.projectsService.submitTimesheet(req.user.tenantId, req.user.sub, id, dto);
   }
 
-  @Delete(':id')
-  remove(@Request() req: any, @Param('id', ParseIntPipe) id: number) {
-    return this.projectsService.deleteProject(req.user.tenantId, id);
+  @ApiOperation({ summary: 'Get project profitability and labor cost analysis' })
+  @Get(':id/profitability')
+  getProfitability(@Request() req: any, @Param('id') id: string) {
+    return this.projectsService.getProjectProfitability(req.user.tenantId, id);
   }
 
-  @Get(':id/stats')
-  getStats(@Request() req: any, @Param('id', ParseIntPipe) id: number) {
-    return this.projectsService.getProjectStats(req.user.tenantId, id);
+  @ApiOperation({ summary: 'Create a task within a project' })
+  @Post(':id/tasks')
+  createTask(@Request() req: any, @Param('id') id: string, @Body() dto: any) {
+    return this.projectsService.createTask(req.user.tenantId, id, dto);
   }
 }

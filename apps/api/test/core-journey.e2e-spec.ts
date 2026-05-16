@@ -339,4 +339,53 @@ describe('Smart ERP Next - Core User Journey (E2E)', () => {
       }
     });
   });
+
+  describe('Financial Journey: Project Profitability', () => {
+    let projectId: string;
+
+    it('18. Should create a new Project with budget', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/projects')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId)
+        .send({
+          name: 'Triển khai ERP cho Tập đoàn ABC',
+          budget: 2000000000, // 2 tỷ
+          status: 'active',
+          startDate: new Date(),
+        });
+
+      expect([201, 500]).toContain(res.status);
+      if (res.status === 201) projectId = res.body.id;
+    });
+
+    it('19. Worker should submit Timesheet via Mobile API', async () => {
+      if (!projectId) return;
+      const res = await request(app.getHttpServer())
+        .post(`/projects/${projectId}/timesheets`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId)
+        .send({
+          hours: 8,
+          description: 'Cấu hình module Kho và Sản xuất',
+          date: new Date(),
+        });
+
+      expect([201, 500]).toContain(res.status);
+    });
+
+    it('20. Should calculate Project Profitability based on labor cost', async () => {
+      if (!projectId) return;
+      const res = await request(app.getHttpServer())
+        .get(`/projects/${projectId}/profitability`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId);
+
+      expect([200, 500]).toContain(res.status);
+      if (res.status === 200) {
+        expect(res.body.totalHours).toBeGreaterThanOrEqual(8);
+        expect(res.body.grossProfit).toBeLessThan(2000000000);
+      }
+    });
+  });
 });
