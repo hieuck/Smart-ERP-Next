@@ -46,6 +46,31 @@
 - **Tồn kho khả dụng thông minh**: Tự động trừ safety buffer trước khi đẩy số lượng lên marketplace.
 - **Real-time Sync Logs**: Theo dõi chi tiết từng lần đồng bộ dữ liệu.
 
+## 🚀 Triển khai nhanh (Deployment)
+
+Hệ thống được thiết kế để triển khai "Một nút bấm" thông qua Docker.
+
+### Cách 1: Sử dụng Script tự động (Khuyên dùng)
+Nếu bạn đang dùng Windows, chỉ cần chạy:
+```powershell
+./deploy.ps1
+```
+Script sẽ tự động:
+1. Tạo file cấu hình `.env`
+2. Build toàn bộ Monorepo (Turbo build)
+3. Khởi chạy Docker containers (API, Web, DB, AI)
+
+### Cách 2: Thủ công với Docker Compose
+1. Sao chép cấu hình mẫu: `cp .env.example .env`
+2. Khởi chạy: `docker-compose up -d --build`
+
+### Truy cập hệ thống:
+- **Web Dashboard**: `http://localhost:3001`
+- **API Swagger**: `http://localhost:3000/api`
+- **AI Service**: `http://localhost:8000`
+
+---
+
 ## Offline‑First & Real‑Time
 - **Real‑time activity notifications** via WebSockets (tenant‑scoped)
 - **Real‑time approval requests** – approvers get instant notifications and can approve/reject directly from the web UI
