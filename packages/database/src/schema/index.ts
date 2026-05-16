@@ -39,3 +39,4 @@ export * from './field_service';
 export * from './fixed_assets';
 export * from './projects';
 export * from './hr_performance';
+export * from './scm';

@@ -205,3 +205,19 @@ Giải pháp quản trị nguồn nhân lực hiện đại theo mục tiêu (MB
 - **Goal-Driven Culture**: Tự động hóa việc theo dõi mục tiêu (KPI/OKR), giúp nhân viên luôn nắm rõ trọng tâm công việc và manager theo dõi hiệu suất tức thì.
 - **Mobile-First Review**: Thực hiện tự đánh giá (Self-assessment) và phản hồi của quản lý ngay trên ứng dụng di động, loại bỏ quy trình giấy tờ phiền hà.
 - **Dynamic Scoring**: Thuật toán tự động tính điểm hiệu suất dựa trên trọng số (Weight) và kết quả thực tế, sẵn sàng kết nối với phân hệ tính lương để thưởng hiệu quả.
+
+---
+
+## Quản lý Chuỗi cung ứng & Dự báo (SCM) `/scm`
+Giải pháp tối ưu hóa tồn kho thông qua dự báo nhu cầu và quản lý hiệu quả nhà cung cấp.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| GET    | `/scm/suggestions` | Danh sách các gợi ý nhập hàng do AI tính toán |
+| POST   | `/scm/suggestions/run` | Chạy Engine phân tích dữ liệu lịch sử để dự báo nhu cầu |
+| PATCH  | `/scm/suggestions/:id/approve` | Duyệt gợi ý, tự động khởi tạo Đơn mua hàng nháp (Draft PO) |
+
+**Tính năng vượt trội:**
+- **Predictive Procurement**: Sử dụng AI để phân tích tốc độ bán hàng (Sales Velocity) và thời gian giao hàng của nhà cung cấp (Lead Time) để gợi ý thời điểm nhập hàng tối ưu.
+- **Stockout Prevention**: Cảnh báo sớm các nguy cơ hết hàng trước khi nó xảy ra, giúp doanh nghiệp không bỏ lỡ cơ hội kinh doanh.
+- **Supplier Reliability Tracking**: Tự động đánh giá độ tin cậy của nhà cung cấp dựa trên thực tế giao hàng, hỗ trợ ra quyết định lựa chọn đối tác cung ứng.

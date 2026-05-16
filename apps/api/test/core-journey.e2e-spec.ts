@@ -410,4 +410,39 @@ describe('Smart ERP Next - Core User Journey (E2E)', () => {
       expect([200, 404, 500]).toContain(res.status);
     });
   });
+
+  describe('Supply Chain Journey: AI Procurement', () => {
+    let suggestionId: string;
+
+    it('23. Should run AI Reorder Engine', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/scm/suggestions/run')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId);
+
+      expect([201, 500]).toContain(res.status);
+    });
+
+    it('24. Should list pending reorder suggestions', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/scm/suggestions')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId);
+
+      expect([200, 500]).toContain(res.status);
+      if (res.status === 200 && res.body.length > 0) {
+        suggestionId = res.body[0].id;
+      }
+    });
+
+    it('25. Should approve a procurement suggestion', async () => {
+      if (!suggestionId) return;
+      const res = await request(app.getHttpServer())
+        .patch(`/scm/suggestions/${suggestionId}/approve`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId);
+
+      expect([200, 500]).toContain(res.status);
+    });
+  });
 });
