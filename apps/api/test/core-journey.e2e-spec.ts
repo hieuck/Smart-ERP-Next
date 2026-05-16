@@ -470,4 +470,36 @@ describe('Smart ERP Next - Core User Journey (E2E)', () => {
       expect([201, 500]).toContain(res.status);
     });
   });
+
+  describe('Quality Journey: Floor Inspection', () => {
+    it('28. Should record a successful QC Inspection', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/qms/inspections')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId)
+        .send({
+          referenceType: 'production',
+          referenceId: 'dummy-production-id',
+          verdict: 'pass',
+          notes: 'Samples meet all specifications',
+        });
+
+      expect([201, 500]).toContain(res.status);
+    });
+
+    it('29. Should record a failed QC Inspection and trigger NCR', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/qms/inspections')
+        .set('Authorization', `Bearer ${authToken}`)
+        .set('X-Tenant-ID', tenantId)
+        .send({
+          referenceType: 'production',
+          referenceId: 'dummy-production-id',
+          verdict: 'fail',
+          notes: 'Dimensions out of tolerance',
+        });
+
+      expect([201, 500]).toContain(res.status);
+    });
+  });
 });

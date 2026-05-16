@@ -238,3 +238,19 @@ Trải nghiệm khách hàng (Customer Experience - CX) hiện đại, cho phép
 - **Full Transparency**: Khách hàng không cần gọi điện hỏi "Hàng của tôi đến đâu rồi?" vì họ có thể tự theo dõi trạng thái real-time ngay trên App.
 - **Automated Support Loop**: Yêu cầu hỗ trợ từ khách hàng được tự động chuyển vào phân hệ `Field Service` hoặc `Helpdesk` để xử lý kịp thời.
 - **Unified CX**: Tích hợp toàn bộ lịch sử giao dịch, hợp đồng và công nợ tại một điểm duy nhất, tạo sự chuyên nghiệp cho doanh nghiệp.
+
+---
+
+## Quản lý Chất lượng (Advanced QMS) `/qms`
+Đảm bảo tiêu chuẩn chất lượng sản phẩm thông qua quy trình kiểm soát chặt chẽ từ đầu vào đến đầu ra.
+
+| Method | Path | Description |
+| ------ | ---- | ----------- |
+| GET    | `/qms/inspections` | Danh sách lịch sử các đợt kiểm tra chất lượng |
+| POST   | `/qms/inspections` | **Floor Inspection**: Ghi nhận kết quả kiểm tra tại hiện trường |
+| GET    | `/qms/suppliers/quality-report` | Báo cáo xếp hạng chất lượng nhà cung cấp |
+
+**Tính năng vượt trội:**
+- **Closed-loop Quality**: Khi một đợt kiểm tra thất bại, hệ thống tự động khởi tạo Báo cáo sự không phù hợp (NCR), đảm bảo mọi lỗi đều được xử lý và khắc phục.
+- **Supplier Quality Scoring**: Thuật toán tự động chấm điểm và xếp hạng nhà cung cấp (Grade A, B, C) dựa trên tỷ lệ lỗi và thời gian xử lý sự cố.
+- **Mobile QC App**: Nhân viên kiểm soát chất lượng có thể chụp ảnh và ghi nhận kết quả ngay tại xưởng, giúp dữ liệu luôn được cập nhật tức thì.
