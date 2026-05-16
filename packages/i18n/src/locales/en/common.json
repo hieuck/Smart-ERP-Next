@@ -1229,7 +1229,10 @@
     "supplierQuality": "Supplier Quality",
     "supplierScore": "Supplier Score",
     "supplierGrade": "Grade",
-    "supplierReport": "Supplier Quality Report"
+    "supplierReport": "Supplier Quality Report",
+    "spcCharts": "SPC Charts",
+    "spcComingSoon": "Statistical Process Control charts coming soon.",
+    "spcDescription": "Control charts (X-bar, R-chart), Process capability (Cp, Cpk)"
   },
   "analytics": {
     "title": "Analytics Dashboard",

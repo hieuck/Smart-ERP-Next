@@ -88,7 +88,7 @@ export default function QualityPage() {
                 activeTab === tab ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
-              {tab === 'inspections' ? t('qms.inspections') : tab === 'ncrs' ? t('qms.ncrs') : 'SPC Charts'}
+              {tab === 'inspections' ? t('qms.inspections') : tab === 'ncrs' ? t('qms.ncrs') : t('qms.spcCharts')}
             </button>
           ))}
         </div>
@@ -100,8 +100,8 @@ export default function QualityPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left">Date</th>
-                  <th className="px-4 py-3 text-left">Reference</th>
+                  <th className="px-4 py-3 text-left">{t('common.date')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.reference')}</th>
                   <th className="px-4 py-3 text-left">{t('qms.verdict')}</th>
                   <th className="px-4 py-3 text-left">{t('common.notes')}</th>
                 </tr>
@@ -154,9 +154,9 @@ export default function QualityPage() {
         ) : (
           /* SPC Charts placeholder */
           <div className="bg-white rounded-xl shadow p-8 text-center">
-            <h3 className="text-lg font-semibold mb-4">SPC Charts</h3>
-            <p className="text-gray-500">Statistical Process Control charts coming soon.</p>
-            <p className="text-sm text-gray-400 mt-2">Control charts (X-bar, R-chart), Process capability (Cp, Cpk)</p>
+            <h3 className="text-lg font-semibold mb-4">{t('qms.spcCharts')}</h3>
+            <p className="text-gray-500">{t('qms.spcComingSoon')}</p>
+            <p className="text-sm text-gray-400 mt-2">{t('qms.spcDescription')}</p>
           </div>
         )}
       </div>

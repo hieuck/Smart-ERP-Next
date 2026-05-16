@@ -756,7 +756,10 @@
     "supplierQuality": "Chất lượng nhà cung cấp",
     "supplierScore": "Điểm nhà cung cấp",
     "supplierGrade": "Xếp hạng",
-    "supplierReport": "Báo cáo chất lượng NCC"
+    "supplierReport": "Báo cáo chất lượng NCC",
+    "spcCharts": "Biểu đồ SPC",
+    "spcComingSoon": "Biểu đồ Kiểm soát Quy trình Thống kê sắp ra mắt.",
+    "spcDescription": "Biểu đồ kiểm soát (X-bar, R-chart), Năng lực quy trình (Cp, Cpk)"
   },
   "analytics": {
     "title": "Bảng phân tích",
