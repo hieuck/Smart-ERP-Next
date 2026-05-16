@@ -108,6 +108,50 @@
       "vnpay": "VNPay",
       "zalopay": "ZaloPay",
       "credit": "Credit"
+    },
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "tax": "Tax",
+    "shippingFee": "Shipping Fee",
+    "total": "Total",
+    "paidAmount": "Paid",
+    "debtAmount": "Debt",
+    "paymentMethod": "Method",
+    "paymentStatus": "Payment Status"
+  },
+  "orders": {
+    "status": {
+      "draft": "Draft",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "returned": "Returned"
+    },
+    "channel": {
+      "pos": "In-store",
+      "online": "Online",
+      "phone": "Phone",
+      "wholesale": "Wholesale"
+    },
+    "notes": "Notes",
+    "cancelReason": "Cancel Reason",
+    "history": "History",
+    "createOrder": "Create Order",
+    "confirm": "Confirm",
+    "cancel": "Cancel Order",
+    "process": "Process",
+    "ship": "Ship",
+    "delivered": "Delivered",
+    "return": "Return",
+    "products": "Products",
+    "timeline": {
+      "createOrder": "Created",
+      "confirm": "Confirmed",
+      "ship": "Shipped",
+      "delivered": "Delivered",
+      "cancel": "Cancelled"
     }
   },
   "nav": {
@@ -1130,6 +1174,9 @@
     "qc": {
       "title": "Quality Control",
       "checkpoints": "Checkpoints",
+      "checkpoint1": "Check Raw Materials",
+      "checkpoint2": "Check Process",
+      "checkpoint3": "Check Finished Goods",
       "passed": "Passed",
       "failed": "Failed",
       "pending": "Pending"
@@ -1304,45 +1351,6 @@
     },
     "transactions": "Transaction History",
     "insufficientPoints": "Insufficient points"
-  },
-  "helpdesk": {
-    "title": "Helpdesk & Tickets",
-    "ticket": "Ticket",
-    "tickets": "Tickets",
-    "createTicket": "Create Ticket",
-    "ticketNumber": "Ticket Number",
-    "status": "Status",
-    "statuses": {
-      "open": "Open",
-      "in_progress": "In Progress",
-      "resolved": "Resolved",
-      "closed": "Closed",
-      "reopened": "Reopened"
-    },
-    "priority": "Priority",
-    "priorities": {
-      "low": "Low",
-      "medium": "Medium",
-      "high": "High",
-      "urgent": "Urgent"
-    },
-    "category": "Category",
-    "requester": "Requester",
-    "assignee": "Assignee",
-    "dueDate": "Due Date",
-    "resolvedAt": "Resolved At",
-    "closedAt": "Closed At",
-    "comments": "Comments",
-    "addComment": "Add Comment",
-    "internalNote": "Internal Note",
-    "attachments": "Attachments",
-    "history": "History",
-    "stats": "Ticket Stats",
-    "totalTickets": "Total Tickets",
-    "openTickets": "Open Tickets",
-    "urgentTickets": "Urgent Tickets",
-    "myTickets": "My Tickets",
-    "unassigned": "Unassigned"
   },
   "helpdesk": {
     "title": "Helpdesk & Tickets",

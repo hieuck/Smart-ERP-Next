@@ -113,6 +113,50 @@
       "vnpay": "VNPay",
       "zalopay": "ZaloPay",
       "credit": "Công nợ"
+    },
+    "subtotal": "Tạm tính",
+    "discount": "Giảm giá",
+    "tax": "Thuế",
+    "shippingFee": "Phí vận chuyển",
+    "total": "Tổng cộng",
+    "paidAmount": "Đã thanh toán",
+    "debtAmount": "Còn nợ",
+    "paymentMethod": "Phương thức",
+    "paymentStatus": "Trạng thái TT"
+  },
+  "orders": {
+    "status": {
+      "draft": "Nháp",
+      "confirmed": "Đã xác nhận",
+      "processing": "Đang xử lý",
+      "shipped": "Đã giao vận",
+      "delivered": "Đã giao hàng",
+      "cancelled": "Đã hủy",
+      "returned": "Đã trả hàng"
+    },
+    "channel": {
+      "pos": "Tại quầy",
+      "online": "Online",
+      "phone": "Điện thoại",
+      "wholesale": "Bán sỉ"
+    },
+    "notes": "Ghi chú",
+    "cancelReason": "Lý do hủy",
+    "history": "Lịch sử",
+    "createOrder": "Tạo đơn",
+    "confirm": "Xác nhận",
+    "cancel": "Hủy đơn",
+    "process": "Xử lý",
+    "ship": "Giao vận",
+    "delivered": "Đã giao",
+    "return": "Trả hàng",
+    "products": "Sản phẩm",
+    "timeline": {
+      "createOrder": "Tạo đơn",
+      "confirm": "Xác nhận",
+      "ship": "Giao vận",
+      "delivered": "Giao hàng",
+      "cancel": "Hủy đơn"
     }
   },
   "nav": {
@@ -657,6 +701,9 @@
     "qc": {
       "title": "Kiểm soát chất lượng",
       "checkpoints": "Trạm kiểm tra",
+      "checkpoint1": "Kiểm tra nguyên liệu",
+      "checkpoint2": "Kiểm tra quy trình",
+      "checkpoint3": "Kiểm tra thành phẩm",
       "passed": "Đạt",
       "failed": "Không đạt",
       "pending": "Chờ kiểm tra"
@@ -710,19 +757,6 @@
     "supplierScore": "Điểm nhà cung cấp",
     "supplierGrade": "Xếp hạng",
     "supplierReport": "Báo cáo chất lượng NCC"
-  },
-  "analytics": {
-    "title": "Bảng phân tích",
-    "revenue": "Doanh thu",
-    "orders": "Đơn hàng",
-    "avgOrder": "Giá trị TB",
-    "customers": "Khách hàng",
-    "lowStock": "Sắp hết hàng",
-    "inProduction": "Đang sản xuất",
-    "qualityPass": "Tỷ lệ đạt QC",
-    "topProducts": "Sản phẩm bán chạy",
-    "revenueChart": "Doanh thu (30 ngày)",
-    "period": "Kỳ"
   },
   "analytics": {
     "title": "Bảng phân tích",
@@ -826,45 +860,6 @@
     },
     "transactions": "Lịch sử giao dịch",
     "insufficientPoints": "Không đủ điểm"
-  },
-  "helpdesk": {
-    "title": "Hỗ trợ & Phiếu yêu cầu",
-    "ticket": "Phiếu hỗ trợ",
-    "tickets": "Phiếu hỗ trợ",
-    "createTicket": "Tạo phiếu mới",
-    "ticketNumber": "Mã phiếu",
-    "status": "Trạng thái",
-    "statuses": {
-      "open": "Mở",
-      "in_progress": "Đang xử lý",
-      "resolved": "Đã giải quyết",
-      "closed": "Đã đóng",
-      "reopened": "Mở lại"
-    },
-    "priority": "Ưu tiên",
-    "priorities": {
-      "low": "Thấp",
-      "medium": "Trung bình",
-      "high": "Cao",
-      "urgent": "Khẩn cấp"
-    },
-    "category": "Danh mục",
-    "requester": "Người yêu cầu",
-    "assignee": "Người xử lý",
-    "dueDate": "Hạn xử lý",
-    "resolvedAt": "Giải quyết lúc",
-    "closedAt": "Đóng lúc",
-    "comments": "Bình luận",
-    "addComment": "Thêm bình luận",
-    "internalNote": "Ghi chú nội bộ",
-    "attachments": "Tệp đính kèm",
-    "history": "Lịch sử",
-    "stats": "Thống kê",
-    "totalTickets": "Tổng phiếu",
-    "openTickets": "Phiếu mở",
-    "urgentTickets": "Phiếu khẩn cấp",
-    "myTickets": "Phiếu của tôi",
-    "unassigned": "Chưa phân công"
   },
   "helpdesk": {
     "title": "Hỗ trợ & Phiếu yêu cầu",
