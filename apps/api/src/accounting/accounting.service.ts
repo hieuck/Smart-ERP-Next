@@ -4,7 +4,7 @@ import {
   chartOfAccounts,
   journalEntries,
   journalEntryLines,
-} from '@smart-erp/accounting/schema';
+} from '@smart-erp/database/src/schema';
 import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
 
 @Injectable()
