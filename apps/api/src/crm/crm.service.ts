@@ -33,12 +33,17 @@ export class CrmService {
       .orderBy(desc(crmDeals.createdAt));
   }
 
-  async createDeal(tenantId: string, data: any) {
+  async createDeal(tenantId: string, data: { title: string; leadId?: string; stageId?: string; amount?: number | string; assignedTo?: string }) {
     const [deal] = await this.drizzle.db
       .insert(crmDeals)
       .values({
-        ...data,
         tenantId,
+        title: data.title,
+        leadId: data.leadId,
+        stageId: data.stageId,
+        amount: data.amount?.toString() || '0',
+        assignedTo: data.assignedTo,
+        status: 'open',
       })
       .returning();
     return deal;

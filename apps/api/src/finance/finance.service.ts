@@ -11,25 +11,25 @@ export class FinanceService {
   async generateForecast(tenantId: string, period: string) {
     // 1. Calculate Expected Inflow (Pending Sales Orders / AR)
     const [{ inflow }] = await db
-      .select({ inflow: sql<number>`SUM(total_amount)::float` })
+      .select({ inflow: sql<string>`SUM(total)` })
       .from(orders)
       .where(and(eq(orders.tenantId, tenantId), eq(orders.status, 'confirmed')));
 
     // 2. Calculate Expected Outflow (Pending Purchase Orders / AP)
     const [{ outflow }] = await db
-      .select({ outflow: sql<number>`SUM(total_amount)::float` })
+      .select({ outflow: sql<string>`SUM(total)` })
       .from(purchaseOrders)
       .where(and(eq(purchaseOrders.tenantId, tenantId), eq(purchaseOrders.status, 'confirmed')));
 
     const openingBalance = 5000000000; // Mock current bank balance
-    const netCashflow = (inflow || 0) - (outflow || 0);
+    const netCashflow = parseFloat(inflow || '0') - parseFloat(outflow || '0');
 
     const [forecast] = await db.insert(financeCashflowForecasts).values({
       tenantId,
       period,
       openingBalance: openingBalance.toString(),
-      expectedInflow: (inflow || 0).toString(),
-      expectedOutflow: (outflow || 0).toString(),
+      expectedInflow: (inflow || '0').toString(),
+      expectedOutflow: (outflow || '0').toString(),
       netCashflow: netCashflow.toString(),
     }).returning();
 

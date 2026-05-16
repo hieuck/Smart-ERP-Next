@@ -5,12 +5,13 @@ import { eq, and, sql, desc, asc } from '@smart-erp/database/drizzle';
 
 @Injectable()
 export class TmsService {
-  async createTrip(tenantId: string, data: any) {
-    const tripNumber = `TRIP-${Date.now().toString(36).toUpperCase()}`;
+  async createTrip(tenantId: string, data: { tripNumber?: string; driverId?: string; vehicleId?: string; orderIds?: string[] }) {
+    const tripNumber = data.tripNumber || `TRIP-${Date.now().toString(36).toUpperCase()}`;
     const [trip] = await db.insert(tmsTrips).values({
-      ...data,
       tenantId,
       tripNumber,
+      driverId: data.driverId,
+      vehicleId: data.vehicleId,
       status: 'planned',
     }).returning();
 
