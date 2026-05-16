@@ -32,3 +32,4 @@ export * from './e_invoices';
 export * from './attendance';
 export * from './payroll';
 export * from './crm';
+export * from './automations';
