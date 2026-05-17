@@ -1,52 +1,56 @@
-# Hướng dẫn Beta Test — Smart ERP Next v0.4.0
+# Beta Testing Guide — Smart ERP Next v0.4.0
 
-Cảm ơn bạn đã tham gia beta test! Tài liệu này giúp bạn cài đặt và bắt đầu kiểm thử hệ thống trong vòng 10 phút.
+**⚠️ Beta testing has officially ended.**
+
+**⚠️ Beta testing has officially ended.**
+
+Thank you for participating in the beta test! This guide helps you set up and start testing the system within 10 minutes.
 
 ---
 
-## Yêu cầu hệ thống
+## System Requirements
 
-| Thứ | Tối thiểu |
-|-----|-----------|
+| Item | Minimum |
+|------|---------|
 | OS | Windows 10/11, macOS 12+, Ubuntu 20.04+ |
-| RAM | 4 GB (khuyến nghị 8 GB) |
-| Disk | 5 GB trống |
-| Phần mềm | [Docker Desktop](https://www.docker.com/products/docker-desktop/) |
+| RAM | 4 GB (recommended 8 GB) |
+| Disk | 5 GB free space |
+| Software | [Docker Desktop](https://www.docker.com/products/docker-desktop/) |
 
-> **Không cần** cài Node.js, Python, PostgreSQL — Docker lo hết.
+> **No need** to install Node.js, Python, PostgreSQL — Docker handles everything.
 
 ---
 
-## Cài đặt (5 phút)
+## Installation (5 minutes)
 
-### Bước 1 — Tải source code
+### Step 1 — Download source code
 
 ```bash
 git clone https://github.com/smart-erp/smart-erp-next.git
 cd smart-erp-next
 ```
 
-Hoặc tải file ZIP từ trang Releases và giải nén.
+Or download ZIP file from Releases page and extract.
 
-### Bước 2 — Cấu hình môi trường
+### Step 2 — Configure environment
 
 ```bash
-# Sao chép file cấu hình mẫu
+# Copy configuration template
 cp .env.example .env
 ```
 
-Mở file `.env` và chỉnh 3 dòng bắt buộc:
+Open `.env` file and modify 3 required lines:
 
 ```env
-DB_PASSWORD=mat_khau_manh_cua_ban
-JWT_SECRET=chuoi_ngau_nhien_it_nhat_32_ky_tu
+DB_PASSWORD=your_strong_password_here
+JWT_SECRET=random_string_at_least_32_characters
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
-> Nếu chạy trên server từ xa (VPS), thay `localhost` bằng IP của server:
+> If running on remote server (VPS), replace `localhost` with server IP:
 > `NEXT_PUBLIC_API_URL=http://123.456.789.0:3000`
 
-### Bước 3 — Khởi động
+### Step 3 — Start the system
 
 **Windows:**
 ```powershell
@@ -58,11 +62,11 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 docker-compose up -d --build
 ```
 
-Lần đầu build mất khoảng 3–5 phút (tải dependencies). Các lần sau chỉ ~30 giây.
+First build takes about 3–5 minutes (downloading dependencies). Subsequent builds take ~30 seconds.
 
-### Bước 4 — Truy cập
+### Step 4 — Access services
 
-| Dịch vụ | URL |
+| Service | URL |
 |---------|-----|
 | 🌐 Web Dashboard | http://localhost:3001 |
 | 📡 API Swagger | http://localhost:3000/api |
@@ -70,123 +74,123 @@ Lần đầu build mất khoảng 3–5 phút (tải dependencies). Các lần s
 
 ---
 
-## Tài khoản mặc định
+## Default Accounts
 
-Sau khi hệ thống khởi động, đăng ký tài khoản mới tại `/register` hoặc dùng seed data:
+After the system starts, register a new account at `/register` or use seed data:
 
 ```bash
-# Chạy seed data (tạo tenant + admin mẫu)
+# Run seed data (creates sample tenant + admin)
 docker-compose exec api node apps/api/dist/common/seeds/main.seed.js
 ```
 
-Tài khoản sau khi seed:
+Account after seeding:
 - **Email**: `admin@demo.com`
 - **Password**: `Admin@123456`
 
 ---
 
-## Các tính năng cần kiểm thử trong v0.4.0
+## Features to Test in v0.4.0
 
-Ưu tiên kiểm thử các tính năng mới nhất:
+Priority testing for the latest features:
 
 ### 🎫 Helpdesk & Ticketing
-- [ ] Tạo ticket mới với priority (low/medium/high/urgent)
-- [ ] Thay đổi status ticket (open → in_progress → resolved)
-- [ ] Lọc ticket theo category
+- [ ] Create new ticket with priority (low/medium/high/urgent)
+- [ ] Change ticket status (open → in_progress → resolved)
+- [ ] Filter tickets by category
 
 ### 🤖 AI Demand Forecasting
-- [ ] Vào **Analytics → Forecast** — xem dự báo nhu cầu 30 ngày
-- [ ] Kiểm tra gợi ý nhập hàng tự động
-- [ ] Xem confidence level và MAPE
+- [ ] Go to **Analytics → Forecast** — view 30-day demand forecast
+- [ ] Check automatic restocking suggestions
+- [ ] View confidence level and MAPE
 
 ### 👥 HR / Payroll
-- [ ] Thêm nhân viên mới tại `/hr/employees`
-- [ ] Tạo bảng lương tháng tại `/hr/payroll`
-- [ ] Kiểm tra tính toán lương net (base + allowances - deductions)
+- [ ] Add new employee at `/hr/employees`
+- [ ] Create monthly payroll at `/hr/payroll`
+- [ ] Check net salary calculation (base + allowances - deductions)
 
 ### 🎁 Loyalty Program
-- [ ] Tạo loyalty card cho khách hàng
-- [ ] Cộng/trừ điểm thưởng
-- [ ] Xem danh sách rewards catalog
+- [ ] Create loyalty card for customer
+- [ ] Add/subtract reward points
+- [ ] View rewards catalog
 
 ### 🏭 Fixed Assets
-- [ ] Thêm tài sản cố định mới
-- [ ] Xem khấu hao tự động (straight-line)
-- [ ] Thực hiện thanh lý tài sản
+- [ ] Add new fixed asset
+- [ ] View automatic depreciation (straight-line)
+- [ ] Perform asset disposal
 
 ### 📋 Project Management
-- [ ] Tạo project với budget và manager
-- [ ] Thêm tasks và milestones
-- [ ] Log time entry cho task
+- [ ] Create project with budget and manager
+- [ ] Add tasks and milestones
+- [ ] Log time entry for task
 
 ### 🛒 Omnichannel
-- [ ] Kết nối store (Shopee/Lazada/TikTok)
-- [ ] Đẩy tồn kho lên marketplace
-- [ ] Xem sync logs
+- [ ] Connect store (Shopee/Lazada/TikTok)
+- [ ] Push inventory to marketplace
+- [ ] View sync logs
 
-### 📦 Inventory nâng cao
-- [ ] Tạo lot tracking cho sản phẩm
-- [ ] Tạo warehouse transfer (draft → approved → shipped → received)
-- [ ] Kiểm tra reorder suggestions
+### 📦 Advanced Inventory
+- [ ] Create lot tracking for products
+- [ ] Create warehouse transfer (draft → approved → shipped → received)
+- [ ] Check reorder suggestions
 
 ---
 
-## Báo lỗi
+## Bug Reporting
 
-Khi gặp lỗi, vui lòng cung cấp:
+When encountering issues, please provide:
 
-1. **Mô tả**: Bạn đang làm gì khi lỗi xảy ra
-2. **Screenshot** hoặc thông báo lỗi
-3. **Console logs** (F12 → Console trong trình duyệt)
+1. **Description**: What you were doing when the error occurred
+2. **Screenshot** or error message
+3. **Console logs** (F12 → Console in browser)
 4. **API logs**: `docker-compose logs api --tail=50`
 
-Gửi báo cáo qua:
+Submit reports via:
 - GitHub Issues: https://github.com/smart-erp/smart-erp-next/issues
 - Email: beta@smart-erp.vn
 
 ---
 
-## Lệnh hữu ích
+## Useful Commands
 
 ```bash
-# Xem logs realtime
+# View realtime logs
 docker-compose logs -f
 
-# Xem logs của service cụ thể
+# View logs for specific service
 docker-compose logs -f api
 docker-compose logs -f web
 
-# Restart một service
+# Restart a service
 docker-compose restart api
 
-# Dừng toàn bộ
+# Stop all services
 docker-compose down
 
-# Dừng và xóa database (reset hoàn toàn)
+# Stop and delete database (complete reset)
 docker-compose down -v
 
-# Cập nhật lên phiên bản mới
+# Update to new version
 git pull
 docker-compose up -d --build
 ```
 
 ---
 
-## Câu hỏi thường gặp
+## Frequently Asked Questions
 
-**Q: Web hiện "Cannot connect to API"?**  
-A: Kiểm tra `NEXT_PUBLIC_API_URL` trong `.env` — phải là IP/domain mà trình duyệt của bạn có thể truy cập, không phải `http://api:3000`.
+**Q: Web shows "Cannot connect to API"?**  
+A: Check `NEXT_PUBLIC_API_URL` in `.env` — must be IP/domain accessible from your browser, not `http://api:3000`.
 
-**Q: Build lỗi "out of memory"?**  
-A: Tăng RAM cho Docker Desktop lên ít nhất 4 GB (Settings → Resources → Memory).
+**Q: Build error "out of memory"?**  
+A: Increase RAM for Docker Desktop to at least 4 GB (Settings → Resources → Memory).
 
-**Q: Port 3000/3001 đã bị dùng?**  
-A: Đổi port trong `.env`: `API_PORT=3100`, `WEB_PORT=3101`.
+**Q: Port 3000/3001 already in use?**  
+A: Change ports in `.env`: `API_PORT=3100`, `WEB_PORT=3101`.
 
-**Q: Quên mật khẩu admin?**  
+**Q: Forgot admin password?**  
 A: `docker-compose exec postgres psql -U smart_erp -c "UPDATE users SET password_hash='...' WHERE email='admin@demo.com'"`
 
 ---
 
 *Smart ERP Next v0.4.0 — Beta Testing Guide*  
-*Cập nhật: 2026-05-17*
+*Updated: 2026-05-17*

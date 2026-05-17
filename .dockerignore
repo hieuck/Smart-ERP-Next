@@ -1,0 +1,71 @@
+# Docker ignore file for monorepo optimization
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Test
+*.test.js
+*.spec.js
+__tests__/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Git
+.git/
+.gitignore
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+tmp/
+temp/
+
+# App-specific exclusions (keep only what's needed for build)
+apps/mobile/
+apps/desktop/
+apps/ai-forecast/  # Already has its own Dockerfile with separate context
+
+# Keep only necessary packages for API and Web builds
+packages/config-eslint/
+packages/socket-types/
+packages/sync/
+
+# Source maps
+*.map
+
+# Docker
+.docker/
+docker-compose.override.yml
