@@ -25,8 +25,8 @@ services:
   # API Server (NestJS)
   api:
     build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/api/Dockerfile
     container_name: smart-erp-api
     ports:
       - "${API_PORT:-3000}:3000"
@@ -34,24 +34,40 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - AI_FORECAST_URL=http://ai-forecast:8000
+      - PORT=3000
     depends_on:
-      - ai-forecast
-      - postgres
+      ai-forecast:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - smart-erp-network
 
   # Web Dashboard (Next.js)
   web:
     build:
-      context: ./apps/web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/web/Dockerfile
     container_name: smart-erp-web
     ports:
       - "${WEB_PORT:-3001}:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://api:3000
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - smart-erp-network
 
