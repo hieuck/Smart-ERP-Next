@@ -1,8 +1,11 @@
-const baseConfig = require('../../jest.config.js');
-
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  ...baseConfig,
-  // Override testDir if needed, but keep the same
-  testDir: '<rootDir>',
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[tj]s?(x)'],
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', { useESM: true }],
+  },
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
 };
