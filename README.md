@@ -1,5 +1,12 @@
 ﻿# Smart ERP Next
 
+**Hệ thống quản trị doanh nghiệp thế hệ mới** — vượt trội ERPNext, Odoo, KiotViet, Nhanhvn, MISA về tốc độ, trải nghiệm và khả năng mở rộng.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org)
+[![Release](https://img.shields.io/github/v/release/smart-erp/smart-erp-next?include_prereleases)](https://github.com/smart-erp/smart-erp-next/releases/latest)
+[![pnpm](https://img.shields.io/badge/pnpm-9+-orange.svg)](https://pnpm.io)
+
 **Há»‡ thá»‘ng quáº£n trá»‹ doanh nghiá»‡p tháº¿ há»‡ má»›i** â€” vÆ°á»£t trá»™i ERPNext, Odoo, KiotViet, Nhanhvn, MISA vá» tá»‘c Ä‘á»™, tráº£i nghiá»‡m vÃ  kháº£ nÄƒng má»Ÿ rá»™ng.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)

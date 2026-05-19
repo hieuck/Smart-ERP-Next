@@ -1,1 +1,1 @@
-﻿{
+{"devDependencies":{"@playwright/test":"1.60.0","prettier":"^3.2.5","tsx":"4.22.2","turbo":"^2.9.14"},"engines":{"node":">=20"},"name":"smart-erp-next","packageManager":"pnpm@9.0.0","private":true,"scripts":{"build":"turbo build","clean":"turbo clean && rm -rf node_modules","dev":"turbo dev","format":"prettier --write \"**/*.{ts,tsx,md,json}\"","lint":"turbo lint","test":"turbo test","type-check":"turbo type-check"},"version":"0.0.0"}
