@@ -15,52 +15,17 @@ import {
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import * as SecureStore from "expo-secure-store";
 import { initI18n } from "@smart-erp/i18n";
-import { SyncService } from "@smart-erp/sync";
-import { SecureStoreTokenProvider } from "./src/lib/secureStoreTokenProvider";
 import LoginScreen from "./src/screens/LoginScreen";
 import DashboardScreen from "./src/screens/DashboardScreen";
 import ProductsScreen from "./src/screens/ProductsScreen";
 import OrdersScreen from "./src/screens/OrdersScreen";
 import CustomersScreen from "./src/screens/CustomersScreen";
 import InventoryScreen from "./src/screens/InventoryScreen";
-import SuppliersScreen from "./src/screens/SuppliersScreen";
-import WarehousesScreen from "./src/screens/WarehousesScreen";
-import PurchasingScreen from "./src/screens/PurchasingScreen";
-import LeadsScreen from "./src/screens/LeadsScreen";
 import POSScreen from "./src/screens/POSScreen";
-import ReportsScreen from "./src/screens/ReportsScreen";
-import AccountingScreen from "./src/screens/AccountingScreen";
-import OmnichannelScreen from "./src/screens/OmnichannelScreen";
-import ForecastScreen from "./src/screens/ForecastScreen";
-import QualityScreen from "./src/screens/QualityScreen";
-import EInvoiceScreen from "./src/screens/EInvoiceScreen";
-import ManufacturingScreen from "./src/screens/ManufacturingScreen";
-import AttendanceScreen from "./src/screens/AttendanceScreen";
-import PayrollScreen from "./src/screens/PayrollScreen";
-import EContractScreen from "./src/screens/EContractScreen";
-import ApprovalsScreen from "./src/screens/ApprovalsScreen";
-import FieldServiceScreen from "./src/screens/FieldServiceScreen";
-import TimesheetScreen from "./src/screens/TimesheetScreen";
-import PerformanceScreen from "./src/screens/PerformanceScreen";
-import ScmScreen from "./src/screens/ScmScreen";
-import CustomerPortalScreen from "./src/screens/CustomerPortalScreen";
-import MarketingScreen from "./src/screens/MarketingScreen";
-import MaintenanceScreen from "./src/screens/MaintenanceScreen";
-import WmsScreen from "./src/screens/WmsScreen";
-import SupplierPortalScreen from "./src/screens/SupplierPortalScreen";
-import ProjectAdvancedScreen from "./src/screens/ProjectAdvancedScreen";
-import TmsScreen from "./src/screens/TmsScreen";
-import CrmPipelineScreen from "./src/screens/CrmPipelineScreen";
-import FinanceExecutiveScreen from "./src/screens/FinanceExecutiveScreen";
 
 initI18n("vi");
 
-const mobileSyncService = new SyncService(
-  process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000",
-  new SecureStoreTokenProvider(),
-);
-
-type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory" | "leads" | "accounting" | "suppliers" | "warehouses" | "purchasing" | "reports" | "omnichannel" | "forecast" | "quality" | "einvoice" | "manufacturing" | "attendance" | "payroll" | "contracts" | "approvals" | "field_service" | "timesheet" | "performance" | "scm" | "customer_portal" | "marketing" | "maintenance" | "wms" | "supplier_portal" | "project_advanced" | "tms" | "crm_pipeline" | "finance_exec";
+type Screen = "dashboard" | "pos" | "products" | "orders" | "customers" | "inventory";
 
 export default function App() {
   const { t } = useTranslation();
@@ -72,37 +37,12 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(true);
 
   const NAV_ITEMS: { key: Screen; label: string; icon: string }[] = [
-    { key: "dashboard", label: t("nav.dashboard") || "Tổng quan", icon: "📊" },
-    { key: "pos", label: t("nav.pos") || "POS", icon: "🛒" },
-    { key: "orders", label: t("nav.orders") || "Đơn hàng", icon: "📋" },
-    { key: "products", label: t("nav.products") || "Sản phẩm", icon: "📦" },
-    { key: "inventory", label: t("nav.inventory") || "Kho (Cơ bản)", icon: "🏭" },
-    { key: "wms",       label: "Kho thông minh (WMS)",   icon: "🏗️" },
-    { key: "tms",       label: "Giao nhận (TMS)",       icon: "🚚" },
-    { key: "quality",        label: t("nav.quality")        || "Chất lượng",        icon: "✅" },
-    { key: "manufacturing",   label: t("nav.manufacturing")   || "Sản xuất",           icon: "🏭" },
-    { key: "einvoice",        label: t("nav.einvoice")        || "Hóa đơn ĐT",        icon: "🧾" },
-    { key: "contracts",       label: "Hợp đồng",              icon: "🖋️" },
-    { key: "approvals",       label: "Phê duyệt",             icon: "⚖️" },
-    { key: "field_service",   label: "Kỹ thuật/Dịch vụ",      icon: "🛠️" },
-    { key: "maintenance",     label: "Bảo trì thiết bị",      icon: "⚙️" },
-    { key: "timesheet",       label: t("nav.timesheet")       || "Ghi nhận giờ",      icon: "⏱️" },
-    { key: "attendance",      label: t("attendance.title")    || "Chấm công",         icon: "📅" },
-    { key: "performance",     label: "KPI & Hiệu suất",       icon: "📈" },
-    { key: "payroll",         label: "Tính lương",            icon: "💰" },
-    { key: "suppliers",       label: t("nav.suppliers")       || "Nhà CC",            icon: "🏢" },
-    { key: "purchasing",      label: t("nav.purchasing")      || "Mua hàng",          icon: "🛒" },
-    { key: "supplier_portal", label: "Cổng thông tin NCC",      icon: "🤝" },
-    { key: "scm",             label: "Gợi ý nhập hàng (AI)",   icon: "🤖" },
-    { key: "customer_portal", label: "Cổng thông tin Khách",   icon: "🏠" },
-    { key: "leads",           label: t("nav.crm")             || "CRM (Leads)",       icon: "🎯" },
-    { key: "crm_pipeline",    label: "Pipeline Bán hàng",     icon: "🚀" },
-    { key: "marketing",       label: "Tiếp thị & Camp",       icon: "📢" },
-    { key: "projects",        label: t("nav.projects")        || "Dự án",             icon: "🏗️" },
-    { key: "project_advanced", label: "Quản trị Dự án (Adv)",    icon: "📊" },
-    { key: "accounting",      label: t("nav.accounting")      || "Kế toán",           icon: "💰" },
-    { key: "finance_exec",    label: "Tài chính C.Lược",      icon: "🏛️" },
-    { key: "reports",         label: t("nav.reports")         || "Báo cáo",           icon: "📈" },
+    { key: "dashboard", label: t("nav.dashboard") || "Tổng quan", icon: "D" },
+    { key: "pos", label: t("nav.pos") || "POS", icon: "P" },
+    { key: "products", label: t("nav.products") || "Sản phẩm", icon: "S" },
+    { key: "orders", label: t("nav.orders") || "Đơn hàng", icon: "O" },
+    { key: "customers", label: t("nav.customers") || "Khách hàng", icon: "K" },
+    { key: "inventory", label: t("nav.inventory") || "Kho", icon: "I" },
   ];
 
   useEffect(() => {
@@ -112,7 +52,6 @@ export default function App() {
           if (userStr) {
             setUser(JSON.parse(userStr));
             setAuthState("authenticated");
-            mobileSyncService.processQueue().catch(console.error);
           } else {
             setAuthState("unauthenticated");
           }
@@ -126,7 +65,6 @@ export default function App() {
   const handleLoginSuccess = (loggedInUser: any) => {
     setUser(loggedInUser);
     setAuthState("authenticated");
-    mobileSyncService.processQueue().catch(console.error);
   };
 
   const handleLogout = async () => {
@@ -160,35 +98,7 @@ export default function App() {
       case "orders": return <OrdersScreen />;
       case "customers": return <CustomersScreen />;
       case "inventory": return <InventoryScreen />;
-      case "quality": return <QualityScreen />;
-      case "leads": return <LeadsScreen />;
       case "pos": return <POSScreen />;
-      case "accounting": return <AccountingScreen />;
-      case "suppliers": return <SuppliersScreen />;
-      case "warehouses": return <WarehousesScreen />;
-      case "purchasing": return <PurchasingScreen />;
-      case "reports": return <ReportsScreen />;
-      case "omnichannel":    return <OmnichannelScreen />;
-      case "forecast":       return <ForecastScreen />;
-      case "einvoice":       return <EInvoiceScreen />;
-      case "manufacturing":  return <ManufacturingScreen />;
-      case "attendance":     return <AttendanceScreen />;
-      case "payroll":        return <PayrollScreen />;
-      case "contracts":      return <EContractScreen />;
-      case "approvals":      return <ApprovalsScreen />;
-      case "field_service":  return <FieldServiceScreen />;
-      case "timesheet":      return <TimesheetScreen />;
-      case "performance":    return <PerformanceScreen />;
-      case "scm":            return <ScmScreen />;
-      case "customer_portal": return <CustomerPortalScreen />;
-      case "marketing":      return <MarketingScreen />;
-      case "maintenance":    return <MaintenanceScreen />;
-      case "wms":            return <WmsScreen />;
-      case "supplier_portal": return <SupplierPortalScreen />;
-      case "project_advanced": return <ProjectAdvancedScreen />;
-      case "tms":            return <TmsScreen />;
-      case "crm_pipeline":   return <CrmPipelineScreen />;
-      case "finance_exec":   return <FinanceExecutiveScreen />;
       default: return <DashboardScreen user={user} />;
     }
   };

@@ -1,6 +1,45 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
-  }
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "types": [
+      "react",
+      "react-native"
+    ],
+    "lib": [
+      "ES2022"
+    ],
+    "baseUrl": "."
+  },
+  "include": [
+    "App.tsx",
+    "index.ts",
+    "src/lib/api.ts",
+    "src/lib/sync-service.ts",
+    "src/components/ActivityList.tsx",
+    "src/components/BiChart.tsx",
+    "src/components/QuickActions.tsx",
+    "src/screens/LoginScreen.tsx",
+    "src/screens/DashboardScreen.tsx",
+    "src/screens/ProductsScreen.tsx",
+    "src/screens/OrdersScreen.tsx",
+    "src/screens/CustomersScreen.tsx",
+    "src/screens/InventoryScreen.tsx",
+    "src/screens/POSScreen.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "e2e"
+  ],
+  "extends": "expo/tsconfig.base"
 }

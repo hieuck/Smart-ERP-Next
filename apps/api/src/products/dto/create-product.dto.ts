@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsBoolean, Min, MaxLength } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsBoolean, Min, MaxLength, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateProductDto {
@@ -8,7 +8,8 @@ export class CreateProductDto {
 
   @IsString()
   @MaxLength(100)
-  sku: string;
+  @IsOptional()
+  sku?: string;
 
   @IsNumber()
   @Min(0)
@@ -32,6 +33,14 @@ export class CreateProductDto {
   description?: string;
 
   @IsString()
+  @IsOptional()
+  imageUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  category?: string;
+
+  @IsUUID()
   @IsOptional()
   categoryId?: string;
 

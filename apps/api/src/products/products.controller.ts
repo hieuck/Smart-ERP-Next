@@ -46,6 +46,11 @@ export class ProductsController {
     return { items };
   }
 
+  @Get('categories')
+  findCategories(@Request() req: any) {
+    return this.productsService.findCategories(req.user.tenantId);
+  }
+
   @Get(':id')
   findOne(
     @Request() req: any,

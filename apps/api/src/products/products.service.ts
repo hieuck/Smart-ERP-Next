@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { db } from "@smart-erp/database";
-import { products, inventoryTransactions } from "@smart-erp/database/schema";
+import { products, inventoryTransactions, productCategories } from "@smart-erp/database/schema";
 import {
   eq,
   and,
@@ -26,18 +26,18 @@ export class ProductsService {
   constructor(private activityService: ActivityService) {}
 
   async create(tenantId: string, dto: CreateProductDto, userId?: string) {
-    const existing = await db
-      .select()
-      .from(products)
-      .where(and(eq(products.tenantId, tenantId), eq(products.sku, dto.sku)));
-    if (existing.length > 0) {
-      throw new ConflictException("SKU already exists");
-    }
+    const sku = await this.resolveSku(tenantId, dto.sku, dto.name);
+    const category = await this.resolveCategory(tenantId, dto.categoryId, dto.category);
+
     const [product] = await db
       .insert(products)
       .values({
         ...dto,
         tenantId,
+        sku,
+        categoryId: category.categoryId,
+        category: category.category,
+        imageUrl: this.cleanOptionalText(dto.imageUrl),
         price: dto.price.toString(),
         cost: dto.cost?.toString(),
         stock: dto.stock ?? 0,
@@ -61,6 +61,8 @@ export class ProductsService {
     if (query.minPrice) conditions.push(gte(products.price, query.minPrice.toString()));
     if (query.maxPrice) conditions.push(lte(products.price, query.maxPrice.toString()));
     if (query.isActive !== undefined) conditions.push(eq(products.isActive, query.isActive));
+    if (query.categoryId) conditions.push(eq(products.categoryId, query.categoryId));
+    if (query.category) conditions.push(ilike(products.category, `%${query.category}%`));
     return db.select().from(products).where(and(...conditions)).orderBy(products.name);
   }
 
@@ -88,6 +90,12 @@ export class ProductsService {
     if (query.isActive !== undefined) {
       conditions.push(eq(products.isActive, query.isActive));
     }
+    if (query.categoryId) {
+      conditions.push(eq(products.categoryId, query.categoryId));
+    }
+    if (query.category) {
+      conditions.push(ilike(products.category, `%${query.category}%`));
+    }
 
     const where = and(...conditions);
 
@@ -110,6 +118,28 @@ export class ProductsService {
       page,
       limit,
       totalPages: Math.ceil(count / limit),
+    };
+  }
+
+  async findCategories(tenantId: string) {
+    const items = await db
+      .select()
+      .from(productCategories)
+      .where(and(eq(productCategories.tenantId, tenantId), eq(productCategories.isActive, true)))
+      .orderBy(productCategories.sortOrder, productCategories.name);
+
+    const legacy = await db.execute(sql`
+      SELECT DISTINCT category as name
+      FROM products
+      WHERE tenant_id = ${tenantId}
+        AND category IS NOT NULL
+        AND category <> ''
+      ORDER BY category
+    `);
+
+    return {
+      items,
+      legacy: legacy.rows,
     };
   }
 
@@ -136,8 +166,16 @@ export class ProductsService {
   }
 
   async update(tenantId: string, id: string, dto: UpdateProductDto, userId?: string) {
+    const { sku, categoryId, category: categoryName, imageUrl, ...rest } = dto;
+    const category =
+      categoryId !== undefined || categoryName !== undefined
+        ? await this.resolveCategory(tenantId, categoryId, categoryName)
+        : undefined;
     const values = {
-      ...dto,
+      ...rest,
+      ...(this.cleanOptionalText(sku) ? { sku: await this.resolveSku(tenantId, sku, rest.name ?? "ITEM", id) } : {}),
+      ...(category ? { categoryId: category.categoryId, category: category.category } : {}),
+      ...(imageUrl !== undefined ? { imageUrl: this.cleanOptionalText(imageUrl) } : {}),
       price: dto.price?.toString(),
       cost: dto.cost?.toString(),
       updatedAt: new Date(),
@@ -277,5 +315,68 @@ export class ProductsService {
       .from(inventoryTransactions)
       .where(and(eq(inventoryTransactions.tenantId, tenantId), eq(inventoryTransactions.productId, productId)))
       .orderBy(desc(inventoryTransactions.createdAt));
+  }
+
+  private cleanOptionalText(value?: string | null) {
+    const cleaned = value?.trim();
+    return cleaned ? cleaned : null;
+  }
+
+  private async resolveSku(tenantId: string, requestedSku: string | undefined, name: string, currentProductId?: string) {
+    const normalized = this.cleanOptionalText(requestedSku)?.toUpperCase();
+    if (normalized) {
+      const [existing] = await db
+        .select({ id: products.id })
+        .from(products)
+        .where(eq(products.sku, normalized));
+      if (existing && existing.id !== currentProductId) {
+        throw new ConflictException("SKU already exists");
+      }
+      return normalized;
+    }
+
+    const seed = this.toSkuSegment(name) || "ITEM";
+    const tenantSegment = tenantId.replace(/-/g, "").slice(0, 6).toUpperCase();
+    const dateSegment = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+    const prefix = `${seed}-${tenantSegment}-${dateSegment}`;
+
+    for (let index = 1; index <= 9999; index += 1) {
+      const sku = `${prefix}-${index.toString().padStart(4, "0")}`;
+      const [existing] = await db
+        .select({ id: products.id })
+        .from(products)
+        .where(eq(products.sku, sku));
+      if (!existing) return sku;
+    }
+
+    throw new ConflictException("Unable to generate a unique SKU");
+  }
+
+  private toSkuSegment(value: string) {
+    return value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 12)
+      .toUpperCase();
+  }
+
+  private async resolveCategory(tenantId: string, categoryId?: string, category?: string) {
+    if (categoryId) {
+      const [found] = await db
+        .select({ id: productCategories.id, name: productCategories.name })
+        .from(productCategories)
+        .where(and(eq(productCategories.tenantId, tenantId), eq(productCategories.id, categoryId)));
+      if (!found) {
+        throw new BadRequestException("Product category not found");
+      }
+      return { categoryId: found.id, category: found.name };
+    }
+
+    return {
+      categoryId: null,
+      category: this.cleanOptionalText(category),
+    };
   }
 }

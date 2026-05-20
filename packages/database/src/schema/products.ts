@@ -1,5 +1,6 @@
 import { pgTable, uuid, text, numeric, integer, timestamp, boolean, index } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
+import { productCategories } from './product_categories';
 
 export const products = pgTable(
   'products',
@@ -13,6 +14,8 @@ export const products = pgTable(
     externalId: text('external_id'),
     externalPlatform: text('external_platform'),
     description: text('description'),
+    imageUrl: text('image_url'),
+    categoryId: uuid('category_id').references(() => productCategories.id, { onDelete: 'set null' }),
     category: text('category'), // simple category, can be extended later
     unit: text('unit').default('piece'), // piece, kg, box, etc.
     price: numeric('price', { precision: 18, scale: 2 }).notNull(),
@@ -29,6 +32,7 @@ export const products = pgTable(
   (table) => ({
     tenantIdx: index('products_tenant_idx').on(table.tenantId),
     skuIdx: index('products_sku_idx').on(table.sku),
+    categoryIdIdx: index('products_category_id_idx').on(table.categoryId),
     categoryIdx: index('products_category_idx').on(table.category),
     activeIdx: index('products_active_idx').on(table.isActive),
   })

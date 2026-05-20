@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+packageExtensionsChecksum: sha256-JL0oV4ZPKapUiivMzdip2RhfWVxMPjfL7aohQnjmjKk=
+
 importers:
 
   .:
@@ -16277,6 +16279,10 @@ snapshots:
       is-docker: 2.2.1
       is-wsl: 2.2.0
       lodash.debounce: 4.0.8
+      metro: 0.81.5
+      metro-config: 0.81.5
+      metro-core: 0.81.5
+      metro-resolver: 0.81.5
       minimatch: 3.1.5
       node-forge: 1.4.0
       npm-package-arg: 11.0.3
@@ -16602,6 +16608,13 @@ snapshots:
       glob: 10.4.5
       jsc-safe-url: 0.2.4
       lightningcss: 1.27.0
+      metro: 0.81.5
+      metro-cache: 0.81.5
+      metro-cache-key: 0.81.5
+      metro-config: 0.81.5
+      metro-source-map: 0.81.5
+      metro-transform-plugins: 0.81.5
+      metro-transform-worker: 0.81.5
       minimatch: 3.1.5
       postcss: 8.4.49
       resolve-from: 5.0.0

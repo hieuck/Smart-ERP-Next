@@ -6,7 +6,10 @@ import * as SecureStore from 'expo-secure-store';
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
-async function getHeaders(): Promise<HeadersInit> {
+type MobileHeaders = Record<string, string>;
+type MobileRequestOptions = Omit<RequestInit, 'headers'> & { headers?: MobileHeaders };
+
+async function getHeaders(): Promise<MobileHeaders> {
   const token = await SecureStore.getItemAsync('access_token');
   const tenantId = await SecureStore.getItemAsync('tenant_id');
   return {
@@ -18,7 +21,7 @@ async function getHeaders(): Promise<HeadersInit> {
 
 async function request<T>(
   path: string,
-  options: RequestInit = {}
+  options: MobileRequestOptions = {}
 ): Promise<T> {
   const headers = await getHeaders();
   const res = await fetch(`${API_BASE}${path}`, {

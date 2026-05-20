@@ -8,6 +8,10 @@ export class QueryProductDto {
 
   @IsString()
   @IsOptional()
+  category?: string;
+
+  @IsString()
+  @IsOptional()
   categoryId?: string;
 
   @IsNumber()
