@@ -37,9 +37,16 @@ pnpm-debug.log*
 # Coverage
 coverage
 .nyc_output
+playwright-report
+test-results
+apps/*/test-results
 
 # Temporary
 tmp
 temp
+scratch
 .aider*
+
+# Package manager artifacts
+package-lock.json
 
