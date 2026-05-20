@@ -24,7 +24,7 @@ interface Transaction {
 }
 
 const TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  IN: { label: t('inventory.stockIn'), color: 'text-green-600' },
+  IN: { label: 'Nhập kho', color: 'text-green-600' },
   OUT: { label: 'Xuất kho', color: 'text-red-600' },
   ADJUSTMENT: { label: 'Điều chỉnh', color: 'text-blue-600' },
 };

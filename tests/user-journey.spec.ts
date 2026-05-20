@@ -15,3 +15,10 @@ test('smoke test: page loads', async ({ page }) => {
 
   expect(emailExists + passwordExists).toBeGreaterThan(0);
 });
+
+test('web MVP page loads without authentication', async ({ page }) => {
+  await page.goto('/mvp');
+  await expect(page.getByRole('heading', { name: /Smart ERP Next - Web MVP/i })).toBeVisible();
+  await expect(page.getByText(/Web, Android, iOS\/Windows dung chung backend DB qua API/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: /iPhone 15 Pro Max/i })).toBeVisible();
+});

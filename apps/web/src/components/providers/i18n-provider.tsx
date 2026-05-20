@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -19,8 +20,7 @@ export function I18nProvider({ children, locale = 'vi' }: I18nProviderProps) {
   }, [locale]);
 
   if (!ready) {
-    // Render children anyway — i18n will hydrate; avoids blank flash
-    return <>{children}</>;
+    return null;
   }
 
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;

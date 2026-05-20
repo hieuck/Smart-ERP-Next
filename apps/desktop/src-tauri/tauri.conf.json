@@ -1,46 +1,15 @@
 {
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Smart ERP Next",
+  "version": "0.4.0",
+  "identifier": "vn.smarterp.next",
   "build": {
     "beforeBuildCommand": "pnpm --filter @smart-erp/desktop build",
     "beforeDevCommand": "pnpm --filter @smart-erp/desktop dev",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist"
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "Smart ERP Next",
-    "version": "0.4.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "open": true
-      },
-      "http": {
-        "all": true,
-        "scope": ["http://localhost:3000/**", "http://localhost:1420/**"]
-      }
-    },
-    "bundle": {
-      "active": true,
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "vn.smarterp.next",
-      "resources": [],
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "security": {
-      "csp": null
-    },
+  "app": {
     "windows": [
       {
         "center": true,
@@ -52,6 +21,25 @@
         "title": "Smart ERP Next",
         "width": 1280
       }
-    ]
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
   }
 }

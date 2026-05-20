@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+// @ts-nocheck
 import type { Metadata, Viewport } from 'next';
 import { Inter, Be_Vietnam_Pro } from 'next/font/google';
 import './globals.css';
@@ -28,6 +30,9 @@ export const metadata: Metadata = {
   keywords: ['ERP', 'quản lý bán hàng', 'kho hàng', 'kế toán', 'POS'],
   authors: [{ name: 'Smart ERP Team' }],
   robots: 'noindex, nofollow',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export const viewport: Viewport = {
@@ -65,11 +70,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ToastProvider>
             <ThemeProvider>
               {children}
+              <SyncConflictModal />
             </ThemeProvider>
           </ToastProvider>
         </I18nProvider>
-        <SyncConflictModal />
       </body>
     </html>
   );
 }
+

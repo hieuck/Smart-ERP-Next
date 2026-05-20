@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "windows:build": "tauri build --no-bundle",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build"
@@ -26,6 +28,7 @@
     "lucide-react": "^0.394.0"
   },
   "devDependencies": {
+    "@smart-erp/tsconfig": "workspace:*",
     "@tauri-apps/cli": "^2.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

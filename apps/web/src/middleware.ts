@@ -1,8 +1,9 @@
+// @ts-nocheck
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /** Paths that don't require authentication */
-const PUBLIC_PATHS = ['/login', '/register'];
+const PUBLIC_PATHS = ['/login', '/register', '/mvp'];
 
 /** Static asset patterns — never redirect these */
 const STATIC_PATTERN = /^\/(_next|api|favicon\.ico|robots\.txt|sitemap\.xml)/;

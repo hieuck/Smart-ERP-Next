@@ -48,7 +48,7 @@ struct ReorderSuggestion {
 #[tauri::command]
 fn get_reorder_suggestions(state: tauri::State<'_, AppState>) -> Result<Vec<ReorderSuggestion>, String> {
     let api_base = state.api_base.lock().unwrap().clone();
-    let token = state.token.lock().unwrap().clone();
+    let _token = state.token.lock().unwrap().clone();
     if api_base.is_empty() {
         return Err("API base URL not configured".to_string());
     }
@@ -59,8 +59,8 @@ fn get_reorder_suggestions(state: tauri::State<'_, AppState>) -> Result<Vec<Reor
 #[tauri::command]
 fn update_reorder_point(
     state: tauri::State<'_, AppState>,
-    product_id: String,
-    reorder_point: f64,
+    _product_id: String,
+    _reorder_point: f64,
 ) -> Result<bool, String> {
     let _api_base = state.api_base.lock().unwrap().clone();
     let _token = state.token.lock().unwrap().clone();
@@ -77,8 +77,6 @@ fn main() {
                 .set_min_size(Some(tauri::LogicalSize::new(1024.0_f64, 600.0_f64)))
                 .unwrap();
             window.center().unwrap();
-            #[cfg(debug_assertions)]
-            window.open_devtools();
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
