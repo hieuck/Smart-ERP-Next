@@ -78,6 +78,42 @@ Script sẽ tự động:
 - **Sync status indicator** with pending changes count and manual/auto retry
 - **Conflict resolution** UI for offline edits (powered by Dexie + background sync)
 
+---
+
+## 🧪 Test Coverage & Quality Assurance
+
+### Current Status
+- **API Tests**: 435 tests passing ✅ (120 test suites)
+- **Web Tests**: 9 test files (expanding coverage)
+- **Package Tests**: 28 test files
+- **E2E Tests**: 3 test files (in development)
+
+### Test Strategy
+- **Unit Tests**: Service layer, utilities, hooks
+- **Integration Tests**: API endpoints, database queries
+- **E2E Tests**: Critical user flows (auth, orders, inventory)
+- **Coverage Target**: 70%+ across all packages
+
+### Running Tests
+```bash
+# Run all tests
+pnpm test
+
+# Run tests for specific app
+pnpm test -- apps/api
+
+# Run with coverage report
+pnpm test:cov
+
+# Watch mode
+pnpm test -- --watch
+```
+
+### Quality Gates
+- Pre-commit: Lint + type check
+- Pre-push: All tests must pass
+- Release: 70%+ coverage required
+
 ## Tech Stack
 
 | Thành phần   | Công nghệ                               |
