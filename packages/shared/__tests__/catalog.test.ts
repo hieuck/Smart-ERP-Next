@@ -75,5 +75,6 @@ describe('shared display formatters', () => {
   it('formats Date instances and ISO date strings', () => {
     expect(formatDate(new Date('2026-05-20T00:00:00.000Z'), 'en-US')).toBe('5/20/2026');
     expect(formatDate('2026-05-20T00:00:00.000Z', 'en-US')).toBe('5/20/2026');
+    expect(formatDate('2026-05-20T00:00:00.000Z')).toBe('20/5/2026');
   });
 });

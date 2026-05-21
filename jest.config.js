@@ -4,15 +4,15 @@ module.exports = {
   roots: ['<rootDir>'],
   collectCoverage: true,
   collectCoverageFrom: [
-    // Release gate: keep coverage strict on deterministic core packages that have
-    // unit-level coverage. End-user app flows remain covered by Playwright.
-    'packages/utils/src/**/*.ts',
-    'packages/validation/src/**/*.ts',
+    'apps/**/*.ts',
+    'packages/**/*.ts',
     '!**/*.d.ts',
     '!**/types.ts',
     '!**/*.config.ts',
     '!**/__tests__/**',
     '!**/?(*.)+(spec|test).[jt]s?(x)',
+    '!**/*.e2e-spec.ts',
+    '!**/test/**',
     '!**/dist/**',
     '!**/build/**',
     '!**/.next/**',
@@ -39,6 +39,8 @@ module.exports = {
       tsconfig: {
         rootDir: '.',
         baseUrl: '.',
+        emitDecoratorMetadata: false,
+        experimentalDecorators: true,
         ignoreDeprecations: '6.0',
         resolveJsonModule: true,
         paths: {

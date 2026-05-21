@@ -171,8 +171,8 @@ export class SyncService {
 }
 
 /** Default singleton for web (uses localStorage) */
-export const syncService = new SyncService(
-  typeof process !== 'undefined'
-    ? (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000')
-    : 'http://localhost:3000'
-);
+export const getDefaultApiBase = (
+  runtime: { process?: { env?: { NEXT_PUBLIC_API_URL?: string } } } = globalThis as any,
+) => runtime.process?.env?.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+
+export const syncService = new SyncService(getDefaultApiBase());

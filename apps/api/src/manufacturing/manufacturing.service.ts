@@ -277,7 +277,7 @@ export class ManufacturingService {
       `,
     )) as any;
 
-    if (!(order as any[]).length) throw new NotFoundException('Production order not found');
+    if (!order) throw new NotFoundException('Production order not found');
 
     const bom = await this.getBOM((order as any).product_id, tenantId);
 

@@ -10,6 +10,7 @@ describe('I18nService', () => {
   it('translates nested keys and falls back to Vietnamese', () => {
     expect(service.t('actions.save', 'en')).toBe('Save');
     expect(service.t('actions.save', 'vi')).toBe('Lưu');
+    expect(service.t('actions.save')).toBe('Lưu');
     expect(service.t('actions.save', 'missing-locale')).toBe('Lưu');
   });
 
@@ -19,6 +20,44 @@ describe('I18nService', () => {
 
   it('interpolates known params and preserves missing params', () => {
     expect(service.t('validation.required', 'en', { field: 'Email' })).toBe('Email is required');
+    expect(service.t('validation.required', 'en', {})).toBe('{{field}} is required');
     expect(service.t('validation.required', 'en')).toBe('{{field}} is required');
+  });
+
+  it('discovers locales by walking parent directories when fixed candidates are absent', async () => {
+    jest.resetModules();
+    const existsSync = jest.fn((filePath: string) => {
+      if (filePath.endsWith('common.json')) return true;
+      return existsSync.mock.calls.length === 4;
+    });
+    jest.doMock('fs', () => ({
+      existsSync,
+      readdirSync: jest.fn(() => ['vi', 'en', 'README.md']),
+      readFileSync: jest.fn((filePath: string) => JSON.stringify(
+        filePath.includes('\\en\\') || filePath.includes('/en/')
+          ? { actions: { save: 'Save' } }
+          : { actions: { save: 'Luu' } },
+      )),
+    }));
+    const { I18nService: MockedI18nService } = await import('./i18n.service');
+
+    const mockedService = new MockedI18nService();
+
+    expect(mockedService.getAvailableLocales().sort()).toEqual(['en', 'vi']);
+    expect(mockedService.t('actions.save', 'en')).toBe('Save');
+    jest.dontMock('fs');
+  });
+
+  it('throws a clear error when the locales directory cannot be located', async () => {
+    jest.resetModules();
+    jest.doMock('fs', () => ({
+      existsSync: jest.fn(() => false),
+      readdirSync: jest.fn(),
+      readFileSync: jest.fn(),
+    }));
+    const { I18nService: MockedI18nService } = await import('./i18n.service');
+
+    expect(() => new MockedI18nService()).toThrow('Could not locate locales directory');
+    jest.dontMock('fs');
   });
 });

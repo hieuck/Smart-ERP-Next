@@ -20,6 +20,7 @@ export type NotificationEvent =
   | 'lead.created'
   | 'lead.converted'
   | 'chat.message'
+  | 'chat.mention'
   | 'comment.added'
   | 'system.alert'
   | 'approval:new'

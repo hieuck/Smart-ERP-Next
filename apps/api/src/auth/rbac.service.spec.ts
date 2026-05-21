@@ -27,6 +27,22 @@ describe('RbacService', () => {
     ]);
   });
 
+  it('falls back to viewer permissions for unknown user roles', async () => {
+    const roleSpy = jest.spyOn(service as any, 'getUserRole').mockResolvedValueOnce('contractor');
+
+    const roles = await service.getUserRoles('tenant-1', 'user-1');
+
+    expect(roles).toEqual([
+      expect.objectContaining({
+        id: 'role-contractor',
+        name: 'contractor',
+        permissions: expect.arrayContaining(['customers.read', 'reports.read']),
+      }),
+    ]);
+    expect(roles[0].permissions).not.toContain('orders.create');
+    roleSpy.mockRestore();
+  });
+
   it('creates custom roles without persisting to the database placeholder', async () => {
     const role = await service.createRole('tenant-1', 'Store Auditor', ['reports.read'], 'Read-only audit role');
 

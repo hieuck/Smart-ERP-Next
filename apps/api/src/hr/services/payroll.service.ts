@@ -75,7 +75,7 @@ export class PayrollService {
       const hourlyRate = dailyRate / 8;
 
       // Tính lương cơ bản thực nhận
-      let calculatedSalary = (actualWorkDays / standardWorkDays) * baseSalary;
+      const calculatedSalary = (actualWorkDays / standardWorkDays) * baseSalary;
       
       // Tính OT (Hệ số 1.5)
       const overtimePay = otHours * hourlyRate * 1.5;

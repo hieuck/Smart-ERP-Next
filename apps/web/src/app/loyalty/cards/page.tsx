@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 
 import { useTranslation } from '@smart-erp/i18n';

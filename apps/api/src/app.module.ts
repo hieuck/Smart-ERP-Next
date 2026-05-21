@@ -57,9 +57,12 @@ import { MaintenanceModule } from './maintenance/maintenance.module';
 import { WmsModule } from './wms/wms.module';
 import { TmsModule } from './tms/tms.module';
 import { FinanceModule } from './finance/finance.module';
+import { I18nModule } from './i18n/i18n.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    I18nModule,
     MarketingModule,
     MaintenanceModule,
     WmsModule,
@@ -71,7 +74,6 @@ import { FinanceModule } from './finance/finance.module';
     ForecastModule,
     // Inventory recommendation
     InventoryRecommendationModule,
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     AuthModule,
     UsersModule,
     TenantsModule,

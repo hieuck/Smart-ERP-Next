@@ -21,16 +21,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Lint
-        run: pnpm lint || echo "No lint script – skipping"
+        run: pnpm lint
       - name: Type check
-        run: pnpm type-check || echo "No type-check script – skipping"
+        run: pnpm type-check
       - name: Run unit tests with coverage
-        run: pnpm test:cov || echo "No test script – skipping"
+        run: pnpm test:cov
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Run web E2E tests
-        run: |
-          cd apps/web
-          pnpm test:e2e || echo "E2E tests not configured – skipping"
+      - name: Run E2E tests
+        run: npx playwright test
       - name: Build all apps
         run: pnpm build

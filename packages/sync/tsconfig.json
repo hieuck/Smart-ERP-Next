@@ -1,1 +1,1 @@
-{"compilerOptions":{"noEmit":false,"outDir":"./dist","rootDir":"./src"},"extends":"@smart-erp/tsconfig/base.json","include":["src/**/*"]}
+{"extends":"@smart-erp/tsconfig/base.json","compilerOptions":{"lib":["ES2022"],"outDir":"./dist","rootDir":"."},"include":["src","__tests__"],"exclude":["node_modules","dist"]}

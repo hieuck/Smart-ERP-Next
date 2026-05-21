@@ -20,12 +20,12 @@ export class SyncBenchmarkInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap({
-        next: (res) => {
+        next: (res: any) => {
           const duration = Date.now() - start;
           const status = res?.accepted ? 'success' : 'failure';
           this.benchmarkService.record(tenantId, clientId, endpoint, status, duration, changesCount, size).catch(console.error);
         },
-        error: (err) => {
+        error: (err: any) => {
           const duration = Date.now() - start;
           const status = err?.response?.status === 409 ? 'conflict' : 'failure';
           this.benchmarkService.record(tenantId, clientId, endpoint, status, duration, changesCount, size).catch(console.error);

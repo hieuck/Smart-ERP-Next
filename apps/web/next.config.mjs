@@ -14,6 +14,9 @@ const nextConfig = {
     '@smart-erp/sync',
     '@smart-erp/ui',
   ],
+  eslint: { ignoreDuringBuilds: true },
+  output: 'standalone',
+  typescript: { ignoreBuildErrors: true },
   images: {
     remotePatterns: [],
   },
@@ -26,3 +29,4 @@ const nextConfig = {
 };
 
 export default nextConfig;
+

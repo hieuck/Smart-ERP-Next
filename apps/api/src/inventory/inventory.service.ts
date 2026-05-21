@@ -20,11 +20,12 @@ export class InventoryService {
       .orderBy(products.stock);
 
     return rows
-      .filter((p) => (p.minStock ?? 0) > 0 && p.stock <= (p.minStock ?? 0))
-      .map((p) => ({
-        ...p,
+      .map((p) => ({ product: p, minStock: p.minStock ?? 0 }))
+      .filter(({ product, minStock }) => minStock > 0 && product.stock <= minStock)
+      .map(({ product, minStock }) => ({
+        ...product,
         suggestedOrderQuantity: Math.max(
-          (p.reorderQuantity ?? 0) || ((p.minStock ?? 0) - p.stock),
+          (product.reorderQuantity ?? 0) || (minStock - product.stock),
           0,
         ),
       }))

@@ -102,7 +102,7 @@ export class HrService {
   }
 
   async processPayroll(tenantId: string) {
-    const employees = await db
+    const employeesList = await db
       .select()
       .from(employees)
       .where(eq(employees.tenantId, tenantId));
@@ -111,7 +111,7 @@ export class HrService {
     const currentYear = new Date().getFullYear();
 
     await Promise.all(
-      employees.map(async (employee) => {
+      employeesList.map(async (employee) => {
         const existing = await db
           .select()
           .from(payrolls)

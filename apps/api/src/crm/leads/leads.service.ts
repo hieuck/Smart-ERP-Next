@@ -10,6 +10,7 @@ import { eq, and, ilike, or, sql, desc } from "@smart-erp/database/drizzle";
 import { CreateLeadDto } from "./dto/create-lead.dto";
 import { UpdateLeadDto } from "./dto/update-lead.dto";
 import { NotificationsGateway } from "../../notifications/notifications.gateway";
+import { ActivityService } from "../../modules/activity/activity.service";
 
 @Injectable()
 export class LeadsService {

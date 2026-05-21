@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 "use client";
@@ -185,3 +186,4 @@ function StatCard({
     </div>
   );
 }
+

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
-import { comments } from '@smart-erp/database/schema';
+import { comments, users } from '@smart-erp/database/schema';
 import { eq, and, desc } from '@smart-erp/database/drizzle';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 

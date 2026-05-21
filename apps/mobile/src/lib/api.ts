@@ -7,7 +7,11 @@ import * as SecureStore from 'expo-secure-store';
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 type MobileHeaders = Record<string, string>;
-type MobileRequestOptions = Omit<RequestInit, 'headers'> & { headers?: MobileHeaders };
+type QueryParamValue = string | number | boolean | null | undefined;
+type MobileRequestOptions = Omit<RequestInit, 'headers'> & {
+  headers?: MobileHeaders;
+  params?: Record<string, QueryParamValue>;
+};
 
 async function getHeaders(): Promise<MobileHeaders> {
   const token = await SecureStore.getItemAsync('access_token');
@@ -19,14 +23,24 @@ async function getHeaders(): Promise<MobileHeaders> {
   };
 }
 
-async function request<T>(
-  path: string,
-  options: MobileRequestOptions = {}
-): Promise<T> {
+function buildUrl(path: string, params?: Record<string, QueryParamValue>) {
+  const query = new URLSearchParams();
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      query.set(key, String(value));
+    }
+  });
+
+  const qs = query.toString();
+  return `${API_BASE}${path}${qs ? `?${qs}` : ''}`;
+}
+
+async function request<T>(path: string, options: MobileRequestOptions = {}): Promise<T> {
   const headers = await getHeaders();
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: { ...headers, ...(options.headers ?? {}) },
+  const { params, ...requestOptions } = options;
+  const res = await fetch(buildUrl(path, params), {
+    ...requestOptions,
+    headers: { ...headers, ...(requestOptions.headers ?? {}) },
   });
 
   if (!res.ok) {
@@ -38,7 +52,7 @@ async function request<T>(
 }
 
 export const api = {
-  get: <T = any>(path: string) => request<T>(path),
+  get: <T = any>(path: string, options?: MobileRequestOptions) => request<T>(path, options),
   post: <T = any>(path: string, body?: unknown) =>
     request<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
   patch: <T = any>(path: string, body?: unknown) =>

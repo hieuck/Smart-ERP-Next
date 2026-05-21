@@ -46,7 +46,7 @@ export class PredictiveAnalyticsService {
       `,
     );
 
-    const stats = customerStats as Array<{
+    const stats = customerStats.rows as unknown as Array<{
       customer_id: string;
       customer_name: string;
       total_revenue: number;
@@ -93,7 +93,7 @@ export class PredictiveAnalyticsService {
       `,
     );
 
-    const data = trend as Array<{
+    const data = trend.rows as unknown as Array<{
       period: string;
       revenue: number;
       orders_count: number;

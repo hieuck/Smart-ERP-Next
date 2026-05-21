@@ -14,7 +14,6 @@ export class ChatService {
       fromUserId,
       toUserId,
       content,
-      mentions,
       sentAt: new Date(),
     }).returning();
 

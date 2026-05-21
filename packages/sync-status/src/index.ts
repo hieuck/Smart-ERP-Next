@@ -27,7 +27,10 @@ export const useSyncStore = create<SyncState>((set) => ({
   setLastSync: (lastSync) => set({ lastSync }),
   setPendingChanges: (pendingChanges) => set({ pendingChanges }),
   setConflictCount: (conflictCount) => set({ conflictCount }),
-  setError: (errorMessage) => set({ errorMessage, status: errorMessage ? 'error' : 'idle' }),
+  setError: (errorMessage) => set((state) => ({
+    errorMessage,
+    status: errorMessage ? 'error' : state.status === 'error' ? 'idle' : state.status,
+  })),
   reset: () => set({ status: 'idle', lastSync: null, pendingChanges: 0, conflictCount: 0, errorMessage: null }),
 }));
 

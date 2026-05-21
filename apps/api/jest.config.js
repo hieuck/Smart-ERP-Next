@@ -7,7 +7,17 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['src/**/*.(t|j)s'],
+  collectCoverageFrom: [
+    'src/**/*.service.ts',
+  ],
+  coverageThreshold: {
+    global: {
+      statements: 80,
+      branches: 70,
+      functions: 80,
+      lines: 80,
+    },
+  },
   coverageDirectory: '../coverage',
   moduleNameMapper: {
     '^@smart-erp/database/schema$': '<rootDir>/../../packages/database/src/schema/index.ts',

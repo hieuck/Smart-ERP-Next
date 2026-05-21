@@ -27,7 +27,7 @@ export class ClvService {
       let predictedClv = m.avgOrderValue * m.frequency * 12; // annual value
       let segment = 'low';
       // adjust for recency (risk)
-      let recencyFactor = Math.max(0, 1 - m.recencyDays / 365);
+      const recencyFactor = Math.max(0, 1 - m.recencyDays / 365);
       predictedClv = predictedClv * recencyFactor;
 
       // segmentation

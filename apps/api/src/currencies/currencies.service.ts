@@ -4,7 +4,6 @@ import { db } from '@smart-erp/database';
 import { currencies as currenciesTable, exchangeRates } from '@smart-erp/database/schema';
 import { eq, and, desc, gte, lte } from 'drizzle-orm';
 import { ExchangeRateDto, UpdateExchangeRateDto, CreateCurrencyDto } from './dto';
-import { exchangeRates } from '@smart-erp/database/schema';
 
 @Injectable()
 export class CurrenciesService {

@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, index, integer } from 'drizzle-orm/pg-core';
 import { users } from './users';
 import { approvalRequests } from './approval_requests';
 
@@ -7,7 +7,7 @@ export const approvalChainItems = pgTable(
   {
     id: uuid('id').defaultRandom().primaryKey(),
     requestId: uuid('request_id').notNull().references(() => approvalRequests.id, { onDelete: 'cascade' }),
-    stepIndex: numeric('step_index').notNull(),
+    stepIndex: integer('step_index').notNull(),
     approverId: uuid('approver_id').references(() => users.id),
     status: text('status').notNull().default('pending'), // pending, approved, rejected
     comments: text('comments'),

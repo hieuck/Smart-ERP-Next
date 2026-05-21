@@ -175,7 +175,7 @@ export class ShopeeClient {
    * Batch update stock for multiple items
    */
   async batchUpdateStock(items: Array<{ itemId: number; stock: number }>) {
-    const stockList = items.map((i) => ({ item_id: i.item_id, stock: i.stock }));
+    const stockList = items.map((i) => ({ item_id: i.itemId, stock: i.stock }));
     const result = await this.request('POST', '/api/v2/product/update_stock', {
       stock_list: stockList,
     });

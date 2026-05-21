@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@smart-erp/accounting": ["./dist/packages/accounting/src/index.js"],
+      "@smart-erp/database": ["./dist/packages/database/src/index.js"],
+      "@smart-erp/database/drizzle": ["./dist/packages/database/src/drizzle.js"],
+      "@smart-erp/database/schema": ["./dist/packages/database/src/schema/index.js"]
+    }
+  }
+}

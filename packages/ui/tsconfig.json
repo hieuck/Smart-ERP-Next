@@ -1,5 +1,1 @@
-{
-  "extends": "@smart-erp/tsconfig/react-library.json",
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
-}
+{"extends":"@smart-erp/tsconfig/react-library.json","compilerOptions":{"rootDir":"."},"include":["src","__tests__"],"exclude":["node_modules","dist"]}

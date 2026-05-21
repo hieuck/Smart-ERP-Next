@@ -195,6 +195,7 @@ describe("ProductsService coverage", () => {
         search: "mac",
         minPrice: 1000,
         maxPrice: 5000,
+        categoryId: "cat-1",
         isActive: true,
         category: "Laptop",
       } as any),
@@ -204,6 +205,18 @@ describe("ProductsService coverage", () => {
       page: 2,
       limit: 100,
       totalPages: 1,
+    });
+
+    selectQueue.push(
+      [{ count: 0 }],
+      { rows: [], chainAfterWhere: true, chainAfterOrderBy: true },
+    );
+    await expect(service.findAll("tenant-1", {} as any)).resolves.toEqual({
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 0,
     });
   });
 
@@ -216,6 +229,25 @@ describe("ProductsService coverage", () => {
       items: [{ id: "cat-1", name: "Phones" }],
       legacy: [{ name: "Legacy" }],
     });
+  });
+
+  it("exports products with every supported filter", async () => {
+    const { service } = createService();
+    selectQueue.push({ rows: [{ id: "p-1" }], chainAfterWhere: true });
+
+    await expect(
+      service.findAllForExport("tenant-1", {
+        category: "Coffee",
+        categoryId: "cat-1",
+        isActive: false,
+        maxPrice: 50000,
+        minPrice: 10000,
+        search: "arabica",
+      } as any),
+    ).resolves.toEqual([{ id: "p-1" }]);
+
+    const selectChain = mockDb.select.mock.results[0].value;
+    expect(selectChain.orderBy).toHaveBeenCalledWith("products.name");
   });
 
   it("updates SKU, category, price fields and logs changes", async () => {
@@ -262,6 +294,26 @@ describe("ProductsService coverage", () => {
     );
   });
 
+  it("generates accent-normalized SKUs when none is provided", async () => {
+    const { service } = createService();
+    selectQueue.push([{ id: "existing-sku" }], []);
+    insertReturningQueue.push([{ id: "p-1", name: "Cafe sua da", sku: "generated" }]);
+
+    await expect(
+      service.create("tenant-abc-123", { name: "Cà phê sữa đá đặc biệt", price: 25000 } as any),
+    ).resolves.toEqual({ id: "p-1", name: "Cafe sua da", sku: "generated" });
+
+    const insertChain = mockDb.insert.mock.results[0].value;
+    expect(insertChain.values.mock.calls[0][0].sku).toMatch(/^CA-PHE-SUA-A-TENANT-\d{6}-0002$/);
+  });
+
+  it("fails clearly when automatic SKU generation exhausts all candidates", async () => {
+    const { service } = createService();
+    mockDb.select.mockImplementation(() => makeSelectChain({ rows: [{ id: "existing-sku" }] }));
+
+    await expect((service as any).resolveSku("tenant-1", undefined, "Item")).rejects.toBeInstanceOf(ConflictException);
+  });
+
   it("rejects unknown category ids and missing update targets", async () => {
     const { service } = createService();
     selectQueue.push([]);
@@ -273,6 +325,21 @@ describe("ProductsService coverage", () => {
     await expect(service.update("tenant-1", "p-1", { name: "Missing" } as any)).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  it("updates generated SKU without a replacement name and skips optional activity logging", async () => {
+    const { service, activityService } = createService();
+    selectQueue.push([]);
+    updateReturningQueue.push([{ id: "p-1", sku: "NEW-SKU" }]);
+
+    await expect(service.update("tenant-1", "p-1", { sku: "new-sku" } as any)).resolves.toEqual({
+      id: "p-1",
+      sku: "NEW-SKU",
+    });
+
+    const updateChain = mockDb.update.mock.results[0].value;
+    expect(updateChain.set).toHaveBeenCalledWith(expect.objectContaining({ sku: "NEW-SKU" }));
+    expect(activityService.log).not.toHaveBeenCalled();
   });
 
   it("removes products and logs deletion activity", async () => {
@@ -331,6 +398,18 @@ describe("ProductsService coverage", () => {
 
     selectQueue.push([{ id: "p-1", stock: 1 }]);
     await expect(service.adjustStock("tenant-1", "p-1", 2, "OUT")).rejects.toBeInstanceOf(ConflictException);
+
+    selectQueue.push([{ id: "p-2", stock: 4 }]);
+    updateReturningQueue.push([{ id: "p-2", stock: 9 }]);
+    await expect(service.adjustStock("tenant-1", "p-2", 5, "IN")).resolves.toEqual({ id: "p-2", stock: 9 });
+    const defaultInsertChain = mockDb.insert.mock.results[1].value;
+    expect(defaultInsertChain.values).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reference: null,
+        notes: null,
+        createdBy: null,
+      }),
+    );
   });
 
   it("validates CSV headers during import", async () => {
@@ -341,6 +420,79 @@ describe("ProductsService coverage", () => {
     );
     await expect(service.importFromCsv("tenant-1", Buffer.from("sku,name,price\n"))).rejects.toBeInstanceOf(
       BadRequestException,
+    );
+  });
+
+  it("imports CSV rows as creates, updates, skipped rows, and per-row errors", async () => {
+    const { service } = createService();
+    jest.spyOn(service, "findBySku")
+      .mockResolvedValueOnce({ id: "existing-product" } as any)
+      .mockRejectedValueOnce(new NotFoundException("Product not found"))
+      .mockRejectedValueOnce(new NotFoundException("Product not found"));
+    jest.spyOn(service, "update").mockResolvedValueOnce({ id: "existing-product" } as any);
+    jest.spyOn(service, "create")
+      .mockResolvedValueOnce({ id: "new-product" } as any)
+      .mockRejectedValueOnce(new Error("bad row"));
+
+    const csv = [
+      "sku,name,price,description,category,unit,cost,stock,minstock,isactive",
+      "EXIST,Existing,100,Old,Cat,pcs,40,5,1,true",
+      "NEW,New item,200,New,Cat,pcs,,0,,false",
+      ",Missing sku,300,No sku,Cat,pcs,10,1,0,true",
+      "BAD,Bad row,400,Bad,Cat,pcs,10,1,0,true",
+    ].join("\n");
+
+    await expect(service.importFromCsv("tenant-1", Buffer.from(csv))).resolves.toEqual({
+      created: 1,
+      errors: ["Line 4: missing sku", "Line 5: bad row"],
+      updated: 1,
+    });
+
+    expect(service.update).toHaveBeenCalledWith(
+      "tenant-1",
+      "existing-product",
+      expect.objectContaining({ cost: 40, isActive: true, minStock: 1, stock: 5 }),
+    );
+    expect(service.create).toHaveBeenNthCalledWith(
+      1,
+      "tenant-1",
+      expect.objectContaining({ cost: undefined, isActive: false, minStock: 0, stock: 0 }),
+    );
+  });
+
+  it("imports rows with empty stock as zero", async () => {
+    const { service } = createService();
+    jest.spyOn(service, "findBySku").mockRejectedValueOnce(new NotFoundException("Product not found"));
+    jest.spyOn(service, "create").mockResolvedValueOnce({ id: "empty-stock" } as any);
+
+    const csv = [
+      "sku,name,price,stock",
+      "EMPTY,Empty stock,100,",
+    ].join("\n");
+
+    await expect(service.importFromCsv("tenant-1", Buffer.from(csv))).resolves.toEqual({
+      created: 1,
+      errors: [],
+      updated: 0,
+    });
+    expect(service.create).toHaveBeenCalledWith("tenant-1", expect.objectContaining({ stock: 0 }));
+  });
+
+  it("finds products by SKU and returns stock transactions", async () => {
+    const { service } = createService();
+    selectQueue.push([{ id: "p-1", sku: "SKU-1" }], [], { rows: [{ id: "tx-1" }], chainAfterWhere: true });
+
+    await expect(service.findBySku("tenant-1", "SKU-1")).resolves.toEqual({ id: "p-1", sku: "SKU-1" });
+    await expect(service.findBySku("tenant-1", "missing")).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.getTransactions("tenant-1", "p-1")).resolves.toEqual([{ id: "tx-1" }]);
+  });
+
+  it("falls back to ITEM when automatic SKU seed has no alphanumeric characters", async () => {
+    const { service } = createService();
+    selectQueue.push([]);
+
+    await expect((service as any).resolveSku("tenant-abc-123", undefined, "!!!")).resolves.toMatch(
+      /^ITEM-TENANT-\d{6}-0001$/,
     );
   });
 });

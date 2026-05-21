@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';

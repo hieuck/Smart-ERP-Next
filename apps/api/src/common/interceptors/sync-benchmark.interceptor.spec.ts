@@ -100,4 +100,35 @@ describe("SyncBenchmarkInterceptor", () => {
         },
       });
   });
+
+  it("records generic failure status on non-conflict errors", (done) => {
+    const benchmarkService = { record: jest.fn().mockResolvedValue(undefined) };
+    const interceptor = new SyncBenchmarkInterceptor(benchmarkService as any);
+    const request = {
+      url: "/sync/push",
+      user: { tenantId: "tenant-1" },
+      body: { clientId: "client-1", changes: { products: [] } },
+    };
+    jest.spyOn(Date, "now").mockReturnValueOnce(4000).mockReturnValueOnce(4030);
+
+    interceptor
+      .intercept(
+        createContext(request),
+        { handle: () => throwError(() => ({ response: { status: 500 } })) } as any,
+      )
+      .subscribe({
+        error: () => {
+          expect(benchmarkService.record).toHaveBeenCalledWith(
+            "tenant-1",
+            "client-1",
+            "push",
+            "failure",
+            30,
+            0,
+            JSON.stringify(request.body).length,
+          );
+          done();
+        },
+      });
+  });
 });

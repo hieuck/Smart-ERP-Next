@@ -50,5 +50,9 @@ export * from './xero';
 export * from './mrp';
 export * from './activity_logs';
 export * from './loyalty';
+export * from './accounting';
+export * from './approval_chain_items';
+export * from './messages';
+export * from './employees';
 
 

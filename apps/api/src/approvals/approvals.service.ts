@@ -70,9 +70,9 @@ export class ApprovalsService {
     // Create chain items
     const chainItems: NewApprovalChainItem[] = approverIds.map((approverId, idx) => ({
       requestId: request.id,
-      stepIndex: idx.toString(),
+      stepIndex: idx,
       approverId,
-      status: idx === 0 ? 'pending' : 'pending',
+      status: 'pending',
     }));
     await this.drizzle.db.insert(approvalChainItems).values(chainItems);
 

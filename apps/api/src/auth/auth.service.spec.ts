@@ -239,6 +239,33 @@ describe("AuthService", () => {
         tenantId: "tenant-1",
       }),
     );
+
+    usersService.findByEmail.mockResolvedValueOnce(null);
+    insertReturningQueue.push([
+      {
+        email: "noname@example.com",
+        id: "user-3",
+        name: null,
+        role: "user",
+        tenantId: "tenant-1",
+      },
+    ]);
+
+    await service.register(
+      "noname@example.com",
+      "Password123!",
+      undefined,
+      "tenant-1",
+    );
+
+    expect(insertChains[1].values).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: "noname@example.com",
+        name: null,
+        role: "user",
+        tenantId: "tenant-1",
+      }),
+    );
   });
 
   it("rejects duplicate emails and missing company names", async () => {
@@ -290,5 +317,14 @@ describe("AuthService", () => {
       name: "Demo Company",
       slug: "demo-company-2",
     });
+  });
+
+  it("falls back when every tenant slug candidate is already taken", async () => {
+    const { service } = createService();
+    jest.spyOn(Date, "now").mockReturnValue(1770000000000);
+    selectQueue.push(...Array.from({ length: 20 }, (_, index) => [{ id: `tenant-${index}` }]));
+
+    await expect((service as any).uniqueTenantSlug("busy")).resolves.toBe("busy-ml4kasqo");
+    expect((service as any).slugify("!!!")).toBe("tenant-ml4kasqo");
   });
 });

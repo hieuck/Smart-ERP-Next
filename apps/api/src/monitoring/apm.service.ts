@@ -110,15 +110,15 @@ export class ApmService {
   /** Get current performance metrics */
   getMetrics(): PerformanceMetrics {
     const now = Date.now();
-    const latencies = this.requestLatencies.sort((a, b) => a - b);
+    const latencies = [...this.requestLatencies].sort((a, b) => a - b);
     const totalMem = os.totalmem();
     const freeMem = os.freemem();
 
-    const metrics: PerformanceMetrics = {
+    const partialMetrics = {
       timestamp: new Date().toISOString(),
       requests: {
         total: this.requestCount,
-        perSecond: this.requestCount / ((now - this.startTime) / 1000),
+        perSecond: this.requestCount / (((now - this.startTime) || 1) / 1000),
         avgLatencyMs: latencies.length > 0 ? Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length) : 0,
         p95LatencyMs: latencies.length > 0 ? latencies[Math.floor(latencies.length * 0.95)] || 0 : 0,
         p99LatencyMs: latencies.length > 0 ? latencies[Math.floor(latencies.length * 0.99)] || 0 : 0,
@@ -130,21 +130,22 @@ export class ApmService {
         avgQueryTimeMs: 0, // Would calculate from query logs
       },
       system: {
-        cpuUsage: os.loadavg()[0] / os.cpus().length * 100,
-        memoryUsage: Math.round(((totalMem - freeMem) / totalMem) * 100),
+        cpuUsage: (os.loadavg()[0] / (os.cpus().length || 1)) * 100,
+        memoryUsage: Math.round(((totalMem - freeMem) / (totalMem || 1)) * 100),
         freeMemory: Math.round(freeMem / 1024 / 1024),
         uptime: Math.round((now - this.startTime) / 1000),
       },
-      alerts: this.checkAlerts(),
     };
 
-    return metrics;
+    return {
+      ...partialMetrics,
+      alerts: this.checkAlerts(partialMetrics),
+    };
   }
 
   /** Check for alert conditions */
-  private checkAlerts(): Alert[] {
+  private checkAlerts(metrics: Omit<PerformanceMetrics, 'alerts'>): Alert[] {
     const alerts: Alert[] = [];
-    const metrics = this.getMetrics();
 
     // High error rate
     if (metrics.requests.errorRate > 5) {
@@ -209,3 +210,4 @@ export class ApmService {
     this.slowQueryCount = 0;
   }
 }
+

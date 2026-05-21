@@ -42,9 +42,16 @@ export class ApprovalRulesService {
   }
 
   async update(tenantId: string, id: string, data: Partial<CreateApprovalRuleDto>): Promise<ApprovalRule> {
+    const updatePayload: any = { ...data };
+    if (data.minAmount !== undefined) updatePayload.minAmount = data.minAmount?.toString();
+    if (data.maxAmount !== undefined) updatePayload.maxAmount = data.maxAmount?.toString();
+    if (data.priority !== undefined) updatePayload.priority = data.priority?.toString();
+    if (data.isActive !== undefined) updatePayload.isActive = String(data.isActive);
+    updatePayload.updatedAt = new Date();
+
     const [updated] = await this.drizzle.db
       .update(approvalRules)
-      .set({ ...data, updatedAt: new Date() })
+      .set(updatePayload)
       .where(and(eq(approvalRules.tenantId, tenantId), eq(approvalRules.id, id)))
       .returning();
     if (!updated) throw new NotFoundException('Approval rule not found');

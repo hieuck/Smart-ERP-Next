@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { JwtStrategy } from '../common/strategies/jwt.strategy';
 import { LocalStrategy } from '../common/strategies/local.strategy';
 
@@ -12,6 +13,7 @@ import { LocalStrategy } from '../common/strategies/local.strategy';
   imports: [
     UsersModule,
     PassportModule,
+    NotificationsModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),

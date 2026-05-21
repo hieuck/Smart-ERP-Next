@@ -28,7 +28,7 @@ async function main() {
   // 2. Create Users
   const hash = (pw: string) => {
     // Use bcrypt via Node crypto for speed
-    const bcrypt = require('bcrypt');
+    const bcrypt = require('bcryptjs');
     return bcrypt.hash(pw, 10);
   };
 
@@ -40,6 +40,26 @@ async function main() {
     passwordHash: adminHash,
     role: 'admin',
   }).returning();
+
+  // Seed admin@smarterp.vn for E2E Playwright tests
+  const e2eAdminHash = await hash('admin123');
+  await db.insert(users).values({
+    tenantId: tenant.id,
+    email: 'admin@smarterp.vn',
+    name: 'E2E Admin User',
+    passwordHash: e2eAdminHash,
+    role: 'admin',
+  });
+
+  // Seed admin@demo.smarterp.vn for Web UI autofill demo button
+  const demoAdminHash = await hash('demo123456');
+  await db.insert(users).values({
+    tenantId: tenant.id,
+    email: 'admin@demo.smarterp.vn',
+    name: 'Demo Admin User',
+    passwordHash: demoAdminHash,
+    role: 'admin',
+  });
 
   const mgrHash = await hash('manager123');
   const [manager] = await db.insert(users).values({
@@ -58,7 +78,7 @@ async function main() {
     passwordHash: staffHash,
     role: 'user',
   }).returning();
-  console.log('  ✅ Users created (admin, manager, staff)');
+  console.log('  ✅ Users created (admin, e2e admin, demo admin, manager, staff)');
 
   // 3. Create Warehouses
   const [wh1] = await db.insert(warehouses).values({
@@ -201,12 +221,12 @@ async function main() {
   );
   if (productRows.rows.length >= 2) {
     await exec(`
-      INSERT INTO inventory_transactions (id, tenant_id, product_id, warehouse_id, type, quantity, reason, created_by)
+      INSERT INTO inventory_transactions (id, tenant_id, product_id, type, quantity, previous_stock, new_stock, reference, notes, created_by)
       VALUES
-        (gen_random_uuid(), '${tenant.id}', '${productRows.rows[0].id}', '${wh1.id}', 'in', 200, 'Nhập hàng đầu kỳ', '${admin.id}'),
-        (gen_random_uuid(), '${tenant.id}', '${productRows.rows[1].id}', '${wh1.id}', 'in', 100, 'Nhập hàng đầu kỳ', '${admin.id}'),
-        (gen_random_uuid(), '${tenant.id}', '${productRows.rows[0].id}', '${wh1.id}', 'out', 50, 'Xuất bán SO-2026-0001', '${admin.id}'),
-        (gen_random_uuid(), '${tenant.id}', '${productRows.rows[1].id}', '${wh1.id}', 'out', 20, 'Xuất bán SO-2026-0002', '${manager.id}')
+        (gen_random_uuid(), '${tenant.id}', '${productRows.rows[0].id}', 'in', 200, 0, 200, 'Nhập hàng đầu kỳ', 'Nhập hàng đầu kỳ', '${admin.id}'),
+        (gen_random_uuid(), '${tenant.id}', '${productRows.rows[1].id}', 'in', 100, 0, 100, 'Nhập hàng đầu kỳ', 'Nhập hàng đầu kỳ', '${admin.id}'),
+        (gen_random_uuid(), '${tenant.id}', '${productRows.rows[0].id}', 'out', 50, 200, 150, 'Xuất bán SO-2026-0001', 'Xuất bán SO-2026-0001', '${admin.id}'),
+        (gen_random_uuid(), '${tenant.id}', '${productRows.rows[1].id}', 'out', 20, 100, 80, 'Xuất bán SO-2026-0002', 'Xuất bán SO-2026-0002', '${manager.id}')
     `);
     console.log('  ✅ 4 inventory transactions created');
   }

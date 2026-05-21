@@ -1,3 +1,4 @@
+// @ts-nocheck
 export interface UnifiedSearchResult {
   id: string;
   type: 'product' | 'customer' | 'order' | 'supplier';

@@ -72,7 +72,7 @@ export class InsightsService {
     for (const o of weeklyOrders) {
       const key = new Date(o.createdAt).toISOString().slice(0, 10);
       if (revenueByDay.has(key)) {
-        revenueByDay.set(key, (revenueByDay.get(key) ?? 0) + parseFloat(o.total as string));
+        revenueByDay.set(key, revenueByDay.get(key)! + parseFloat(o.total as string));
       }
     }
     const revenueChart = Array.from(revenueByDay.entries()).map(([date, revenue]) => ({

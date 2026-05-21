@@ -9,6 +9,8 @@ export function useOnlineStatus(): boolean {
   );
 
   useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 

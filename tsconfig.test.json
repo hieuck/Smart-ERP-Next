@@ -1,0 +1,18 @@
+{
+  "extends": "./packages/config-typescript/node.json",
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@smart-erp/database/schema": ["packages/database/src/schema/index.ts"],
+      "@smart-erp/database/drizzle": ["packages/database/src/drizzle.ts"],
+      "@smart-erp/database": ["packages/database/src/index.ts"],
+      "@smart-erp/*": ["packages/*/src/index.ts"]
+    },
+    "rootDir": "."
+  },
+  "include": ["packages/*/src/**/*.ts", "packages/*/__tests__/**/*.ts", "apps/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

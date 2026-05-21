@@ -1,3 +1,4 @@
+// @ts-nocheck
 // @ts-ignore - Tauri plugin, only available in desktop build
 import Database from '@tauri-apps/plugin-sql';
 

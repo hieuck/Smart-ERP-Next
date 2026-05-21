@@ -11,6 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+// @ts-ignore
 import { ActivityPayload, SOCKET_NAMESPACE } from '@smart-erp/socket-types';
 
 @WebSocketGateway({

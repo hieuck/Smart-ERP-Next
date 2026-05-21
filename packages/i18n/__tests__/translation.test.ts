@@ -1,4 +1,4 @@
-import { defaultNS, fallbackLng, i18n, initI18n, resources, t } from "../src";
+import { defaultNS, fallbackLng, i18n, initI18n, resources, t, useTranslation } from "../src";
 
 type FlatTranslation = {
   path: string;
@@ -37,9 +37,11 @@ describe("i18n resources and helpers", () => {
     expect(resources.en.common.tagline).toBe(
       "Intelligent Business Management System",
     );
+    expect(typeof useTranslation).toBe("function");
   });
 
   it("translates nested keys without initializing React i18next", () => {
+    expect(t("actions.save")).toBe("Lưu");
     expect(t("actions.save", "vi")).toBe("Lưu");
     expect(t("actions.save", "en")).toBe("Save");
     expect(t("actions.search.placeholder", "en")).toBe(
@@ -50,6 +52,14 @@ describe("i18n resources and helpers", () => {
   it("returns the key when a nested translation is missing or non-string", () => {
     expect(t("actions.not_real", "vi")).toBe("actions.not_real");
     expect(t("actions.search", "en")).toBe("actions.search");
+    expect(t("actions.save", "fr" as never)).toBe("actions.save");
+  });
+
+  it("ships the legacy Vietnamese locale index for native shells", async () => {
+    const vi = await import("../src/locales/vi");
+
+    expect(vi.default.save).toBe("Lưu");
+    expect(vi.default.settings).toBe("Cài đặt");
   });
 
   it("keeps critical Vietnamese UI copy encoded as UTF-8", () => {
@@ -67,8 +77,14 @@ describe("i18n resources and helpers", () => {
   });
 
   it("initializes i18next once and changes language on later calls", async () => {
+    await initI18n();
+    expect(i18n.language).toBe("vi");
+
     await initI18n("vi");
     expect(i18n.isInitialized).toBe(true);
+    expect(i18n.language).toBe("vi");
+
+    await initI18n("vi");
     expect(i18n.language).toBe("vi");
 
     await initI18n("en");

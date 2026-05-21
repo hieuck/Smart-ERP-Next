@@ -77,7 +77,7 @@ export class CashflowForecastService {
   async forecast(tenantId: string, days = 30): Promise<{ dates: string[]; values: number[]; historical: DailyCashFlow[] }> {
     const historical = await this.getHistoricalDailyNet(tenantId);
     const netValues = historical.map(h => h.net);
-    const forecastValues = this.exponentialSmoothing(netValues, days, 0.2);
+    const forecastValues = this.exponentialSmoothing(netValues, days);
 
     const dates: string[] = [];
     const lastDate = historical.length > 0 ? new Date(historical[historical.length - 1].date) : new Date();

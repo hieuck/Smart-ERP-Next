@@ -106,7 +106,7 @@ export class OrdersService {
         total: total.toString(),
         paidAmount: paidAmount.toString(),
         debtAmount: debtAmount.toString(),
-        paymentStatus: debtAmount <= 0 ? 'paid' : paidAmount > 0 ? 'partial' : 'unpaid',
+        paymentStatus: debtAmount <= 0 ? 'paid' : 'unpaid',
         paymentMethod: dto.paymentMethod ?? null,
         shippingAddress: dto.shippingAddress ?? null,
         notes: dto.notes ?? null,

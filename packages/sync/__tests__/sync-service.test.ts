@@ -26,7 +26,7 @@ const mockDb = {
 
 jest.mock("../src/db", () => ({ db: mockDb }));
 
-import { LocalStorageTokenProvider, SyncService } from "../src/sync-service";
+import { getDefaultApiBase, LocalStorageTokenProvider, SyncService } from "../src/sync-service";
 import type { TokenProvider } from "../src/sync-service";
 
 const tokenProvider: TokenProvider = {
@@ -73,6 +73,23 @@ describe("SyncService", () => {
     expect(service.processQueue).toHaveBeenCalled();
   });
 
+  it("queues operations with fallback clocks and explicit outgoing versions", async () => {
+    const service = new SyncService("http://api.test", tokenProvider);
+    jest.spyOn(service, "processQueue").mockResolvedValue(undefined);
+    mockDb.entities.get.mockResolvedValue(null);
+
+    await service.queueOperation("orders", "create", { total: 100 }, "o-1", 99);
+
+    expect(mockDb.syncQueue.add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entity: "orders",
+        entityId: "o-1",
+        version: 99,
+        vectorClock: { "device-1": 1 },
+      }),
+    );
+  });
+
   it("processes successful create, update, and delete queue items", async () => {
     const service = new SyncService("http://api.test", tokenProvider);
     mockDb.syncQueue.toArray.mockResolvedValue([
@@ -100,6 +117,35 @@ describe("SyncService", () => {
     );
     expect(mockDb.entities.put).toHaveBeenCalledTimes(3);
     expect(mockDb.syncQueue.delete).toHaveBeenCalledTimes(3);
+  });
+
+  it("syncs without auth headers and stores default entity metadata when item metadata is missing", async () => {
+    const anonymousProvider: TokenProvider = {
+      getToken: jest.fn().mockResolvedValue(null),
+      getTenantId: jest.fn().mockResolvedValue(null),
+      getDeviceId: jest.fn().mockResolvedValue("device-anon"),
+    };
+    const service = new SyncService("http://api.test", anonymousProvider);
+    mockDb.syncQueue.toArray.mockResolvedValue([
+      { id: 4, entity: "customers", action: "create", data: { name: "Lan" }, entityId: "c-4", retries: 0, createdAt: 4 },
+    ]);
+
+    await service.processQueue();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "http://api.test/customers",
+      expect.objectContaining({
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      }),
+    );
+    expect(mockDb.entities.put).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "c-4",
+        version: 0,
+        vectorClock: {},
+      }),
+    );
   });
 
   it("stores remote conflict winners and removes the queued item", async () => {
@@ -140,6 +186,52 @@ describe("SyncService", () => {
     expect(mockDb.syncQueue.delete).toHaveBeenCalledWith(7);
   });
 
+  it("drops conflict queue items when remote clocks are empty or older than local clocks", async () => {
+    const service = new SyncService("http://api.test", tokenProvider);
+    mockDb.syncQueue.toArray.mockResolvedValue([
+      {
+        id: 10,
+        entity: "products",
+        action: "update",
+        data: { name: "Local no clocks" },
+        entityId: "p-10",
+        retries: 0,
+        createdAt: 10,
+      },
+      {
+        id: 11,
+        entity: "products",
+        action: "update",
+        data: { name: "Local newer" },
+        entityId: "p-11",
+        retries: 0,
+        createdAt: 11,
+        vectorClock: { "device-1": 3 },
+      },
+    ]);
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 409,
+        json: jest.fn().mockResolvedValue({ data: { name: "Remote no clocks" } }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 409,
+        json: jest.fn().mockResolvedValue({
+          data: { name: "Remote older" },
+          vectorClock: { "device-1": 2 },
+        }),
+      }) as jest.Mock;
+
+    await service.processQueue();
+
+    expect(mockDb.entities.update).not.toHaveBeenCalled();
+    expect(mockDb.syncQueue.delete).toHaveBeenCalledWith(10);
+    expect(mockDb.syncQueue.delete).toHaveBeenCalledWith(11);
+  });
+
   it("increments retry count when a queue item fails", async () => {
     const service = new SyncService("http://api.test", tokenProvider);
     mockDb.syncQueue.toArray.mockResolvedValue([
@@ -168,6 +260,22 @@ describe("SyncService", () => {
     await expect(service.getOfflineUsers()).resolves.toEqual([{ id: "u-1" }]);
     await expect(service.getOfflineProducts()).resolves.toEqual([{ id: "p-1" }]);
     await expect(service.getOfflineCustomers()).resolves.toEqual([{ id: "c-1" }]);
+  });
+
+  it("resolves default API base from runtime env and browser fallback", () => {
+    expect(getDefaultApiBase({ process: { env: { NEXT_PUBLIC_API_URL: "https://api.example.test" } } })).toBe(
+      "https://api.example.test",
+    );
+    expect(getDefaultApiBase({ process: { env: {} } })).toBe("http://localhost:3000");
+    expect(getDefaultApiBase({})).toBe("http://localhost:3000");
+  });
+
+  it("compares vector clocks for missing, equal, and stale device entries", () => {
+    const service = new SyncService("http://api.test", tokenProvider);
+
+    expect((service as any).isNewer({ "device-2": 1 }, {})).toBe(true);
+    expect((service as any).isNewer({ "device-1": 1 }, { "device-1": 1 })).toBe(false);
+    expect((service as any).isNewer({ "device-1": 1 }, { "device-1": 2 })).toBe(false);
   });
 });
 
@@ -200,5 +308,7 @@ describe("LocalStorageTokenProvider", () => {
     await expect(provider.getTenantId()).resolves.toBe("tenant-1");
     await expect(provider.getDeviceId()).resolves.toMatch(/^device_/);
     expect(localStorage.setItem).toHaveBeenCalledWith("device_id", expect.stringMatching(/^device_/));
+    await expect(provider.getDeviceId()).resolves.toMatch(/^device_/);
+    expect(localStorage.setItem).toHaveBeenCalledTimes(1);
   });
 });

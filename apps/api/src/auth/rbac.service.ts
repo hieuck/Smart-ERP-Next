@@ -74,7 +74,7 @@ export class RbacService {
   async hasPermission(tenantId: string, userId: string, permission: Permission): Promise<boolean> {
     const roles = await this.getUserRoles(tenantId, userId);
     for (const role of roles) {
-      if (role.permissions.includes(permission) || role.permissions.includes('*')) {
+      if (role.permissions.includes(permission) || (role.permissions as any[]).includes('*')) {
         return true;
       }
     }

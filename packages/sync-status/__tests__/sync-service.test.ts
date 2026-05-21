@@ -136,6 +136,19 @@ describe("sync-status SyncService", () => {
       conflictCount: 1,
       lastSync: null,
     });
+
+    (service as any).isOnline = true;
+    mockSqliteDb.getFirstAsync
+      .mockResolvedValueOnce({ count: 2 })
+      .mockResolvedValueOnce({ count: 0 })
+      .mockResolvedValueOnce(null);
+
+    await expect(service.getState()).resolves.toMatchObject({
+      status: "syncing",
+      pendingChanges: 2,
+      conflictCount: 0,
+      lastSync: null,
+    });
   });
 
   it("syncs pending changes, stores conflicts, and marks rows as synced", async () => {
@@ -184,6 +197,24 @@ describe("sync-status SyncService", () => {
       expect.stringContaining("INSERT OR REPLACE INTO conflicts"),
       expect.arrayContaining(["c-1", "product", "p-1"]),
     );
+
+    mockSqliteDb.getAllAsync.mockResolvedValueOnce([
+      {
+        id: "q-3",
+        entity_type: "product",
+        entity_id: "p-3",
+        operation: "update",
+        data: "{\"name\":\"No conflicts key\"}",
+        timestamp: "2026-05-20T00:00:00.000Z",
+        synced: 0,
+      },
+    ]);
+    mockSqliteDb.getFirstAsync.mockResolvedValueOnce(null);
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({}),
+    }) as jest.Mock;
+    await expect(service.sync()).resolves.toEqual({ success: true, synced: 1, conflicts: 0 });
   });
 
   it("handles offline, empty, and failed sync attempts", async () => {
@@ -256,6 +287,126 @@ describe("sync-status SyncService", () => {
         resolved: false,
       },
     ]);
+  });
+
+  it("resolves conflicts with local and remote versions and ignores missing conflicts", async () => {
+    const service = new SyncService(config);
+    jest.spyOn(service, "getState").mockResolvedValue({
+      status: "idle",
+      lastSync: null,
+      pendingChanges: 0,
+      conflictCount: 0,
+      errorMessage: null,
+    });
+    mockSqliteDb.getFirstAsync.mockImplementation((_query: string, params?: string[]) => {
+      if (params?.[0] === "c-local") return Promise.resolve({
+        id: "c-local",
+        entity_type: "product",
+        entity_id: "p-local",
+        local_version: "{\"name\":\"Local\"}",
+        remote_version: "{\"name\":\"Remote\"}",
+      });
+      if (params?.[0] === "c-remote") return Promise.resolve({
+        id: "c-remote",
+        entity_type: "product",
+        entity_id: "p-remote",
+        local_version: "{\"name\":\"Local\"}",
+        remote_version: "{\"name\":\"Remote\"}",
+      });
+      return Promise.resolve(null);
+    });
+
+    await service.resolveConflict("c-local", "local");
+    await service.resolveConflict("c-remote", "remote");
+    await service.resolveConflict("missing", "local");
+
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      1,
+      "http://api.test/sync/resolve",
+      expect.objectContaining({
+        body: JSON.stringify({
+          entityType: "product",
+          entityId: "p-local",
+          chosenVersion: { name: "Local" },
+        }),
+      }),
+    );
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      "http://api.test/sync/resolve",
+      expect.objectContaining({
+        body: JSON.stringify({
+          entityType: "product",
+          entityId: "p-remote",
+          chosenVersion: { name: "Remote" },
+        }),
+      }),
+    );
+  });
+
+  it("updates vector clocks and subscription listeners", async () => {
+    const service = new SyncService(config);
+    mockSqliteDb.getFirstAsync
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ value: "{\"entity-1\":1}" });
+
+    await (service as any).updateVectorClock("entity-1");
+    await (service as any).updateVectorClock("entity-1");
+
+    expect(mockSqliteDb.runAsync).toHaveBeenNthCalledWith(
+      1,
+      "INSERT OR REPLACE INTO sync_metadata (key, value) VALUES (?, ?)",
+      ["vector_clock", "{\"entity-1\":1}"],
+    );
+    expect(mockSqliteDb.runAsync).toHaveBeenNthCalledWith(
+      2,
+      "INSERT OR REPLACE INTO sync_metadata (key, value) VALUES (?, ?)",
+      ["vector_clock", "{\"entity-1\":2}"],
+    );
+
+    const listener = jest.fn();
+    const unsubscribe = service.subscribe(listener);
+    jest.spyOn(service, "getState").mockResolvedValue({
+      status: "syncing",
+      lastSync: null,
+      pendingChanges: 1,
+      conflictCount: 0,
+      errorMessage: null,
+    });
+    await service.queueChange({
+      entityType: "order",
+      entityId: "order-1",
+      operation: "create",
+      data: { total: 1 },
+    });
+    await Promise.resolve();
+    expect(listener).toHaveBeenCalledWith(expect.objectContaining({ status: "syncing" }));
+    unsubscribe();
+    expect((service as any).listeners.has(listener)).toBe(false);
+  });
+
+  it("handles empty sync markers and conflict records without detected timestamps", async () => {
+    const service = new SyncService(config);
+
+    await expect(service.markAsSynced([])).resolves.toBeUndefined();
+    expect(mockSqliteDb.runAsync).not.toHaveBeenCalledWith(expect.stringContaining("UPDATE sync_queue SET synced = 1"), []);
+
+    jest.useFakeTimers().setSystemTime(new Date("2026-05-21T00:00:00.000Z"));
+    await (service as any).storeConflicts([
+      {
+        id: "c-no-date",
+        entityType: "product",
+        entityId: "p-no-date",
+        localVersion: { name: "Local" },
+        remoteVersion: { name: "Remote" },
+      },
+    ]);
+
+    expect(mockSqliteDb.runAsync).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT OR REPLACE INTO conflicts"),
+      expect.arrayContaining(["c-no-date", "product", "p-no-date", "{\"name\":\"Local\"}", "{\"name\":\"Remote\"}", "2026-05-21T00:00:00.000Z"]),
+    );
+    jest.useRealTimers();
   });
 
   it("tracks the singleton instance", () => {

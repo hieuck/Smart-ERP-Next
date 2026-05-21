@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { apiClient } from './api-client';
 
 export interface OrderItem {

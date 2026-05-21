@@ -195,7 +195,7 @@ export class BillingService {
     const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`;
     const dueDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    const [invoice] = await this.drizzle.db.execute(
+    const result = await this.drizzle.db.execute(
       sql`
         INSERT INTO invoices (id, tenant_id, invoice_number, amount, currency, status, due_date, items, created_at)
         VALUES (
@@ -207,6 +207,7 @@ export class BillingService {
       `,
     );
 
+    const invoice = result.rows[0];
     return (invoice as any) as Invoice;
   }
 
@@ -215,7 +216,7 @@ export class BillingService {
     const result = await this.drizzle.db.execute(
       sql`SELECT * FROM invoices WHERE tenant_id = ${tenantId} ORDER BY created_at DESC LIMIT ${limit}`
     );
-    return result as any as Invoice[];
+    return result.rows as any as Invoice[];
   }
 
   /** Record usage for a tenant */
@@ -246,7 +247,7 @@ export class BillingService {
       `,
     );
 
-    const current = (usage as any[])[0];
+    const current = (usage.rows as any[])[0];
 
     if (plan.limits.users > 0 && current.users >= plan.limits.users) {
       violations.push(`User limit exceeded: ${current.users}/${plan.limits.users}`);

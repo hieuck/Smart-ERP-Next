@@ -16,7 +16,27 @@ export class I18nService {
   }
 
   private loadTranslations() {
-    const localesPath = path.resolve(__dirname, '../../../../packages/i18n/src/locales');
+    const candidates = [
+      path.resolve(__dirname, '../../../../packages/i18n/src/locales'),
+      path.resolve(__dirname, '../../../../../../../packages/i18n/src/locales'),
+    ];
+    let localesPath = candidates.find(p => fs.existsSync(p));
+    if (!localesPath) {
+      let currentDir = __dirname;
+      for (let i = 0; i < 10; i++) {
+        const checkPath = path.join(currentDir, 'packages/i18n/src/locales');
+        if (fs.existsSync(checkPath)) {
+          localesPath = checkPath;
+          break;
+        }
+        const parentDir = path.dirname(currentDir);
+        if (parentDir === currentDir) break;
+        currentDir = parentDir;
+      }
+    }
+    if (!localesPath) {
+      throw new Error(`Could not locate locales directory from ${__dirname}`);
+    }
     const locales = fs.readdirSync(localesPath).filter(f => f.match(/^(vi|en)$/));
     for (const locale of locales) {
       const filePath = path.join(localesPath, locale, 'common.json');

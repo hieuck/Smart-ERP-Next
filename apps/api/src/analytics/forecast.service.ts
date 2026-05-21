@@ -11,7 +11,7 @@ export class ForecastService {
     startDate.setDate(startDate.getDate() - 90);
     const rows = await db
       .select({
-        date: sql`DATE(${orderItems.created_at})`,
+        date: sql`DATE(${orders.createdAt})`,
         quantity: sql`SUM(${orderItems.quantity})`,
       })
       .from(orderItems)
@@ -20,12 +20,12 @@ export class ForecastService {
         and(
           eq(orders.tenantId, tenantId),
           eq(orderItems.productId, productId),
-          gte(orderItems.created_at, startDate.toISOString()),
+          gte(orders.createdAt, startDate),
           eq(orders.status, 'delivered'),
         ),
       )
-      .groupBy(sql`DATE(${orderItems.created_at})`)
-      .orderBy(sql`DATE(${orderItems.created_at})`);
+      .groupBy(sql`DATE(${orders.createdAt})`)
+      .orderBy(sql`DATE(${orders.createdAt})`);
 
     // If not enough data, fallback to simple average
     const dailySales = rows.map(r => Number(r.quantity));

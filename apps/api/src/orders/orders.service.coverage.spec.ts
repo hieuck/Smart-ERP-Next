@@ -1,6 +1,7 @@
 const mockDb = {
   select: jest.fn(),
   insert: jest.fn(),
+  update: jest.fn(),
 };
 
 jest.mock("@smart-erp/database", () => ({ db: mockDb }));
@@ -35,29 +36,33 @@ jest.mock("@smart-erp/database/drizzle", () => ({
   inArray: jest.fn((field, values) => ({ op: "inArray", field, values })),
 }));
 
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { inArray } from "@smart-erp/database/drizzle";
 import { products } from "@smart-erp/database/schema";
 import { OrdersService } from "./orders.service";
 
 const selectQueue: any[][] = [];
 const insertReturningQueue: any[][] = [];
+const updateReturningQueue: any[][] = [];
 
 const makeSelectChain = (rows: any[]) => {
   const chain: any = {
     from: jest.fn(() => chain),
-    where: jest.fn(() => Promise.resolve(rows)),
+    where: jest.fn(() => chain),
     orderBy: jest.fn(() => chain),
     limit: jest.fn(() => chain),
-    offset: jest.fn(() => Promise.resolve(rows)),
+    offset: jest.fn(() => chain),
+    then: jest.fn((onFulfilled, onRejected) => Promise.resolve(rows).then(onFulfilled, onRejected)),
   };
   return chain;
 };
 
-const makeInsertChain = () => {
+const makeWriteChain = (queue: any[][]) => {
   const chain: any = {
     values: jest.fn(() => chain),
-    returning: jest.fn(() => Promise.resolve(insertReturningQueue.shift() ?? [])),
+    set: jest.fn(() => chain),
+    where: jest.fn(() => chain),
+    returning: jest.fn(() => Promise.resolve(queue.shift() ?? [])),
   };
   return chain;
 };
@@ -77,9 +82,11 @@ describe("OrdersService coverage", () => {
     jest.clearAllMocks();
     selectQueue.length = 0;
     insertReturningQueue.length = 0;
+    updateReturningQueue.length = 0;
 
     mockDb.select.mockImplementation(() => makeSelectChain(selectQueue.shift() ?? []));
-    mockDb.insert.mockImplementation(() => makeInsertChain());
+    mockDb.insert.mockImplementation(() => makeWriteChain(insertReturningQueue));
+    mockDb.update.mockImplementation(() => makeWriteChain(updateReturningQueue));
   });
 
   it("creates POS orders using an inArray product lookup", async () => {
@@ -164,6 +171,10 @@ describe("OrdersService coverage", () => {
 
   it("rejects orders whose products are not in the tenant catalog", async () => {
     const { service } = createService();
+    await expect(
+      service.create("tenant-1", "user-1", { items: [] } as any),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
     selectQueue.push([]);
 
     await expect(
@@ -171,5 +182,195 @@ describe("OrdersService coverage", () => {
         items: [{ productId: "missing", quantity: 1, unitPrice: 1000 }],
       } as any),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it("creates unpaid credit orders with default line item fields", async () => {
+    const { service } = createService();
+    selectQueue.push(
+      [{ id: "product-2", name: "Tra dao", sku: "TRA-002" }],
+      [{ count: 0 }],
+    );
+    insertReturningQueue.push([
+      {
+        id: "order-credit",
+        code: "DH-000001",
+        total: "18000",
+        channel: "pos",
+        paymentMethod: "credit",
+        paymentStatus: "unpaid",
+      },
+    ]);
+
+    await expect(
+      service.create("tenant-1", "user-1", {
+        paymentMethod: "credit",
+        items: [{ productId: "product-2", quantity: 1, unitPrice: 18000 }],
+      } as any),
+    ).resolves.toMatchObject({
+      items: [
+        expect.objectContaining({
+          unit: "piece",
+          discountAmount: "0",
+          discountPercent: "0",
+          taxRate: "0",
+          notes: null,
+          batchNumber: null,
+        }),
+      ],
+    });
+
+    expect(mockDb.insert.mock.results[0].value.values).toHaveBeenCalledWith(
+      expect.objectContaining({
+        paidAmount: "0",
+        debtAmount: "18000",
+        paymentStatus: "unpaid",
+      }),
+    );
+
+    selectQueue.push(
+      [{ id: "product-3", name: "Banh mi", sku: "BANH-003" }],
+      [{ count: 1 }],
+    );
+    insertReturningQueue.push([{ id: "order-no-method", code: "DH-000002", paymentStatus: "unpaid" }]);
+    await expect(
+      service.create("tenant-1", "user-1", {
+        items: [{ productId: "product-3", quantity: 1, unitPrice: 15000 }],
+      } as any),
+    ).resolves.toMatchObject({ id: "order-no-method" });
+    expect(mockDb.insert.mock.results[2].value.values).toHaveBeenCalledWith(
+      expect.objectContaining({ paymentMethod: null }),
+    );
+  });
+
+  it("validates required order fields before downstream processing", () => {
+    const { service } = createService();
+
+    expect(() => service.validateOrderData({ customerName: "Lan", total: 1, items: [{}] })).toThrow(BadRequestException);
+    expect(() => service.validateOrderData({ code: "DH-1", total: 1, items: [{}] })).toThrow(BadRequestException);
+    expect(() => service.validateOrderData({ code: "DH-1", customerName: "Lan", total: -1, items: [{}] })).toThrow(BadRequestException);
+    expect(() => service.validateOrderData({ code: "DH-1", customerName: "Lan", total: 1, items: [] })).toThrow(BadRequestException);
+    expect(() => service.validateOrderData({ code: "DH-1", customerName: "Lan", total: 1, items: [{}] })).not.toThrow();
+  });
+
+  it("paginates orders, loads details, and reports missing orders", async () => {
+    const { service } = createService();
+    selectQueue.push(
+      [{ count: 1 }],
+      [{ id: "order-1", code: "DH-1" }],
+      [],
+      [{ id: "order-1", code: "DH-1" }],
+      [{ id: "item-1" }],
+    );
+
+    await expect(service.findAll("tenant-1", {
+      page: 2,
+      limit: 10,
+      search: "DH",
+      status: "confirmed",
+      paymentStatus: "paid",
+      channel: "pos",
+    })).resolves.toEqual({
+      items: [{ id: "order-1", code: "DH-1" }],
+      total: 1,
+      page: 2,
+      limit: 10,
+      totalPages: 1,
+    });
+
+    await expect(service.findOne("tenant-1", "missing")).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.findOne("tenant-1", "order-1")).resolves.toEqual({
+      id: "order-1",
+      code: "DH-1",
+      items: [{ id: "item-1" }],
+    });
+
+    selectQueue.push([{ count: 0 }], []);
+    await expect(service.findAll("tenant-1", {} as any)).resolves.toEqual({
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 0,
+    });
+  });
+
+  it("generates escaped Vietnamese e-invoice XML", async () => {
+    const { service } = createService();
+    jest.useFakeTimers().setSystemTime(new Date("2026-05-21T00:00:00.000Z"));
+    jest.spyOn(service, "findOne").mockResolvedValue({
+      code: "DH-1",
+      customerName: "A&B <Corp>",
+      shippingAddress: "HCM",
+      total: "1000",
+      paymentMethod: "cash",
+      items: [
+        { productName: "Cafe & \"Milk\"", quantity: 2, unit: "ly", unitPrice: "100", lineTotal: "200" },
+      ],
+    } as any);
+
+    const xml = await service.generateEInvoiceXml("tenant-1", "order-1");
+
+    expect(xml).toContain("<InvDate>2026-05-21</InvDate>");
+    expect(xml).toContain("<ItemName>Cafe &amp; &quot;Milk&quot;</ItemName>");
+    expect(xml).toContain("<VATAmount>100</VATAmount>");
+    jest.useRealTimers();
+  });
+
+  it("uses invoice fallbacks for walk-in buyers, empty addresses, and cash payment", async () => {
+    const { service } = createService();
+    jest.spyOn(service, "findOne").mockResolvedValue({
+      code: "DH-2",
+      total: "500",
+      items: [{ productName: "Nuoc suoi", quantity: 1, unit: "chai", unitPrice: "500", lineTotal: "500" }],
+    } as any);
+
+    const xml = await service.generateEInvoiceXml("tenant-1", "order-2");
+
+    expect(xml).toContain("<BuyerName>Walk-in Customer</BuyerName>");
+    expect(xml).toContain("<BuyerAddress></BuyerAddress>");
+    expect(xml).toContain("<PaymentMethod>Cash</PaymentMethod>");
+  });
+
+  it("updates order statuses through valid transitions and rejects invalid paths", async () => {
+    const { activityService, notifications, service } = createService();
+    selectQueue.push([], [{ id: "order-1", code: "DH-1", status: "delivered" }], [{ id: "order-1", code: "DH-1", status: "confirmed" }]);
+
+    await expect(service.updateStatus("tenant-1", "user-1", "missing", "confirmed")).rejects.toBeInstanceOf(NotFoundException);
+    await expect(service.updateStatus("tenant-1", "user-1", "order-1", "confirmed")).rejects.toBeInstanceOf(BadRequestException);
+
+    updateReturningQueue.push([{ id: "order-1", code: "DH-1", status: "processing" }]);
+    await expect(service.updateStatus("tenant-1", "user-1", "order-1", "processing")).resolves.toEqual({
+      id: "order-1",
+      code: "DH-1",
+      status: "processing",
+    });
+
+    selectQueue.push([{ id: "order-2", code: "DH-2", status: "processing" }]);
+    updateReturningQueue.push([{ id: "order-2", code: "DH-2", status: "shipped" }]);
+    await expect(service.updateStatus("tenant-1", "user-1", "order-2", "shipped")).resolves.toMatchObject({ status: "shipped" });
+
+    selectQueue.push([{ id: "order-3", code: "DH-3", status: "shipped" }]);
+    updateReturningQueue.push([{ id: "order-3", code: "DH-3", status: "delivered" }]);
+    await expect(service.updateStatus("tenant-1", "user-1", "order-3", "delivered")).resolves.toMatchObject({ status: "delivered" });
+
+    selectQueue.push([{ id: "order-4", code: "DH-4", status: "draft" }]);
+    updateReturningQueue.push([{ id: "order-4", code: "DH-4", status: "cancelled" }]);
+    await expect(service.updateStatus("tenant-1", "user-1", "order-4", "cancelled", "Customer request")).resolves.toMatchObject({ status: "cancelled" });
+
+    selectQueue.push([{ id: "order-5", code: "DH-5", status: "draft" }]);
+    updateReturningQueue.push([{ id: "order-5", code: "DH-5", status: "confirmed" }]);
+    await expect(service.updateStatus("tenant-1", "user-1", "order-5", "confirmed")).resolves.toMatchObject({ status: "confirmed" });
+
+    selectQueue.push([{ id: "order-6", code: "DH-6", status: "confirmed" }]);
+    updateReturningQueue.push([{ id: "order-6", code: "DH-6", status: "cancelled" }]);
+    await expect(service.updateStatus("tenant-1", "user-1", "order-6", "cancelled")).resolves.toMatchObject({ status: "cancelled" });
+
+    selectQueue.push([{ id: "order-7", code: "DH-7", status: "archived" }]);
+    await expect(service.updateStatus("tenant-1", "user-1", "order-7", "confirmed")).rejects.toBeInstanceOf(BadRequestException);
+
+    expect(activityService.log).toHaveBeenCalledWith("tenant-1", "user-1", "updated", "order", "order-4", expect.objectContaining({
+      cancelReason: "Customer request",
+    }));
+    expect(notifications.broadcastToTenant).toHaveBeenCalledWith("tenant-1", "order.status_changed", expect.objectContaining({ status: "cancelled" }));
   });
 });
