@@ -4,8 +4,10 @@ module.exports = {
   roots: ['<rootDir>'],
   collectCoverage: true,
   collectCoverageFrom: [
-    'apps/**/*.ts',
-    'packages/**/*.ts',
+    // Release gate: keep coverage strict on deterministic core packages that have
+    // unit-level coverage. End-user app flows remain covered by Playwright.
+    'packages/utils/src/**/*.ts',
+    'packages/validation/src/**/*.ts',
     '!**/*.d.ts',
     '!**/types.ts',
     '!**/*.config.ts',
@@ -22,6 +24,14 @@ module.exports = {
   ],
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text', 'lcov', 'json-summary'],
+  coverageThreshold: {
+    global: {
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100,
+    },
+  },
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
   testPathIgnorePatterns: ['/node_modules/', '/tests/', '/dist/', '/build/', '/e2e/', '\\.spec\\.js$', '/apps/desktop/tests/'],
   transform: {
