@@ -42,6 +42,7 @@ module.exports = {
         emitDecoratorMetadata: false,
         experimentalDecorators: true,
         ignoreDeprecations: '6.0',
+        jsx: 'react-jsx',
         resolveJsonModule: true,
         paths: {
           '@smart-erp/database/schema': ['packages/database/src/schema/index.ts'],
