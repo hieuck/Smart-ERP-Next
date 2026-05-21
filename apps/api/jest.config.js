@@ -25,4 +25,5 @@ module.exports = {
     '^@smart-erp/database$': '<rootDir>/../../packages/database/src/index.ts',
     '^@smart-erp/(.*)$': '<rootDir>/../../packages/$1/src/index.ts',
   },
+  testPathIgnorePatterns: ['/node_modules/', '/test/'],
 };

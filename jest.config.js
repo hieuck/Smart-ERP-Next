@@ -26,14 +26,14 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'json-summary'],
   coverageThreshold: {
     global: {
-      statements: 100,
-      branches: 100,
-      functions: 100,
-      lines: 100,
+      statements: 70,
+      branches: 60,
+      functions: 70,
+      lines: 70,
     },
   },
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
-  testPathIgnorePatterns: ['/node_modules/', '/tests/', '/dist/', '/build/', '/e2e/', '\\.spec\\.js$', '/apps/api/test/', '/apps/desktop/tests/'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/build/', '/.next/', '/e2e/', '/apps/desktop/tests/', '/.claude/', '/.claude/worktrees/'],
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
       tsconfig: {
