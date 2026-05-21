@@ -371,8 +371,11 @@ describe('remaining controller delegation coverage', () => {
     const sync = new SyncController(syncService as any);
     await sync.pull(req as any, { clientId: 'client-1', vectorClock: { orders: 1 } });
     await sync.push(req as any, { changes: [{ id: 'c1' }], clientId: 'client-1' });
-    await sync.getMetadata(req as any, { clientId: 'client-1' });
+    await sync.getMetadata(req as any, 'client-1');
+    await sync.getMetadata(req as any);
     expect(syncService.pull).toHaveBeenCalledWith('tenant-1', 'client-1', { orders: 1 });
+    expect(syncService.getMetadata).toHaveBeenNthCalledWith(1, 'tenant-1', 'client-1');
+    expect(syncService.getMetadata).toHaveBeenNthCalledWith(2, 'tenant-1', 'web-e2e');
 
     const forecastService = { getMonthlyDemand: jest.fn().mockResolvedValue([1, 2, 3]) };
     const forecast = new ForecastController(forecastService as any);

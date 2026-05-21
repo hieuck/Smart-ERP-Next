@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, UseGuards, Request } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Post, Body, Query, UseGuards, Request } from '@nestjs/common';
 import { InventoryRecommendationService } from './inventory-recommendation.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { IsString, IsNumber, Min } from 'class-validator';
@@ -26,6 +26,9 @@ export class InventoryRecommendationController {
     @Query('productId') productId: string,
     @Query('stock') stock: string,
   ) {
+    if (!productId) {
+      throw new BadRequestException('productId is required');
+    }
     const currentStock = Number(stock) || 0;
     return this.service.getRecommendation(req.user.tenantId, req.user.sub, productId, currentStock);
   }

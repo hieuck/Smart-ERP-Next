@@ -32,11 +32,60 @@ describe('InventoryRecommendationService coverage', () => {
       productId: 'product-1',
       suggestedReorder: 8,
     });
-    expect(activityService.log).toHaveBeenCalledWith(expect.objectContaining({
-      tenantId: 'tenant-1',
-      entityId: 'product-1',
-      details: { type: 'reorder_suggestion', suggested: 8, currentStock: 12 },
-    }));
+    expect(activityService.log).toHaveBeenCalledWith(
+      'tenant-1',
+      'user-1',
+      'created',
+      'inventory',
+      'product-1',
+      { type: 'reorder_suggestion', suggested: 8, currentStock: 12 },
+    );
+  });
+
+  it('normalizes fallback forecast objects before calculating legacy reorder recommendations', async () => {
+    forecastService.getMonthlyDemand.mockResolvedValueOnce({
+      productId: 'product-1',
+      data: [{ demand: 10 }, { demand: 20 }, { demand: 30 }],
+      source: 'fallback',
+    });
+
+    await expect(service.getRecommendation('tenant-1', 'user-1', 'product-1', 12)).resolves.toEqual({
+      productId: 'product-1',
+      suggestedReorder: 8,
+    });
+  });
+
+  it('handles empty, numeric, and invalid demand values in local forecasts', async () => {
+    forecastService.getMonthlyDemand.mockResolvedValueOnce({ notes: 'no forecast rows' });
+
+    await expect(service.getRecommendation('tenant-1', 'user-1', 'product-empty', 12)).resolves.toEqual({
+      productId: 'product-empty',
+      suggestedReorder: 0,
+    });
+
+    forecastService.getMonthlyDemand.mockResolvedValueOnce([10, { quantity: 20 }, {}]);
+    await expect(service.getRecommendation('tenant-1', 'user-1', 'product-mixed', 5)).resolves.toEqual({
+      productId: 'product-mixed',
+      suggestedReorder: 5,
+    });
+  });
+
+  it('returns zeroed fallback reorder suggestions when forecast payload is not a list', async () => {
+    mockedAxios.post.mockRejectedValueOnce(new Error('ai offline'));
+    forecastService.getMonthlyDemand.mockResolvedValueOnce({ notes: 'not forecast data' });
+
+    await expect(service.getReorderSuggestion('tenant-1', 'user-1', 'product-empty', 5)).resolves.toEqual({
+      productId: 'product-empty',
+      shouldReorder: false,
+      currentStock: 5,
+      predictedDemandNext7d: 0,
+      predictedDemandNext30d: 0,
+      suggestedOrderQuantity: 0,
+      safetyStock: 0,
+      reorderPoint: 0,
+      daysUntilStockout: 30,
+      reasons: ['Current stock (5) is sufficient for 30+ days'],
+    });
   });
 
   it('returns AI reorder suggestions and logs AI details', async () => {
@@ -67,9 +116,14 @@ describe('InventoryRecommendationService coverage', () => {
       reasons: ['Low stock'],
     });
     expect(mockedAxios.post.mock.calls[0][1].sales_history).toHaveLength(61);
-    expect(activityService.log).toHaveBeenCalledWith(expect.objectContaining({
-      details: expect.objectContaining({ type: 'ai_reorder_suggestion', suggestedQuantity: 36 }),
-    }));
+    expect(activityService.log).toHaveBeenCalledWith(
+      'tenant-1',
+      'user-1',
+      'created',
+      'inventory',
+      'product-1',
+      expect.objectContaining({ type: 'ai_reorder_suggestion', suggestedQuantity: 36 }),
+    );
   });
 
   it('falls back to local demand calculations when AI service fails', async () => {
@@ -104,6 +158,31 @@ describe('InventoryRecommendationService coverage', () => {
       shouldReorder: false,
       suggestedOrderQuantity: 0,
       daysUntilStockout: 30,
+    });
+  });
+
+  it('normalizes AI forecast objects before calculating fallback reorder suggestions', async () => {
+    mockedAxios.post.mockRejectedValueOnce(new Error('ai offline'));
+    forecastService.getMonthlyDemand.mockResolvedValueOnce({
+      productId: 'product-1',
+      predictions: [
+        { quantity: 2 },
+        { quantity: 2 },
+        { quantity: 2 },
+        { quantity: 2 },
+        { quantity: 2 },
+        { quantity: 2 },
+        { quantity: 2 },
+      ],
+      source: 'ai',
+    });
+
+    await expect(service.getReorderSuggestion('tenant-1', 'user-1', 'product-1', 5)).resolves.toMatchObject({
+      productId: 'product-1',
+      shouldReorder: true,
+      predictedDemandNext7d: 14,
+      predictedDemandNext30d: 14,
+      suggestedOrderQuantity: 51,
     });
   });
 });

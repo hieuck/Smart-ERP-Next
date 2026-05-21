@@ -6,6 +6,7 @@ import { HelpdeskController } from '../helpdesk/controllers/helpdesk.controller'
 import { InventoryController } from '../inventory/inventory.controller';
 
 describe('operations controller delegation coverage', () => {
+  const emptyCustomerId = '00000000-0000-0000-0000-000000000000';
   const req = {
     user: {
       customerId: 'customer-1',
@@ -181,11 +182,11 @@ describe('operations controller delegation coverage', () => {
     portal.getInvoices(anonymousPortalReq);
 
     expect(portalService.getOrders).toHaveBeenCalledWith('tenant-1', 'customer-1');
-    expect(portalService.getOrders).toHaveBeenLastCalledWith('tenant-1', 'dummy-customer-id');
-    expect(portalService.getTickets).toHaveBeenCalledWith('tenant-1', 'dummy-customer-id');
+    expect(portalService.getOrders).toHaveBeenLastCalledWith('tenant-1', emptyCustomerId);
+    expect(portalService.getTickets).toHaveBeenCalledWith('tenant-1', emptyCustomerId);
     expect(portalService.createTicket).toHaveBeenCalledWith('tenant-1', 'customer-1', { title: 'Need help' });
-    expect(portalService.createTicket).toHaveBeenLastCalledWith('tenant-1', 'dummy-customer-id', { title: 'Anonymous help' });
-    expect(portalService.getInvoices).toHaveBeenLastCalledWith('tenant-1', 'dummy-customer-id');
+    expect(portalService.createTicket).toHaveBeenLastCalledWith('tenant-1', emptyCustomerId, { title: 'Anonymous help' });
+    expect(portalService.getInvoices).toHaveBeenLastCalledWith('tenant-1', emptyCustomerId);
 
     const helpdeskService = {
       addComment: jest.fn(),

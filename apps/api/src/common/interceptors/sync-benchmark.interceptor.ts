@@ -16,7 +16,11 @@ export class SyncBenchmarkInterceptor implements NestInterceptor {
     const start = Date.now();
     let changesCount = 0;
     if (req.body?.changes?.products) changesCount = req.body.changes.products.length;
-    const size = JSON.stringify(req.body).length;
+    const size = JSON.stringify(req.body ?? {}).length;
+
+    if (!tenantId) {
+      return next.handle();
+    }
 
     return next.handle().pipe(
       tap({

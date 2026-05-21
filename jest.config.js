@@ -16,6 +16,7 @@ module.exports = {
     '!**/dist/**',
     '!**/build/**',
     '!**/.next/**',
+    '!**/.next-dev/**',
     '!**/node_modules/**',
     '!apps/**/test-results/**',
     '!apps/**/e2e/**',
@@ -26,14 +27,14 @@ module.exports = {
   coverageReporters: ['text', 'lcov', 'json-summary'],
   coverageThreshold: {
     global: {
-      statements: 70,
-      branches: 60,
-      functions: 70,
-      lines: 70,
+      statements: 100,
+      branches: 100,
+      functions: 100,
+      lines: 100,
     },
   },
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
-  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/build/', '/.next/', '/e2e/', '/apps/desktop/tests/', '/.claude/', '/.claude/worktrees/', '/tests/', '.*\\.e2e-spec\\.ts$'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/build/', '/.next/', '/.next-dev/', '/e2e/', '/apps/desktop/tests/', '/.claude/', '/.claude/worktrees/', '/tests/', '.*\\.e2e-spec\\.ts$'],
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
       tsconfig: {

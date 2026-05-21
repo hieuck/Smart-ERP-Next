@@ -7,14 +7,14 @@ const mockDb = {
 jest.mock('@smart-erp/database', () => ({ db: mockDb }));
 
 jest.mock('@smart-erp/database/schema', () => ({
-  tickets: {
-    id: 'tickets.id',
-    tenantId: 'tickets.tenantId',
-    status: 'tickets.status',
-    priority: 'tickets.priority',
-    assigneeId: 'tickets.assigneeId',
-    customerId: 'tickets.customerId',
-    createdAt: 'tickets.createdAt',
+  serviceTickets: {
+    id: 'serviceTickets.id',
+    tenantId: 'serviceTickets.tenantId',
+    status: 'serviceTickets.status',
+    priority: 'serviceTickets.priority',
+    assignedTechnicianId: 'serviceTickets.assignedTechnicianId',
+    customerId: 'serviceTickets.customerId',
+    createdAt: 'serviceTickets.createdAt',
   },
   ticketHistory: {
     ticketId: 'ticketHistory.ticketId',
@@ -39,6 +39,7 @@ import { HelpdeskService } from './helpdesk.service';
 
 const selectQueue: any[][] = [];
 const returningQueue: any[][] = [];
+const schemaMock = jest.requireMock('@smart-erp/database/schema') as any;
 
 const makeSelectChain = (rows: any[]) => {
   const chain: any = {
@@ -91,6 +92,14 @@ describe('HelpdeskService coverage', () => {
       priority: 'urgent',
     })).resolves.toEqual({ id: 1, ticketNumber: 'TKT-000042', status: 'open' });
     expect(mockDb.insert).toHaveBeenCalledTimes(2);
+
+    selectQueue.push([{ count: 0 }]);
+    returningQueue.push([{ id: 2, ticketNumber: 'TKT-000001', title: 'Support ticket' }]);
+    await expect(service.createTicket('tenant-1', 'user-1', {})).resolves.toEqual({
+      id: 2,
+      ticketNumber: 'TKT-000001',
+      title: 'Support ticket',
+    });
   });
 
   it('lists filtered tickets and loads single tickets with not-found handling', async () => {
@@ -176,5 +185,27 @@ describe('HelpdeskService coverage', () => {
       closed: 1,
       urgent: 2,
     });
+  });
+
+  it('falls back safely when optional comment and history tables are unavailable', async () => {
+    const ticketComments = schemaMock.ticketComments;
+    const ticketHistory = schemaMock.ticketHistory;
+    schemaMock.ticketComments = undefined;
+    schemaMock.ticketHistory = undefined;
+    jest.spyOn(service, 'findOne').mockResolvedValue({ id: 1, status: 'open' } as any);
+
+    try {
+      await expect(service.addComment('tenant-1', 'user-1', 1, 'Local note', true)).resolves.toEqual({
+        ticketId: 1,
+        authorId: 'user-1',
+        content: 'Local note',
+        isInternal: true,
+      });
+      await expect(service.getComments('tenant-1', 1)).resolves.toEqual([]);
+      await expect(service.getHistory('tenant-1', 1)).resolves.toEqual([]);
+    } finally {
+      schemaMock.ticketComments = ticketComments;
+      schemaMock.ticketHistory = ticketHistory;
+    }
   });
 });

@@ -41,6 +41,15 @@ export class JournalEntriesController {
     });
   }
 
+  @Get('trial-balance')
+  trialBalance(@Request() req: any, @Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
+    return this.journalEntriesService.getTrialBalance(
+      req.user.tenantId,
+      fromDate ? new Date(fromDate) : undefined,
+      toDate ? new Date(toDate) : undefined,
+    );
+  }
+
   @Get(':id')
   findOne(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.journalEntriesService.findOne(req.user.tenantId, id);
@@ -58,14 +67,5 @@ export class JournalEntriesController {
     @Body() body: { reason?: string },
   ) {
     return this.journalEntriesService.reverse(req.user.tenantId, req.user.sub, id, body.reason);
-  }
-
-  @Get('trial-balance')
-  trialBalance(@Request() req: any, @Query('fromDate') fromDate?: string, @Query('toDate') toDate?: string) {
-    return this.journalEntriesService.getTrialBalance(
-      req.user.tenantId,
-      fromDate ? new Date(fromDate) : undefined,
-      toDate ? new Date(toDate) : undefined,
-    );
   }
 }

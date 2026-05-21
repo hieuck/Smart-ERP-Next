@@ -86,14 +86,34 @@ export class ForecastService {
    */
   private async getFallbackForecast(productId: string) {
     const base = 100;
-    const result = Array.from({ length: 6 }, (_, i) => ({
-      month: new Date(Date.now() + i * 30 * 24 * 60 * 60 * 1000).toLocaleString('en-US', { month: 'short' }),
-      demand: base + i * 20,
+    const result = Array.from({ length: 6 }, (_, i) => {
+      const forecastDate = new Date(Date.now() + i * 30 * 24 * 60 * 60 * 1000);
+      const demand = base + i * 20;
+
+      return {
+        month: forecastDate.toLocaleString('en-US', { month: 'short' }),
+        date: forecastDate.toISOString().split('T')[0],
+        demand,
+      };
+    });
+    const predictions = result.map((item) => ({
+      date: item.date,
+      quantity: item.demand,
     }));
 
     return {
       productId,
       data: result,
+      predictions,
+      suggestedOrder: predictions[0].quantity,
+      confidenceLower: predictions.map((item) => ({
+        date: item.date,
+        quantity: Math.max(0, Math.round(item.quantity * 0.8)),
+      })),
+      confidenceUpper: predictions.map((item) => ({
+        date: item.date,
+        quantity: Math.round(item.quantity * 1.2),
+      })),
       source: 'fallback',
       lookaheadDays: 30,
       generatedAt: new Date().toISOString(),

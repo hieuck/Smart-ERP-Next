@@ -6,7 +6,8 @@ import axios from 'axios';
 
 interface ForecastDemandItem {
   month?: string;
-  demand: number;
+  demand?: number;
+  quantity?: number;
   [key: string]: unknown;
 }
 
@@ -43,18 +44,21 @@ export class InventoryRecommendationService {
    * @deprecated Use getReorderSuggestion with AI-powered calculations.
    */
   async getRecommendation(tenantId: string, userId: string, productId: string, currentStock: number) {
-    const forecast: ForecastDemandItem[] = await this.forecastService.getMonthlyDemand(productId) as ForecastDemandItem[];
-    const avgDemand = forecast.slice(0, 3).reduce((sum: number, d: ForecastDemandItem) => sum + d.demand, 0) / 3;
+    const forecast = this.normalizeForecastDemand(await this.forecastService.getMonthlyDemand(productId));
+    const demandWindow = forecast.slice(0, 3);
+    const avgDemand = demandWindow.length
+      ? demandWindow.reduce((sum: number, d: ForecastDemandItem) => sum + this.getDemandQuantity(d), 0) / demandWindow.length
+      : 0;
     const suggested = Math.max(0, Math.round(avgDemand - currentStock));
 
-    await this.activityService.log({
+    await this.activityService.log(
       tenantId,
       userId,
-      action: 'created',
-      entityType: 'inventory',
-      entityId: productId,
-      details: { type: 'reorder_suggestion', suggested, currentStock },
-    });
+      'created',
+      'inventory',
+      productId,
+      { type: 'reorder_suggestion', suggested, currentStock },
+    );
 
     return { productId, suggestedReorder: suggested };
   }
@@ -87,19 +91,19 @@ export class InventoryRecommendationService {
         { timeout: 10000 },
       );
 
-      await this.activityService.log({
+      await this.activityService.log(
         tenantId,
         userId,
-        action: 'created',
-        entityType: 'inventory',
-        entityId: productId,
-        details: {
+        'created',
+        'inventory',
+        productId,
+        {
           type: 'ai_reorder_suggestion',
           shouldReorder: response.data.should_reorder,
           suggestedQuantity: response.data.suggested_order_quantity,
           currentStock,
         },
-      });
+      );
 
       return {
         productId,
@@ -133,8 +137,8 @@ export class InventoryRecommendationService {
   }
 
   private async getFallbackReorderSuggestion(productId: string, currentStock: number): Promise<ReorderResult> {
-    const forecast: ForecastDemandItem[] = await this.forecastService.getMonthlyDemand(productId) as ForecastDemandItem[];
-    const demand7d = forecast.slice(0, 7).reduce((sum: number, d: ForecastDemandItem) => sum + d.demand, 0);
+    const forecast = this.normalizeForecastDemand(await this.forecastService.getMonthlyDemand(productId));
+    const demand7d = forecast.slice(0, 7).reduce((sum: number, d: ForecastDemandItem) => sum + this.getDemandQuantity(d), 0);
     const safetyStock = Math.floor(demand7d * 0.3);
     const reorderPoint = demand7d;
     const shouldReorder = currentStock <= reorderPoint;
@@ -145,7 +149,7 @@ export class InventoryRecommendationService {
       shouldReorder,
       currentStock,
       predictedDemandNext7d: demand7d,
-      predictedDemandNext30d: forecast.reduce((sum: number, d: ForecastDemandItem) => sum + d.demand, 0),
+      predictedDemandNext30d: forecast.reduce((sum: number, d: ForecastDemandItem) => sum + this.getDemandQuantity(d), 0),
       suggestedOrderQuantity: suggested,
       safetyStock,
       reorderPoint,
@@ -154,5 +158,34 @@ export class InventoryRecommendationService {
         ? [`Current stock (${currentStock}) is below reorder point (${reorderPoint})`]
         : [`Current stock (${currentStock}) is sufficient for 30+ days`],
     };
+  }
+
+  private normalizeForecastDemand(forecast: unknown): ForecastDemandItem[] {
+    const payload = forecast as { data?: unknown; predictions?: unknown };
+    const rawItems = Array.isArray(forecast)
+      ? forecast
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.predictions)
+          ? payload.predictions
+          : [];
+
+    return rawItems
+      .map((item) => {
+        if (typeof item === 'number') {
+          return { demand: item };
+        }
+
+        const demandItem = item as ForecastDemandItem;
+        return {
+          ...demandItem,
+          demand: this.getDemandQuantity(demandItem),
+        };
+      })
+      .filter((item) => Number.isFinite(item.demand));
+  }
+
+  private getDemandQuantity(item: ForecastDemandItem): number {
+    return Number(item.demand ?? item.quantity ?? 0);
   }
 }

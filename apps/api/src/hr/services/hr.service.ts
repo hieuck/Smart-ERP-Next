@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
-import { employees, payrolls } from '@smart-erp/database/schema';
+import { employees, salaryBoards } from '@smart-erp/database/schema';
 import { eq, and, ilike, or, sql } from '@smart-erp/database/drizzle';
 import { CreateEmployeeDto } from '../dto/create-employee.dto';
 import { UpdateEmployeeDto } from '../dto/update-employee.dto';
@@ -110,34 +110,28 @@ export class HrService {
     const currentMonth = (new Date().getMonth() + 1).toString();
     const currentYear = new Date().getFullYear();
 
-    await Promise.all(
-      employeesList.map(async (employee) => {
-        const existing = await db
-          .select()
-          .from(payrolls)
-          .where(
-            and(
-              eq(payrolls.tenantId, tenantId),
-              eq(payrolls.employeeId, employee.id),
-              eq(payrolls.month, currentMonth),
-              eq(payrolls.year, currentYear),
-            ),
-          );
+    const existing = await db
+      .select()
+      .from(salaryBoards)
+      .where(
+        and(
+          eq(salaryBoards.tenantId, tenantId),
+          eq(salaryBoards.month, currentMonth),
+          eq(salaryBoards.year, currentYear),
+        ),
+      );
 
-        if (existing.length === 0) {
-          await db.insert(payrolls).values({
-            tenantId,
-            employeeId: employee.id,
-            month: currentMonth,
-            year: currentYear,
-            baseSalary: employee.salary,
-            allowances: 0,
-            deductions: 0,
-            netSalary: employee.salary,
-          });
-        }
-      }),
-    );
+    if (existing.length === 0) {
+      const totalNetSalary = employeesList.reduce((sum, employee) => sum + Number(employee.salary || 0), 0);
+      await db.insert(salaryBoards).values({
+        tenantId,
+        name: `Bang luong thang ${currentMonth}/${currentYear}`,
+        month: currentMonth,
+        year: currentYear,
+        totalEmployees: String(employeesList.length),
+        totalNetSalary: String(totalNetSalary),
+      });
+    }
   }
 
   async getPayrolls(
@@ -153,25 +147,22 @@ export class HrService {
 
     const [{ count }] = await db
       .select({ count: sql<number>`count(*)::int` })
-      .from(payrolls)
-      .where(eq(payrolls.tenantId, tenantId));
+      .from(salaryBoards)
+      .where(eq(salaryBoards.tenantId, tenantId));
 
     const items = await db
       .select({
-        id: payrolls.id,
-        employeeId: payrolls.employeeId,
-        employeeName: employees.name,
-        month: payrolls.month,
-        year: payrolls.year,
-        baseSalary: payrolls.baseSalary,
-        allowances: payrolls.allowances,
-        deductions: payrolls.deductions,
-        netSalary: payrolls.netSalary,
+        id: salaryBoards.id,
+        name: salaryBoards.name,
+        month: salaryBoards.month,
+        year: salaryBoards.year,
+        status: salaryBoards.status,
+        totalEmployees: salaryBoards.totalEmployees,
+        totalNetSalary: salaryBoards.totalNetSalary,
       })
-      .from(payrolls)
-      .innerJoin(employees, eq(payrolls.employeeId, employees.id))
-      .where(eq(payrolls.tenantId, tenantId))
-      .orderBy(payrolls.year, payrolls.month)
+      .from(salaryBoards)
+      .where(eq(salaryBoards.tenantId, tenantId))
+      .orderBy(salaryBoards.year, salaryBoards.month)
       .limit(limit)
       .offset(offset);
 

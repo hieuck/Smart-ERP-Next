@@ -57,7 +57,7 @@ export class AnalyticsDashboardService {
     const lowStock = await this.drizzle.db.execute(sql`
       SELECT COUNT(*) as total FROM products
       WHERE tenant_id = ${tenantId} AND is_active = true
-        AND current_stock <= min_stock`
+        AND stock <= min_stock`
     );
     const lowStockCount = Number((lowStock as unknown as any[])?.[0]?.total || 0);
 
@@ -108,7 +108,7 @@ export class AnalyticsDashboardService {
         COUNT(CASE WHEN status IN ('confirmed','delivered','completed') THEN 1 END) as orders
       FROM orders
       WHERE tenant_id = ${tenantId}
-        AND created_at >= NOW() - INTERVAL '${days} days'
+        AND created_at >= NOW() - (${days}::int * INTERVAL '1 day')
       GROUP BY DATE(created_at)
       ORDER BY date ASC`
     );
@@ -202,7 +202,7 @@ export class AnalyticsDashboardService {
     // Low stock alert
     const lowStock = await this.drizzle.db.execute(sql`
       SELECT COUNT(*) as count FROM products
-      WHERE tenant_id = ${tenantId} AND is_active = true AND current_stock <= min_stock`
+      WHERE tenant_id = ${tenantId} AND is_active = true AND stock <= min_stock`
     );
     const lowStockCount = Number((lowStock as unknown as any[])?.[0]?.count || 0);
     if (lowStockCount > 0) {

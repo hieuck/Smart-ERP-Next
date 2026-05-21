@@ -44,7 +44,32 @@ describe("SyncBenchmarkInterceptor", () => {
     });
   });
 
-  it("records failed push sync metrics with fallback client id", (done) => {
+  it("records failed push metrics with default client and empty body", (done) => {
+    const benchmarkService = { record: jest.fn().mockResolvedValue(undefined) };
+    const interceptor = new SyncBenchmarkInterceptor(benchmarkService as any);
+    const request = {
+      url: "/sync/push",
+      user: { tenantId: "tenant-1" },
+    };
+    jest.spyOn(Date, "now").mockReturnValueOnce(5000).mockReturnValueOnce(5010);
+
+    interceptor.intercept(createContext(request), { handle: () => of({ accepted: false }) } as any).subscribe({
+      complete: () => {
+        expect(benchmarkService.record).toHaveBeenCalledWith(
+          "tenant-1",
+          "unknown",
+          "push",
+          "failure",
+          10,
+          0,
+          JSON.stringify({}).length,
+        );
+        done();
+      },
+    });
+  });
+
+  it("skips benchmark writes when auth context has no tenant", (done) => {
     const benchmarkService = { record: jest.fn().mockResolvedValue(undefined) };
     const interceptor = new SyncBenchmarkInterceptor(benchmarkService as any);
     const request = {
@@ -56,15 +81,7 @@ describe("SyncBenchmarkInterceptor", () => {
 
     interceptor.intercept(createContext(request), { handle: () => of({ accepted: false }) } as any).subscribe({
       complete: () => {
-        expect(benchmarkService.record).toHaveBeenCalledWith(
-          undefined,
-          "unknown",
-          "push",
-          "failure",
-          25,
-          0,
-          JSON.stringify(request.body).length,
-        );
+        expect(benchmarkService.record).not.toHaveBeenCalled();
         done();
       },
     });

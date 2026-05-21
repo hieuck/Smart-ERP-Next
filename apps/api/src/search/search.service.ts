@@ -51,11 +51,10 @@ export class SearchService {
 
     // Search products
     const productResults = await this.drizzle.db.execute(
-      sql`SELECT id, name, sku, barcode FROM products
+      sql`SELECT id, name, sku FROM products
           WHERE tenant_id = ${tenantId}
           AND (name ILIKE ${'%' + searchTerm + '%'}
-            OR sku ILIKE ${'%' + searchTerm + '%'}
-            OR barcode ILIKE ${'%' + searchTerm + '%'})
+            OR sku ILIKE ${'%' + searchTerm + '%'})
           LIMIT ${limit}`
     );
 

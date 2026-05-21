@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
-import { journalEntries, journalEntryLines, chartOfAccounts } from '@smart-erp/accounting';
+import { journalEntries, journalEntryLines, chartOfAccounts } from '@smart-erp/database/schema';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
 import { CreateJournalEntryDto } from './dto';
 import { v4 as uuid } from 'uuid';
@@ -30,7 +30,6 @@ export class JournalEntriesService {
       voucherNumber,
       voucherDate: new Date(dto.voucherDate),
       description: dto.description,
-      reference: dto.reference,
       totalAmount: totalDebit.toString(),
       createdBy: userId,
     });
@@ -38,14 +37,12 @@ export class JournalEntriesService {
     // Create lines
     await db.insert(journalEntryLines).values(
       dto.lines.map((line, index) => ({
+        tenantId,
         journalEntryId: entryId,
         accountId: line.accountId,
         debit: (line.debit || 0).toString(),
         credit: (line.credit || 0).toString(),
-        description: line.description,
-        taxRate: line.taxRate?.toString(),
-        taxAmount: line.taxAmount?.toString(),
-        lineNumber: String(index + 1),
+        lineDescription: line.description || `Line ${index + 1}`,
       }))
     );
 
@@ -101,15 +98,12 @@ export class JournalEntriesService {
         accountName: chartOfAccounts.accountName,
         debit: journalEntryLines.debit,
         credit: journalEntryLines.credit,
-        description: journalEntryLines.description,
-        taxRate: journalEntryLines.taxRate,
-        taxAmount: journalEntryLines.taxAmount,
-        lineNumber: journalEntryLines.lineNumber,
+        description: journalEntryLines.lineDescription,
       })
       .from(journalEntryLines)
       .leftJoin(chartOfAccounts, eq(journalEntryLines.accountId, chartOfAccounts.id))
       .where(eq(journalEntryLines.journalEntryId, id))
-      .orderBy(journalEntryLines.lineNumber);
+      .orderBy(journalEntryLines.createdAt);
 
     return {
       ...entry[0],
@@ -128,8 +122,7 @@ export class JournalEntriesService {
       .update(journalEntries)
       .set({
         isPosted: true,
-        postedAt: new Date(),
-        postedBy: userId,
+        approvedBy: userId,
         updatedAt: new Date(),
       })
       .where(and(eq(journalEntries.tenantId, tenantId), eq(journalEntries.id, id)));
@@ -157,33 +150,23 @@ export class JournalEntriesService {
       voucherNumber: `BC${year}${String(count + 1).padStart(6, '0')}`,
       voucherDate: new Date(),
       description: `Reverse journal entry ${original.voucherNumber}${reason ? `: ${reason}` : ''}`,
-      reference: original.voucherNumber,
       totalAmount: original.totalAmount,
       isPosted: true,
-      postedAt: new Date(),
-      postedBy: userId,
-      isReversed: false,
-      reversedFromId: id,
+      approvedBy: userId,
       createdBy: userId,
     });
 
     // Create reversed lines (swap debit/credit)
     await db.insert(journalEntryLines).values(
       original.lines.map((line, index) => ({
+        tenantId,
         journalEntryId: reverseId,
         accountId: line.accountId,
         debit: line.credit, // Swap!
         credit: line.debit, // Swap!
-        description: line.description,
-        lineNumber: String(index + 1),
+        lineDescription: line.description || `Reverse line ${index + 1}`,
       }))
     );
-
-    // Mark original as reversed
-    await db
-      .update(journalEntries)
-      .set({ isReversed: true, updatedAt: new Date() })
-      .where(and(eq(journalEntries.tenantId, tenantId), eq(journalEntries.id, id)));
 
     return { success: true, originalEntryId: id, reverseEntryId: reverseId };
   }

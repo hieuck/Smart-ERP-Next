@@ -1,14 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import request from 'supertest';
+import { db, tenants, users } from '@smart-erp/database';
 import { AppModule } from '../src/app.module';
+
+const { sign } = require('jsonwebtoken');
+
+const TEST_JWT_SECRET = 'approvals-e2e-secret';
 
 describe('Approvals E2E', () => {
   let app: INestApplication;
   let authToken: string;
-  const tenantId = 'test-tenant-id';
+  let tenantId: string;
+  let userId: string;
 
   beforeAll(async () => {
+    process.env.JWT_SECRET = TEST_JWT_SECRET;
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -17,29 +26,50 @@ describe('Approvals E2E', () => {
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
 
-    // Login to get token (mock)
-    const loginRes = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({ email: 'test@example.com', password: 'password123' });
+    const runCode = randomUUID().slice(0, 8);
+    tenantId = randomUUID();
+    userId = randomUUID();
 
-    authToken = loginRes.body.access_token;
+    await db.insert(tenants).values({
+      id: tenantId,
+      name: `Approvals E2E ${runCode}`,
+      slug: `approvals-e2e-${runCode}`,
+    });
+    await db.insert(users).values({
+      id: userId,
+      email: `approvals-e2e-${runCode}@smarterp.vn`,
+      name: 'Approvals E2E Admin',
+      tenantId,
+      role: 'admin',
+    });
+
+    authToken = sign(
+      {
+        sub: userId,
+        email: `approvals-e2e-${runCode}@smarterp.vn`,
+        tenantId,
+        role: 'admin',
+      },
+      TEST_JWT_SECRET,
+      { expiresIn: '1h' },
+    );
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  describe('POST /approvals', () => {
+  describe('POST /approvals/requests', () => {
     it('should create approval request and return 201', async () => {
       const res = await request(app.getHttpServer())
-        .post('/approvals')
+        .post('/approvals/requests')
         .set('Authorization', `Bearer ${authToken}`)
         .set('X-Tenant-ID', tenantId)
         .send({
           documentType: 'purchase_order',
-          documentId: 'doc-123',
+          documentId: randomUUID(),
           documentAmount: 1000000,
-          approverIds: ['user-1', 'user-2'],
+          approverIds: [userId],
         });
 
       expect(res.status).toBe(201);
@@ -49,13 +79,13 @@ describe('Approvals E2E', () => {
 
     it('should auto-approve small orders under threshold', async () => {
       const res = await request(app.getHttpServer())
-        .post('/approvals')
+        .post('/approvals/requests')
         .set('Authorization', `Bearer ${authToken}`)
         .set('X-Tenant-ID', tenantId)
         .send({
           documentType: 'purchase_order',
-          documentId: 'doc-small',
-          documentAmount: 100000, // Under 5M VND
+          documentId: randomUUID(),
+          documentAmount: 100000,
           approverIds: [],
         });
 
@@ -64,28 +94,28 @@ describe('Approvals E2E', () => {
     });
   });
 
-  describe('POST /approvals/:id/approve', () => {
+  describe('POST /approvals/requests/:id/approve', () => {
     it('should approve pending request', async () => {
-      // First create a request
       const createRes = await request(app.getHttpServer())
-        .post('/approvals')
+        .post('/approvals/requests')
         .set('Authorization', `Bearer ${authToken}`)
         .set('X-Tenant-ID', tenantId)
         .send({
           documentType: 'purchase_order',
-          documentId: 'doc-approve-test',
+          documentId: randomUUID(),
           documentAmount: 10000000,
-          approverIds: ['user-1'],
+          approverIds: [userId],
         });
 
       const requestId = createRes.body.id;
 
       const approveRes = await request(app.getHttpServer())
-        .post(`/approvals/${requestId}/approve`)
+        .post(`/approvals/requests/${requestId}/approve`)
         .set('Authorization', `Bearer ${authToken}`)
-        .set('X-Tenant-ID', tenantId);
+        .set('X-Tenant-ID', tenantId)
+        .send({ comments: 'Approved by approvals E2E' });
 
-      expect(approveRes.status).toBe(200);
+      expect(approveRes.status).toBe(201);
     });
   });
 });

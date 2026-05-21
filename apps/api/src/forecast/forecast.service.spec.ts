@@ -96,6 +96,10 @@ describe('ForecastService', () => {
       isFallback: true,
     });
     expect((result as { data: unknown[] }).data).toHaveLength(6);
+    expect((result as { predictions: unknown[] }).predictions).toHaveLength(6);
+    expect((result as { confidenceLower: unknown[] }).confidenceLower).toHaveLength(6);
+    expect((result as { confidenceUpper: unknown[] }).confidenceUpper).toHaveLength(6);
+    expect(result).toHaveProperty('suggestedOrder');
     expect(result.generatedAt).toEqual(expect.any(String));
   });
 

@@ -15,16 +15,15 @@ jest.mock('@smart-erp/database/schema', () => ({
     name: 'employees.name',
     email: 'employees.email',
   },
-  payrolls: {
-    tenantId: 'payrolls.tenantId',
-    employeeId: 'payrolls.employeeId',
-    month: 'payrolls.month',
-    year: 'payrolls.year',
-    id: 'payrolls.id',
-    baseSalary: 'payrolls.baseSalary',
-    allowances: 'payrolls.allowances',
-    deductions: 'payrolls.deductions',
-    netSalary: 'payrolls.netSalary',
+  salaryBoards: {
+    tenantId: 'salaryBoards.tenantId',
+    month: 'salaryBoards.month',
+    year: 'salaryBoards.year',
+    id: 'salaryBoards.id',
+    name: 'salaryBoards.name',
+    status: 'salaryBoards.status',
+    totalEmployees: 'salaryBoards.totalEmployees',
+    totalNetSalary: 'salaryBoards.totalNetSalary',
   },
 }));
 
@@ -130,9 +129,8 @@ describe('HrService coverage', () => {
 
   it('processes missing payrolls and paginates payroll reports', async () => {
     selectQueue.push(
-      [{ id: 'employee-1', salary: '1000' }, { id: 'employee-2', salary: '2000' }],
+      [{ id: 'employee-1', salary: '1000' }, { id: 'employee-2', salary: '2000' }, { id: 'employee-3' }],
       [],
-      [{ id: 'existing-payroll' }],
     );
 
     await service.processPayroll('tenant-1');
@@ -140,15 +138,15 @@ describe('HrService coverage', () => {
     expect(mockDb.insert).toHaveBeenCalledTimes(1);
     expect(mockDb.insert.mock.results[0].value.values).toHaveBeenCalledWith(expect.objectContaining({
       tenantId: 'tenant-1',
-      employeeId: 'employee-1',
       month: '5',
       year: 2026,
-      netSalary: '1000',
+      totalEmployees: '3',
+      totalNetSalary: '3000',
     }));
 
-    selectQueue.push([{ count: 1 }], [{ id: 'payroll-1', employeeName: 'Lan' }]);
+    selectQueue.push([{ count: 1 }], [{ id: 'payroll-1', name: 'Bang luong thang 5/2026' }]);
     await expect(service.getPayrolls('tenant-1', { page: 1, limit: 5 })).resolves.toEqual({
-      items: [{ id: 'payroll-1', employeeName: 'Lan' }],
+      items: [{ id: 'payroll-1', name: 'Bang luong thang 5/2026' }],
       total: 1,
       page: 1,
       limit: 5,

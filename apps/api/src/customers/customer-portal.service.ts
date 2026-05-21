@@ -11,7 +11,7 @@ export class CustomerPortalService {
     return db
       .select({
         id: orders.id,
-        code: orders.orderCode,
+        code: orders.code,
         status: orders.status,
         total: orders.total,
         createdAt: orders.createdAt,

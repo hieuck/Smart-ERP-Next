@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Req, Get, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, Body, Req, Get, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { SyncService } from './sync.service';
 import { SyncBenchmarkInterceptor } from '../../common/interceptors/sync-benchmark.interceptor';
 import { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('sync')
+@UseGuards(JwtAuthGuard)
 @UseInterceptors(SyncBenchmarkInterceptor)
 export class SyncController {
   constructor(private syncService: SyncService) {}
@@ -19,7 +21,7 @@ export class SyncController {
   }
 
   @Get('metadata')
-  async getMetadata(@Req() req: RequestWithUser, @Body() body: { clientId: string }) {
-    return this.syncService.getMetadata(req.user.tenantId, body.clientId);
+  async getMetadata(@Req() req: RequestWithUser, @Query('clientId') clientId = 'web-e2e') {
+    return this.syncService.getMetadata(req.user.tenantId, clientId);
   }
 }

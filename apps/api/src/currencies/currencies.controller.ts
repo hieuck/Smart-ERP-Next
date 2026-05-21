@@ -22,28 +22,9 @@ export class CurrenciesController {
     return this.currenciesService.findAll(req.user.tenantId);
   }
 
-  @Get(':id')
-  findOne(@Request() req: any, @Param('id') id: string) {
-    return this.currenciesService.findOne(req.user.tenantId, id);
-  }
-
   @Get('base')
   getBase(@Request() req: any) {
     return this.currenciesService.getBaseCurrency(req.user.tenantId);
-  }
-
-  @Put(':id')
-  update(
-    @Request() req: any,
-    @Param('id') id: string,
-    @Body() dto: Partial<CreateCurrencyDto>
-  ) {
-    return this.currenciesService.update(req.user.tenantId, id, dto);
-  }
-
-  @Delete(':id')
-  remove(@Request() req: any, @Param('id') id: string) {
-    return this.currenciesService.remove(req.user.tenantId, id);
   }
 
   @Get('convert')
@@ -61,12 +42,6 @@ export class CurrenciesController {
       toCurrency,
       atDate
     );
-  }
-
-  // Exchange Rate endpoints
-  @Post('rates')
-  createExchangeRate(@Request() req: any, @Body() dto: ExchangeRateDto) {
-    return this.currenciesService.createExchangeRate(req.user.tenantId, dto);
   }
 
   @Get('rates')
@@ -87,6 +62,31 @@ export class CurrenciesController {
       toCurrency,
       atDate
     );
+  }
+
+  @Get(':id')
+  findOne(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
+    return this.currenciesService.findOne(req.user.tenantId, id);
+  }
+
+  @Put(':id')
+  update(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() dto: Partial<CreateCurrencyDto>
+  ) {
+    return this.currenciesService.update(req.user.tenantId, id, dto);
+  }
+
+  @Delete(':id')
+  remove(@Request() req: any, @Param('id') id: string) {
+    return this.currenciesService.remove(req.user.tenantId, id);
+  }
+
+  // Exchange Rate endpoints
+  @Post('rates')
+  createExchangeRate(@Request() req: any, @Body() dto: ExchangeRateDto) {
+    return this.currenciesService.createExchangeRate(req.user.tenantId, dto);
   }
 
   @Put('rates/:id')

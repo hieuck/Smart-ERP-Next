@@ -6,12 +6,16 @@ const mockDb = {
 
 jest.mock('@smart-erp/database', () => ({ db: mockDb }));
 
-jest.mock('@smart-erp/accounting', () => ({
+jest.mock('@smart-erp/database/schema', () => ({
   journalEntries: {
     id: 'journalEntries.id',
     tenantId: 'journalEntries.tenantId',
+    voucherNumber: 'journalEntries.voucherNumber',
     voucherDate: 'journalEntries.voucherDate',
     isPosted: 'journalEntries.isPosted',
+    createdBy: 'journalEntries.createdBy',
+    approvedBy: 'journalEntries.approvedBy',
+    updatedAt: 'journalEntries.updatedAt',
   },
   journalEntryLines: {
     id: 'journalEntryLines.id',
@@ -19,10 +23,8 @@ jest.mock('@smart-erp/accounting', () => ({
     journalEntryId: 'journalEntryLines.journalEntryId',
     debit: 'journalEntryLines.debit',
     credit: 'journalEntryLines.credit',
-    description: 'journalEntryLines.description',
-    taxRate: 'journalEntryLines.taxRate',
-    taxAmount: 'journalEntryLines.taxAmount',
-    lineNumber: 'journalEntryLines.lineNumber',
+    lineDescription: 'journalEntryLines.lineDescription',
+    createdAt: 'journalEntryLines.createdAt',
   },
   chartOfAccounts: {
     id: 'chartOfAccounts.id',
@@ -123,6 +125,27 @@ describe('JournalEntriesService coverage', () => {
       totalCredit: 1000,
     });
     expect(mockDb.insert).toHaveBeenCalledTimes(2);
+
+    (uuid as jest.Mock).mockReturnValueOnce('entry-default-line');
+    selectQueue.push(
+      [{ id: 'old-entry' }],
+      [{ id: 'entry-default-line', voucherNumber: 'BC2026000002', totalAmount: '1000' }],
+      [
+        { accountId: 'cash', debit: '1000', credit: '0' },
+        { accountId: 'revenue', debit: '0', credit: '1000' },
+      ],
+    );
+    await expect(service.create('tenant-1', 'user-1', {
+      ...balancedDto,
+      lines: [
+        { accountId: 'cash', debit: 1000 },
+        { accountId: 'revenue', credit: 1000, description: 'Revenue' },
+      ],
+    } as any)).resolves.toMatchObject({
+      id: 'entry-default-line',
+      totalDebit: 1000,
+      totalCredit: 1000,
+    });
   });
 
   it('lists and finds entries with line totals and null fallback', async () => {
@@ -198,7 +221,7 @@ describe('JournalEntriesService coverage', () => {
         isPosted: true,
         isReversed: false,
         lines: [
-          { accountId: 'cash', debit: '1000', credit: '0', description: 'Cash' },
+          { accountId: 'cash', debit: '1000', credit: '0' },
           { accountId: 'revenue', debit: '0', credit: '1000', description: 'Revenue' },
         ],
       } as any);

@@ -1,8 +1,9 @@
 // @ts-nocheck
 import { Injectable } from '@nestjs/common';
 import { db } from '@smart-erp/database';
-import { chartOfAccounts, DEFAULT_ACCOUNTS, ACCOUNT_TYPES } from '@smart-erp/accounting';
-import { eq, and, like, or, isNull } from 'drizzle-orm';
+import { chartOfAccounts } from '@smart-erp/database/schema';
+import { DEFAULT_ACCOUNTS, ACCOUNT_TYPES } from '@smart-erp/accounting';
+import { eq, and, like, or } from 'drizzle-orm';
 import { CreateChartOfAccountDto, UpdateChartOfAccountDto } from './dto';
 
 @Injectable()
@@ -14,12 +15,10 @@ export class ChartOfAccountsService {
         tenantId,
         accountCode: dto.accountCode,
         accountName: dto.accountName,
-        accountNameEn: dto.accountNameEn,
         accountType: dto.accountType,
         parentId: dto.parentId || null,
         isActive: dto.isActive ?? true,
         description: dto.description,
-        currency: dto.currency ?? 'VND',
       })
       .returning();
 
@@ -71,7 +70,6 @@ export class ChartOfAccountsService {
       .set({
         accountCode: dto.accountCode,
         accountName: dto.accountName,
-        accountNameEn: dto.accountNameEn,
         accountType: dto.accountType,
         parentId: dto.parentId,
         isActive: dto.isActive,
@@ -151,15 +149,12 @@ export class ChartOfAccountsService {
     const created = await db
       .insert(chartOfAccounts)
       .values(
-        allDefaults.map((acc) => ({
-          tenantId,
-          accountCode: acc.code,
-          accountName: acc.name,
-          accountNameEn: acc.nameEn,
-          accountType: acc.type,
-          isSystem: true,
-          allowDelete: false,
-        }))
+      allDefaults.map((acc) => ({
+        tenantId,
+        accountCode: acc.code,
+        accountName: acc.name,
+        accountType: acc.type,
+      }))
       )
       .returning();
 
