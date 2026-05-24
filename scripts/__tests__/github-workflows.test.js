@@ -44,14 +44,21 @@ describe('GitHub workflow definitions', () => {
     const job = doc.jobs['test-and-build'];
     const steps = job.steps;
     const apiE2EStepIndex = steps.findIndex((step) => step.name === 'Run API E2E tests');
+    const webE2EStepIndex = steps.findIndex((step) => step.name === 'Run web E2E tests');
     const migrateStepIndex = steps.findIndex((step) => step.name === 'Apply database migrations');
+    const migrateStep = steps[migrateStepIndex];
+    const apiE2EStep = steps[apiE2EStepIndex];
+    const webE2EStep = steps[webE2EStepIndex];
 
     expect(job.services?.postgres).toBeDefined();
-    expect(job.env?.DATABASE_URL).toMatch(/^postgresql:\/\/postgres:postgres@localhost:5432\//);
+    expect(job.env?.DATABASE_URL).toBeUndefined();
     expect(migrateStepIndex).toBeGreaterThan(-1);
     expect(apiE2EStepIndex).toBeGreaterThan(migrateStepIndex);
-    expect(steps[migrateStepIndex].run).toContain('drizzle-kit migrate');
-    expect(steps[apiE2EStepIndex].run).toBe('pnpm test:api:e2e');
+    expect(migrateStep.env?.DATABASE_URL).toMatch(/^postgresql:\/\/postgres:postgres@localhost:5432\//);
+    expect(apiE2EStep.env?.DATABASE_URL).toMatch(/^postgresql:\/\/postgres:postgres@localhost:5432\//);
+    expect(webE2EStep.env?.DATABASE_URL).toMatch(/^postgresql:\/\/postgres:postgres@localhost:5432\//);
+    expect(migrateStep.run).toContain('drizzle-kit migrate');
+    expect(apiE2EStep.run).toBe('pnpm test:api:e2e');
   });
 
   it('uses packageManager as the single pnpm version source', () => {
