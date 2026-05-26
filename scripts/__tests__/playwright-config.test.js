@@ -1,0 +1,16 @@
+const fs = require('node:fs');
+const path = require('node:path');
+
+describe('Playwright release configuration', () => {
+  it('starts the API and web servers with explicit end-user E2E ports', () => {
+    const config = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'e2e', 'playwright.config.ts'),
+      'utf8',
+    );
+
+    expect(config).toContain("command: 'pnpm --filter @smart-erp/api dev'");
+    expect(config).toContain("PORT: process.env.PORT ?? '3001'");
+    expect(config).toContain("command: 'pnpm --filter @smart-erp/web dev --port 3000'");
+    expect(config).toContain("NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'");
+  });
+});

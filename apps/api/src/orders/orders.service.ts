@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { db } from '@smart-erp/database';
-import { orders, orderItems, products } from '@smart-erp/database/schema';
+import { customers, orders, orderItems, products } from '@smart-erp/database/schema';
 import { eq, and, ilike, sql, desc, inArray } from '@smart-erp/database/drizzle';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
@@ -178,10 +178,12 @@ export class OrdersService {
   }
 
   async findOne(tenantId: string, id: string) {
-    const [order] = await db
-      .select()
+    const [orderRow] = await db
+      .select({ order: orders, customerName: customers.name })
       .from(orders)
+      .leftJoin(customers, eq(orders.customerId, customers.id))
       .where(and(eq(orders.tenantId, tenantId), eq(orders.id, id)));
+    const order = orderRow ? { ...orderRow.order, customerName: orderRow.customerName } : null;
     if (!order) throw new NotFoundException('Order not found');
 
     const items = await db

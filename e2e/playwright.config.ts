@@ -26,6 +26,10 @@ export default defineConfig({
       timeout: 60000,
       reuseExistingServer: true,
       cwd: '..',
+      env: {
+        ...process.env,
+        PORT: process.env.PORT ?? '3001',
+      },
     },
     {
       command: 'pnpm --filter @smart-erp/web dev --port 3000',
@@ -33,6 +37,10 @@ export default defineConfig({
       timeout: 60000,
       reuseExistingServer: true,
       cwd: '..',
+      env: {
+        ...process.env,
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001',
+      },
     },
   ],
 });

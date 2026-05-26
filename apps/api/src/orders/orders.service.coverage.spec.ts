@@ -10,6 +10,7 @@ jest.mock("@smart-erp/database/schema", () => ({
   orders: {
     id: "orders.id",
     tenantId: "orders.tenantId",
+    customerId: "orders.customerId",
     code: "orders.code",
     status: "orders.status",
     paymentStatus: "orders.paymentStatus",
@@ -24,6 +25,10 @@ jest.mock("@smart-erp/database/schema", () => ({
     tenantId: "products.tenantId",
     name: "products.name",
     sku: "products.sku",
+  },
+  customers: {
+    id: "customers.id",
+    name: "customers.name",
   },
 }));
 
@@ -48,6 +53,7 @@ const updateReturningQueue: any[][] = [];
 const makeSelectChain = (rows: any[]) => {
   const chain: any = {
     from: jest.fn(() => chain),
+    leftJoin: jest.fn(() => chain),
     where: jest.fn(() => chain),
     orderBy: jest.fn(() => chain),
     limit: jest.fn(() => chain),
@@ -258,7 +264,7 @@ describe("OrdersService coverage", () => {
       [{ count: 1 }],
       [{ id: "order-1", code: "DH-1" }],
       [],
-      [{ id: "order-1", code: "DH-1" }],
+      [{ order: { id: "order-1", code: "DH-1", customerId: "customer-1" }, customerName: "Lan Nguyen" }],
       [{ id: "item-1" }],
     );
 
@@ -281,8 +287,12 @@ describe("OrdersService coverage", () => {
     await expect(service.findOne("tenant-1", "order-1")).resolves.toEqual({
       id: "order-1",
       code: "DH-1",
+      customerId: "customer-1",
+      customerName: "Lan Nguyen",
       items: [{ id: "item-1" }],
     });
+
+    expect(mockDb.select.mock.results[3].value.leftJoin).toHaveBeenCalled();
 
     selectQueue.push([{ count: 0 }], []);
     await expect(service.findAll("tenant-1", {} as any)).resolves.toEqual({

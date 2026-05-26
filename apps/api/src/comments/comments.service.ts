@@ -16,8 +16,14 @@ export class CommentsService {
       .orderBy(desc(comments.createdAt))
       .limit(50)
       .leftJoin(users, eq(comments.userId, users.id));
-    // Fetch user names separately if needed
-    return rows;
+    return rows.map((row: any) => {
+      const comment = row.comments ?? row;
+      const user = row.users ?? row.user ?? null;
+      return {
+        ...comment,
+        user: user ? { id: user.id, name: user.name } : { name: 'System' },
+      };
+    });
   }
 
   async add(

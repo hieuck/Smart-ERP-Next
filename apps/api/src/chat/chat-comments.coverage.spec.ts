@@ -13,9 +13,10 @@ jest.mock('@smart-erp/database/schema', () => ({
     tenantId: 'comments.tenantId',
     orderId: 'comments.orderId',
     userId: 'comments.userId',
+    content: 'comments.content',
     createdAt: 'comments.createdAt',
   },
-  users: { id: 'users.id' },
+  users: { id: 'users.id', name: 'users.name' },
   messages: {
     id: 'messages.id',
     tenantId: 'messages.tenantId',
@@ -104,8 +105,50 @@ describe('chat and comment services coverage', () => {
       content: 'No mentions',
     });
 
-    selectQueue.unshift([{ id: 'comment-1' }]);
-    await expect(service.getByOrder('tenant-1', 'order-1')).resolves.toEqual([{ id: 'comment-1' }]);
+    selectQueue.unshift([
+      {
+        comments: {
+          id: 'comment-1',
+          content: 'Check payment',
+          createdAt: new Date('2026-05-26T00:00:00.000Z'),
+        },
+        users: { id: 'user-1', name: 'E2E Admin User' },
+      },
+      {
+        id: 'comment-2',
+        content: 'Legacy row shape',
+        createdAt: new Date('2026-05-25T00:00:00.000Z'),
+        user: { id: 'user-legacy', name: 'Legacy User' },
+      },
+      {
+        comments: {
+          id: 'comment-3',
+          content: 'System import',
+          createdAt: new Date('2026-05-24T00:00:00.000Z'),
+        },
+        users: null,
+      },
+    ]);
+    await expect(service.getByOrder('tenant-1', 'order-1')).resolves.toEqual([
+      {
+        id: 'comment-1',
+        content: 'Check payment',
+        createdAt: new Date('2026-05-26T00:00:00.000Z'),
+        user: { id: 'user-1', name: 'E2E Admin User' },
+      },
+      {
+        id: 'comment-2',
+        content: 'Legacy row shape',
+        createdAt: new Date('2026-05-25T00:00:00.000Z'),
+        user: { id: 'user-legacy', name: 'Legacy User' },
+      },
+      {
+        id: 'comment-3',
+        content: 'System import',
+        createdAt: new Date('2026-05-24T00:00:00.000Z'),
+        user: { name: 'System' },
+      },
+    ]);
 
     await expect(service.delete('tenant-1', 'comment-1', 'user-1')).resolves.toBeUndefined();
     await expect(service.delete('tenant-1', 'comment-2', 'user-1')).rejects.toBeInstanceOf(NotFoundException);
