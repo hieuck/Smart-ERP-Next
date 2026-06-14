@@ -272,5 +272,5 @@ CREATE INDEX CONCURRENTLY idx_orders_tenant_id ON orders(tenant_id);
 
 ---
 
-**Last Updated**: 2026-05-17  
-**Version**: Smart ERP Next v0.4.0
+**Last Updated**: 2026-06-15  
+**Version**: Smart ERP Next v0.1.0

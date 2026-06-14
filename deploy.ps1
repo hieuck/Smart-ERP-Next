@@ -5,7 +5,7 @@ Write-Host "Building Smart ERP Next..." -ForegroundColor Cyan
 # Clone repo if needed
 
 # Clone repository (replace URL with actual)
-if (-Not (Test-Path .git)) { git clone https://github.com/smart-erp/smart-erp-next.git . }
+if (-Not (Test-Path .git)) { git clone https://github.com/hieuck/Smart-ERP-Next.git . }
 
 Write-Host "Installing dependencies..." -ForegroundColor Yellow
 cd ..
@@ -24,7 +24,7 @@ pnpm install --frozen-lockfile
 pnpm build
 
 # Start Docker containers
-docker-compose up -d --build
+docker compose up -d --build
 
 Write-Host "
 Web Dashboard: http://localhost:3001

@@ -24,5 +24,6 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({
   // Render children immediately — avoids blank flash on SSR/hydration
   if (!ready) return <>{children}</>;
 
-  return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
+  const Provider = I18nextProvider as React.FC<{ i18n: typeof i18n; children: React.ReactNode }>;
+  return <Provider i18n={i18n}>{children}</Provider>;
 };

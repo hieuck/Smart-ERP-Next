@@ -1,10 +1,8 @@
-# Beta Testing Guide — Smart ERP Next v0.4.0
+# Getting Started Guide — Smart ERP Next v0.1.0
 
-**⚠️ Beta testing has officially ended.**
+**Beta testing has concluded. This is now the first stable release.**
 
-**⚠️ Beta testing has officially ended.**
-
-Thank you for participating in the beta test! This guide helps you set up and start testing the system within 10 minutes.
+For production deployment instructions, see [production-setup-guide.md](production-setup-guide.md).
 
 ---
 

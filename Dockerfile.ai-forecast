@@ -1,6 +1,0 @@
-﻿FROM python:3.11-slim
-WORKDIR /app
-COPY --from=0 /app/node_modules ./node_modules
-COPY . .
-RUN pip install --no-cache-dir fastapi uvicorn
-EXPOSE 8000
