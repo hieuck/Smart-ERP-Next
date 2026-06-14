@@ -10,6 +10,12 @@
       "ios": {
         "simulator": false
       }
+    },
+    "ios-unsigned": {
+      "ios": {
+        "simulator": false
+      },
+      "developmentClient": true
     }
   }
 }

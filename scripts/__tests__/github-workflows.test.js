@@ -41,7 +41,7 @@ describe('GitHub workflow definitions', () => {
     ]);
     expect(workflow).toContain('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}');
     expect(workflow).toContain('EAS_PROJECT_ID: ${{ secrets.EAS_PROJECT_ID }}');
-    expect(workflow).toContain('EAS_IOS_CREDENTIALS_READY: ${{ secrets.EAS_IOS_CREDENTIALS_READY }}');
+    expect(workflow).toContain("SKIP_IOS_SIGNING: ${{ secrets.EAS_IOS_CREDENTIALS_READY == '' && 'true' || '' }}");
     expect(workflow).toContain('ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}');
     expect(workflow).toContain('pnpm verify:ios-release-prereqs');
     expect(workflow).toContain('eas build --platform android');
@@ -56,8 +56,8 @@ describe('GitHub workflow definitions', () => {
     const workflow = readWorkflow('ci.yml');
     const doc = YAML.parse(workflow);
 
-    expect(doc.on.push.branches).toContain('master');
-    expect(doc.on.pull_request.branches).toContain('master');
+    expect(doc.on.push.branches).toContain('main');
+    expect(doc.on.pull_request.branches).toContain('main');
     expect(workflow).toContain('pnpm test:e2e');
     expect(workflow).not.toContain('npx playwright test');
   });

@@ -19,6 +19,8 @@ function findIosPrereqFindings(env = process.env) {
   const missing = [];
   const warnings = [];
 
+  const skipSigning = isTruthy(env.SKIP_IOS_SIGNING);
+
   if (!env.EXPO_TOKEN) missing.push('EXPO_TOKEN');
 
   const projectId = env.EAS_PROJECT_ID || env.EXPO_PROJECT_ID;
@@ -28,16 +30,18 @@ function findIosPrereqFindings(env = process.env) {
     missing.push('EAS_PROJECT_ID must be a UUID');
   }
 
-  const hasSigningProof =
-    isTruthy(env.EAS_IOS_CREDENTIALS_READY) ||
-    hasAscApiKey(env) ||
-    Boolean(env.APPLE_ID && env.EXPO_APPLE_APP_SPECIFIC_PASSWORD);
+  if (!skipSigning) {
+    const hasSigningProof =
+      isTruthy(env.EAS_IOS_CREDENTIALS_READY) ||
+      hasAscApiKey(env) ||
+      Boolean(env.APPLE_ID && env.EXPO_APPLE_APP_SPECIFIC_PASSWORD);
 
-  if (!hasSigningProof) {
-    missing.push('iOS signing credentials');
-    warnings.push(
-      'Set EAS_IOS_CREDENTIALS_READY=true when Apple signing is already configured in EAS, or provide ASC_API_KEY_ID/ASC_API_KEY_ISSUER_ID/ASC_API_KEY_PATH, or APPLE_ID/EXPO_APPLE_APP_SPECIFIC_PASSWORD.',
-    );
+    if (!hasSigningProof) {
+      missing.push('iOS signing credentials');
+      warnings.push(
+        'Set EAS_IOS_CREDENTIALS_READY=true when Apple signing is already configured in EAS, or provide ASC_API_KEY_ID/ASC_API_KEY_ISSUER_ID/ASC_API_KEY_PATH, or APPLE_ID/EXPO_APPLE_APP_SPECIFIC_PASSWORD.',
+      );
+    }
   }
 
   return { missing, warnings };
