@@ -35,10 +35,10 @@ describe('GitHub workflow definitions', () => {
 
     expect(doc.jobs['mobile-native-artifacts']).toBeDefined();
     expect(doc.jobs['windows-native-artifacts']).toBeDefined();
-    expect(doc.jobs['certify-release'].needs).toEqual([
-      'mobile-native-artifacts',
-      'windows-native-artifacts',
-    ]);
+    expect(doc.jobs['docker-images']).toBeDefined();
+    expect(doc.jobs['certify-release'].needs).toContain('mobile-native-artifacts');
+    expect(doc.jobs['certify-release'].needs).toContain('windows-native-artifacts');
+    expect(doc.jobs['certify-release'].needs).toContain('docker-images');
     expect(workflow).toContain('EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}');
     expect(workflow).toContain('EAS_PROJECT_ID: ${{ secrets.EAS_PROJECT_ID }}');
     expect(workflow).toContain("SKIP_IOS_SIGNING: ${{ secrets.EAS_IOS_CREDENTIALS_READY == '' && 'true' || '' }}");
