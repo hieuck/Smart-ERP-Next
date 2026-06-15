@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FileText, Send, XCircle, CheckCircle,
-  Plus, Download, Search,
+  Plus, Download, Search, Clock, ExternalLink,
 } from 'lucide-react';
 import AuthGuard from '@/components/layout/AuthGuard';
 import { apiClient } from '@/lib/api-client';
@@ -37,7 +37,7 @@ interface Stats {
 }
 
 const STATUS_CONFIG = {
-  draft:     { variant: 'secondary' as const, label: 'Nháp',        icon: <FiClock /> },
+  draft:     { variant: 'secondary' as const, label: 'Nháp',        icon: <Clock /> },
   signed:    { variant: 'primary' as const,   label: 'Đã ký',       icon: <CheckCircle /> },
   issued:    { variant: 'success' as const,   label: 'Đã phát hành', icon: <Send /> },
   cancelled: { variant: 'danger' as const,    label: 'Đã hủy',      icon: <XCircle /> },
@@ -186,7 +186,7 @@ export default function EInvoicePage() {
             <Button
               size="sm"
               variant="outline"
-              icon={<FiExternalLink />}
+              icon={<ExternalLink />}
               onClick={() => window.open(row.viewUrl!, '_blank')}
             >
               {t('einvoice.view') || 'Xem'}
@@ -227,7 +227,7 @@ export default function EInvoicePage() {
             <StatCard
               title={t('einvoice.stats.draft') || 'Bản nháp'}
               value={stats.draft_count || 0}
-              icon={<FiClock className="w-5 h-5 text-gray-400" />}
+              icon={<Clock className="w-5 h-5 text-gray-400" />}
             />
             <StatCard
               title={t('einvoice.stats.cancelled') || 'Đã hủy'}
