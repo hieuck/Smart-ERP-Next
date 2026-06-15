@@ -4,12 +4,12 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  FiFileText, FiSend, FiXCircle, FiCheckCircle,
-  FiClock, FiDownload, FiPlus, FiExternalLink,
-} from 'react-icons/fi';
+  FileText, Send, XCircle, CheckCircle,
+  Plus, Download, Search, Clock, ExternalLink,
+} from 'lucide-react';
 import AuthGuard from '@/components/layout/AuthGuard';
 import { apiClient } from '@/lib/api-client';
-import { Card, Button, Badge, DataTable, StatCard } from '@smart-erp/ui';
+import { Button, DataTable } from '@smart-erp/shared';
 
 interface EInvoice {
   id: string;
@@ -37,12 +37,12 @@ interface Stats {
 }
 
 const STATUS_CONFIG = {
-  draft:     { variant: 'secondary' as const, label: 'Nháp',        icon: <FiClock /> },
-  signed:    { variant: 'primary' as const,   label: 'Đã ký',       icon: <FiCheckCircle /> },
-  issued:    { variant: 'success' as const,   label: 'Đã phát hành', icon: <FiSend /> },
-  cancelled: { variant: 'danger' as const,    label: 'Đã hủy',      icon: <FiXCircle /> },
-  replaced:  { variant: 'secondary' as const, label: 'Đã thay thế', icon: <FiFileText /> },
-  adjusted:  { variant: 'warning' as const,   label: 'Điều chỉnh',  icon: <FiFileText /> },
+  draft:     { variant: 'secondary' as const, label: 'NhÃ¡p',        icon: <Clock /> },
+  signed:    { variant: 'primary' as const,   label: 'ÄÃ£ kÃ½',       icon: <CheckCircle /> },
+  issued:    { variant: 'success' as const,   label: 'ÄÃ£ phÃ¡t hÃ nh', icon: <Send /> },
+  cancelled: { variant: 'danger' as const,    label: 'ÄÃ£ há»§y',      icon: <XCircle /> },
+  replaced:  { variant: 'secondary' as const, label: 'ÄÃ£ thay tháº¿', icon: <FileText /> },
+  adjusted:  { variant: 'warning' as const,   label: 'Äiá»u chá»‰nh',  icon: <FileText /> },
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -106,7 +106,7 @@ export default function EInvoicePage() {
     : invoices.filter(i => i.status === statusFilter);
 
   const STATUS_FILTERS = [
-    { key: 'all',      label: t('orders.statusAll') || 'Tất cả' },
+    { key: 'all',      label: t('orders.statusAll') || 'Táº¥t cáº£' },
     { key: 'draft',    label: STATUS_CONFIG.draft.label },
     { key: 'issued',   label: STATUS_CONFIG.issued.label },
     { key: 'cancelled',label: STATUS_CONFIG.cancelled.label },
@@ -114,7 +114,7 @@ export default function EInvoicePage() {
 
   const columns = [
     {
-      header: t('einvoice.invoiceNumber') || 'Số hóa đơn',
+      header: t('einvoice.invoiceNumber') || 'Sá»‘ hÃ³a Ä‘Æ¡n',
       accessor: (row: EInvoice) => (
         <div>
           <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
@@ -125,7 +125,7 @@ export default function EInvoicePage() {
       ),
     },
     {
-      header: t('einvoice.buyer') || 'Người mua',
+      header: t('einvoice.buyer') || 'NgÆ°á»i mua',
       accessor: (row: EInvoice) => (
         <div>
           <div className="font-semibold text-gray-900 dark:text-white">{row.buyerName}</div>
@@ -136,7 +136,7 @@ export default function EInvoicePage() {
       ),
     },
     {
-      header: t('einvoice.totalAmount') || 'Tổng tiền',
+      header: t('einvoice.totalAmount') || 'Tá»•ng tiá»n',
       accessor: (row: EInvoice) => (
         <div>
           <div className="font-bold text-gray-900 dark:text-white">{formatVND(row.totalAmount)}</div>
@@ -145,38 +145,38 @@ export default function EInvoicePage() {
       ),
     },
     {
-      header: t('einvoice.status') || 'Trạng thái',
+      header: t('einvoice.status') || 'Tráº¡ng thÃ¡i',
       accessor: (row: EInvoice) => {
         const cfg = STATUS_CONFIG[row.status] || STATUS_CONFIG.draft;
-        return <Badge variant={cfg.variant} icon={cfg.icon}>{cfg.label}</Badge>;
+        return <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.variant === 'primary' || cfg.variant === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : cfg.variant === 'warning' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' : cfg.variant === 'danger' || cfg.variant === 'error' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>{cfg.icon}{cfg.label}</span>;
       },
     },
     {
-      header: t('einvoice.issuedAt') || 'Ngày phát hành',
+      header: t('einvoice.issuedAt') || 'NgÃ y phÃ¡t hÃ nh',
       accessor: (row: EInvoice) => row.issuedAt
         ? new Date(row.issuedAt).toLocaleDateString('vi-VN')
         : <span className="text-gray-400">-</span>,
     },
     {
-      header: t('common.actions') || 'Thao tác',
+      header: t('common.actions') || 'Thao tÃ¡c',
       accessor: (row: EInvoice) => (
         <div className="flex items-center gap-1">
           {row.status === 'draft' ? (
             <Button
               size="sm"
               variant="primary"
-              icon={<FiSend />}
+              icon={<Send />}
               loading={actionLoading === row.id}
               onClick={() => handleIssue(row.id)}
             >
-              {t('einvoice.issue') || 'Phát hành'}
+              {t('einvoice.issue') || 'PhÃ¡t hÃ nh'}
             </Button>
           ) : null}
           {row.pdfUrl ? (
             <Button
               size="sm"
               variant="outline"
-              icon={<FiDownload />}
+              icon={<Download />}
               onClick={() => window.open(row.pdfUrl!, '_blank')}
             >
               PDF
@@ -186,7 +186,7 @@ export default function EInvoicePage() {
             <Button
               size="sm"
               variant="outline"
-              icon={<FiExternalLink />}
+              icon={<ExternalLink />}
               onClick={() => window.open(row.viewUrl!, '_blank')}
             >
               {t('einvoice.view') || 'Xem'}
@@ -199,52 +199,37 @@ export default function EInvoicePage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t('einvoice.title') || 'Hóa đơn điện tử'}
-            </h2>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {t('einvoice.title')}
+            </h1>
             <p className="text-sm text-gray-500 mt-1">
-              {t('einvoice.subtitle') || 'Quản lý hóa đơn theo Nghị định 123/2020/NĐ-CP — tích hợp VNPT, Viettel, MISA'}
+              {t('einvoice.subtitle') || 'Quáº£n lÃ½ hÃ³a Ä‘Æ¡n theo Nghá»‹ Ä‘á»‹nh 123/2020/NÄ-CP â€” tÃ­ch há»£p VNPT, Viettel, MISA'}
             </p>
           </div>
-          <Button icon={<FiPlus />} variant="primary">
-            {t('einvoice.create') || 'Tạo hóa đơn'}
+          <Button icon={<Plus />} variant="primary">
+            {t('einvoice.create') || 'Táº¡o hÃ³a Ä‘Æ¡n'}
           </Button>
         </div>
 
         {/* Stats */}
         {stats ? (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <StatCard
-              title={t('einvoice.stats.issued') || 'Đã phát hành'}
-              value={stats.issued_count || 0}
-              icon={<FiSend className="w-5 h-5 text-green-500" />}
-              className="border-l-4 border-l-green-500"
-            />
-            <StatCard
-              title={t('einvoice.stats.draft') || 'Bản nháp'}
-              value={stats.draft_count || 0}
-              icon={<FiClock className="w-5 h-5 text-gray-400" />}
-            />
-            <StatCard
-              title={t('einvoice.stats.cancelled') || 'Đã hủy'}
-              value={stats.cancelled_count || 0}
-              icon={<FiXCircle className="w-5 h-5 text-red-400" />}
-            />
-            <StatCard
-              title={t('einvoice.stats.revenue') || 'Doanh thu'}
-              value={formatVND(stats.total_revenue || 0)}
-              icon={<FiFileText className="w-5 h-5 text-blue-500" />}
-              className="border-l-4 border-l-blue-500"
-            />
-            <StatCard
-              title={t('einvoice.stats.vat') || 'Tổng VAT'}
-              value={formatVND(stats.total_vat || 0)}
-              icon={<FiFileText className="w-5 h-5 text-purple-500" />}
-            />
+            {[
+              { title: t('einvoice.stats.issued') || 'ÄÃ£ phÃ¡t hÃ nh', value: stats.issued_count || 0 },
+              { title: t('einvoice.stats.draft') || 'Báº£n nhÃ¡p', value: stats.draft_count || 0 },
+              { title: t('einvoice.stats.cancelled') || 'ÄÃ£ há»§y', value: stats.cancelled_count || 0 },
+              { title: t('einvoice.stats.revenue') || 'Doanh thu', value: formatVND(stats.total_revenue || 0) },
+              { title: t('einvoice.stats.vat') || 'Tá»•ng VAT', value: formatVND(stats.total_vat || 0) },
+            ].map((s, i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400">{s.title}</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">{s.value}</p>
+              </div>
+            ))}
           </div>
         ) : null}
 
@@ -266,14 +251,14 @@ export default function EInvoicePage() {
         </div>
 
         {/* Table */}
-        <Card className="shadow-sm border-gray-200 dark:border-gray-800">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <DataTable
             data={filteredInvoices}
             columns={columns}
             loading={loading}
-            emptyMessage={t('einvoice.noInvoices') || 'Chưa có hóa đơn nào'}
+            emptyMessage={t('einvoice.noInvoices') || 'ChÆ°a cÃ³ hÃ³a Ä‘Æ¡n nÃ o'}
           />
-        </Card>
+        </div>
       </div>
     </AuthGuard>
   );

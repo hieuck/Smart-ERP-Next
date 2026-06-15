@@ -361,7 +361,8 @@
     "time": "Thời gian",
     "toDate": "Đến ngày",
     "retry": "Th? l?i",
-    "sold": "?? b?n"
+    "sold": "?? b?n",
+    "type": "Loại"
   },
   "inventory": {
     "title": "Quản lý kho",
@@ -507,10 +508,15 @@
     "createError": "Lỗi khi tạo đơn mua",
     "selectWarehouseOptional": "Chọn kho nhận (không bắt buộc)",
     "preview": "Xem trước: {{items}} mặt hàng, tổng {{quantity}} đơn vị",
-    "all": "T?t c?",
+    "all": "Tất cả",
     "cancel": "H?y ??n mua",
     "confirmReceive": "X?c nh?n nh?n h?ng",
-    "subtotal": "T?m t?nh"
+    "subtotal": "T?m t?nh",
+    "draft": "Nháp",
+    "confirmed": "Đã xác nhận",
+    "partial": "Nhận một phần",
+    "received": "Đã nhận hàng",
+    "cancelled": "Đã hủy"
   },
   "suppliers": {
     "title": "Nhà cung cấp",
@@ -675,7 +681,7 @@
     }
   },
   "crm": {
-    "title": "CRM",
+    "title": "CRM & Sales Pipeline",
     "statuses": {
       "new": "Mới",
       "contacted": "Đã liên hệ",
@@ -691,14 +697,14 @@
       "follow_up": "Theo dõi"
     },
     "editLead": "Sửa Lead",
-    "addLead": "Thêm Lead mới",
+    "addLead": "Thêm khách hàng",
     "firstName": "Tên",
     "lastName": "Họ",
     "phone": "Số điện thoại",
     "company": "Công ty",
     "source": "Nguồn",
     "status": "Trạng thái",
-    "leadScore": "Điểm Lead",
+    "leadScore": "Điểm",
     "industry": "Ngành",
     "notes": "Ghi chú",
     "sources": {
@@ -711,7 +717,17 @@
     },
     "email": "Email",
     "searchLeads": "T?m ki?m kh?ch h?ng ti?m n?ng",
-    "subtitle": "Qu?n l? kh?ch h?ng ti?m n?ng v? c? h?i b?n h?ng"
+    "subtitle": "Quản lý khách hàng tiềm năng & hành trình chốt Sale",
+    "new": "Khách mới",
+    "contacted": "Đã liên hệ",
+    "qualified": "Đánh giá",
+    "proposal": "Báo giá",
+    "won": "Chốt thành công",
+    "lost": "Mất",
+    "totalScore": "Tổng điểm",
+    "dragHint": "Kéo thả lead để cập nhật trạng thái",
+    "noLeads": "Chưa có khách hàng tiềm năng",
+    "noLeadsDesc": "Thêm khách hàng mới để bắt đầu xây dựng pipeline"
   },
   "accounting": {
     "title": "Kế toán",
@@ -1258,7 +1274,10 @@
     "confirmDelete": "B?n c? ch?c mu?n x?a kho n?y?",
     "createInfo": "T?o kho ?? qu?n l? t?n kho v? giao d?ch",
     "empty": "Ch?a c? kho n?o",
-    "subtitle": "Qu?n l? kho h?ng v? ??a ?i?m l?u tr?"
+    "subtitle": "Qu?n l? kho h?ng v? ??a ?i?m l?u tr?",
+    "setDefault": "Đặt làm mặc định",
+    "edit": "Sửa",
+    "delete": "Xóa"
   },
   "reports": {
     "title": "Báo cáo",
@@ -1269,7 +1288,14 @@
     "generatedAt": "Ngày tạo báo cáo",
     "inventory": "Tồn kho",
     "profit": "Lợi nhuận",
-    "topProducts": "Sản phẩm bán chạy"
+    "topProducts": "Sản phẩm bán chạy",
+    "today": "Hôm nay",
+    "thisWeek": "Tuần này",
+    "thisMonth": "Tháng này",
+    "thisQuarter": "Quý này",
+    "exportCSV": "Xuất CSV",
+    "products": "Sản phẩm",
+    "orders": "Đơn hàng"
   },
   "einvoice": {
     "title": "Hóa đơn điện tử",
@@ -1400,7 +1426,41 @@
   },
   "forecastError": "Không thể tải dữ liệu dự báo",
   "payments": {
-    "partySearchPlaceholder": "Tìm khách hàng hoặc nhà cung cấp"
+    "partySearchPlaceholder": "Tìm khách hàng hoặc nhà cung cấp",
+    "all": "Tất cả",
+    "receipt": "Phiếu thu",
+    "payment": "Phiếu chi",
+    "totalRevenue": "Tổng thu",
+    "totalExpense": "Tổng chi",
+    "balance": "Số dư",
+    "code": "Mã phiếu",
+    "type": "Loại",
+    "payee": "Đối tượng",
+    "method": "Phương thức",
+    "note": "Ghi chú",
+    "date": "Ngày",
+    "cash": "Tiền mặt",
+    "transfer": "Chuyển khoản",
+    "receiptCreated": "Đã tạo phiếu thu",
+    "paymentCreated": "Đã tạo phiếu chi",
+    "createFailed": "Tạo phiếu thất bại",
+    "count": "{count} phiếu",
+    "noPayments": "Không có phiếu nào",
+    "receiptShort": "Thu",
+    "paymentShort": "Chi",
+    "createReceipt": "Tạo phiếu thu",
+    "createPayment": "Tạo phiếu chi",
+    "party": "Đối tượng",
+    "notes": "Ghi chú",
+    "amountVnd": "Số tiền (VND)",
+    "create": "Tạo phiếu",
+    "methodCash": "Tiền mặt",
+    "methodBankTransfer": "Chuyển khoản",
+    "methodCard": "Thẻ",
+    "methodCredit": "Công nợ",
+    "methodMomo": "MoMo",
+    "methodVnpay": "VNPay",
+    "methodZalopay": "ZaloPay"
   },
   "socket": {
     "new_activity": "Có hoạt động mới"

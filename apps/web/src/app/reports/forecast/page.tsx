@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '@/lib/api-client';
 import AuthGuard from '@/components/layout/AuthGuard';
-import { BarChart, TrendingUp, Calendar } from 'lucide-react';
+import { PageHeader } from '@smart-erp/shared';
+import { BarChart, Calendar } from 'lucide-react';
 
 interface ForecastItem {
   productId: string;
@@ -41,30 +42,23 @@ export default function ForecastPage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                {t('forecast.title')}
-              </h1>
-              <p className="text-sm text-gray-500">
-                {t('forecast.days', { days })}
-              </p>
-            </div>
-          </div>
-          <select
-            value={days}
-            onChange={(e) => setDays(parseInt(e.target.value))}
-            className="px-3 py-2 border rounded-lg text-sm"
-          >
-            <option value={7}>7 {t('common.days')}</option>
-            <option value={30}>30 {t('common.days')}</option>
-            <option value={60}>60 {t('common.days')}</option>
-          </select>
-        </div>
+        <PageHeader
+          title={t('forecast.title')}
+          description={t('forecast.days', { days })}
+          icon={<BarChart className="w-5 h-5" />}
+          iconColor="blue"
+          actions={
+            <select
+              value={days}
+              onChange={(e) => setDays(parseInt(e.target.value))}
+              className="px-3 py-2 border rounded-lg text-sm"
+            >
+              <option value={7}>7 {t('common.days')}</option>
+              <option value={30}>30 {t('common.days')}</option>
+              <option value={60}>60 {t('common.days')}</option>
+            </select>
+          }
+        />
 
         {loading ? (
           <div className="flex justify-center py-12">

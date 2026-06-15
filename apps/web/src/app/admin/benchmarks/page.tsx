@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '@/lib/api-client';
 import AuthGuard from '@/components/layout/AuthGuard';
+import { PageHeader } from '@smart-erp/shared';
 import { BarChart3, Activity } from 'lucide-react';
 
 interface Stat {
@@ -54,26 +55,23 @@ export default function BenchmarksPage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <BarChart3 className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Sync Performance Benchmarks</h1>
-              <p className="text-sm text-gray-500">Latency percentiles and recent events</p>
-            </div>
-          </div>
-          <select
-            value={hours}
-            onChange={(e) => setHours(parseInt(e.target.value))}
-            className="px-3 py-2 border rounded-lg text-sm"
-          >
-            <option value={1}>1 giờ gần nhất</option>
-            <option value={24}>24 giờ gần nhất</option>
-            <option value={168}>7 ngày gần nhất</option>
-          </select>
-        </div>
+        <PageHeader
+          title="Sync Performance Benchmarks"
+          description="Latency percentiles and recent events"
+          icon={<BarChart3 className="w-5 h-5" />}
+          iconColor="blue"
+          actions={
+            <select
+              value={hours}
+              onChange={(e) => setHours(parseInt(e.target.value))}
+              className="px-3 py-2 border rounded-lg text-sm"
+            >
+              <option value={1}>1 giờ gần nhất</option>
+              <option value={24}>24 giờ gần nhất</option>
+              <option value={168}>7 ngày gần nhất</option>
+            </select>
+          }
+        />
 
         {loading ? (
           <div className="flex justify-center py-12">

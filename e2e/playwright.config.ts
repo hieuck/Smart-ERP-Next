@@ -27,6 +27,7 @@ export default defineConfig({
       reuseExistingServer: true,
       env: {
         PORT: process.env.API_PORT ?? '3456',
+        DATABASE_URL: process.env.DATABASE_URL ?? 'postgresql://smart_erp:smart_erp@localhost:5432/smart_erp',
       },
     },
     {

@@ -4,7 +4,8 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { productsApi, type Product } from '@/lib/api-products';
+import Image from 'next/image';
+import { productsApi, resolveProductImageUrl, type Product } from '@/lib/api-products';
 import { customersApi, type Customer } from '@/lib/api-customers';
 import { ordersApi } from '@/lib/api-orders';
 import AuthGuard from '@/components/layout/AuthGuard';
@@ -258,8 +259,12 @@ export default function POSPage() {
                     onClick={() => addToCart(product)}
                     className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 text-left hover:border-blue-400 hover:shadow-md transition-all group"
                   >
-                    <div className="w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-md mb-2 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
-                      <Package className="w-8 h-8 text-gray-300 dark:text-gray-600 group-hover:text-blue-400 transition-colors" />
+                    <div className="w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-md mb-2 flex items-center justify-center overflow-hidden group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
+                      {product.imageUrl ? (
+                        <Image src={resolveProductImageUrl(product.imageUrl)} alt="" width={120} height={120} className="w-full h-full object-cover" unoptimized />
+                      ) : (
+                        <Package className="w-8 h-8 text-gray-300 dark:text-gray-600 group-hover:text-blue-400 transition-colors" />
+                      )}
                     </div>
                     <p className="text-xs font-medium text-gray-900 dark:text-white line-clamp-2 leading-tight">
                       {product.name}

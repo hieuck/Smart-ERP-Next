@@ -598,7 +598,12 @@
     "all": "All",
     "cancel": "Cancel purchase order",
     "confirmReceive": "Confirm receipt",
-    "subtotal": "Subtotal"
+    "subtotal": "Subtotal",
+    "draft": "Draft",
+    "confirmed": "Confirmed",
+    "partial": "Partially Received",
+    "received": "Received",
+    "cancelled": "Cancelled"
   },
   "pos": {
     "createOrderFailed": "Create order failed. Please try again.",
@@ -659,7 +664,31 @@
     "notes": "Notes",
     "paidAt": "Paid At",
     "searchPlaceholder": "Search by code, party...",
-    "partySearchPlaceholder": "Customer / supplier name..."
+    "partySearchPlaceholder": "Customer / supplier name...",
+    "all": "All",
+    "totalRevenue": "Total Revenue",
+    "totalExpense": "Total Expense",
+    "payee": "Payee",
+    "note": "Note",
+    "date": "Date",
+    "cash": "Cash",
+    "transfer": "Transfer",
+    "receiptCreated": "Receipt created",
+    "paymentCreated": "Payment created",
+    "createFailed": "Create failed",
+    "count": "{count} payment(s)",
+    "noPayments": "No payments",
+    "receiptShort": "In",
+    "paymentShort": "Out",
+    "amountVnd": "Amount (VND)",
+    "create": "Create",
+    "methodCash": "Cash",
+    "methodBankTransfer": "Bank transfer",
+    "methodCard": "Card",
+    "methodCredit": "Credit",
+    "methodMomo": "MoMo",
+    "methodVnpay": "VNPay",
+    "methodZalopay": "ZaloPay"
   },
   "warehouses": {
     "title": "Warehouses",
@@ -673,7 +702,10 @@
     "confirmDelete": "Are you sure you want to delete this warehouse?",
     "createInfo": "Create a warehouse to manage stock and transactions",
     "empty": "No warehouses yet",
-    "subtitle": "Manage warehouses and storage locations"
+    "subtitle": "Manage warehouses and storage locations",
+    "setDefault": "Set as default",
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "analytics": {
     "title": "Analytics Dashboard",
@@ -724,7 +756,9 @@
     "thisYear": "This Year",
     "custom": "Custom",
     "exportPdf": "Export PDF",
-    "exportExcel": "Export Excel"
+    "exportExcel": "Export Excel",
+    "exportCSV": "Export CSV",
+    "orders": "Orders"
   },
   "accounting": {
     "title": "Accounting",
@@ -969,7 +1003,11 @@
     "profile": "Profile",
     "version": "Version",
     "retry": "Retry",
-    "sold": "sold"
+    "sold": "sold",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search",
+    "type": "Type"
   },
   "validation": {
     "required": "{{field}} is required",
@@ -1052,7 +1090,7 @@
     }
   },
   "crm": {
-    "title": "CRM",
+    "title": "CRM & Sales Pipeline",
     "statuses": {
       "new": "New",
       "contacted": "Contacted",
@@ -1068,14 +1106,14 @@
       "follow_up": "Follow Up"
     },
     "editLead": "Edit Lead",
-    "addLead": "Add New Lead",
+    "addLead": "Add Lead",
     "firstName": "First Name",
     "lastName": "Last Name",
     "phone": "Phone",
     "company": "Company",
     "source": "Source",
     "status": "Status",
-    "leadScore": "Lead Score",
+    "leadScore": "Score",
     "industry": "Industry",
     "notes": "Notes",
     "sources": {
@@ -1087,7 +1125,17 @@
       "other": "Other"
     },
     "searchLeads": "Search leads",
-    "subtitle": "Manage leads and sales opportunities"
+    "subtitle": "Manage leads and sales journey",
+    "new": "New",
+    "contacted": "Contacted",
+    "qualified": "Qualified",
+    "proposal": "Proposal",
+    "won": "Won",
+    "lost": "Lost",
+    "totalScore": "Total Score",
+    "dragHint": "Drag & drop leads to update status",
+    "noLeads": "No leads yet",
+    "noLeadsDesc": "Add new leads to build your pipeline"
   },
   "advanced_reports": {
     "title": "Advanced Reports",

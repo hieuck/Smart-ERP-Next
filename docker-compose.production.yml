@@ -57,7 +57,7 @@ services:
   # ── API Server (NestJS) ────────────────────────────────────────────────────────
   # Image published to ghcr.io on each release tag
   api:
-    image: ghcr.io/hieuck/smart-erp-next/api:latest
+    image: ghcr.io/hieuck/smart-erp-next:latest
     build:
       context: .
       dockerfile: apps/api/Dockerfile

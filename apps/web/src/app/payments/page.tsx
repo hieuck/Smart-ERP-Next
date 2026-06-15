@@ -11,6 +11,8 @@ import {
   ChevronLeft, ChevronRight, Filter,
 } from 'lucide-react';
 
+import { PageHeader } from '@smart-erp/shared';
+
 interface Payment {
   id: string;
   code: string;
@@ -31,11 +33,6 @@ interface Summary {
   receiptCount: number;
   paymentCount: number;
 }
-
-const METHOD_LABELS: Record<string, string> = {
-  cash: 'Tiền mặt', bank_transfer: 'Chuyển khoản', card: 'Thẻ',
-  momo: 'MoMo', vnpay: 'VNPay', zalopay: 'ZaloPay', credit: 'Công nợ',
-};
 
 const formatVND = (v: string | number | null | undefined) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
@@ -62,6 +59,19 @@ export default function PaymentsPage() {
     referenceType: '', partyType: 'customer',
   });
   const [saving, setSaving] = useState(false);
+
+  const getMethodLabel = (method: string): string => {
+    const labels: Record<string, string> = {
+      cash: t('payments.methodCash'),
+      bank_transfer: t('payments.methodBankTransfer'),
+      card: t('payments.methodCard'),
+      momo: t('payments.methodMomo'),
+      vnpay: t('payments.methodVnpay'),
+      zalopay: t('payments.methodZalopay'),
+      credit: t('payments.methodCredit'),
+    };
+    return labels[method] ?? method;
+  };
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -95,54 +105,50 @@ export default function PaymentsPage() {
         method: form.method,
         notes: form.notes || undefined,
       });
-      success(createType === 'receipt' ? 'Đã tạo phiếu thu' : 'Đã tạo phiếu chi');
+      success(createType === 'receipt' ? t('payments.receiptCreated') : t('payments.paymentCreated'));
       setShowCreate(false);
       setForm({ partyName: '', amount: '', method: 'cash', notes: '', referenceType: '', partyType: 'customer' });
       fetchData();
     } catch (err: any) {
-      showError(err.response?.data?.message ?? 'Tạo phiếu thất bại');
+      showError(err.response?.data?.message ?? t('payments.createFailed'));
     } finally {
       setSaving(false);
     }
   };
 
   const TYPE_FILTERS = [
-    { value: '', label: 'Tất cả' },
-    { value: 'receipt', label: 'Phiếu thu' },
-    { value: 'payment', label: 'Phiếu chi' },
+    { value: '', label: t('common.all') },
+    { value: 'receipt', label: t('payments.receipt') },
+    { value: 'payment', label: t('payments.payment') },
   ];
 
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-              <CreditCard className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+        <PageHeader
+          title={t('payments.title')}
+          description={t('payments.count', { count: total })}
+          icon={<CreditCard className="w-5 h-5" />}
+          iconColor="emerald"
+          actions={
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setCreateType('receipt'); setShowCreate(true); }}
+                className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+              >
+                <ArrowDownCircle className="w-4 h-4" />
+                {t('payments.receipt')}
+              </button>
+              <button
+                onClick={() => { setCreateType('payment'); setShowCreate(true); }}
+                className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
+              >
+                <ArrowUpCircle className="w-4 h-4" />
+                {t('payments.payment')}
+              </button>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Thu chi</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{total} phiếu</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => { setCreateType('receipt'); setShowCreate(true); }}
-              className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
-            >
-              <ArrowDownCircle className="w-4 h-4" />
-              Phiếu thu
-            </button>
-            <button
-              onClick={() => { setCreateType('payment'); setShowCreate(true); }}
-              className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
-            >
-              <ArrowUpCircle className="w-4 h-4" />
-              Phiếu chi
-            </button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Summary cards */}
         {summary && (
@@ -150,21 +156,21 @@ export default function PaymentsPage() {
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
               <div className="flex items-center gap-2 mb-1">
                 <ArrowDownCircle className="w-4 h-4 text-green-600" />
-                <p className="text-xs text-gray-500 dark:text-gray-400">Tổng thu</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('payments.totalRevenue')}</p>
               </div>
               <p className="text-xl font-bold text-green-600">{formatVND(summary.receipt)}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{summary.receiptCount} phiếu</p>
+              <p className="text-xs text-gray-400 mt-0.5">{t('payments.count', { count: summary.receiptCount })}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
               <div className="flex items-center gap-2 mb-1">
                 <ArrowUpCircle className="w-4 h-4 text-red-600" />
-                <p className="text-xs text-gray-500 dark:text-gray-400">Tổng chi</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('payments.totalExpense')}</p>
               </div>
               <p className="text-xl font-bold text-red-600">{formatVND(summary.payment)}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{summary.paymentCount} phiếu</p>
+              <p className="text-xs text-gray-400 mt-0.5">{t('payments.count', { count: summary.paymentCount })}</p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Số dư</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('payments.balance')}</p>
               <p className={`text-xl font-bold ${summary.balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                 {formatVND(summary.balance)}
               </p>
@@ -197,7 +203,7 @@ export default function PaymentsPage() {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Đang tải...
+            {t('common.loading')}
           </div>
         ) : (
           <>
@@ -206,18 +212,18 @@ export default function PaymentsPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Mã phiếu</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Loại</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Đối tượng</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Số tiền</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Phương thức</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Ghi chú</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Ngày</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('payments.code')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('payments.type')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('payments.party')}</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('payments.amount')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('payments.method')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{t('payments.notes')}</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">{t('payments.date')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                     {payments.length === 0 ? (
-                      <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-400">Không có phiếu nào</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-400">{t('payments.noPayments')}</td></tr>
                     ) : payments.map((p) => (
                       <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                         <td className="px-4 py-3 font-mono font-bold text-sm">
@@ -228,7 +234,7 @@ export default function PaymentsPage() {
                             p.type === 'receipt' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                           }`}>
                             {p.type === 'receipt' ? <ArrowDownCircle className="w-3 h-3" /> : <ArrowUpCircle className="w-3 h-3" />}
-                            {p.type === 'receipt' ? 'Thu' : 'Chi'}
+                            {p.type === 'receipt' ? t('payments.receiptShort') : t('payments.paymentShort')}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{p.partyName ?? '—'}</td>
@@ -237,7 +243,7 @@ export default function PaymentsPage() {
                             {p.type === 'payment' ? '-' : '+'}{formatVND(p.amount)}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-500 text-xs">{METHOD_LABELS[p.method] ?? p.method}</td>
+                        <td className="px-4 py-3 text-gray-500 text-xs">{getMethodLabel(p.method)}</td>
                         <td className="px-4 py-3 text-gray-400 text-xs truncate max-w-xs">{p.notes ?? '—'}</td>
                         <td className="px-4 py-3 text-right text-xs text-gray-400">
                           {new Date(p.paidAt).toLocaleDateString('vi-VN')}
@@ -251,7 +257,7 @@ export default function PaymentsPage() {
 
             {totalPages > 1 && (
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500">{total} phiếu</p>
+                <p className="text-sm text-gray-500">{t('payments.count', { count: total })}</p>
                 <div className="flex gap-1">
                   <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
                     className="px-2 py-1 rounded border border-gray-300 dark:border-gray-600 text-sm disabled:opacity-40">
@@ -274,12 +280,12 @@ export default function PaymentsPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              {createType === 'receipt' ? 'Tạo phiếu thu' : 'Tạo phiếu chi'}
+              {createType === 'receipt' ? t('payments.createReceipt') : t('payments.createPayment')}
             </h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Đối tượng
+                  {t('payments.party')}
                 </label>
                 <input
                   type="text"
@@ -291,7 +297,7 @@ export default function PaymentsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Số tiền (VND) <span className="text-red-500">*</span>
+                  {t('payments.amountVnd')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -306,20 +312,28 @@ export default function PaymentsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Phương thức
+                  {t('payments.method')}
                 </label>
                 <select
                   value={form.method}
                   onChange={(e) => setForm((f) => ({ ...f, method: e.target.value }))}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                 >
-                  {Object.entries(METHOD_LABELS).map(([k, v]) => (
+                  {Object.entries({
+                    cash: t('payments.methodCash'),
+                    bank_transfer: t('payments.methodBankTransfer'),
+                    card: t('payments.methodCard'),
+                    momo: t('payments.methodMomo'),
+                    vnpay: t('payments.methodVnpay'),
+                    zalopay: t('payments.methodZalopay'),
+                    credit: t('payments.methodCredit'),
+                  }).map(([k, v]) => (
                     <option key={k} value={k}>{v}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ghi chú</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('payments.notes')}</label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
@@ -330,13 +344,13 @@ export default function PaymentsPage() {
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowCreate(false)}
                   className="flex-1 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition text-sm">
-                  Hủy
+                  {t('common.cancel')}
                 </button>
                 <button type="submit" disabled={saving}
                   className={`flex-1 py-2.5 text-white font-bold rounded-xl transition text-sm disabled:opacity-50 ${
                     createType === 'receipt' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
                   }`}>
-                  {saving ? 'Đang lưu...' : 'Tạo phiếu'}
+                  {saving ? t('common.saving') : t('payments.create')}
                 </button>
               </div>
             </form>
@@ -346,4 +360,3 @@ export default function PaymentsPage() {
     </AuthGuard>
   );
 }
-

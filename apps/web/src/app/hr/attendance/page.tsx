@@ -4,13 +4,13 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  FiClock, FiLogIn, FiLogOut, FiCalendar,
-  FiCheckCircle, FiAlertTriangle, FiXCircle, FiSun,
-  FiUsers, FiFileText,
-} from 'react-icons/fi';
+  Clock, LogIn, LogOut, Calendar,
+  CheckCircle, AlertTriangle, XCircle, Sun,
+  Users, FileText,
+} from 'lucide-react';
 import AuthGuard from '@/components/layout/AuthGuard';
 import { apiClient } from '@/lib/api-client';
-import { Card, Button, Badge, DataTable, StatCard } from '@smart-erp/ui';
+import { DataTable, Button } from '@smart-erp/shared';
 
 interface TodayStatus {
   status: string;
@@ -57,12 +57,12 @@ interface LeaveRequest {
   reason: string | null;
 }
 
-const STATUS_CONFIG: Record<string, { variant: 'success' | 'danger' | 'warning' | 'secondary' | 'primary', icon: React.ReactNode }> = {
-  present:  { variant: 'success',   icon: <FiCheckCircle /> },
-  late:     { variant: 'warning',   icon: <FiAlertTriangle /> },
-  absent:   { variant: 'danger',    icon: <FiXCircle /> },
-  half_day: { variant: 'primary',   icon: <FiSun /> },
-  leave:    { variant: 'secondary', icon: <FiCalendar /> },
+const STATUS_CONFIG: Record<string, { colorClass: string; icon: React.ReactNode }> = {
+  present:  { colorClass: 'bg-green-100 text-green-700', icon: <CheckCircle className="w-3.5 h-3.5" /> },
+  late:     { colorClass: 'bg-yellow-100 text-yellow-700', icon: <AlertTriangle className="w-3.5 h-3.5" /> },
+  absent:   { colorClass: 'bg-red-100 text-red-700', icon: <XCircle className="w-3.5 h-3.5" /> },
+  half_day: { colorClass: 'bg-blue-100 text-blue-700', icon: <Sun className="w-3.5 h-3.5" /> },
+  leave:    { colorClass: 'bg-blue-100 text-blue-700', icon: <Calendar className="w-3.5 h-3.5" /> },
 };
 
 const LEAVE_TYPE_COLORS: Record<string, string> = {
@@ -146,81 +146,81 @@ export default function AttendancePage() {
   const isCheckedOut = today?.checkInAt && today?.checkOutAt;
 
   const recordColumns = [
-    { header: t('hr.employees.name'), accessor: (r: AttendanceRecord) => r.employee_name },
+    { label: t('hr.employees.name'), render: (r: AttendanceRecord) => r.employee_name },
     {
-      header: t('attendance.shift'),
-      accessor: (r: AttendanceRecord) => r.shift_name ?? <span className="text-gray-400">—</span>,
+      label: t('attendance.shift'),
+      render: (r: AttendanceRecord) => r.shift_name ?? <span className="text-gray-400">â€”</span>,
     },
     {
-      header: t('attendance.checkIn'),
-      accessor: (r: AttendanceRecord) => (
+      label: t('attendance.checkIn'),
+      render: (r: AttendanceRecord) => (
         <span className="font-mono">{formatTime(r.check_in_at)}</span>
       ),
     },
     {
-      header: t('attendance.checkOut'),
-      accessor: (r: AttendanceRecord) => (
+      label: t('attendance.checkOut'),
+      render: (r: AttendanceRecord) => (
         <span className="font-mono">{formatTime(r.check_out_at)}</span>
       ),
     },
     {
-      header: t('attendance.workHours'),
-      accessor: (r: AttendanceRecord) => r.actual_hours ? `${Number(r.actual_hours).toFixed(1)}h` : '—',
+      label: t('attendance.workHours'),
+      render: (r: AttendanceRecord) => r.actual_hours ? `${Number(r.actual_hours).toFixed(1)}h` : 'â€”',
     },
     {
-      header: t('attendance.overtime'),
-      accessor: (r: AttendanceRecord) => Number(r.overtime_hours) > 0
+      label: t('attendance.overtime'),
+      render: (r: AttendanceRecord) => Number(r.overtime_hours) > 0
         ? <span className="font-semibold text-orange-500">+{Number(r.overtime_hours).toFixed(1)}h</span>
-        : <span className="text-gray-400">—</span>,
+        : <span className="text-gray-400">â€”</span>,
     },
     {
-      header: t('attendance.status') || 'Trạng thái',
-      accessor: (r: AttendanceRecord) => {
+      label: t('attendance.status') || 'Tráº¡ng thÃ¡i',
+      render: (r: AttendanceRecord) => {
         const cfg = STATUS_CONFIG[r.status] || STATUS_CONFIG.present;
         return (
-          <Badge variant={cfg.variant} icon={cfg.icon}>
-            {t(`attendance.${r.status}`) || r.status}
-          </Badge>
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cfg.colorClass}`}>
+            {cfg.icon} {t(`attendance.${r.status}`) || r.status}
+          </span>
         );
       },
     },
   ];
 
   const leaveColumns = [
-    { header: t('hr.employees.name'), accessor: (l: LeaveRequest) => l.employee_name },
+    { label: t('hr.employees.name'), render: (l: LeaveRequest) => l.employee_name },
     {
-      header: t('attendance.leave.title'),
-      accessor: (l: LeaveRequest) => (
+      label: t('attendance.leave.title'),
+      render: (l: LeaveRequest) => (
         <span style={{ color: LEAVE_TYPE_COLORS[l.leave_type] || '#374151' }} className="font-semibold">
           {t(`attendance.leave.types.${l.leave_type}`) || l.leave_type}
         </span>
       ),
     },
     {
-      header: t('attendance.leave.startDate'),
-      accessor: (l: LeaveRequest) => new Date(l.start_date).toLocaleDateString('vi-VN'),
+      label: t('attendance.leave.startDate'),
+      render: (l: LeaveRequest) => new Date(l.start_date).toLocaleDateString('vi-VN'),
     },
     {
-      header: t('attendance.leave.endDate'),
-      accessor: (l: LeaveRequest) => new Date(l.end_date).toLocaleDateString('vi-VN'),
+      label: t('attendance.leave.endDate'),
+      render: (l: LeaveRequest) => new Date(l.end_date).toLocaleDateString('vi-VN'),
     },
     {
-      header: t('attendance.leave.totalDays'),
-      accessor: (l: LeaveRequest) => <span className="font-bold">{l.total_days}</span>,
+      label: t('attendance.leave.totalDays'),
+      render: (l: LeaveRequest) => <span className="font-bold">{l.total_days}</span>,
     },
     {
-      header: t('attendance.leave.statuses.pending'),
-      accessor: (l: LeaveRequest) => {
-        const variant = l.status === 'approved' ? 'success'
-          : l.status === 'rejected' ? 'danger'
-          : l.status === 'cancelled' ? 'secondary'
-          : 'warning';
-        return <Badge variant={variant as any}>{t(`attendance.leave.statuses.${l.status}`) || l.status}</Badge>;
+      label: t('attendance.leave.statuses.pending'),
+      render: (l: LeaveRequest) => {
+        const colorClass = l.status === 'approved' ? 'bg-green-100 text-green-700'
+          : l.status === 'rejected' ? 'bg-red-100 text-red-700'
+          : l.status === 'cancelled' ? 'bg-gray-100 text-gray-700'
+          : 'bg-yellow-100 text-yellow-700';
+        return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>{t(`attendance.leave.statuses.${l.status}`) || l.status}</span>;
       },
     },
     {
-      header: t('common.actions') || 'Thao tác',
-      accessor: (l: LeaveRequest) => l.status === 'pending' ? (
+      label: t('common.actions') || 'Thao tÃ¡c',
+      render: (l: LeaveRequest) => l.status === 'pending' ? (
         <Button
           size="sm"
           variant="success"
@@ -229,13 +229,13 @@ export default function AttendancePage() {
         >
           {t('actions.approve')}
         </Button>
-      ) : <span className="text-gray-400">—</span>,
+      ) : <span className="text-gray-400">â€”</span>,
     },
   ];
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -249,43 +249,41 @@ export default function AttendancePage() {
             {!isCheckedIn && !isCheckedOut ? (
               <Button
                 variant="success"
-                icon={<FiLogIn />}
                 loading={actionLoading === 'checkin'}
                 onClick={handleCheckIn}
               >
-                {t('attendance.checkIn')}
+                <LogIn className="w-4 h-4" /> {t('attendance.checkIn')}
               </Button>
             ) : null}
             {isCheckedIn ? (
               <Button
                 variant="danger"
-                icon={<FiLogOut />}
                 loading={actionLoading === 'checkout'}
                 onClick={handleCheckOut}
               >
-                {t('attendance.checkOut')}
+                <LogOut className="w-4 h-4" /> {t('attendance.checkOut')}
               </Button>
             ) : null}
             {isCheckedOut ? (
-              <Badge variant="success" icon={<FiCheckCircle />}>
-                {t('attendance.checkedIn')} — {formatTime(today?.checkOutAt)}
-              </Badge>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                <CheckCircle className="w-3.5 h-3.5" /> {t('attendance.checkedIn')} â€” {formatTime(today?.checkOutAt)}
+              </span>
             ) : null}
           </div>
         </div>
 
         {/* Today card */}
         {today ? (
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
             <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                  <FiClock className="w-6 h-6 text-blue-600" />
+                  <Clock className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-blue-600 font-semibold">{t('attendance.today')} — {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                  <p className="text-sm text-blue-600 font-semibold">{t('attendance.today')} â€” {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">
-                    {formatTime(today.checkInAt)} → {formatTime(today.checkOutAt)}
+                    {formatTime(today.checkInAt)} â†’ {formatTime(today.checkOutAt)}
                   </p>
                 </div>
               </div>
@@ -310,28 +308,70 @@ export default function AttendancePage() {
                 ) : null}
               </div>
             </div>
-          </Card>
+          </div>
         ) : null}
 
         {/* Monthly stats */}
         {summary ? (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            <StatCard title={t('attendance.totalDays')}  value={summary.present_days}              icon={<FiCheckCircle className="w-4 h-4 text-green-500" />} className="border-l-4 border-l-green-500" />
-            <StatCard title={t('attendance.lateCount')}  value={summary.late_days}                 icon={<FiAlertTriangle className="w-4 h-4 text-yellow-500" />} />
-            <StatCard title={t('attendance.absences')}   value={summary.absent_days}               icon={<FiXCircle className="w-4 h-4 text-red-500" />} className="border-l-4 border-l-red-400" />
-            <StatCard title={t('attendance.halfDay') || 'Nửa ngày'} value={summary.half_days}      icon={<FiSun className="w-4 h-4 text-orange-400" />} />
-            <StatCard title={t('attendance.onLeave')}    value={summary.leave_days}                icon={<FiCalendar className="w-4 h-4 text-blue-500" />} />
-            <StatCard title={t('attendance.totalHours')} value={`${Number(summary.total_hours).toFixed(1)}h`}    icon={<FiClock className="w-4 h-4 text-indigo-500" />} />
-            <StatCard title={t('attendance.totalOT')}    value={`${Number(summary.total_overtime).toFixed(1)}h`} icon={<FiClock className="w-4 h-4 text-orange-500" />} className="border-l-4 border-l-orange-400" />
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 border-l-4 border-l-green-500">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span>{t('attendance.totalDays')}</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.present_days}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                <span>{t('attendance.lateCount')}</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.late_days}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 border-l-4 border-l-red-400">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <XCircle className="w-4 h-4 text-red-500" />
+                <span>{t('attendance.absences')}</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.absent_days}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <Sun className="w-4 h-4 text-orange-400" />
+                <span>{t('attendance.halfDay') || 'Ná»­a ngÃ y'}</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.half_days}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <Calendar className="w-4 h-4 text-blue-500" />
+                <span>{t('attendance.onLeave')}</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.leave_days}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <Clock className="w-4 h-4 text-indigo-500" />
+                <span>{t('attendance.totalHours')}</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{`${Number(summary.total_hours).toFixed(1)}h`}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 border-l-4 border-l-orange-400">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                <Clock className="w-4 h-4 text-orange-500" />
+                <span>{t('attendance.totalOT')}</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{`${Number(summary.total_overtime).toFixed(1)}h`}</p>
+            </div>
           </div>
         ) : null}
 
         {/* Tabs */}
         <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg w-fit">
           {([
-            { key: 'overview', label: t('attendance.today'), icon: <FiClock /> },
-            { key: 'records',  label: t('attendance.monthly'), icon: <FiUsers /> },
-            { key: 'leave',    label: t('attendance.leave.title'), icon: <FiFileText /> },
+            { key: 'overview', label: t('attendance.today'), icon: <Clock /> },
+            { key: 'records',  label: t('attendance.monthly'), icon: <Users /> },
+            { key: 'leave',    label: t('attendance.leave.title'), icon: <FileText /> },
           ] as { key: Tab; label: string; icon: React.ReactNode }[]).map(({ key, label, icon }) => (
             <button
               key={key}
@@ -349,20 +389,20 @@ export default function AttendancePage() {
 
         {/* Tab Content */}
         {tab === 'records' ? (
-          <Card className="shadow-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <DataTable
               data={records}
               columns={recordColumns}
               loading={loading}
               emptyMessage={t('common.noData')}
             />
-          </Card>
+          </div>
         ) : tab === 'leave' ? (
-          <Card className="shadow-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between">
               <h3 className="font-semibold">{t('attendance.leave.title')}</h3>
-              <Button size="sm" variant="primary" icon={<FiFileText />}>
-                {t('attendance.leave.create')}
+              <Button size="sm" variant="primary">
+                <FileText className="w-4 h-4" /> {t('attendance.leave.create')}
               </Button>
             </div>
             <DataTable
@@ -371,15 +411,14 @@ export default function AttendancePage() {
               loading={loading}
               emptyMessage={t('common.noData')}
             />
-          </Card>
+          </div>
         ) : (
-          <Card className="p-6 text-center">
-            <FiCalendar className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 text-center">
+            <Calendar className="w-12 h-12 text-gray-200 mx-auto mb-3" />
             <p className="text-gray-400">{t('attendance.monthly')}</p>
-          </Card>
+          </div>
         )}
       </div>
     </AuthGuard>
   );
 }
-

@@ -3,13 +3,52 @@
 **Hệ thống quản trị doanh nghiệp thế hệ mới** — vượt trội ERPNext, Odoo, KiotViet, Nhanhvn, MISA về tốc độ, trải nghiệm và khả năng mở rộng.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org)
-[![Release](https://img.shields.io/github/v/release/smart-erp/smart-erp-next?include_prereleases)](https://github.com/smart-erp/smart-erp-next/releases/latest)
-[![pnpm](https://img.shields.io/badge/pnpm-9+-orange.svg)](https://pnpm.io)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com)
 
 ---
 
-## So sánh với đối thủ
+## 🚀 Quick Start
+
+**Yêu cầu:** Docker & Docker Compose
+
+```bash
+# 1. Clone & chạy — không cần .env, không cần cài đặt gì thêm
+git clone https://github.com/hieuck/Smart-ERP-Next.git
+cd Smart-ERP-Next
+docker compose up -d
+
+# 2. Mở trình duyệt
+# Web: http://localhost:3457
+# API: http://localhost:3456/api
+
+# 3. Đăng nhập
+# Email:    admin@smarterp.vn
+# Mật khẩu: admin123
+```
+
+> Hệ thống tự động migrate database + seed dữ liệu demo ngay lần chạy đầu tiên.
+
+### Hoặc dùng image từ GitHub Container Registry (không cần clone):
+
+```bash
+docker run -d --name smart-erp-postgres \
+  -e POSTGRES_USER=smart_erp -e POSTGRES_PASSWORD=smart_erp -e POSTGRES_DB=smart_erp \
+  -v smart_erp_data:/var/lib/postgresql/data \
+  postgres:16-alpine
+
+docker run -d --name smart-erp -p 3457:3457 -p 3456:3456 \
+  -e DATABASE_URL=postgresql://smart_erp:smart_erp@host.docker.internal:5432/smart_erp \
+  ghcr.io/hieuck/smart-erp-next:latest
+```
+
+### Xóa toàn bộ dữ liệu & reset:
+```bash
+docker compose down -v && docker compose up -d
+```
+
+---
+
+## Tính năng
 
 | Tính năng                |    Smart ERP Next     | KiotViet | Nhanhvn | MISA | ERPNext |
 | ------------------------ | :-------------------: | :------: | :-----: | :--: | :-----: |
@@ -47,28 +86,22 @@
 - **Tồn kho khả dụng thông minh**: Tự động trừ safety buffer trước khi đẩy số lượng lên marketplace.
 - **Real-time Sync Logs**: Theo dõi chi tiết từng lần đồng bộ dữ liệu.
 
-## 🚀 Triển khai nhanh (Deployment)
+## Cấu hình nâng cao
 
-Hệ thống được thiết kế để triển khai "Một nút bấm" thông qua Docker.
+### Biến môi trường (tùy chọn, có sẵn giá trị mặc định)
 
-### Cách 1: Sử dụng Script tự động (Khuyên dùng)
-Nếu bạn đang dùng Windows, chỉ cần chạy:
-```powershell
-./deploy.ps1
+| Biến | Mặc định | Mô tả |
+|------|----------|-------|
+| `DB_USER` | `smart_erp` | User PostgreSQL |
+| `DB_PASSWORD` | `smart_erp` | Password PostgreSQL |
+| `JWT_SECRET` | `dev-secret-...` | Secret cho JWT token |
+| `API_PORT` | `3456` | Cổng API |
+| `WEB_PORT` | `3457` | Cổng Web |
+
+Ghi đè bằng file `.env` hoặc biến môi trường:
+```bash
+JWT_SECRET=my-secret docker compose up -d
 ```
-Script sẽ tự động:
-1. Tạo file cấu hình `.env`
-2. Build toàn bộ Monorepo (Turbo build)
-3. Khởi chạy Docker containers (API, Web, DB, AI)
-
-### Cách 2: Thủ công với Docker Compose
-1. Sao chép cấu hình mẫu: `cp .env.example .env`
-2. Khởi chạy: `docker-compose up -d --build`
-
-### Truy cập hệ thống:
-- **Web Dashboard**: `http://localhost:3001`
-- **API Swagger**: `http://localhost:3000/api`
-- **AI Service**: `http://localhost:8000`
 
 ---
 

@@ -3,10 +3,30 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiCheckCircle, FiXCircle, FiActivity, FiShield } from 'react-icons/fi';
+import { CheckCircle, XCircle, Activity, Shield } from 'lucide-react';
 import AuthGuard from '@/components/layout/AuthGuard';
 import { apiClient } from '@/lib/api-client';
-import { DataTable, Card, Button, Badge, StatCard } from '@smart-erp/ui';
+import { DataTable, Button } from '@smart-erp/shared';
+
+const severityBadgeClass = (severity: string) => {
+  switch (severity) {
+    case 'critical': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+    case 'high': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+    case 'medium': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+    default: return 'bg-transparent border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300';
+  }
+};
+
+const gradeBadgeClass = (grade: string) => {
+  switch (grade) {
+    case 'A': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+    case 'B': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+    case 'C': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+    case 'D':
+    case 'F': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+    default: return 'bg-transparent border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300';
+  }
+};
 
 export default function QualityPage() {
   const { t } = useTranslation('common');
@@ -41,8 +61,8 @@ export default function QualityPage() {
     } catch {
       // API may not be fully mocked or available, graceful degrade
       setSupplierScores([
-        { supplierId: 'Công ty ABC', totalInspections: 45, passRate: 98, grade: 'A', score: 95, openNCRs: 0, criticalNCRs: 0 },
-        { supplierId: 'Nhà máy XYZ', totalInspections: 32, passRate: 85, grade: 'C', score: 72, openNCRs: 2, criticalNCRs: 1 },
+        { supplierId: 'CÃ´ng ty ABC', totalInspections: 45, passRate: 98, grade: 'A', score: 95, openNCRs: 0, criticalNCRs: 0 },
+        { supplierId: 'NhÃ  mÃ¡y XYZ', totalInspections: 32, passRate: 85, grade: 'C', score: 72, openNCRs: 2, criticalNCRs: 1 },
       ]);
     } finally {
       setLoading(false);
@@ -51,47 +71,27 @@ export default function QualityPage() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'danger';
-      case 'high': return 'warning';
-      case 'medium': return 'secondary';
-      default: return 'outline';
-    }
-  };
-
-  const getGradeBadge = (grade: string) => {
-    switch (grade) {
-      case 'A': return 'success';
-      case 'B': return 'primary';
-      case 'C': return 'warning';
-      case 'D':
-      case 'F': return 'danger';
-      default: return 'outline';
-    }
-  };
-
   const supplierColumns = [
-    { header: t('suppliers.title') || 'Nhà cung cấp', accessor: 'supplierId' },
-    { header: t('qms.totalInspections') || 'Tổng kiểm tra', accessor: 'totalInspections' },
+    { label: t('suppliers.title') || 'NhÃ  cung cáº¥p', render: 'supplierId' },
+    { label: t('qms.totalInspections') || 'Tá»•ng kiá»ƒm tra', render: 'totalInspections' },
     { 
-      header: t('qms.passRate') || 'Tỷ lệ đạt (%)', 
-      accessor: (row: any) => <span className="font-semibold">{row.passRate}%</span> 
+      label: t('qms.passRate') || 'Tá»· lá»‡ Ä‘áº¡t (%)', 
+      render: (row: any) => <span className="font-semibold">{row.passRate}%</span> 
     },
     { 
-      header: t('qms.supplierGrade') || 'Xếp hạng', 
-      accessor: (row: any) => <Badge variant={getGradeBadge(row.grade)}>{row.grade}</Badge> 
+      label: t('qms.supplierGrade') || 'Xáº¿p háº¡ng', 
+      render: (row: any) => <span className={"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium " + gradeBadgeClass(row.grade)}>{row.grade}</span> 
     },
     { 
-      header: t('qms.score') || 'Điểm', 
-      accessor: (row: any) => <span className="text-lg font-bold">{row.score}</span> 
+      label: t('qms.score') || 'Äiá»ƒm', 
+      render: (row: any) => <span className="text-lg font-bold">{row.score}</span> 
     },
     { 
-      header: t('qms.openNCRs') || 'Lỗi đang mở (NCR)', 
-      accessor: (row: any) => (
+      label: t('qms.openNCRs') || 'Lá»—i Ä‘ang má»Ÿ (NCR)', 
+      render: (row: any) => (
         <div className="flex gap-2">
-          {row.openNCRs > 0 && <Badge variant="warning">{row.openNCRs} mở</Badge>}
-          {row.criticalNCRs > 0 && <Badge variant="danger">{row.criticalNCRs} nghiêm trọng</Badge>}
+          {row.openNCRs > 0 && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{row.openNCRs} má»Ÿ</span>}
+          {row.criticalNCRs > 0 && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">{row.criticalNCRs} nghiÃªm trá»ng</span>}
           {row.openNCRs === 0 && row.criticalNCRs === 0 && <span className="text-gray-400">-</span>}
         </div>
       )
@@ -99,67 +99,79 @@ export default function QualityPage() {
   ];
 
   const ncrColumns = [
-    { header: 'Mã lỗi (Code)', accessor: 'code' },
-    { header: 'Mô tả', accessor: 'description' },
+    { label: 'MÃ£ lá»—i (Code)', render: 'code' },
+    { label: 'MÃ´ táº£', render: 'description' },
     { 
-      header: 'Mức độ', 
-      accessor: (row: any) => <Badge variant={getSeverityBadge(row.severity)}>{row.severity}</Badge> 
+      label: 'Má»©c Ä‘á»™', 
+      render: (row: any) => <span className={"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium " + severityBadgeClass(row.severity)}>{row.severity}</span> 
     },
-    { header: 'Trạng thái', accessor: 'status' },
+    { label: 'Tráº¡ng thÃ¡i', render: 'status' },
   ];
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t('qms.title') || 'Quản lý chất lượng (QMS)'}
+              {t('qms.title') || 'Quáº£n lÃ½ cháº¥t lÆ°á»£ng (QMS)'}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Theo dõi chất lượng nhà cung cấp, kiểm tra sản phẩm và xử lý lỗi (NCR/CAPA).
+              Theo dÃµi cháº¥t lÆ°á»£ng nhÃ  cung cáº¥p, kiá»ƒm tra sáº£n pháº©m vÃ  xá»­ lÃ½ lá»—i (NCR/CAPA).
             </p>
           </div>
-          <Button icon={<FiShield />}>
-            Báo cáo chất lượng
+          <Button>
+            <Shield className="w-4 h-4" />
+            BÃ¡o cÃ¡o cháº¥t lÆ°á»£ng
           </Button>
         </div>
 
         {/* Dashboards / StatCards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard
-            title={t('qms.totalInspections') || 'Tổng kiểm tra'}
-            value={report?.totalInspections || 0}
-            icon={<FiActivity className="w-5 h-5 text-blue-500" />}
-            trend={{ value: 5, isPositive: true }}
-            trendLabel="so với kỳ trước"
-          />
-          <StatCard
-            title={t('qms.pass') || 'Đạt'}
-            value={report?.passed || 0}
-            icon={<FiCheckCircle className="w-5 h-5 text-green-500" />}
-            className="border-l-4 border-l-green-500"
-          />
-          <StatCard
-            title={t('qms.fail') || 'Không đạt'}
-            value={report?.failed || 0}
-            icon={<FiXCircle className="w-5 h-5 text-red-500" />}
-            className="border-l-4 border-l-red-500"
-          />
-          <StatCard
-            title={t('qms.passRate') || 'Tỷ lệ đạt'}
-            value={`${report?.passRate?.toFixed(1) || 0}%`}
-            icon={<FiShield className="w-5 h-5 text-purple-500" />}
-            className="border-l-4 border-l-purple-500"
-          />
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
+            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+              <Activity className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('qms.totalInspections') || 'Tá»•ng kiá»ƒm tra'}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{report?.totalInspections || 0}</p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4 border-l-4 border-l-green-500">
+            <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('qms.pass') || 'Äáº¡t'}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{report?.passed || 0}</p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4 border-l-4 border-l-red-500">
+            <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20">
+              <XCircle className="w-5 h-5 text-red-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('qms.fail') || 'KhÃ´ng Ä‘áº¡t'}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{report?.failed || 0}</p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4 border-l-4 border-l-purple-500">
+            <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+              <Shield className="w-5 h-5 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('qms.passRate') || 'Tá»· lá»‡ Ä‘áº¡t'}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{report?.passRate?.toFixed(1) || 0}%</p>
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-2 border-b border-gray-200 dark:border-gray-800">
           {[
-            { id: 'scorecard', label: t('qms.supplierScore') || 'Điểm nhà cung cấp' },
-            { id: 'ncrs', label: t('qms.ncrs') || 'Báo cáo lỗi (NCR)' },
-            { id: 'inspections', label: t('qms.inspections') || 'Lịch sử kiểm tra' },
+            { id: 'scorecard', label: t('qms.supplierScore') || 'Äiá»ƒm nhÃ  cung cáº¥p' },
+            { id: 'ncrs', label: t('qms.ncrs') || 'BÃ¡o cÃ¡o lá»—i (NCR)' },
+            { id: 'inspections', label: t('qms.inspections') || 'Lá»‹ch sá»­ kiá»ƒm tra' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -176,27 +188,27 @@ export default function QualityPage() {
         </div>
 
         {/* Tab Content */}
-        <Card className="shadow-sm border-gray-200 dark:border-gray-800">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           {loading ? (
             <div className="text-center py-8">{t('common.loading')}</div>
           ) : activeTab === 'scorecard' ? (
             <DataTable
               data={supplierScores}
               columns={supplierColumns}
-              emptyMessage={t('qms.noSupplierData') || 'Chưa có dữ liệu nhà cung cấp'}
+              emptyMessage={t('qms.noSupplierData') || 'ChÆ°a cÃ³ dá»¯ liá»‡u nhÃ  cung cáº¥p'}
             />
           ) : activeTab === 'ncrs' ? (
             <DataTable
               data={ncrs}
               columns={ncrColumns}
-              emptyMessage={t('qms.noNCRs') || 'Chưa có báo cáo NCR nào'}
+              emptyMessage={t('qms.noNCRs') || 'ChÆ°a cÃ³ bÃ¡o cÃ¡o NCR nÃ o'}
             />
           ) : (
             <div className="text-center py-8 text-gray-500">
-              Lịch sử kiểm tra chi tiết đang được tải...
+              Lá»‹ch sá»­ kiá»ƒm tra chi tiáº¿t Ä‘ang Ä‘Æ°á»£c táº£i...
             </div>
           )}
-        </Card>
+        </div>
       </div>
     </AuthGuard>
   );

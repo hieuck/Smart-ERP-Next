@@ -53,7 +53,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <Link href="/" className="text-center mb-8 block">
           <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl shadow-lg mb-4">
             <Building2 className="w-8 h-8 text-white" />
           </div>
@@ -61,7 +61,7 @@ export default function RegisterPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {t('auth.registerSubtitle')}
           </p>
-        </div>
+        </Link>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">

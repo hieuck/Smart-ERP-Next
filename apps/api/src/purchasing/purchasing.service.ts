@@ -5,7 +5,7 @@ import { db } from '@smart-erp/database';
 import {
   purchaseOrders, purchaseOrderItems, products, inventoryTransactions,
 } from '@smart-erp/database/schema';
-import { eq, and, ilike, sql, desc } from '@smart-erp/database/drizzle';
+import { eq, and, ilike, sql, desc, inArray } from '@smart-erp/database/drizzle';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { CreatePoFromReorderDto } from './dto/create-po-from-reorder.dto';
 
@@ -32,7 +32,7 @@ export class PurchasingService {
     const productList = await db
       .select()
       .from(products)
-      .where(and(eq(products.tenantId, tenantId), sql`id = ANY(${productIds})`));
+      .where(and(eq(products.tenantId, tenantId), inArray(products.id, productIds)));
     const productMap = new Map(productList.map((p) => [p.id, p]));
 
     return this.create(tenantId, userId, {
@@ -65,8 +65,13 @@ export class PurchasingService {
     const productList = await db
       .select()
       .from(products)
-      .where(and(eq(products.tenantId, tenantId), sql`id = ANY(${productIds})`));
+      .where(and(eq(products.tenantId, tenantId), inArray(products.id, productIds)));
     const productMap = new Map(productList.map((p) => [p.id, p]));
+
+    const notFound = productIds.filter((pid) => !productMap.has(pid));
+    if (notFound.length > 0) {
+      throw new BadRequestException(`Products not found: ${notFound.join(', ')}`);
+    }
 
     let subtotal = 0;
     const itemsData = dto.items.map((item) => {

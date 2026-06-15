@@ -1,23 +1,53 @@
 # Development
 
-## Quick Start
+## Quick Start — 2 cách
+
+### Cách 1: Docker (không cần setup)
 
 ```bash
-# 1. Clone & start
 git clone https://github.com/hieuck/Smart-ERP-Next.git
 cd Smart-ERP-Next
 docker compose up -d
+# → http://localhost:3457
+```
 
-# 2. Open browser
-# http://localhost:3457
+### Cách 2: Local dev (nhanh, hot-reload)
+
+**Windows:**
+```bash
+dev.bat
+```
+
+**Mac/Linux:**
+```bash
+./scripts/dev.sh
+```
+
+```bash
+git clone https://github.com/hieuck/Smart-ERP-Next.git
+cd Smart-ERP-Next
+./scripts/dev.sh
+# → API: http://localhost:3456 (hot-reload)
+# → Web: http://localhost:3457 (hot-reload)
+```
+
+`dev.sh` tự động:
+- Tạo `.env` từ `.env.example` nếu chưa có
+- Start PostgreSQL (Docker) nếu chưa chạy
+- Chạy database migrations
+- Start API + Web với Turbo (hot-reload)
+
+## Demo Data
+
+```bash
+# Reset DB and seed demo data
+./scripts/reset-dev.sh
+
+# After seeding:
 # Login: admin@demo.smarterp.vn / demo123456
 ```
 
-Docker will automatically:
-- Start PostgreSQL
-- Build API + Web
-- Run database migrations
-- Seed demo data (on first run)
+Or register a new account at `/register` — works immediately.
 
 ## Production (single container)
 
@@ -47,4 +77,12 @@ pnpm test         # Run Jest unit tests
 pnpm test:e2e     # Run Playwright E2E
 pnpm lint         # Lint all workspaces
 pnpm build        # Build all packages
+```
+
+## Maintenance
+
+```bash
+./scripts/health-check.sh   # Check all services
+./scripts/reset-dev.sh       # Reset DB + re-seed
+./scripts/backup.sh          # Backup database
 ```

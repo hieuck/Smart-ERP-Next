@@ -3,9 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiRefreshCw, FiShoppingBag, FiLink, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { RefreshCw, ShoppingBag, Link, CheckCircle, AlertCircle, Store } from 'lucide-react';
 import AuthGuard from '@/components/layout/AuthGuard';
-import { Card, Button, Badge, DataTable, StatCard } from '@smart-erp/ui';
+import { DataTable, Button, PageHeader } from '@smart-erp/shared';
 
 interface ChannelStatus {
   id: string;
@@ -54,7 +54,6 @@ export default function OmnichannelPage() {
     setChannels(prev => prev.map(c => 
       c.id === id ? { ...c, status: 'syncing' } : c
     ));
-    // Mock sync
     setTimeout(() => {
       setChannels(prev => prev.map(c => 
         c.id === id ? { ...c, status: 'connected', lastSyncAt: new Date().toISOString() } : c
@@ -73,54 +72,84 @@ export default function OmnichannelPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'connected': return <Badge variant="success" icon={<FiCheckCircle />}>{t('omnichannel.connected') || 'Đã kết nối'}</Badge>;
-      case 'disconnected': return <Badge variant="outline" icon={<FiLink />}>{t('omnichannel.disconnected') || 'Chưa kết nối'}</Badge>;
-      case 'syncing': return <Badge variant="primary" icon={<FiRefreshCw className="animate-spin" />}>{t('omnichannel.syncing') || 'Đang đồng bộ'}</Badge>;
-      case 'error': return <Badge variant="danger" icon={<FiAlertCircle />}>{t('omnichannel.error') || 'Lỗi kết nối'}</Badge>;
-      default: return <Badge variant="secondary">{status}</Badge>;
+      case 'connected': return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <CheckCircle className="w-3.5 h-3.5" />
+          {t('omnichannel.connected') || 'Đã kết nối'}
+        </span>
+      );
+      case 'disconnected': return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300">
+          <Link className="w-3.5 h-3.5" />
+          {t('omnichannel.disconnected') || 'Chưa kết nối'}
+        </span>
+      );
+      case 'syncing': return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+          {t('omnichannel.syncing') || 'Đang đồng bộ'}
+        </span>
+      );
+      case 'error': return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+          <AlertCircle className="w-3.5 h-3.5" />
+          {t('omnichannel.error') || 'Lỗi kết nối'}
+        </span>
+      );
+      default: return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+          {status}
+        </span>
+      );
     }
   };
 
   const columns = [
-    { 
-      header: t('omnichannel.platform') || 'Nền tảng', 
-      accessor: (row: ChannelStatus) => (
+    {
+      key: 'platform',
+      label: t('omnichannel.platform') || 'Nền tảng',
+      render: (row: ChannelStatus) => (
         <div className="flex items-center gap-2 font-semibold" style={{ color: getPlatformColor(row.platform) }}>
           {row.platform.charAt(0).toUpperCase() + row.platform.slice(1)}
         </div>
-      ) 
+      )
     },
-    { header: t('omnichannel.shopName') || 'Tên Shop', accessor: 'shopName' },
-    { 
-      header: t('omnichannel.status') || 'Trạng thái', 
-      accessor: (row: ChannelStatus) => getStatusBadge(row.status)
-    },
-    { 
-      header: t('omnichannel.products') || 'Sản phẩm', 
-      accessor: (row: ChannelStatus) => <span className="font-semibold">{row.productCount}</span>
-    },
-    { 
-      header: t('omnichannel.orders') || 'Đơn hàng', 
-      accessor: (row: ChannelStatus) => <span className="font-semibold text-blue-600">{row.orderCount}</span>
-    },
-    { 
-      header: t('omnichannel.lastSync') || 'Đồng bộ lần cuối', 
-      accessor: (row: ChannelStatus) => row.lastSyncAt ? new Date(row.lastSyncAt).toLocaleString('vi-VN') : '-'
+    { key: 'shopName', label: t('omnichannel.shopName') || 'Tên Shop' },
+    {
+      key: 'status',
+      label: t('omnichannel.status') || 'Trạng thái',
+      render: (row: ChannelStatus) => getStatusBadge(row.status)
     },
     {
-      header: t('common.actions') || 'Thao tác',
-      accessor: (row: ChannelStatus) => (
+      key: 'products',
+      label: t('omnichannel.products') || 'Sản phẩm',
+      render: (row: ChannelStatus) => <span className="font-semibold">{row.productCount}</span>
+    },
+    {
+      key: 'orders',
+      label: t('omnichannel.orders') || 'Đơn hàng',
+      render: (row: ChannelStatus) => <span className="font-semibold text-blue-600">{row.orderCount}</span>
+    },
+    {
+      key: 'lastSync',
+      label: t('omnichannel.lastSync') || 'Đồng bộ lần cuối',
+      render: (row: ChannelStatus) => row.lastSyncAt ? new Date(row.lastSyncAt).toLocaleString('vi-VN') : '-'
+    },
+    {
+      key: 'actions',
+      label: t('common.actions') || 'Thao tác',
+      render: (row: ChannelStatus) => (
         <div className="flex gap-2">
           {row.status === 'disconnected' ? (
             <Button size="sm" variant="primary">{t('omnichannel.connect') || 'Kết nối'}</Button>
           ) : (
-            <Button 
-              size="sm" 
-              variant="outline" 
-              icon={<FiRefreshCw className={row.status === 'syncing' ? 'animate-spin' : ''} />}
+            <Button
+              size="sm"
+              variant="outline"
               disabled={row.status === 'syncing'}
               onClick={() => handleSync(row.id)}
             >
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${row.status === 'syncing' ? 'animate-spin' : ''}`} />
               {t('omnichannel.syncNow') || 'Đồng bộ'}
             </Button>
           )}
@@ -131,54 +160,50 @@ export default function OmnichannelPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t('omnichannel.title') || 'Bán hàng đa kênh (Omnichannel)'}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {t('omnichannel.subtitle') || 'Quản lý tập trung sản phẩm và đơn hàng từ Shopee, Lazada, TikTok Shop.'}
-            </p>
-          </div>
-          <Button icon={<FiLink />} variant="primary">
-            {t('omnichannel.addChannel') || 'Thêm kênh mới'}
-          </Button>
-        </div>
+      <div className="p-6 space-y-6">
+        <PageHeader
+          title={t('omnichannel.title')}
+          description={t('omnichannel.subtitle')}
+          icon={<Store className="w-5 h-5" />}
+          iconColor="indigo"
+          actions={
+            <Button variant="primary">
+              <Link className="w-4 h-4 mr-1.5" />
+              {t('omnichannel.addChannel')}
+            </Button>
+          }
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard
-            title={t('omnichannel.totalShops') || 'Tổng số Shop'}
-            value={channels.length}
-            icon={<FiShoppingBag className="w-5 h-5 text-blue-500" />}
-          />
-          <StatCard
-            title={t('omnichannel.activeShops') || 'Đang kết nối'}
-            value={channels.filter(c => c.status === 'connected' || c.status === 'syncing').length}
-            icon={<FiCheckCircle className="w-5 h-5 text-green-500" />}
-            className="border-l-4 border-l-green-500"
-          />
-          <StatCard
-            title={t('omnichannel.totalProducts') || 'Sản phẩm đồng bộ'}
-            value={channels.reduce((sum, c) => sum + c.productCount, 0)}
-            icon={<FiRefreshCw className="w-5 h-5 text-purple-500" />}
-          />
-          <StatCard
-            title={t('omnichannel.totalOrders') || 'Đơn hàng đa kênh'}
-            value={channels.reduce((sum, c) => sum + c.orderCount, 0)}
-            icon={<FiShoppingBag className="w-5 h-5 text-orange-500" />}
-          />
+          {[
+            { label: t('omnichannel.totalShops'), value: channels.length, icon: ShoppingBag, color: 'text-blue-500 bg-blue-100' },
+            { label: t('omnichannel.activeShops'), value: channels.filter(c => c.status === 'connected' || c.status === 'syncing').length, icon: CheckCircle, color: 'text-green-500 bg-green-100' },
+            { label: t('omnichannel.totalProducts'), value: channels.reduce((sum, c) => sum + c.productCount, 0), icon: RefreshCw, color: 'text-purple-500 bg-purple-100' },
+            { label: t('omnichannel.totalOrders'), value: channels.reduce((sum, c) => sum + c.orderCount, 0), icon: ShoppingBag, color: 'text-orange-500 bg-orange-100' },
+          ].map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{s.label}</p>
+                  <div className={`p-2 rounded-lg ${s.color.split(' ')[1]}`}>
+                    <Icon className={`w-4 h-4 ${s.color.split(' ')[0]}`} />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{s.value}</p>
+              </div>
+            );
+          })}
         </div>
 
-        <Card className="shadow-sm border-gray-200 dark:border-gray-800">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border shadow-sm border-gray-200 dark:border-gray-800">
           <DataTable
             data={channels}
             columns={columns}
             emptyMessage={t('omnichannel.noChannels') || 'Chưa có kênh bán hàng nào.'}
           />
-        </Card>
+        </div>
       </div>
     </AuthGuard>
   );
 }
-

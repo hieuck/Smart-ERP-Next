@@ -24,7 +24,7 @@ export default function EmployeesPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <PageHeader
           title={t('hr.employee.title')}
           description="Manage your employees"

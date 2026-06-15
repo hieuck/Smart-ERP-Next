@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "generate": "drizzle-kit generate",
-    "migrate": "node ./src/migrate.ts",
+    "migrate": "tsx ./src/migrate.ts",
     "studio": "drizzle-kit studio"
   },
   "types": "./src/index.ts",

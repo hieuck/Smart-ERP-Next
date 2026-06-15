@@ -3,10 +3,10 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiBox, FiPlay, FiCheckCircle, FiClock, FiXCircle } from 'react-icons/fi';
+import { Plus, Box, Play, CheckCircle, Clock, XCircle } from 'lucide-react';
 import AuthGuard from '@/components/layout/AuthGuard';
 import { apiClient } from '@/lib/api-client';
-import { DataTable, Card, Button, Badge, StatCard } from '@smart-erp/ui';
+import { DataTable, Button } from '@smart-erp/shared';
 
 interface ProductionOrder {
   id: string;
@@ -51,14 +51,14 @@ export default function ProductionOrdersPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'in_progress':
-        return <Badge variant="primary" icon={<FiPlay />}>{t('manufacturing.status.in_progress')}</Badge>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"><Play className="w-3 h-3" />{t('manufacturing.status.in_progress')}</span>;
       case 'completed':
-        return <Badge variant="success" icon={<FiCheckCircle />}>{t('manufacturing.status.completed')}</Badge>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"><CheckCircle className="w-3 h-3" />{t('manufacturing.status.completed')}</span>;
       case 'cancelled':
-        return <Badge variant="danger" icon={<FiXCircle />}>{t('manufacturing.status.cancelled')}</Badge>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"><XCircle className="w-3 h-3" />{t('manufacturing.status.cancelled')}</span>;
       case 'draft':
       default:
-        return <Badge variant="secondary" icon={<FiClock />}>{t('manufacturing.status.draft')}</Badge>;
+        return <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"><Clock className="w-3 h-3" />{t('manufacturing.status.draft')}</span>;
     }
   };
 
@@ -68,34 +68,34 @@ export default function ProductionOrdersPage() {
 
   const columns = [
     {
-      header: t('manufacturing.productionOrders') || 'Mã lệnh SX',
-      accessor: (row: ProductionOrder) => (
+      label: t('manufacturing.productionOrders') || 'MÃ£ lá»‡nh SX',
+      render: (row: ProductionOrder) => (
         <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">{row.orderCode}</span>
       )
     },
     {
-      header: t('nav.products') || 'Sản phẩm',
-      accessor: 'productName'
+      label: t('nav.products') || 'Sáº£n pháº©m',
+      render: 'productName'
     },
     {
-      header: t('manufacturing.quantity') || 'Số lượng',
-      accessor: (row: ProductionOrder) => (
+      label: t('manufacturing.quantity') || 'Sá»‘ lÆ°á»£ng',
+      render: (row: ProductionOrder) => (
         <span className="font-semibold">{Number(row.quantity).toLocaleString('vi-VN')}</span>
       )
     },
     {
-      header: t('manufacturing.status.draft').replace(t('manufacturing.status.draft'), t('common.status') || 'Trạng thái'),
-      accessor: (row: ProductionOrder) => getStatusBadge(row.status)
+      label: t('manufacturing.status.draft').replace(t('manufacturing.status.draft'), t('common.status') || 'Tráº¡ng thÃ¡i'),
+      render: (row: ProductionOrder) => getStatusBadge(row.status)
     },
     {
-      header: t('manufacturing.setupTime') ? t('projects.startDate') : 'Ngày bắt đầu',
-      accessor: (row: ProductionOrder) => row.startDate
+      label: t('manufacturing.setupTime') ? t('projects.startDate') : 'NgÃ y báº¯t Ä‘áº§u',
+      render: (row: ProductionOrder) => row.startDate
         ? new Date(row.startDate).toLocaleDateString('vi-VN')
         : '-'
     },
     {
-      header: t('common.createdAt') || 'Ngày tạo',
-      accessor: (row: ProductionOrder) => new Date(row.createdAt).toLocaleDateString('vi-VN')
+      label: t('common.createdAt') || 'NgÃ y táº¡o',
+      render: (row: ProductionOrder) => new Date(row.createdAt).toLocaleDateString('vi-VN')
     },
   ];
 
@@ -104,7 +104,7 @@ export default function ProductionOrdersPage() {
   const draftCount = orders.filter(o => o.status === 'draft').length;
 
   const FILTERS = [
-    { key: 'all', label: t('orders.statusAll') || 'Tất cả' },
+    { key: 'all', label: t('orders.statusAll') || 'Táº¥t cáº£' },
     { key: 'draft', label: t('manufacturing.status.draft') },
     { key: 'in_progress', label: t('manufacturing.status.in_progress') },
     { key: 'completed', label: t('manufacturing.status.completed') },
@@ -113,7 +113,7 @@ export default function ProductionOrdersPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -124,36 +124,50 @@ export default function ProductionOrdersPage() {
               {t('manufacturing.subtitle')}
             </p>
           </div>
-          <Button icon={<FiPlus />} variant="primary">
+          <Button variant="primary">
+            <Plus className="w-4 h-4" />
             {t('manufacturing.createOrder')}
           </Button>
         </div>
 
         {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard
-            title={t('manufacturing.stats.totalOrders')}
-            value={orders.length}
-            icon={<FiBox className="w-5 h-5 text-indigo-500" />}
-          />
-          <StatCard
-            title={t('manufacturing.stats.inProgress')}
-            value={inProgressCount}
-            icon={<FiPlay className="w-5 h-5 text-blue-500" />}
-            className="border-l-4 border-l-blue-500"
-          />
-          <StatCard
-            title={t('manufacturing.stats.completedToday')}
-            value={completedCount}
-            icon={<FiCheckCircle className="w-5 h-5 text-green-500" />}
-            className="border-l-4 border-l-green-500"
-          />
-          <StatCard
-            title={t('manufacturing.status.draft')}
-            value={draftCount}
-            icon={<FiClock className="w-5 h-5 text-gray-400" />}
-            className="border-l-4 border-l-gray-400"
-          />
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4">
+            <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20">
+              <Box className="w-5 h-5 text-indigo-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('manufacturing.stats.totalOrders')}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{orders.length}</p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4 border-l-4 border-l-blue-500">
+            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+              <Play className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('manufacturing.stats.inProgress')}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{inProgressCount}</p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4 border-l-4 border-l-green-500">
+            <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
+              <CheckCircle className="w-5 h-5 text-green-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('manufacturing.stats.completedToday')}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{completedCount}</p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-4 border-l-4 border-l-gray-400">
+            <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-700/20">
+              <Clock className="w-5 h-5 text-gray-400" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('manufacturing.status.draft')}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{draftCount}</p>
+            </div>
+          </div>
         </div>
 
         {/* Filter Tabs */}
@@ -174,14 +188,14 @@ export default function ProductionOrdersPage() {
         </div>
 
         {/* Data Table */}
-        <Card className="shadow-sm border-gray-200 dark:border-gray-800">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <DataTable
             data={filteredOrders}
             columns={columns}
             loading={loading}
-            emptyMessage={t('common.noData') || 'Chưa có lệnh sản xuất nào'}
+            emptyMessage={t('common.noData') || 'ChÆ°a cÃ³ lá»‡nh sáº£n xuáº¥t nÃ o'}
           />
-        </Card>
+        </div>
       </div>
     </AuthGuard>
   );

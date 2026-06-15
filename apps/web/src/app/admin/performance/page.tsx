@@ -14,6 +14,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { PageHeader } from '@smart-erp/shared';
 import { Activity, TrendingUp } from 'lucide-react';
 
 interface Datapoint {
@@ -53,26 +54,23 @@ export default function PerformancePage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Sync Performance Dashboard</h1>
-              <p className="text-sm text-gray-500">Latency over time (p95, p99, average)</p>
-            </div>
-          </div>
-          <select
-            value={hours}
-            onChange={(e) => setHours(parseInt(e.target.value))}
-            className="px-3 py-2 border rounded-lg text-sm"
-          >
-            <option value={24}>24 giờ gần nhất</option>
-            <option value={168}>7 ngày gần nhất</option>
-            <option value={720}>30 ngày gần nhất</option>
-          </select>
-        </div>
+        <PageHeader
+          title="Sync Performance Dashboard"
+          description="Latency over time (p95, p99, average)"
+          icon={<TrendingUp className="w-5 h-5" />}
+          iconColor="blue"
+          actions={
+            <select
+              value={hours}
+              onChange={(e) => setHours(parseInt(e.target.value))}
+              className="px-3 py-2 border rounded-lg text-sm"
+            >
+              <option value={24}>24 giờ gần nhất</option>
+              <option value={168}>7 ngày gần nhất</option>
+              <option value={720}>30 ngày gần nhất</option>
+            </select>
+          }
+        />
 
         {loading ? (
           <div className="flex justify-center py-12">
