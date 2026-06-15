@@ -173,7 +173,7 @@ export default function AppLayout({
     {
       key: "crm",
       label: t("nav.crm"),
-      icon: <TrendingUp className="w-5 h-5" />,
+      icon: <Target className="w-5 h-5" />,
       href: "/crm",
     },
     {
@@ -205,12 +205,6 @@ export default function AppLayout({
       label: "Tính lương (Payroll)",
       icon: <DollarSign className="w-5 h-5" />,
       href: "/hr/payroll",
-    },
-    {
-      key: "crm-sales",
-      label: "CRM & Bán hàng",
-      icon: <Target className="w-5 h-5" />,
-      href: "/crm",
     },
     {
       key: "automation",
