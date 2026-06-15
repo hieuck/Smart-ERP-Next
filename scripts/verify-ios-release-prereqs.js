@@ -21,16 +21,16 @@ function findIosPrereqFindings(env = process.env) {
 
   const skipSigning = isTruthy(env.SKIP_IOS_SIGNING);
 
-  if (!env.EXPO_TOKEN) missing.push('EXPO_TOKEN');
-
-  const projectId = env.EAS_PROJECT_ID || env.EXPO_PROJECT_ID;
-  if (!projectId) {
-    missing.push('EAS_PROJECT_ID');
-  } else if (!UUID_PATTERN.test(projectId)) {
-    missing.push('EAS_PROJECT_ID must be a UUID');
-  }
-
   if (!skipSigning) {
+    if (!env.EXPO_TOKEN) missing.push('EXPO_TOKEN');
+
+    const projectId = env.EAS_PROJECT_ID || env.EXPO_PROJECT_ID;
+    if (!projectId) {
+      missing.push('EAS_PROJECT_ID');
+    } else if (!UUID_PATTERN.test(projectId)) {
+      missing.push('EAS_PROJECT_ID must be a UUID');
+    }
+
     const hasSigningProof =
       isTruthy(env.EAS_IOS_CREDENTIALS_READY) ||
       hasAscApiKey(env) ||

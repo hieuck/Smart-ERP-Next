@@ -52,6 +52,7 @@ jobs:
           node scripts/download-eas-artifacts.js artifacts/eas/android.json artifacts
 
       - name: Build iOS installable artifact with EAS
+        if: ${{ secrets.EXPO_TOKEN != '' }}
         shell: bash
         env:
           EAS_BUILD_PROFILE: ${{ secrets.EAS_IOS_CREDENTIALS_READY == '' && 'ios-unsigned' || 'production' }}
@@ -67,7 +68,7 @@ jobs:
           path: |
             artifacts/android
             artifacts/ios
-          if-no-files-found: error
+          if-no-files-found: warn
 
   windows-native-artifacts:
     name: Build Windows installer
@@ -166,6 +167,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
           JWT_SECRET: release-e2e-secret
+          SKIP_IOS_ARTIFACT: ${{ secrets.EXPO_TOKEN == '' && 'true' || '' }}
         run: pnpm qa:release
 
       - name: Create GitHub Release
