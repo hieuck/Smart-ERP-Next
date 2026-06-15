@@ -33,9 +33,9 @@ const SEVERITY_STYLES: Record<string, string> = {
 };
 
 const SEVERITY_ICONS: Record<string, string> = {
-  info: 'ℹ️',
-  warning: '⚠️',
-  critical: '🚨',
+  info: '[i]',
+  warning: '[!]',
+  critical: '[!!]',
 };
 
 const asArray = <T,>(value: unknown): T[] => Array.isArray(value) ? value : [];

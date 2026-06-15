@@ -21,19 +21,19 @@ export default function AutomationBuilder() {
   const [isActive, setIsActive] = useState(true);
 
   const triggers = [
-    { key: 'order.created', label: 'Order Created', icon: 'ðŸ“¦' },
-    { key: 'payment.received', label: 'Payment Received', icon: 'ðŸ’°' },
-    { key: 'inventory.low_stock', label: 'Low Stock', icon: 'âš ï¸' },
-    { key: 'customer.created', label: 'New Customer', icon: 'ðŸ‘¤' },
-    { key: 'scheduled.cron', label: 'Scheduled', icon: 'â°' },
-    { key: 'sync.completed', label: 'Sync Completed', icon: 'ðŸ”„' },
-    { key: 'invoice.issued', label: 'E-Invoice Issued', icon: 'ðŸ§¾' },
-    { key: 'employee.late', label: 'Employee Late', icon: 'ðŸƒ' },
+    { key: 'order.created', label: 'Order Created', icon: '📦' },
+    { key: 'payment.received', label: 'Payment Received', icon: '💰' },
+    { key: 'inventory.low_stock', label: 'Low Stock', icon: '⚠️' },
+    { key: 'customer.created', label: 'New Customer', icon: '👤' },
+    { key: 'scheduled.cron', label: 'Scheduled', icon: '⏰' },
+    { key: 'sync.completed', label: 'Sync Completed', icon: '🔄' },
+    { key: 'invoice.issued', label: 'E-Invoice Issued', icon: '🧾' },
+    { key: 'employee.late', label: 'Employee Late', icon: '🏃' },
   ];
 
   const actions = [
-    { key: 'send_notification', label: 'Send Notification', icon: 'ðŸ””' },
-    { key: 'send_email', label: 'Send Email', icon: 'ðŸ“§' },
+    { key: 'send_notification', label: 'Send Notification', icon: '🔔' },
+    { key: 'send_email', label: 'Send Email', icon: '📧' },
     { key: 'update_field', label: 'Update Field', icon: 'âœï¸' },
     { key: 'create_report', label: 'Generate Report', icon: 'ðŸ“Š' },
     { key: 'call_webhook', label: 'Call Webhook', icon: 'ðŸ”—' },
