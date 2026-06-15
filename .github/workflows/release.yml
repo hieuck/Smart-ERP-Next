@@ -226,6 +226,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
           JWT_SECRET: release-e2e-secret
           SKIP_IOS_ARTIFACT: ${{ secrets.EXPO_TOKEN == '' && 'true' || '' }}
+          SKIP_ANDROID_ARTIFACT: ${{ secrets.EXPO_TOKEN == '' && 'true' || '' }}
           SKIP_RELEASE_SMOKE: 'true'
         run: pnpm qa:release
 

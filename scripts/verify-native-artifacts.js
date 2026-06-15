@@ -44,7 +44,10 @@ function isTruthyEnv(value) {
 
 function getRequiredArtifacts(env = process.env) {
   const skipIos = isTruthyEnv(env.SKIP_IOS_ARTIFACT);
-  return REQUIRED_ARTIFACTS.filter((artifact) => !(skipIos && artifact.platform === 'ios'));
+  const skipAndroid = isTruthyEnv(env.SKIP_ANDROID_ARTIFACT);
+  return REQUIRED_ARTIFACTS.filter(
+    (artifact) => !(skipIos && artifact.platform === 'ios') && !(skipAndroid && artifact.platform === 'android'),
+  );
 }
 
 function walkFiles(dir, files = []) {
@@ -133,6 +136,9 @@ function main() {
   }
   if (skipIos) {
     console.log('- ios: skipped by SKIP_IOS_ARTIFACT');
+  }
+  if (isTruthyEnv(process.env.SKIP_ANDROID_ARTIFACT)) {
+    console.log('- android: skipped by SKIP_ANDROID_ARTIFACT');
   }
 
   return 0;
