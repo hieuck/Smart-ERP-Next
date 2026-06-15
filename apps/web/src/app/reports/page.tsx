@@ -188,7 +188,7 @@ export default function ReportsPage() {
                     <p className="text-xs text-gray-500 dark:text-gray-400">{card.label}</p>
                     <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">{card.value}</p>
                   </div>
-                  <div className={`p-2 rounded-lg bg-${card.color}-50 dark:bg-${card.color}-900/20 text-${card.color}-600`}>
+                  <div className={`p-2 rounded-lg ${card.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' : card.color === 'green' ? 'bg-green-50 dark:bg-green-900/20 text-green-600' : card.color === 'purple' ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600' : 'bg-red-50 dark:bg-red-900/20 text-red-600'}`}>
                     {card.icon}
                   </div>
                 </div>

@@ -4,9 +4,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  FiFileText, FiSend, FiXCircle, FiCheckCircle,
-  FiClock, FiDownload, FiPlus, FiExternalLink,
-} from 'react-icons/fi';
+  FileText, Send, XCircle, CheckCircle,
+  Plus, Download, Search,
+} from 'lucide-react';
 import AuthGuard from '@/components/layout/AuthGuard';
 import { apiClient } from '@/lib/api-client';
 import { Card, Button, Badge, DataTable, StatCard } from '@smart-erp/ui';
@@ -38,11 +38,11 @@ interface Stats {
 
 const STATUS_CONFIG = {
   draft:     { variant: 'secondary' as const, label: 'Nháp',        icon: <FiClock /> },
-  signed:    { variant: 'primary' as const,   label: 'Đã ký',       icon: <FiCheckCircle /> },
-  issued:    { variant: 'success' as const,   label: 'Đã phát hành', icon: <FiSend /> },
-  cancelled: { variant: 'danger' as const,    label: 'Đã hủy',      icon: <FiXCircle /> },
-  replaced:  { variant: 'secondary' as const, label: 'Đã thay thế', icon: <FiFileText /> },
-  adjusted:  { variant: 'warning' as const,   label: 'Điều chỉnh',  icon: <FiFileText /> },
+  signed:    { variant: 'primary' as const,   label: 'Đã ký',       icon: <CheckCircle /> },
+  issued:    { variant: 'success' as const,   label: 'Đã phát hành', icon: <Send /> },
+  cancelled: { variant: 'danger' as const,    label: 'Đã hủy',      icon: <XCircle /> },
+  replaced:  { variant: 'secondary' as const, label: 'Đã thay thế', icon: <FileText /> },
+  adjusted:  { variant: 'warning' as const,   label: 'Điều chỉnh',  icon: <FileText /> },
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -165,7 +165,7 @@ export default function EInvoicePage() {
             <Button
               size="sm"
               variant="primary"
-              icon={<FiSend />}
+              icon={<Send />}
               loading={actionLoading === row.id}
               onClick={() => handleIssue(row.id)}
             >
@@ -176,7 +176,7 @@ export default function EInvoicePage() {
             <Button
               size="sm"
               variant="outline"
-              icon={<FiDownload />}
+              icon={<Download />}
               onClick={() => window.open(row.pdfUrl!, '_blank')}
             >
               PDF
@@ -203,14 +203,14 @@ export default function EInvoicePage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t('einvoice.title') || 'Hóa đơn điện tử'}
-            </h2>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {t('einvoice.title')}
+            </h1>
             <p className="text-sm text-gray-500 mt-1">
               {t('einvoice.subtitle') || 'Quản lý hóa đơn theo Nghị định 123/2020/NĐ-CP — tích hợp VNPT, Viettel, MISA'}
             </p>
           </div>
-          <Button icon={<FiPlus />} variant="primary">
+          <Button icon={<Plus />} variant="primary">
             {t('einvoice.create') || 'Tạo hóa đơn'}
           </Button>
         </div>
@@ -221,7 +221,7 @@ export default function EInvoicePage() {
             <StatCard
               title={t('einvoice.stats.issued') || 'Đã phát hành'}
               value={stats.issued_count || 0}
-              icon={<FiSend className="w-5 h-5 text-green-500" />}
+              icon={<Send className="w-5 h-5 text-green-500" />}
               className="border-l-4 border-l-green-500"
             />
             <StatCard
@@ -232,18 +232,18 @@ export default function EInvoicePage() {
             <StatCard
               title={t('einvoice.stats.cancelled') || 'Đã hủy'}
               value={stats.cancelled_count || 0}
-              icon={<FiXCircle className="w-5 h-5 text-red-400" />}
+              icon={<XCircle className="w-5 h-5 text-red-400" />}
             />
             <StatCard
               title={t('einvoice.stats.revenue') || 'Doanh thu'}
               value={formatVND(stats.total_revenue || 0)}
-              icon={<FiFileText className="w-5 h-5 text-blue-500" />}
+              icon={<FileText className="w-5 h-5 text-blue-500" />}
               className="border-l-4 border-l-blue-500"
             />
             <StatCard
               title={t('einvoice.stats.vat') || 'Tổng VAT'}
               value={formatVND(stats.total_vat || 0)}
-              icon={<FiFileText className="w-5 h-5 text-purple-500" />}
+              icon={<FileText className="w-5 h-5 text-purple-500" />}
             />
           </div>
         ) : null}
