@@ -149,7 +149,7 @@ export default function AttendancePage() {
     { label: t('hr.employees.name'), render: (r: AttendanceRecord) => r.employee_name },
     {
       label: t('attendance.shift'),
-      render: (r: AttendanceRecord) => r.shift_name ?? <span className="text-gray-400">—</span>,
+      render: (r: AttendanceRecord) => r.shift_name ?? <span className="text-gray-400">â€”</span>,
     },
     {
       label: t('attendance.checkIn'),
@@ -165,16 +165,16 @@ export default function AttendancePage() {
     },
     {
       label: t('attendance.workHours'),
-      render: (r: AttendanceRecord) => r.actual_hours ? `${Number(r.actual_hours).toFixed(1)}h` : '—',
+      render: (r: AttendanceRecord) => r.actual_hours ? `${Number(r.actual_hours).toFixed(1)}h` : 'â€”',
     },
     {
       label: t('attendance.overtime'),
       render: (r: AttendanceRecord) => Number(r.overtime_hours) > 0
         ? <span className="font-semibold text-orange-500">+{Number(r.overtime_hours).toFixed(1)}h</span>
-        : <span className="text-gray-400">—</span>,
+        : <span className="text-gray-400">â€”</span>,
     },
     {
-      label: t('attendance.status') || 'Trạng thái',
+      label: t('attendance.status') || 'Tráº¡ng thÃ¡i',
       render: (r: AttendanceRecord) => {
         const cfg = STATUS_CONFIG[r.status] || STATUS_CONFIG.present;
         return (
@@ -219,7 +219,7 @@ export default function AttendancePage() {
       },
     },
     {
-      label: t('common.actions') || 'Thao tác',
+      label: t('common.actions') || 'Thao tÃ¡c',
       render: (l: LeaveRequest) => l.status === 'pending' ? (
         <Button
           size="sm"
@@ -229,13 +229,13 @@ export default function AttendancePage() {
         >
           {t('actions.approve')}
         </Button>
-      ) : <span className="text-gray-400">—</span>,
+      ) : <span className="text-gray-400">â€”</span>,
     },
   ];
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -266,7 +266,7 @@ export default function AttendancePage() {
             ) : null}
             {isCheckedOut ? (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                <CheckCircle className="w-3.5 h-3.5" /> {t('attendance.checkedIn')} — {formatTime(today?.checkOutAt)}
+                <CheckCircle className="w-3.5 h-3.5" /> {t('attendance.checkedIn')} â€” {formatTime(today?.checkOutAt)}
               </span>
             ) : null}
           </div>
@@ -281,9 +281,9 @@ export default function AttendancePage() {
                   <Clock className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-blue-600 font-semibold">{t('attendance.today')} — {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                  <p className="text-sm text-blue-600 font-semibold">{t('attendance.today')} â€” {new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">
-                    {formatTime(today.checkInAt)} → {formatTime(today.checkOutAt)}
+                    {formatTime(today.checkInAt)} â†’ {formatTime(today.checkOutAt)}
                   </p>
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default function AttendancePage() {
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                 <Sun className="w-4 h-4 text-orange-400" />
-                <span>{t('attendance.halfDay') || 'Nửa ngày'}</span>
+                <span>{t('attendance.halfDay') || 'Ná»­a ngÃ y'}</span>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{summary.half_days}</p>
             </div>

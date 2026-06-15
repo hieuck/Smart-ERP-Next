@@ -68,33 +68,33 @@ export default function ProductionOrdersPage() {
 
   const columns = [
     {
-      label: t('manufacturing.productionOrders') || 'Mã lệnh SX',
+      label: t('manufacturing.productionOrders') || 'MÃ£ lá»‡nh SX',
       render: (row: ProductionOrder) => (
         <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">{row.orderCode}</span>
       )
     },
     {
-      label: t('nav.products') || 'Sản phẩm',
+      label: t('nav.products') || 'Sáº£n pháº©m',
       render: 'productName'
     },
     {
-      label: t('manufacturing.quantity') || 'Số lượng',
+      label: t('manufacturing.quantity') || 'Sá»‘ lÆ°á»£ng',
       render: (row: ProductionOrder) => (
         <span className="font-semibold">{Number(row.quantity).toLocaleString('vi-VN')}</span>
       )
     },
     {
-      label: t('manufacturing.status.draft').replace(t('manufacturing.status.draft'), t('common.status') || 'Trạng thái'),
+      label: t('manufacturing.status.draft').replace(t('manufacturing.status.draft'), t('common.status') || 'Tráº¡ng thÃ¡i'),
       render: (row: ProductionOrder) => getStatusBadge(row.status)
     },
     {
-      label: t('manufacturing.setupTime') ? t('projects.startDate') : 'Ngày bắt đầu',
+      label: t('manufacturing.setupTime') ? t('projects.startDate') : 'NgÃ y báº¯t Ä‘áº§u',
       render: (row: ProductionOrder) => row.startDate
         ? new Date(row.startDate).toLocaleDateString('vi-VN')
         : '-'
     },
     {
-      label: t('common.createdAt') || 'Ngày tạo',
+      label: t('common.createdAt') || 'NgÃ y táº¡o',
       render: (row: ProductionOrder) => new Date(row.createdAt).toLocaleDateString('vi-VN')
     },
   ];
@@ -104,7 +104,7 @@ export default function ProductionOrdersPage() {
   const draftCount = orders.filter(o => o.status === 'draft').length;
 
   const FILTERS = [
-    { key: 'all', label: t('orders.statusAll') || 'Tất cả' },
+    { key: 'all', label: t('orders.statusAll') || 'Táº¥t cáº£' },
     { key: 'draft', label: t('manufacturing.status.draft') },
     { key: 'in_progress', label: t('manufacturing.status.in_progress') },
     { key: 'completed', label: t('manufacturing.status.completed') },
@@ -113,7 +113,7 @@ export default function ProductionOrdersPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -193,7 +193,7 @@ export default function ProductionOrdersPage() {
             data={filteredOrders}
             columns={columns}
             loading={loading}
-            emptyMessage={t('common.noData') || 'Chưa có lệnh sản xuất nào'}
+            emptyMessage={t('common.noData') || 'ChÆ°a cÃ³ lá»‡nh sáº£n xuáº¥t nÃ o'}
           />
         </div>
       </div>

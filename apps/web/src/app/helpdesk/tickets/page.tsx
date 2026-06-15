@@ -31,7 +31,7 @@ export default function TicketsPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <PageHeader
           title={t('helpdesk.title')}
           description={t('helpdesk.tickets')}

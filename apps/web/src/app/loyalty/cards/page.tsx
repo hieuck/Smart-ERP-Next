@@ -26,7 +26,7 @@ export default function LoyaltyCardsPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <PageHeader
           title={t('loyalty.title')}
           description={t('loyalty.card')}

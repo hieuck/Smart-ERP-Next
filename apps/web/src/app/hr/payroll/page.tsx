@@ -92,45 +92,45 @@ export default function PayrollPage() {
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(val));
 
   const boardColumns = [
-    { label: 'Tên bảng lương', render: (b: SalaryBoard) => <span className="font-semibold">{b.name}</span> },
-    { label: 'Kỳ lương', render: (b: SalaryBoard) => `${b.month}/${b.year}` },
-    { label: 'Nhân viên', render: (b: SalaryBoard) => b.totalEmployees },
-    { label: 'Tổng quỹ lương', render: (b: SalaryBoard) => <span className="font-bold text-indigo-600">{formatCurrency(b.totalNetSalary)}</span> },
+    { label: 'TÃªn báº£ng lÆ°Æ¡ng', render: (b: SalaryBoard) => <span className="font-semibold">{b.name}</span> },
+    { label: 'Ká»³ lÆ°Æ¡ng', render: (b: SalaryBoard) => `${b.month}/${b.year}` },
+    { label: 'NhÃ¢n viÃªn', render: (b: SalaryBoard) => b.totalEmployees },
+    { label: 'Tá»•ng quá»¹ lÆ°Æ¡ng', render: (b: SalaryBoard) => <span className="font-bold text-indigo-600">{formatCurrency(b.totalNetSalary)}</span> },
     {
-      label: 'Trạng thái',
+      label: 'Tráº¡ng thÃ¡i',
       render: (b: SalaryBoard) => (
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${BADGE_COLORS[b.status] || 'bg-yellow-100 text-yellow-700'}`}>
-          {b.status === 'approved' ? 'Đã duyệt' : b.status === 'paid' ? 'Đã chi trả' : 'Bản nháp'}
+          {b.status === 'approved' ? 'ÄÃ£ duyá»‡t' : b.status === 'paid' ? 'ÄÃ£ chi tráº£' : 'Báº£n nhÃ¡p'}
         </span>
       ),
     },
     {
-      label: 'Thao tác',
+      label: 'Thao tÃ¡c',
       render: (b: SalaryBoard) => (
         <Button size="sm" variant={selectedBoard?.id === b.id ? 'primary' : 'secondary'} onClick={() => handleSelectBoard(b)}>
-          Xem chi tiết
+          Xem chi tiáº¿t
         </Button>
       ),
     },
   ];
 
   const payslipColumns = [
-    { label: 'Nhân viên', render: (p: Payslip) => <span className="font-medium text-gray-900 dark:text-white">{p.employee_name}</span> },
-    { label: 'Lương cơ bản', render: (p: Payslip) => formatCurrency(p.base_salary) },
-    { label: 'Ngày công', render: (p: Payslip) => <span className="text-green-600">{p.actual_work_days} / {p.standard_work_days}</span> },
-    { label: 'Làm thêm (OT)', render: (p: Payslip) => <span className="text-orange-500">{Number(p.overtime_hours).toFixed(1)}h</span> },
-    { label: 'Khấu trừ (Trễ)', render: (p: Payslip) => <span className="text-red-500">-{formatCurrency(p.deductions)}</span> },
-    { label: 'Lương OT', render: (p: Payslip) => <span className="text-green-600">+{formatCurrency(p.overtime_pay)}</span> },
-    { label: 'Thực lĩnh (Net)', render: (p: Payslip) => <span className="font-bold text-indigo-600">{formatCurrency(p.net_salary)}</span> },
+    { label: 'NhÃ¢n viÃªn', render: (p: Payslip) => <span className="font-medium text-gray-900 dark:text-white">{p.employee_name}</span> },
+    { label: 'LÆ°Æ¡ng cÆ¡ báº£n', render: (p: Payslip) => formatCurrency(p.base_salary) },
+    { label: 'NgÃ y cÃ´ng', render: (p: Payslip) => <span className="text-green-600">{p.actual_work_days} / {p.standard_work_days}</span> },
+    { label: 'LÃ m thÃªm (OT)', render: (p: Payslip) => <span className="text-orange-500">{Number(p.overtime_hours).toFixed(1)}h</span> },
+    { label: 'Kháº¥u trá»« (Trá»…)', render: (p: Payslip) => <span className="text-red-500">-{formatCurrency(p.deductions)}</span> },
+    { label: 'LÆ°Æ¡ng OT', render: (p: Payslip) => <span className="text-green-600">+{formatCurrency(p.overtime_pay)}</span> },
+    { label: 'Thá»±c lÄ©nh (Net)', render: (p: Payslip) => <span className="font-bold text-indigo-600">{formatCurrency(p.net_salary)}</span> },
   ];
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Tính Lương & Payroll</h2>
-            <p className="text-sm text-gray-500 mt-1">Tự động hóa tính lương dựa trên dữ liệu chấm công</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">TÃ­nh LÆ°Æ¡ng & Payroll</h2>
+            <p className="text-sm text-gray-500 mt-1">Tá»± Ä‘á»™ng hÃ³a tÃ­nh lÆ°Æ¡ng dá»±a trÃªn dá»¯ liá»‡u cháº¥m cÃ´ng</p>
           </div>
           <Button
             variant="success"
@@ -138,42 +138,42 @@ export default function PayrollPage() {
             onClick={handleGenerate}
           >
             <RefreshCw className={`w-4 h-4 ${generating ? 'animate-spin' : ''}`} />
-            Tổng hợp lương tháng này
+            Tá»•ng há»£p lÆ°Æ¡ng thÃ¡ng nÃ y
           </Button>
         </div>
 
-        {/* Bảng danh sách Board */}
+        {/* Báº£ng danh sÃ¡ch Board */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
             <DollarSign className="w-4 h-4 text-indigo-500" />
-            <h3 className="font-semibold text-gray-900 dark:text-white">Lịch sử Bảng lương</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Lá»‹ch sá»­ Báº£ng lÆ°Æ¡ng</h3>
           </div>
           <DataTable
             data={boards}
             columns={boardColumns}
             loading={loading}
-            emptyMessage="Chưa có bảng lương nào được tạo"
+            emptyMessage="ChÆ°a cÃ³ báº£ng lÆ°Æ¡ng nÃ o Ä‘Æ°á»£c táº¡o"
           />
         </div>
 
-        {/* Chi tiết Payslips */}
+        {/* Chi tiáº¿t Payslips */}
         {selectedBoard && (
           <div className="space-y-4">
             <h3 className="text-lg font-bold flex items-center gap-2">
-              <FileText className="w-4 h-4" /> Chi tiết {selectedBoard.name}
+              <FileText className="w-4 h-4" /> Chi tiáº¿t {selectedBoard.name}
             </h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                <div className="text-sm text-gray-500 mb-1">Tổng nhân sự</div>
+                <div className="text-sm text-gray-500 mb-1">Tá»•ng nhÃ¢n sá»±</div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{selectedBoard.totalEmployees}</p>
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 border-l-4 border-l-indigo-500">
-                <div className="text-sm text-gray-500 mb-1">Quỹ lương (Net)</div>
+                <div className="text-sm text-gray-500 mb-1">Quá»¹ lÆ°Æ¡ng (Net)</div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(selectedBoard.totalNetSalary)}</p>
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
-                <div className="text-sm text-gray-500 mb-1">Trạng thái</div>
+                <div className="text-sm text-gray-500 mb-1">Tráº¡ng thÃ¡i</div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{selectedBoard.status.toUpperCase()}</p>
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function PayrollPage() {
                 data={payslips}
                 columns={payslipColumns}
                 loading={payslipsLoading}
-                emptyMessage="Không có phiếu lương nào"
+                emptyMessage="KhÃ´ng cÃ³ phiáº¿u lÆ°Æ¡ng nÃ o"
               />
             </div>
           </div>

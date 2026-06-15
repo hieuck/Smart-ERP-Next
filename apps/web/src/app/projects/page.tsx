@@ -20,7 +20,7 @@ export default function ProjectsPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <PageHeader
           title={t('projects.title')}
           description={t('projects.project')}

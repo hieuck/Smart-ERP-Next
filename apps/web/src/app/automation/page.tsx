@@ -21,24 +21,24 @@ export default function AutomationBuilder() {
   const [isActive, setIsActive] = useState(true);
 
   const triggers = [
-    { key: 'order.created', label: 'Order Created', icon: '📦' },
-    { key: 'payment.received', label: 'Payment Received', icon: '💰' },
-    { key: 'inventory.low_stock', label: 'Low Stock', icon: '⚠️' },
-    { key: 'customer.created', label: 'New Customer', icon: '👤' },
-    { key: 'scheduled.cron', label: 'Scheduled', icon: '⏰' },
-    { key: 'sync.completed', label: 'Sync Completed', icon: '🔄' },
-    { key: 'invoice.issued', label: 'E-Invoice Issued', icon: '🧾' },
-    { key: 'employee.late', label: 'Employee Late', icon: '🏃' },
+    { key: 'order.created', label: 'Order Created', icon: 'ðŸ“¦' },
+    { key: 'payment.received', label: 'Payment Received', icon: 'ðŸ’°' },
+    { key: 'inventory.low_stock', label: 'Low Stock', icon: 'âš ï¸' },
+    { key: 'customer.created', label: 'New Customer', icon: 'ðŸ‘¤' },
+    { key: 'scheduled.cron', label: 'Scheduled', icon: 'â°' },
+    { key: 'sync.completed', label: 'Sync Completed', icon: 'ðŸ”„' },
+    { key: 'invoice.issued', label: 'E-Invoice Issued', icon: 'ðŸ§¾' },
+    { key: 'employee.late', label: 'Employee Late', icon: 'ðŸƒ' },
   ];
 
   const actions = [
-    { key: 'send_notification', label: 'Send Notification', icon: '🔔' },
-    { key: 'send_email', label: 'Send Email', icon: '📧' },
-    { key: 'update_field', label: 'Update Field', icon: '✏️' },
-    { key: 'create_report', label: 'Generate Report', icon: '📊' },
-    { key: 'call_webhook', label: 'Call Webhook', icon: '🔗' },
-    { key: 'update_lead_score', label: 'Update Lead Score', icon: '🎯' },
-    { key: 'issue_bonus', label: 'Issue Bonus/Penalty', icon: '💸' },
+    { key: 'send_notification', label: 'Send Notification', icon: 'ðŸ””' },
+    { key: 'send_email', label: 'Send Email', icon: 'ðŸ“§' },
+    { key: 'update_field', label: 'Update Field', icon: 'âœï¸' },
+    { key: 'create_report', label: 'Generate Report', icon: 'ðŸ“Š' },
+    { key: 'call_webhook', label: 'Call Webhook', icon: 'ðŸ”—' },
+    { key: 'update_lead_score', label: 'Update Lead Score', icon: 'ðŸŽ¯' },
+    { key: 'issue_bonus', label: 'Issue Bonus/Penalty', icon: 'ðŸ’¸' },
   ];
 
   const addStep = (action: typeof actions[0]) => {
@@ -64,7 +64,7 @@ export default function AutomationBuilder() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <PageHeader
         title={t('automation.title')}
         description={t('automation.description') || 'Build automated workflows with triggers and actions'}
@@ -72,7 +72,7 @@ export default function AutomationBuilder() {
         iconColor="yellow"
         actions={
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">{isActive ? '🟢' : '🔴'}</span>
+            <span className="text-sm text-gray-500">{isActive ? 'ðŸŸ¢' : 'ðŸ”´'}</span>
             <button
               onClick={() => setIsActive(!isActive)}
               className={`px-3 py-1 rounded text-sm ${
@@ -96,7 +96,7 @@ export default function AutomationBuilder() {
 
       {/* Trigger Selection */}
       <div className="bg-white rounded-lg border p-4 shadow-sm">
-        <h3 className="font-semibold mb-3">🎯 {t('automation.trigger')}</h3>
+        <h3 className="font-semibold mb-3">ðŸŽ¯ {t('automation.trigger')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {triggers.map((tr) => (
             <button
@@ -122,7 +122,7 @@ export default function AutomationBuilder() {
 
       {/* Action Steps */}
       <div className="bg-white rounded-lg border p-4 shadow-sm">
-        <h3 className="font-semibold mb-3">⚙️ {t('automation.action')}s</h3>
+        <h3 className="font-semibold mb-3">âš™ï¸ {t('automation.action')}s</h3>
         {steps.length === 0 ? (
           <p className="text-gray-400 text-center py-8">{t('common.noData')}</p>
         ) : (
@@ -141,7 +141,7 @@ export default function AutomationBuilder() {
                   onClick={() => removeStep(step.id)}
                   className="text-red-400 hover:text-red-600 text-lg"
                 >
-                  ✕
+                  âœ•
                 </button>
               </div>
             ))}
@@ -169,7 +169,7 @@ export default function AutomationBuilder() {
           onClick={handleSave}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
         >
-          💾 {t('automation.saveWorkflow')}
+          ðŸ’¾ {t('automation.saveWorkflow')}
         </button>
       </div>
     </div>

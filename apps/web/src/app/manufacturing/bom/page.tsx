@@ -174,7 +174,7 @@ export default function BOMPage() {
 
   return (
     <AuthGuard>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -255,7 +255,7 @@ export default function BOMPage() {
               {activeTab === 'bom' ? (
                 <>
                   <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h3 className="font-semibold">{t('manufacturing.bom')} — v{bomItems[0]?.version || 1}</h3>
+                    <h3 className="font-semibold">{t('manufacturing.bom')} â€” v{bomItems[0]?.version || 1}</h3>
                     <span className="text-sm text-gray-500">{bomItems.length} {t('manufacturing.component').toLowerCase()} | {formatVND(totalMaterialCost)}</span>
                   </div>
                   <DataTable data={bomItems} columns={bomColumns} loading={loading} emptyMessage={t('common.noData')} />
