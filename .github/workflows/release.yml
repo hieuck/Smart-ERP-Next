@@ -221,6 +221,19 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
         run: pnpm exec drizzle-kit migrate
 
+      - name: Build and start API server for smoke tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
+          JWT_SECRET: release-e2e-secret
+        run: |
+          pnpm build
+          cd apps/api
+          PORT=3456 node dist/main.js &
+          for i in $(seq 1 10); do
+            sleep 2
+            curl -s -o /dev/null http://localhost:3456/health && echo "API ready" && break
+          done
+
       - name: Run release quality gate
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
