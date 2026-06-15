@@ -1,22 +1,31 @@
 # Development
 
-## Quick Start
+## Quick Start — 2 cách
+
+### Cách 1: Docker (không cần setup)
 
 ```bash
-# 1. Clone & start
 git clone https://github.com/hieuck/Smart-ERP-Next.git
 cd Smart-ERP-Next
 docker compose up -d
-
-# 2. Open browser
-# http://localhost:3457
-# Register a new account or use seeded demo account
+# → http://localhost:3457
 ```
 
-Docker will automatically:
-- Start PostgreSQL
-- Build API + Web
-- Run database migrations
+### Cách 2: Local dev (nhanh, hot-reload)
+
+```bash
+git clone https://github.com/hieuck/Smart-ERP-Next.git
+cd Smart-ERP-Next
+./scripts/dev.sh
+# → API: http://localhost:3456 (hot-reload)
+# → Web: http://localhost:3457 (hot-reload)
+```
+
+`dev.sh` tự động:
+- Tạo `.env` từ `.env.example` nếu chưa có
+- Start PostgreSQL (Docker) nếu chưa chạy
+- Chạy database migrations
+- Start API + Web với Turbo (hot-reload)
 
 ## Demo Data
 
