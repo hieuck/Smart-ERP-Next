@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       version:
@@ -137,7 +140,7 @@ jobs:
           file: apps/api/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/smart-erp-next/api:${{ github.event.inputs.version }}
+            ghcr.io/${{ github.repository_owner }}/smart-erp-next/api:${{ github.event.inputs.version || github.ref_name }}
             ghcr.io/${{ github.repository_owner }}/smart-erp-next/api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -151,7 +154,7 @@ jobs:
             NEXT_PUBLIC_API_URL=/api
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/smart-erp-next/web:${{ github.event.inputs.version }}
+            ghcr.io/${{ github.repository_owner }}/smart-erp-next/web:${{ github.event.inputs.version || github.ref_name }}
             ghcr.io/${{ github.repository_owner }}/smart-erp-next/web:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -163,7 +166,7 @@ jobs:
           file: apps/ai-forecast/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/smart-erp-next/ai-forecast:${{ github.event.inputs.version }}
+            ghcr.io/${{ github.repository_owner }}/smart-erp-next/ai-forecast:${{ github.event.inputs.version || github.ref_name }}
             ghcr.io/${{ github.repository_owner }}/smart-erp-next/ai-forecast:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -175,7 +178,7 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/smart-erp-next:${{ github.event.inputs.version }}
+            ghcr.io/${{ github.repository_owner }}/smart-erp-next:${{ github.event.inputs.version || github.ref_name }}
             ghcr.io/${{ github.repository_owner }}/smart-erp-next:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -245,7 +248,7 @@ jobs:
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ github.event.inputs.version }}
+          VERSION: ${{ github.event.inputs.version || github.ref_name }}
         run: |
           gh release delete "$VERSION" --yes 2>/dev/null || true
           git push --delete origin "$VERSION" 2>/dev/null || true
