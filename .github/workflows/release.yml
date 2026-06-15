@@ -168,6 +168,18 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and push unified image (API + Web)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/smart-erp-next:${{ github.event.inputs.version }}
+            ghcr.io/${{ github.repository_owner }}/smart-erp-next:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   certify-release:
     name: Certify release gates
     runs-on: ubuntu-latest
@@ -235,6 +247,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.event.inputs.version }}
         run: |
+          gh release delete "$VERSION" --yes 2>/dev/null || true
+          git push --delete origin "$VERSION" 2>/dev/null || true
           gh release create "$VERSION" \
             --title "Smart ERP Next $VERSION" \
             --notes-file release-notes.md \

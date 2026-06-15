@@ -29,5 +29,15 @@ if [ "$SKIP_SEED" != "1" ]; then
   fi
 fi
 
-echo "Starting API server..."
-exec node apps/api/dist/apps/api/src/main.js
+echo "Starting API server on port ${PORT:-3456}..."
+node apps/api/dist/apps/api/src/main.js &
+
+# Start Web server if the Next.js build output exists
+if [ -d "apps/web/.next" ]; then
+  echo "Starting Web server on port ${WEB_PORT:-3457}..."
+  PORT=${WEB_PORT:-3457} node apps/web/node_modules/.bin/next start apps/web &
+fi
+
+# Wait for any process to exit
+wait -n
+exit $?
