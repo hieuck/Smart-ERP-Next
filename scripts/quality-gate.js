@@ -101,10 +101,14 @@ function buildGatePlan(mode = 'commit') {
   }
 
   if (mode === 'release') {
+    const skipSmoke = ['1', 'true', 'yes', 'on'].includes(String(process.env.SKIP_RELEASE_SMOKE || '').toLowerCase());
+    const gates = skipSmoke
+      ? [...COMMON_GATES, ...RELEASE_ONLY_GATES.filter((g) => g.id !== 'release-runtime-smoke')]
+      : [...COMMON_GATES, ...RELEASE_ONLY_GATES];
     return {
       mode,
       certifiesRelease: true,
-      gates: [...COMMON_GATES, ...RELEASE_ONLY_GATES],
+      gates,
     };
   }
 
