@@ -48,4 +48,6 @@ RUN set -eux; \
 
 EXPOSE 3000
 HEALTHCHECK CMD curl -f http://127.0.0.1:3000/health || exit 1
-CMD ["node", "apps/api/dist/apps/api/src/main.js"]
+COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
