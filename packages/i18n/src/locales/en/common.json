@@ -598,7 +598,12 @@
     "all": "All",
     "cancel": "Cancel purchase order",
     "confirmReceive": "Confirm receipt",
-    "subtotal": "Subtotal"
+    "subtotal": "Subtotal",
+    "draft": "Draft",
+    "confirmed": "Confirmed",
+    "partial": "Partially Received",
+    "received": "Received",
+    "cancelled": "Cancelled"
   },
   "pos": {
     "createOrderFailed": "Create order failed. Please try again.",
@@ -659,7 +664,15 @@
     "notes": "Notes",
     "paidAt": "Paid At",
     "searchPlaceholder": "Search by code, party...",
-    "partySearchPlaceholder": "Customer / supplier name..."
+    "partySearchPlaceholder": "Customer / supplier name...",
+    "all": "All",
+    "totalRevenue": "Total Revenue",
+    "totalExpense": "Total Expense",
+    "payee": "Payee",
+    "note": "Note",
+    "date": "Date",
+    "cash": "Cash",
+    "transfer": "Transfer"
   },
   "warehouses": {
     "title": "Warehouses",
@@ -673,7 +686,10 @@
     "confirmDelete": "Are you sure you want to delete this warehouse?",
     "createInfo": "Create a warehouse to manage stock and transactions",
     "empty": "No warehouses yet",
-    "subtitle": "Manage warehouses and storage locations"
+    "subtitle": "Manage warehouses and storage locations",
+    "setDefault": "Set as default",
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "analytics": {
     "title": "Analytics Dashboard",
@@ -724,7 +740,9 @@
     "thisYear": "This Year",
     "custom": "Custom",
     "exportPdf": "Export PDF",
-    "exportExcel": "Export Excel"
+    "exportExcel": "Export Excel",
+    "exportCSV": "Export CSV",
+    "orders": "Orders"
   },
   "accounting": {
     "title": "Accounting",
@@ -969,7 +987,10 @@
     "profile": "Profile",
     "version": "Version",
     "retry": "Retry",
-    "sold": "sold"
+    "sold": "sold",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search"
   },
   "validation": {
     "required": "{{field}} is required",

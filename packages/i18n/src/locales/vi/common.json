@@ -507,10 +507,15 @@
     "createError": "Lỗi khi tạo đơn mua",
     "selectWarehouseOptional": "Chọn kho nhận (không bắt buộc)",
     "preview": "Xem trước: {{items}} mặt hàng, tổng {{quantity}} đơn vị",
-    "all": "T?t c?",
+    "all": "Tất cả",
     "cancel": "H?y ??n mua",
     "confirmReceive": "X?c nh?n nh?n h?ng",
-    "subtotal": "T?m t?nh"
+    "subtotal": "T?m t?nh",
+    "draft": "Nháp",
+    "confirmed": "Đã xác nhận",
+    "partial": "Nhận một phần",
+    "received": "Đã nhận hàng",
+    "cancelled": "Đã hủy"
   },
   "suppliers": {
     "title": "Nhà cung cấp",
@@ -1268,7 +1273,10 @@
     "confirmDelete": "B?n c? ch?c mu?n x?a kho n?y?",
     "createInfo": "T?o kho ?? qu?n l? t?n kho v? giao d?ch",
     "empty": "Ch?a c? kho n?o",
-    "subtitle": "Qu?n l? kho h?ng v? ??a ?i?m l?u tr?"
+    "subtitle": "Qu?n l? kho h?ng v? ??a ?i?m l?u tr?",
+    "setDefault": "Đặt làm mặc định",
+    "edit": "Sửa",
+    "delete": "Xóa"
   },
   "reports": {
     "title": "Báo cáo",
@@ -1279,7 +1287,14 @@
     "generatedAt": "Ngày tạo báo cáo",
     "inventory": "Tồn kho",
     "profit": "Lợi nhuận",
-    "topProducts": "Sản phẩm bán chạy"
+    "topProducts": "Sản phẩm bán chạy",
+    "today": "Hôm nay",
+    "thisWeek": "Tuần này",
+    "thisMonth": "Tháng này",
+    "thisQuarter": "Quý này",
+    "exportCSV": "Xuất CSV",
+    "products": "Sản phẩm",
+    "orders": "Đơn hàng"
   },
   "einvoice": {
     "title": "Hóa đơn điện tử",
@@ -1410,7 +1425,21 @@
   },
   "forecastError": "Không thể tải dữ liệu dự báo",
   "payments": {
-    "partySearchPlaceholder": "Tìm khách hàng hoặc nhà cung cấp"
+    "partySearchPlaceholder": "Tìm khách hàng hoặc nhà cung cấp",
+    "all": "Tất cả",
+    "receipt": "Phiếu thu",
+    "payment": "Phiếu chi",
+    "totalRevenue": "Tổng thu",
+    "totalExpense": "Tổng chi",
+    "balance": "Số dư",
+    "code": "Mã phiếu",
+    "type": "Loại",
+    "payee": "Đối tượng",
+    "method": "Phương thức",
+    "note": "Ghi chú",
+    "date": "Ngày",
+    "cash": "Tiền mặt",
+    "transfer": "Chuyển khoản"
   },
   "socket": {
     "new_activity": "Có hoạt động mới"
