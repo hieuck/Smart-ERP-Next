@@ -26,7 +26,6 @@
     "lint": "eslint src/**/*.tsx"
   },
   "dependencies": {
-    "@smart-erp/shared": "workspace:*",
     "@smart-erp/i18n": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

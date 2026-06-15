@@ -832,9 +832,6 @@ importers:
       '@smart-erp/i18n':
         specifier: workspace:*
         version: link:../i18n
-      '@smart-erp/shared':
-        specifier: workspace:*
-        version: link:../shared
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
