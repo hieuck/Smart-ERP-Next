@@ -8,6 +8,8 @@ import AuthGuard from '@/components/layout/AuthGuard';
 import { useToast } from '@/components/providers/ToastProvider';
 import { Warehouse, Plus, Edit, Trash2, Star, Check } from 'lucide-react';
 
+import { PageHeader } from '@smart-erp/shared';
+
 interface WarehouseItem {
   id: string;
   code: string;
@@ -100,25 +102,21 @@ export default function WarehousesPage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-              <Warehouse className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('warehouses.title')}</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{warehouses.length} kho</p>
-            </div>
-          </div>
-          <button
-            onClick={openCreate}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-          >
-            <Plus className="w-4 h-4" />
-            {t('warehouses.add')}
-          </button>
-        </div>
+        <PageHeader
+          title={t('warehouses.title')}
+          description={`${warehouses.length} kho`}
+          icon={<Warehouse className="w-5 h-5" />}
+          iconColor="orange"
+          actions={
+            <button
+              onClick={openCreate}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+            >
+              <Plus className="w-4 h-4" />
+              {t('warehouses.add')}
+            </button>
+          }
+        />
 
         {/* Warehouse cards */}
         {loading ? (

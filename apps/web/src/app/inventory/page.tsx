@@ -308,25 +308,18 @@ export default function InventoryPage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-              <Warehouse className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('inventory.title')}</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t('inventory.summary')}</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => setShowAdjust(true)}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            {t('inventory.adjustment')}
-          </Button>
-        </div>
+        <PageHeader
+          title={t('inventory.title')}
+          description={t('inventory.summary')}
+          icon={<Warehouse className="w-5 h-5" />}
+          iconColor="orange"
+          actions={
+            <Button onClick={() => setShowAdjust(true)} className="flex items-center gap-2">
+              <RefreshCw className="w-4 h-4" />
+              {t('inventory.adjustment')}
+            </Button>
+          }
+        />
 
         {/* Summary cards */}
         {summary && (

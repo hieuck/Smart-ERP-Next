@@ -8,6 +8,8 @@ import { apiClient } from '@/lib/api-client';
 import AuthGuard from '@/components/layout/AuthGuard';
 import { Truck, Search, Plus, Edit, Trash2, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { PageHeader } from '@smart-erp/shared';
+
 interface Supplier {
   id: string;
   code: string;
@@ -69,24 +71,21 @@ export default function SuppliersPage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
-              <Truck className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('suppliers.title')}</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{total} {t('common.suppliers')}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => router.push('/suppliers/create')}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-          >
-            <Plus className="w-4 h-4" />
-            {t('suppliers.add')}
-          </button>
-        </div>
+        <PageHeader
+          title={t('suppliers.title')}
+          description={`${total} ${t('common.suppliers')}`}
+          icon={<Truck className="w-5 h-5" />}
+          iconColor="cyan"
+          actions={
+            <button
+              onClick={() => router.push('/suppliers/create')}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+            >
+              <Plus className="w-4 h-4" />
+              {t('suppliers.add')}
+            </button>
+          }
+        />
 
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
           <form onSubmit={handleSearch} className="flex gap-2">

@@ -18,6 +18,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
+import { PageHeader } from '@smart-erp/shared';
+
 const groupLabels: Record<string, string> = {
   retail: 'Bán lẻ',
   wholesale: 'Bán sỉ',
@@ -85,27 +87,21 @@ export default function CustomersPage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                {t('customers.title')}
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{total} {t('common.customers')}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => router.push('/customers/create')}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-          >
-            <Plus className="w-4 h-4" />
-            {t('customers.add')}
-          </button>
-        </div>
+        <PageHeader
+          title={t('customers.title')}
+          description={`${total} ${t('common.customers')}`}
+          icon={<Users className="w-5 h-5" />}
+          iconColor="purple"
+          actions={
+            <button
+              onClick={() => router.push('/customers/create')}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+            >
+              <Plus className="w-4 h-4" />
+              {t('customers.add')}
+            </button>
+          }
+        />
 
         {/* Search */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">

@@ -20,6 +20,8 @@ import {
   Moon,
 } from "lucide-react";
 
+import { PageHeader } from '@smart-erp/shared';
+
 type SettingsTab =
   | "company"
   | "general"
@@ -97,29 +99,21 @@ export default function SettingsPage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                {t("settings.title")}
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Cấu hình hệ thống
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
-          >
-            <Save className="w-4 h-4" />
-            {t("actions.save")}
-          </button>
-        </div>
+        <PageHeader
+          title={t("settings.title")}
+          description="Cấu hình hệ thống"
+          icon={<Settings className="w-5 h-5" />}
+          iconColor="gray"
+          actions={
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
+            >
+              <Save className="w-4 h-4" />
+              {t("actions.save")}
+            </button>
+          }
+        />
 
         <div className="flex gap-6">
           {/* Sidebar tabs */}

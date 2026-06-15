@@ -11,6 +11,8 @@ import {
   ChevronLeft, ChevronRight, Filter,
 } from 'lucide-react';
 
+import { PageHeader } from '@smart-erp/shared';
+
 interface Payment {
   id: string;
   code: string;
@@ -123,34 +125,30 @@ export default function PaymentsPage() {
   return (
     <AuthGuard>
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-              <CreditCard className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+        <PageHeader
+          title={t('payments.title')}
+          description={t('payments.count', { count: total })}
+          icon={<CreditCard className="w-5 h-5" />}
+          iconColor="emerald"
+          actions={
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setCreateType('receipt'); setShowCreate(true); }}
+                className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+              >
+                <ArrowDownCircle className="w-4 h-4" />
+                {t('payments.receipt')}
+              </button>
+              <button
+                onClick={() => { setCreateType('payment'); setShowCreate(true); }}
+                className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
+              >
+                <ArrowUpCircle className="w-4 h-4" />
+                {t('payments.payment')}
+              </button>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('payments.title')}</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t('payments.count', { count: total })}</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => { setCreateType('receipt'); setShowCreate(true); }}
-              className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
-            >
-              <ArrowDownCircle className="w-4 h-4" />
-              {t('payments.receipt')}
-            </button>
-            <button
-              onClick={() => { setCreateType('payment'); setShowCreate(true); }}
-              className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
-            >
-              <ArrowUpCircle className="w-4 h-4" />
-              {t('payments.payment')}
-            </button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Summary cards */}
         {summary && (
