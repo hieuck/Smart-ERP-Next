@@ -73,7 +73,7 @@ export class NotificationsGateway
 
   /** Broadcast to all connected clients (admin use) */
   broadcast(event: string, payload: any) {
-    this.server.emit(event, payload);
+    if (this.server) this.server.emit(event, payload);
   }
 
   /** Client subscribes to a room (e.g. tenant room) */

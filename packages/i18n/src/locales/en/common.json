@@ -1511,5 +1511,29 @@
     "signNow": "Sign now",
     "signTitle": "Sign e-contract",
     "signedSuccess": "Contract signed successfully"
+  },
+  "landing": {
+    "heroBadge": "Battle-ready ERP for Vietnamese businesses",
+    "heroTitle": "Run sales, inventory, accounting and manufacturing on one system.",
+    "heroSubtitle": "Smart ERP Next includes POS, CRM, inventory management, purchasing, manufacturing, invoicing and executive reports in one web application. New users can register and start using immediately.",
+    "ctaFree": "Start free",
+    "ctaLogin": "I already have an account",
+    "modulesTitle": "Modules",
+    "readinessTitle": "Ready for new users",
+    "readinessSubtitle": "Registration, login and core business workflows are tested directly on a production-like Docker environment.",
+    "demoDashboard": "Dashboard",
+    "demoOverview": "Today Overview",
+    "demoRevenue": "Revenue",
+    "demoOrders": "Orders",
+    "demoCustomers": "Customers",
+    "demoProducts": "Products",
+    "demoRecentOrders": "Recent Orders",
+    "demoProcessing": "Processing",
+    "footerPrivacy": "Privacy",
+    "footerTerms": "Terms",
+    "readinessItem1": "Register a new business and access the dashboard immediately",
+    "readinessItem2": "Manage products, customers, orders and inventory",
+    "readinessItem3": "Create orders at POS, print invoices and track payments",
+    "readinessItem4": "User roles and permissions, data isolated by tenant"
   }
 }

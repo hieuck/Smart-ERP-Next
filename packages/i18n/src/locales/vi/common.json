@@ -1445,5 +1445,29 @@
     "signNow": "K? ngay",
     "signTitle": "K? h?p ??ng ?i?n t?",
     "signedSuccess": "H?p ??ng ?? ???c k? th?nh c?ng"
+  },
+  "landing": {
+    "heroBadge": "ERP thực chiến cho doanh nghiệp Việt Nam",
+    "heroTitle": "Vận hành bán hàng, kho, kế toán và sản xuất trên một hệ thống.",
+    "heroSubtitle": "Smart ERP Next gồm POS, CRM, quản lý kho, mua hàng, sản xuất, hóa đơn và báo cáo điều hành trong một ứng dụng web. Người dùng mới có thể đăng ký và bắt đầu dùng ngay.",
+    "ctaFree": "Bắt đầu miễn phí",
+    "ctaLogin": "Tôi đã có tài khoản",
+    "modulesTitle": "Mô-đun chức năng",
+    "readinessTitle": "Sẵn sàng cho người dùng mới",
+    "readinessSubtitle": "Luồng đăng ký, đăng nhập và sử dụng nghiệp vụ cốt lõi đã được kiểm thử trực tiếp trên môi trường Docker production-like.",
+    "demoDashboard": "Dashboard",
+    "demoOverview": "Tổng quan hôm nay",
+    "demoRevenue": "Doanh thu",
+    "demoOrders": "Đơn hàng",
+    "demoCustomers": "Khách hàng",
+    "demoProducts": "Sản phẩm",
+    "demoRecentOrders": "Đơn hàng gần đây",
+    "demoProcessing": "Đang xử lý",
+    "footerPrivacy": "Quyền riêng tư",
+    "footerTerms": "Điều khoản",
+    "readinessItem1": "Đăng ký doanh nghiệp mới và vào dashboard ngay",
+    "readinessItem2": "Quản lý sản phẩm, khách hàng, đơn hàng và tồn kho",
+    "readinessItem3": "Tạo đơn tại POS, in hóa đơn và theo dõi thanh toán",
+    "readinessItem4": "Phân quyền người dùng, dữ liệu tách theo tenant"
   }
 }
