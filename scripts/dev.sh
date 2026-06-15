@@ -22,8 +22,8 @@ fi
 
 # Run database migrations
 echo "Running migrations..."
-pnpm --filter @smart-erp/database exec tsx src/migrate.ts 2>/dev/null || \
-  npx drizzle-kit migrate --config=packages/database/drizzle.config.ts 2>/dev/null || true
+DATABASE_URL="postgresql://smart_erp:smart_erp@localhost:5432/smart_erp" \
+  pnpm --filter @smart-erp/database migrate
 
 # Start dev servers (API + Web via Turbo)
 echo "Starting dev servers..."

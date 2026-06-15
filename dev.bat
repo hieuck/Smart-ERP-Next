@@ -28,7 +28,8 @@ if errorlevel 1 (
   echo PostgreSQL san sang
 )
 
-echo Dang chay database migrations...
+echo Running database migrations...
+set DATABASE_URL=postgresql://smart_erp:smart_erp@localhost:5432/smart_erp
 call pnpm --filter @smart-erp/database migrate
 
 echo.
