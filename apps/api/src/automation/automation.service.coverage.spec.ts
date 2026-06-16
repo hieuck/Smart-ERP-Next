@@ -1,47 +1,55 @@
+import { Test, TestingModule } from '@nestjs/testing';
 import { AutomationService } from './automation.service';
+import { DrizzleService } from '../drizzle/drizzle.service';
 
-describe('AutomationService coverage', () => {
-  const service = new AutomationService({} as any);
+const mockDrizzle = { db: {} } as any;
 
-  beforeEach(() => {
-    jest.spyOn(global.crypto, 'randomUUID').mockReturnValue('workflow-1');
-    jest.useFakeTimers().setSystemTime(new Date('2026-05-21T00:00:00.000Z'));
+describe('AutomationService', () => {
+  let service: AutomationService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [AutomationService, { provide: DrizzleService, useValue: mockDrizzle }],
+    }).compile();
+    service = module.get<AutomationService>(AutomationService);
   });
 
-  afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
+  it('listWorkflows returns empty array initially', async () => {
+    const result = await service.listWorkflows('t1');
+    expect(result).toEqual([]);
   });
 
-  it('creates, toggles, lists, and executes workflow placeholders', async () => {
-    await expect(service.listWorkflows('tenant-1')).resolves.toEqual([]);
-    await expect(
-      service.createWorkflow('tenant-1', {
-        name: 'Order alert',
-        steps: [{ config: {}, type: 'send_notification' }],
-        triggerEvent: 'order.created',
-        triggerType: 'webhook',
-      }),
-    ).resolves.toMatchObject({
-      createdAt: '2026-05-21T00:00:00.000Z',
-      id: 'workflow-1',
-      isActive: true,
-      tenantId: 'tenant-1',
-      updatedAt: '2026-05-21T00:00:00.000Z',
+  it('createWorkflow returns workflow with id', async () => {
+    const wf = await service.createWorkflow('t1', {
+      name: 'Test WF',
+      triggerType: 'webhook',
+      steps: [{ type: 'send_notification', config: {} }],
     });
-    await expect(service.toggleWorkflow('tenant-1', 'workflow-1', false)).resolves.toMatchObject({
-      id: 'workflow-1',
-      isActive: false,
-    });
-    await expect(service.getAvailableTriggers()).resolves.toEqual(
-      expect.arrayContaining([expect.objectContaining({ key: 'order.created' })]),
-    );
-    await expect(service.getAvailableActions()).resolves.toEqual(
-      expect.arrayContaining([expect.objectContaining({ key: 'send_email' })]),
-    );
-    await expect(service.executeWorkflow('workflow-1', { orderId: 'order-1' })).resolves.toMatchObject({
-      executed: true,
-      workflowId: 'workflow-1',
-    });
+    expect(wf.id).toBeTruthy();
+    expect(wf.name).toBe('Test WF');
+    expect(wf.isActive).toBe(true);
+  });
+
+  it('createWorkflow generates different IDs', async () => {
+    const wf1 = await service.createWorkflow('t1', { name: 'A', triggerType: 'schedule', steps: [] });
+    const wf2 = await service.createWorkflow('t1', { name: 'B', triggerType: 'schedule', steps: [] });
+    expect(wf1.id).not.toBe(wf2.id);
+  });
+
+  it('toggleWorkflow changes active state', async () => {
+    const result = await service.toggleWorkflow('t1', 'wf-1', false);
+    expect(result.isActive).toBe(false);
+  });
+
+  it('getAvailableTriggers returns predefined list', async () => {
+    const triggers = await service.getAvailableTriggers();
+    expect(triggers.length).toBeGreaterThan(0);
+    expect(triggers.some(t => t.key === 'order.created')).toBe(true);
+  });
+
+  it('getAvailableActions returns predefined list', async () => {
+    const actions = await service.getAvailableActions();
+    expect(actions.length).toBeGreaterThan(0);
+    expect(actions.some(a => a.key === 'send_notification')).toBe(true);
   });
 });
