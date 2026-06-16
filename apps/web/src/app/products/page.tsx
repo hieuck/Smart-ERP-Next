@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -34,7 +33,7 @@ export default function ProductsPage() {
     setLoading(true);
     try {
       const res = await productsApi.getAll({ page: p, limit, search: s || undefined });
-      setProductList(res.data?.items ?? res.items);
+      setProductList(res.items ?? []);
       setTotalPages(res.totalPages);
       setTotal(res.total);
     } catch (err) {
@@ -234,3 +233,4 @@ export default function ProductsPage() {
     </AuthGuard>
   );
 }
+
