@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { apiClient } from './api-client';
 import { db } from './offline-db';
 
@@ -118,3 +117,4 @@ export class SyncService {
 }
 
 export const syncService = new SyncService();
+

@@ -1,4 +1,3 @@
-// @ts-nocheck
 // @ts-ignore - Tauri plugin, only available in desktop build
 import Database from '@tauri-apps/plugin-sql';
 
@@ -33,3 +32,4 @@ export async function getCachedOrder(id: string): Promise<string | null> {
   const rows = await db.select('SELECT data FROM cached_orders WHERE id = ?', [id]);
   return rows?.[0]?.data ?? null;
 }
+

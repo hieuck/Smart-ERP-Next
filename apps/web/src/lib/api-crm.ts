@@ -1,4 +1,3 @@
-// @ts-nocheck
 // CRM API Client - shared across Web, Mobile, Desktop
 import { apiClient } from './api-client';
 
@@ -82,3 +81,4 @@ export const leadsApi = {
   convertToCustomer: (leadId: string, customerData?: Partial<CreateLeadInput>) =>
     apiClient.post<Lead>(`/crm/leads/${leadId}/convert`, { customerData }),
 };
+

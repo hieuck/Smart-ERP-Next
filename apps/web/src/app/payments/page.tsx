@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
@@ -360,3 +359,4 @@ export default function PaymentsPage() {
     </AuthGuard>
   );
 }
+

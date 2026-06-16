@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { apiClient } from './api-client';
 
 export interface OrderItem {
@@ -71,3 +70,4 @@ export const ordersApi = {
   updateStatus: (id: string, status: string, cancelReason?: string): Promise<{ data: Order }> =>
     apiClient.patch(`/orders/${id}/status`, { status, cancelReason }),
 };
+

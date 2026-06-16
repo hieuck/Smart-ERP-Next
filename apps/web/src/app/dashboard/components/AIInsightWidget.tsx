@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -27,3 +26,4 @@ export function AIInsightWidget({ title, value, subtitle, trend, color = 'blue' 
     </div>
   );
 }
+

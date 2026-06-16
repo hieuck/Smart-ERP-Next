@@ -422,3 +422,4 @@ export default function AttendancePage() {
     </AuthGuard>
   );
 }
+

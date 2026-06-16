@@ -1,4 +1,3 @@
-// @ts-nocheck
 import axios from "axios";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3456";
@@ -64,3 +63,4 @@ export const usersApi = {
   update: (id: string, data: any) => apiClient.patch(`/users/${id}`, data),
   delete: (id: string) => apiClient.delete(`/users/${id}`),
 };
+

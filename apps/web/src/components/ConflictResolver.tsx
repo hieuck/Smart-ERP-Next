@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { syncService } from '@/lib/sync-service';
@@ -66,3 +65,4 @@ export default function ConflictResolver() {
     </div>
   );
 }
+

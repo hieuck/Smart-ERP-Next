@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import React, { createContext, useContext } from 'react';
@@ -37,3 +36,4 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 export function useToast() {
   return useContext(ToastContext);
 }
+

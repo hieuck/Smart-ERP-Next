@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
@@ -172,3 +171,4 @@ export default function SupplierForm({ initial = {}, mode, id }: SupplierFormPro
     </div>
   );
 }
+

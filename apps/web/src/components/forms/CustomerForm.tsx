@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
@@ -238,3 +237,4 @@ export default function CustomerForm({ initial = {}, mode, id }: CustomerFormPro
     </div>
   );
 }
+

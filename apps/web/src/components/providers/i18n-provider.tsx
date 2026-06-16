@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -25,3 +24,4 @@ export function I18nProvider({ children, locale = 'vi' }: I18nProviderProps) {
 
   return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
 }
+

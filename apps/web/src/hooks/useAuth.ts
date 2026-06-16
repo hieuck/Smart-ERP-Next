@@ -1,4 +1,3 @@
-// @ts-nocheck
 export interface AuthUser {
   id: string;
   email: string;
@@ -28,3 +27,4 @@ const stubAuth: AuthContextValue = {
 export function useAuth(): AuthContextValue {
   return stubAuth;
 }
+

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import Dexie, { Table } from 'dexie';
 
 export interface OfflineProduct {
@@ -35,3 +34,4 @@ export class OfflineDatabase extends Dexie {
 }
 
 export const db = new OfflineDatabase();
+

@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -70,3 +69,4 @@ export function DemandForecastWidget({ productId }: ForecastProps) {
     </div>
   );
 }
+

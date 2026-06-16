@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { createContext, useContext, useEffect, useRef, ReactNode } from 'react';
@@ -76,3 +75,4 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 }
 
 export const useSocket = () => useContext(SocketContext);
+

@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useSyncStore, emitSyncEvent } from '@smart-erp/sync-status';
@@ -75,3 +74,4 @@ export function SyncStatusBar() {
     </div>
   );
 }
+

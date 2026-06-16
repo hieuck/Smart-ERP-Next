@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Theme context and provider for Smart ERP Next.
  * Supports light/dark mode, custom brand colors, and system preference.
@@ -122,3 +121,4 @@ export function ThemeSwitcher() {
     </div>
   );
 }
+

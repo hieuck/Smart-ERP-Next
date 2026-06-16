@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { io, type Socket } from 'socket.io-client';
 
 let socket: Socket | null = null;
@@ -40,3 +39,4 @@ export function closeSocket(): void {
 export function disconnectSocket(): void {
   closeSocket();
 }
+

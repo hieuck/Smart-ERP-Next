@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { apiClient } from './api-client';
 
 export interface Customer {
@@ -55,3 +54,4 @@ export const customersApi = {
   delete: (id: string): Promise<{ data: Customer }> =>
     apiClient.delete(`/customers/${id}`),
 };
+

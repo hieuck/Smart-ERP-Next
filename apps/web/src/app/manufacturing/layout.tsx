@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
@@ -38,3 +37,4 @@ export default function ManufacturingLayout({ children }: { children: React.Reac
     </div>
   );
 }
+

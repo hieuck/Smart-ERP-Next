@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
@@ -175,3 +174,4 @@ function KPICard({ label, value, change, color }: { label: string; value: string
     </div>
   );
 }
+

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -45,3 +44,4 @@ export const config = {
     '/((?!_next/static|_next/image|favicon\\.ico).*)',
   ],
 };
+

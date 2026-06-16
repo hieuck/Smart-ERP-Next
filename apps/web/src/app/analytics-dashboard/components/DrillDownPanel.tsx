@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
@@ -44,3 +43,4 @@ export default function DrillDownPanel({ isOpen, onClose, type }: { isOpen: bool
       </Transition>
   );
 }
+

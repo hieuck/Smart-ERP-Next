@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useCallback, useState, useEffect } from 'react';
@@ -162,4 +161,5 @@ export default function ActivityLogsPage() {
     </AuthGuard>
   );
 }
+
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 
 import { useState } from 'react';
@@ -64,3 +63,4 @@ export function ProductTranslationsEditor({ value = {}, onChange }: Translations
     </div>
   );
 }
+
