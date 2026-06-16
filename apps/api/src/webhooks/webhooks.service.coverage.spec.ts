@@ -13,6 +13,9 @@ const mockDb = {
   set: jest.fn().mockReturnThis(),
 };
 
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
+
 describe('WebhooksService', () => {
   let service: WebhooksService;
 
@@ -24,7 +27,6 @@ describe('WebhooksService', () => {
   it('subscribe creates webhook', async () => {
     mockDb.returning.mockResolvedValue([{ id: 'wh-1', url: 'https://hook.example.com', events: ['order.created'], active: true }]);
     const result = await service.subscribe('t1', 'https://hook.example.com', ['order.created']);
-    expect(result).toBeDefined();
     expect(result.id).toBe('wh-1');
   });
 
@@ -46,5 +48,24 @@ describe('WebhooksService', () => {
     mockDb.limit.mockResolvedValue([{ id: 'log-1', webhookId: 'wh-1', status: 'success' }]);
     const result = await service.getDeliveryLogs('t1', 'wh-1');
     expect(result).toHaveLength(1);
+  });
+
+  it('dispatch sends webhook to matching subscriptions', async () => {
+    mockDb.where.mockResolvedValue([{ id: 'wh-1', url: 'https://hook.example.com', events: ['order.created'], active: true, secret: 'secret123' }]);
+    mockFetch.mockResolvedValue({ ok: true, status: 200 });
+    mockDb.insert.mockReturnValue({ values: jest.fn() });
+
+    await service.dispatch('order.created', 't1', { orderId: 'o-1' });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://hook.example.com',
+      expect.objectContaining({ method: 'POST', headers: expect.objectContaining({ 'X-Webhook-Event': 'order.created' }) }),
+    );
+  });
+
+  it('dispatch handles no matching subscriptions gracefully', async () => {
+    mockDb.where.mockResolvedValue([]);
+    await service.dispatch('order.created', 't1', {});
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });
