@@ -54,7 +54,7 @@ test.describe('End-user journey', () => {
 
     // 4. Browse products
     await page.goto('/products');
-    await expect(page.getByText(/sản phẩm|products/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /sản phẩm|products/i })).toBeVisible({ timeout: 10000 });
     await expectNoFrameworkOverlay(page);
 
     // 5. Browse inventory

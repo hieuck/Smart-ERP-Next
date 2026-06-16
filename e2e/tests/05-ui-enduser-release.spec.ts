@@ -175,7 +175,7 @@ test.describe('UI/UX end-user release audit', () => {
     await expect(page.locator(emailSelector)).toBeVisible();
     await expect(page.locator(passwordSelector)).toBeVisible();
     await page.getByRole('button', { name: /demo/i }).click();
-    await expect(page.locator(emailSelector)).toHaveValue('admin@demo.smarterp.vn');
+    await expect(page.locator(emailSelector)).toHaveValue('admin@smarterp.vn');
     await expect(page.locator(passwordSelector)).toHaveValue('demo123456');
     await expectNoFrameworkOverlay(page);
     await expectNoHorizontalOverflow(page);
