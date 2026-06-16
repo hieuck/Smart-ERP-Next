@@ -275,21 +275,21 @@ async function main() {
 
   // 17. Create Fixed Assets
   await exec(`
-    INSERT INTO fixed_assets (id, tenant_id, code, name, category, purchase_date, purchase_cost, useful_life, salvage_value, depreciation_method, status, location, notes)
+    INSERT INTO fixed_assets (id, tenant_id, code, name, category, purchase_date, purchase_cost, useful_life_months, residual_value, status)
     VALUES
-      (gen_random_uuid(), '${tenant.id}', 'FA-001', 'Máy chủ Dell PowerEdge', 'IT Equipment', '2025-06-01', 250000000, 5, 25000000, 'straight_line', 'active', 'Phòng server HN', 'Máy chủ ERP'),
-      (gen_random_uuid(), '${tenant.id}', 'FA-002', 'Toyota Fortuner 2025', 'Vehicle', '2025-03-15', 1200000000, 10, 120000000, 'straight_line', 'active', 'Bãi xe HN', 'Xe công ty cho giám đốc'),
-      (gen_random_uuid(), '${tenant.id}', 'FA-003', 'Máy lạnh Daikin 2.0HP', 'Office Equipment', '2025-05-01', 18000000, 8, 1800000, 'straight_line', 'active', 'VP tầng 3', 'Điều hòa văn phòng')
+      (gen_random_uuid(), '${tenant.id}', 'FA-001', 'Máy chủ Dell PowerEdge', 'IT Equipment', '2025-06-01', 250000000, 60, 25000000, 'active'),
+      (gen_random_uuid(), '${tenant.id}', 'FA-002', 'Toyota Fortuner 2025', 'Vehicle', '2025-03-15', 1200000000, 120, 120000000, 'active'),
+      (gen_random_uuid(), '${tenant.id}', 'FA-003', 'Máy lạnh Daikin 2.0HP', 'Office Equipment', '2025-05-01', 18000000, 96, 1800000, 'active')
   `);
   console.log('  ✅ 3 fixed assets created');
 
   // 18. Create Approval Rules
   await exec(`
-    INSERT INTO approval_rules (id, tenant_id, name, entity_type, trigger_condition, approver_id, priority, is_active)
+    INSERT INTO approval_rules (id, tenant_id, name, document_type, min_amount, priority, is_active)
     VALUES
-      (gen_random_uuid(), '${tenant.id}', 'PO trên 50 triệu', 'purchase_order', '{"min_amount": 50000000}', '${manager.id}', 1, true),
-      (gen_random_uuid(), '${tenant.id}', 'PO trên 200 triệu', 'purchase_order', '{"min_amount": 200000000}', '${admin.id}', 2, true),
-      (gen_random_uuid(), '${tenant.id}', 'Chi tiêu trên 10 triệu', 'expense', '{"min_amount": 10000000}', '${manager.id}', 1, true)
+      (gen_random_uuid(), '${tenant.id}', 'PO trên 50 triệu', 'purchase_order', 50000000, 1, true),
+      (gen_random_uuid(), '${tenant.id}', 'PO trên 200 triệu', 'purchase_order', 200000000, 2, true),
+      (gen_random_uuid(), '${tenant.id}', 'Chi tiêu trên 10 triệu', 'expense', 10000000, 1, true)
   `);
   console.log('  ✅ 3 approval rules created');
 
@@ -339,7 +339,7 @@ async function main() {
         const status = dayOfWeek === 6 ? 'present' : (Math.random() > 0.1 ? 'present' : 'late');
         const ot = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : 0;
         await exec(`
-          INSERT INTO attendance_records (id, tenant_id, employee_id, shift_id, work_date, check_in, check_out, status, overtime_hours, late_minutes)
+          INSERT INTO attendance_records (id, tenant_id, employee_id, shift_id, work_date, check_in_at, check_out_at, status, overtime_hours, late_minutes)
           VALUES (gen_random_uuid(), '${tenant.id}', '${emp.id}', '${shiftRows.rows[0].id}', '${dateStr}', '08:00', '17:00', '${status}', ${ot}, ${status === 'late' ? Math.floor(Math.random() * 30) + 5 : 0})
         `);
       }
