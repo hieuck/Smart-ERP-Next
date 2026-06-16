@@ -53,8 +53,8 @@ export default function LoginPage() {
   };
 
   const fillDemo = () => {
-    if (emailRef.current) emailRef.current.value = 'admin@demo.smarterp.vn';
-    if (passwordRef.current) passwordRef.current.value = 'demo123456';
+    if (emailRef.current) emailRef.current.value = 'admin@smarterp.vn';
+    if (passwordRef.current) passwordRef.current.value = 'admin123';
   };
 
   return (

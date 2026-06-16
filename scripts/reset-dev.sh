@@ -19,4 +19,4 @@ until curl -s -o /dev/null http://localhost:3456/health; do
 done
 echo "API ready at http://localhost:3456"
 echo "Web ready at http://localhost:3457"
-echo "Login: admin@demo.smarterp.vn / demo123456"
+echo "Login: admin@smarterp.vn / admin123"

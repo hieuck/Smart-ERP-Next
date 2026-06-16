@@ -165,18 +165,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push AI Forecast image
-        uses: docker/build-push-action@v6
-        with:
-          context: apps/ai-forecast
-          file: apps/ai-forecast/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/smart-erp-next/ai-forecast:${{ github.event.inputs.version || github.ref_name }}
-            ghcr.io/${{ github.repository_owner }}/smart-erp-next/ai-forecast:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
       - name: Build and push unified image (API + Web)
         uses: docker/build-push-action@v6
         with:
