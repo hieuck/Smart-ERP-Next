@@ -7,6 +7,7 @@ import { I18nProvider } from '@/components/providers/i18n-provider';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { SyncConflictModal } from '@/components/SyncConflictModal';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -82,14 +83,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
       </head>
       <body className={`${inter.variable} ${beVietnamPro.variable} font-sans antialiased`}>
-        <I18nProvider>
-          <ToastProvider>
-            <ThemeProvider>
-              {children}
-              <SyncConflictModal />
-            </ThemeProvider>
-          </ToastProvider>
-        </I18nProvider>
+        <ErrorBoundary>
+          <I18nProvider>
+            <ToastProvider>
+              <ThemeProvider>
+                {children}
+                <SyncConflictModal />
+              </ThemeProvider>
+            </ToastProvider>
+          </I18nProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

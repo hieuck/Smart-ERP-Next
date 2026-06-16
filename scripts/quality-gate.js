@@ -16,9 +16,9 @@ const COMMON_GATES = [
   },
   {
     id: 'type-check',
-    name: 'Type-check (skip mobile, not for release)',
+    name: 'Type-check all workspaces',
     command: 'pnpm',
-    args: ['--filter', '!@smart-erp/mobile', 'type-check'],
+    args: ['type-check'],
   },
 ];
 
