@@ -18,8 +18,8 @@ export class I18nService {
   private loadTranslations() {
     const candidates = [
       path.resolve(__dirname, 'locales'),
+      path.resolve(__dirname, '../../../src/i18n/locales'),
       path.resolve(__dirname, '../../../../src/i18n/locales'),
-      path.resolve(__dirname, '../../../../../../apps/api/src/i18n/locales'),
     ];
     let localesPath = candidates.find(p => fs.existsSync(p));
     if (!localesPath) {
