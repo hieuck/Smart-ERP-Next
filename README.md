@@ -30,17 +30,29 @@ docker compose up -d
 
 > Hệ thống tự động migrate database + seed dữ liệu demo ngay lần chạy đầu tiên.
 
-### Hoặc dùng image từ GitHub Container Registry (không cần clone):
+### Dùng image từ GitHub Container Registry:
 
+**Bước 1:** Pull image
+```bash
+docker pull ghcr.io/hieuck/smart-erp-next:latest
+```
+
+**Bước 2:** Chạy PostgreSQL (nếu chưa có)
 ```bash
 docker run -d --name smart-erp-postgres \
   -e POSTGRES_USER=smart_erp -e POSTGRES_PASSWORD=smart_erp -e POSTGRES_DB=smart_erp \
   -v smart_erp_data:/var/lib/postgresql/data \
   postgres:16-alpine
+```
 
+**Bước 3:** Chạy Smart ERP
+```bash
 docker run -d --name smart-erp -p 3457:3457 -p 3456:3456 \
   -e DATABASE_URL=postgresql://smart_erp:smart_erp@host.docker.internal:5432/smart_erp \
   ghcr.io/hieuck/smart-erp-next:latest
+```
+
+> Xem packages: https://github.com/hieuck/Smart-ERP-Next/pkgs/container/smart-erp-next
 ```
 
 ### Xóa toàn bộ dữ liệu & reset:

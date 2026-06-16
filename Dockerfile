@@ -26,6 +26,11 @@ ENV PORT=3456
 ENV WEB_PORT=3457
 ENV NEXT_PUBLIC_API_URL=http://localhost:3456
 
+LABEL org.opencontainers.image.title="Smart ERP Next"
+LABEL org.opencontainers.image.description="Hệ thống quản trị doanh nghiệp toàn diện: POS, Kho, CRM, Kế toán, HR"
+LABEL org.opencontainers.image.source="https://github.com/hieuck/Smart-ERP-Next"
+LABEL org.opencontainers.image.licenses="MIT"
+
 RUN npm install -g pnpm@10.33.0 && apk add --no-cache curl
 
 # Copy built artifacts + source (for workspace resolution)
