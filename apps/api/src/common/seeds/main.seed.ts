@@ -295,9 +295,9 @@ async function main() {
 
   // 19. Create E-Invoice drafts
   await exec(`
-    INSERT INTO e_invoices (id, tenant_id, order_id, customer_id, buyer_name, invoice_series, invoice_template, status, currency, provider, notes)
+    INSERT INTO e_invoices (id, tenant_id, order_id, customer_id, buyer_name, invoice_series, invoice_template, status, currency, provider, notes, total_amount, vat_rate)
     VALUES
-      (gen_random_uuid(), '${tenant.id}', '${orderRows.rows[0].id}', '${customerRows.rows[0].id}', 'Công ty TNHH ABC', 'E2E-001', '01GTKT0/001', 'draft', 'VND', 'vnpt', 'Hóa đơn demo SO-2026-0001')
+      (gen_random_uuid(), '${tenant.id}', '${orderRows.rows[0].id}', '${customerRows.rows[0].id}', 'Công ty TNHH ABC', 'E2E-001', '01GTKT0/001', 'draft', 'VND', 'vnpt', 'Hóa đơn demo SO-2026-0001', 41789000, 10)
   `);
   console.log('  ✅ 1 e-invoice draft created');
 
