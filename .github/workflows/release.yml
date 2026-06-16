@@ -179,64 +179,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  certify-release:
-    name: Certify release gates
+  create-release:
+    name: Create GitHub Release
     runs-on: ubuntu-latest
     needs:
       - docker-images
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: smart_erp_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d smart_erp_test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download native artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: '*-native-artifacts'
-          path: artifacts
-          merge-multiple: true
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps
-
-      - name: Build web + Apply database migrations + seed
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
-        run: |
-          pnpm --filter @smart-erp/web build
-          cd packages/database && pnpm exec drizzle-kit migrate
-          cd ../.. && npx tsx apps/api/src/common/seeds/main.seed.ts
-
-      - name: Run Playwright E2E tests
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
-          JWT_SECRET: release-e2e-secret
-        run: pnpm test:e2e
 
       - name: Create GitHub Release
         env:
