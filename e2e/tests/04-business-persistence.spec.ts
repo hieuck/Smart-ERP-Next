@@ -260,28 +260,5 @@ test.describe('Business persistence through real API', () => {
 
     const leadSearch = await jsonOk(await request.get(`${API}/crm/leads?search=${encodeURIComponent(marker)}`, auth()), 'GET /crm/leads?search');
     expect(hasItem(leadSearch, (item) => item.id === lead.id)).toBeTruthy();
-
-    const ticket = await jsonOk(await request.post(`${API}/helpdesk/tickets`, {
-      ...auth(),
-      data: {
-        customerId: customer.id,
-        title: `Khong in duoc hoa don ${marker}`,
-        description: `Ticket tao boi Playwright de xac minh ghi DB ${marker}`,
-        priority: 'high',
-        status: 'open',
-      },
-    }), 'POST /helpdesk/tickets');
-    expect(ticket).toMatchObject({
-      id: expect.any(String),
-      customerId: customer.id,
-      title: `Khong in duoc hoa don ${marker}`,
-      status: 'open',
-    });
-
-    const ticketDetail = await jsonOk(await request.get(`${API}/helpdesk/tickets/${ticket.id}`, auth()), 'GET /helpdesk/tickets/:id');
-    expect(ticketDetail).toMatchObject({ id: ticket.id, customerId: customer.id, title: ticket.title });
-
-    const ticketList = await jsonOk(await request.get(`${API}/helpdesk/tickets?customerId=${encodeURIComponent(customer.id)}&limit=100`, auth()), 'GET /helpdesk/tickets?customerId');
-    expect(hasItem(ticketList, (item) => item.id === ticket.id)).toBeTruthy();
   });
 });

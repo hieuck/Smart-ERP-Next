@@ -56,11 +56,12 @@ jobs:
         run: pnpm qa:commit
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps
-      - name: Apply database migrations
-        working-directory: packages/database
+      - name: Apply database migrations + seed
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
-        run: pnpm exec drizzle-kit migrate
+        run: |
+          cd packages/database && pnpm exec drizzle-kit migrate
+          cd ../.. && npx tsx apps/api/src/common/seeds/main.seed.ts
       - name: Run API E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
