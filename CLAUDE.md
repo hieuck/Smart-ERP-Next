@@ -62,7 +62,18 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ---
 
-## 5. Language Convention
+## 5. CI-Equivalent Local Test (MANDATORY before any seed/CI change)
+
+Before committing any change to seed, migrations, or CI/CD workflows:
+
+1. **Create fresh DB**: `scripts/ci-local.sh` (Linux/Mac) or `scripts/ci-local.ps1` (Windows)
+2. This creates a clean database, runs migrations + seed, quality gate, e2e tests, build
+3. If ANY step fails, fix root cause — not the symptom
+4. Only push to `dev` after local CI passes
+
+Root cause rule: never push a "guess-fix" and wait for CI to validate. Always validate locally first.
+
+## 6. Language Convention
 
 - **Communication**: Vietnamese (trao đổi, thảo luận, yêu cầu)
 - **Code & Commits**: English (code, comments, commit messages, PRs, docs)
