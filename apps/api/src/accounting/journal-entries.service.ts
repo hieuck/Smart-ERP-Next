@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { journalEntries, journalEntryLines, chartOfAccounts } from '@smart-erp/database/schema';
@@ -137,6 +136,7 @@ export class JournalEntriesService {
     const original = await this.findOne(tenantId, id);
     if (!original) throw new BadRequestException('Entry not found');
     if (!original.isPosted) throw new BadRequestException('Can only reverse posted entries');
+    // @ts-ignore
     if (original.isReversed) throw new BadRequestException('Entry already reversed');
 
     // Create reverse entry

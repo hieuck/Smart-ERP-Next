@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, Logger } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { sql } from 'drizzle-orm';

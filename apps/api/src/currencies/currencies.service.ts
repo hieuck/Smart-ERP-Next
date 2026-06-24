@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { currencies as currenciesTable, exchangeRates } from '@smart-erp/database/schema';
@@ -77,7 +76,7 @@ export class CurrenciesService {
 
     const [updated] = await db
       .update(currenciesTable)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...data, updatedAt: new Date() } as any)
       .where(and(eq(currenciesTable.tenantId, tenantId), eq(currenciesTable.id, id)))
       .returning();
     return updated;

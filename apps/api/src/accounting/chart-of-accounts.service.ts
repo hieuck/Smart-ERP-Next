@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { chartOfAccounts } from '@smart-erp/database/schema';
@@ -86,6 +85,7 @@ export class ChartOfAccountsService {
     // Check if account is used in journal entries first
     const account = await this.findOne(tenantId, id);
     if (!account) return { success: false, error: 'Account not found' };
+    // @ts-ignore
     if (account.isSystem) return { success: false, error: 'Cannot delete system account' };
 
     await db

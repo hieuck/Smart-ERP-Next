@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-ignore
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Employee } from './employee.entity';
 export class Payroll {

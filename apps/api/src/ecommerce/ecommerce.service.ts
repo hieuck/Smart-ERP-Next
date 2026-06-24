@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { eq, and, sql, desc } from '@smart-erp/database/drizzle';

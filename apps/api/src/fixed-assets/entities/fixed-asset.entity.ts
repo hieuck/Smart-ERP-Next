@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-ignore
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 
 @Entity('fixed_assets')

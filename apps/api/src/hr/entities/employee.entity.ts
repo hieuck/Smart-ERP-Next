@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-ignore
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { Tenant } from '../../tenants/tenants.entity';
 

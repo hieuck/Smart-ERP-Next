@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DrizzleService } from '../drizzle/drizzle.service';

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { DrizzleService } from '../../drizzle/drizzle.service';
 import { attendanceRecords, leaveRequests, workShifts, users } from '@smart-erp/database';
@@ -252,7 +251,7 @@ export class AttendanceService {
       FROM attendance_records
       WHERE ${whereClause}
     `);
-    return (result as any[])[0] || {};
+    return (result as unknown as any[])[0] || {};
   }
 
   // ─── Leave Requests ───────────────────────────────────────────────────────────
