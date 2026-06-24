@@ -3,7 +3,7 @@ import React from 'react';
 interface StatCardProps {
   title: string;
   value: string | number;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   color?: string;
   trend?: string;
   trendUp?: boolean;

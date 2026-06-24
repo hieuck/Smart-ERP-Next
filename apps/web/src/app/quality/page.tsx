@@ -72,21 +72,25 @@ export default function QualityPage() {
   useEffect(() => { fetchData(); }, []);
 
   const supplierColumns = [
-    { label: t('suppliers.title') , render: 'supplierId' },
-    { label: t('qms.totalInspections') , render: 'totalInspections' },
+    { key: 'supplier', label: t('suppliers.title') , render: (row: any) => row.supplierId },
+    { key: 'inspections', label: t('qms.totalInspections') , render: (row: any) => row.totalInspections },
     { 
+      key: 'passRate',
       label: t('qms.passRate') , 
       render: (row: any) => <span className="font-semibold">{row.passRate}%</span> 
     },
     { 
+      key: 'grade',
       label: t('qms.supplierGrade') , 
       render: (row: any) => <span className={"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium " + gradeBadgeClass(row.grade)}>{row.grade}</span> 
     },
     { 
+      key: 'score',
       label: t('qms.score') , 
       render: (row: any) => <span className="text-lg font-bold">{row.score}</span> 
     },
     { 
+      key: 'openNCRs',
       label: t('qms.openNCRs') , 
       render: (row: any) => (
         <div className="flex gap-2">
@@ -99,13 +103,14 @@ export default function QualityPage() {
   ];
 
   const ncrColumns = [
-    { label: 'Ma loi (Code)', render: 'code' },
-    { label: 'Mo ta', render: 'description' },
+    { key: 'code', label: 'Ma loi (Code)', render: (row: any) => row.code },
+    { key: 'desc', label: 'Mo ta', render: (row: any) => row.description },
     { 
+      key: 'severity',
       label: 'Muc do', 
       render: (row: any) => <span className={"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium " + severityBadgeClass(row.severity)}>{row.severity}</span> 
     },
-    { label: 'Trang thai', render: 'status' },
+    { key: 'status', label: 'Trang thai', render: (row: any) => row.status },
   ];
 
   return (

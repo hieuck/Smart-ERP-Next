@@ -68,32 +68,38 @@ export default function ProductionOrdersPage() {
 
   const columns = [
     {
+      key: 'orderCode',
       label: t('manufacturing.productionOrders') ,
       render: (row: ProductionOrder) => (
         <span className="font-mono font-semibold text-blue-600 dark:text-blue-400">{row.orderCode}</span>
       )
     },
     {
+      key: 'product',
       label: t('nav.products') ,
-      render: 'productName'
+      render: (row: ProductionOrder) => row.productName
     },
     {
+      key: 'qty',
       label: t('manufacturing.quantity') ,
       render: (row: ProductionOrder) => (
         <span className="font-semibold">{Number(row.quantity).toLocaleString('vi-VN')}</span>
       )
     },
     {
+      key: 'status',
       label: t('manufacturing.status.draft').replace(t('manufacturing.status.draft'), t('common.status') ),
       render: (row: ProductionOrder) => getStatusBadge(row.status)
     },
     {
+      key: 'startDate',
       label: t('manufacturing.setupTime') ? t('projects.startDate') : 'Ngay bat dau',
       render: (row: ProductionOrder) => row.startDate
         ? new Date(row.startDate).toLocaleDateString('vi-VN')
         : '-'
     },
     {
+      key: 'createdAt',
       label: t('common.createdAt') ,
       render: (row: ProductionOrder) => new Date(row.createdAt).toLocaleDateString('vi-VN')
     },

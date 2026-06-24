@@ -4,11 +4,12 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'success';
   size?: 'sm' | 'md' | 'lg' | 'icon';
   loading?: boolean;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', loading = false, className = '', children, disabled, ...props }, ref) => {
+  ({ variant = 'primary', size = 'md', loading = false, icon, className = '', children, disabled, ...props }, ref) => {
     const base =
       'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
 
@@ -41,6 +42,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
         )}
+        {!loading && icon && <span className="-ml-1 mr-2 h-4 w-4">{icon}</span>}
         {children}
       </button>
     );

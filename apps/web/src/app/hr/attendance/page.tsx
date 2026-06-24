@@ -146,34 +146,40 @@ export default function AttendancePage() {
   const isCheckedOut = today?.checkInAt && today?.checkOutAt;
 
   const recordColumns = [
-    { label: t('hr.employees.name'), render: (r: AttendanceRecord) => r.employee_name },
+    { key: 'name', label: t('hr.employees.name'), render: (r: AttendanceRecord) => r.employee_name },
     {
+      key: 'shift',
       label: t('attendance.shift'),
-      render: (r: AttendanceRecord) => r.shift_name ?? <span className="text-gray-400">â€”</span>,
+      render: (r: AttendanceRecord) => r.shift_name ?? <span className="text-gray-400">—</span>,
     },
     {
+      key: 'checkIn',
       label: t('attendance.checkIn'),
       render: (r: AttendanceRecord) => (
         <span className="font-mono">{formatTime(r.check_in_at)}</span>
       ),
     },
     {
+      key: 'checkOut',
       label: t('attendance.checkOut'),
       render: (r: AttendanceRecord) => (
         <span className="font-mono">{formatTime(r.check_out_at)}</span>
       ),
     },
     {
+      key: 'workHours',
       label: t('attendance.workHours'),
-      render: (r: AttendanceRecord) => r.actual_hours ? `${Number(r.actual_hours).toFixed(1)}h` : 'â€”',
+      render: (r: AttendanceRecord) => r.actual_hours ? `${Number(r.actual_hours).toFixed(1)}h` : '—',
     },
     {
+      key: 'overtime',
       label: t('attendance.overtime'),
       render: (r: AttendanceRecord) => Number(r.overtime_hours) > 0
         ? <span className="font-semibold text-orange-500">+{Number(r.overtime_hours).toFixed(1)}h</span>
-        : <span className="text-gray-400">â€”</span>,
+        : <span className="text-gray-400">—</span>,
     },
     {
+      key: 'status',
       label: t('attendance.status') ,
       render: (r: AttendanceRecord) => {
         const cfg = STATUS_CONFIG[r.status] || STATUS_CONFIG.present;
@@ -187,8 +193,9 @@ export default function AttendancePage() {
   ];
 
   const leaveColumns = [
-    { label: t('hr.employees.name'), render: (l: LeaveRequest) => l.employee_name },
+    { key: 'name', label: t('hr.employees.name'), render: (l: LeaveRequest) => l.employee_name },
     {
+      key: 'leaveType',
       label: t('attendance.leave.title'),
       render: (l: LeaveRequest) => (
         <span style={{ color: LEAVE_TYPE_COLORS[l.leave_type]  }} className="font-semibold">
@@ -197,18 +204,22 @@ export default function AttendancePage() {
       ),
     },
     {
+      key: 'startDate',
       label: t('attendance.leave.startDate'),
       render: (l: LeaveRequest) => new Date(l.start_date).toLocaleDateString('vi-VN'),
     },
     {
+      key: 'endDate',
       label: t('attendance.leave.endDate'),
       render: (l: LeaveRequest) => new Date(l.end_date).toLocaleDateString('vi-VN'),
     },
     {
+      key: 'totalDays',
       label: t('attendance.leave.totalDays'),
       render: (l: LeaveRequest) => <span className="font-bold">{l.total_days}</span>,
     },
     {
+      key: 'status',
       label: t('attendance.leave.statuses.pending'),
       render: (l: LeaveRequest) => {
         const colorClass = l.status === 'approved' ? 'bg-green-100 text-green-700'
@@ -219,6 +230,7 @@ export default function AttendancePage() {
       },
     },
     {
+      key: 'actions',
       label: t('common.actions') ,
       render: (l: LeaveRequest) => l.status === 'pending' ? (
         <Button
@@ -229,7 +241,7 @@ export default function AttendancePage() {
         >
           {t('actions.approve')}
         </Button>
-      ) : <span className="text-gray-400">â€”</span>,
+      ) : <span className="text-gray-400">—</span>,
     },
   ];
 
@@ -257,7 +269,7 @@ export default function AttendancePage() {
             ) : null}
             {isCheckedIn ? (
               <Button
-                variant="danger"
+                variant="destructive"
                 loading={actionLoading === 'checkout'}
                 onClick={handleCheckOut}
               >

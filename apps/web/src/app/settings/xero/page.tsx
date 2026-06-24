@@ -30,19 +30,19 @@ export default function XeroSettingsPage() {
   const saveConnection = async () => {
     try {
       await apiClient.post('/xero/connect', config);
-      toast.success(t('xero.saved'));
+      toast.showToast(t('xero.saved'), 'success');
       setConnected(true);
     } catch (err) {
-      toast.error(t('common.error'));
+      toast.showToast(t('common.error'), 'error');
     }
   };
 
   const triggerSync = async (type: string) => {
     try {
       await apiClient.post('/xero/sync', { type });
-      toast.success(t(`xero.sync${type}Success`));
+      toast.showToast(t(`xero.sync${type}Success`), 'success');
     } catch (err) {
-      toast.error(t('common.error'));
+      toast.showToast(t('common.error'), 'error');
     }
   };
 
@@ -64,9 +64,9 @@ export default function XeroSettingsPage() {
           <Input label={t('xero.refreshToken')} type="password" value={config.refreshToken} onChange={e => setConfig({ ...config, refreshToken: e.target.value })} />
           <Input label={t('xero.tenantId')} value={config.xeroTenantId} onChange={e => setConfig({ ...config, xeroTenantId: e.target.value })} />
           <div className="flex gap-4">
-            <div className="flex items-center gap-2"><Switch checked={config.syncCustomers} onCheckedChange={v => setConfig({ ...config, syncCustomers: v })} /><span>{t('xero.syncCustomers')}</span></div>
-            <div className="flex items-center gap-2"><Switch checked={config.syncInvoices} onCheckedChange={v => setConfig({ ...config, syncInvoices: v })} /><span>{t('xero.syncInvoices')}</span></div>
-            <div className="flex items-center gap-2"><Switch checked={config.syncPayments} onCheckedChange={v => setConfig({ ...config, syncPayments: v })} /><span>{t('xero.syncPayments')}</span></div>
+            <div className="flex items-center gap-2"><Switch checked={config.syncCustomers} onCheckedChange={(v: boolean) => setConfig({ ...config, syncCustomers: v })} /><span>{t('xero.syncCustomers')}</span></div>
+            <div className="flex items-center gap-2"><Switch checked={config.syncInvoices} onCheckedChange={(v: boolean) => setConfig({ ...config, syncInvoices: v })} /><span>{t('xero.syncInvoices')}</span></div>
+            <div className="flex items-center gap-2"><Switch checked={config.syncPayments} onCheckedChange={(v: boolean) => setConfig({ ...config, syncPayments: v })} /><span>{t('xero.syncPayments')}</span></div>
           </div>
           <Button onClick={saveConnection}>{t('actions.save')}</Button>
         </div>

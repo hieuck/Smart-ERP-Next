@@ -2,7 +2,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, Input, Button, Tabs, Tab, useToast, Select } from '@smart-erp/shared';
+import { Card, Input, Button, useToast, Select } from '@smart-erp/shared';
 import { apiClient } from '@/lib/api-client';
 
 type EcommerceStore = {
@@ -27,7 +27,7 @@ type EcommerceSyncLog = {
 
 export default function EcommerceSettingsPage() {
   const { t } = useTranslation('common');
-  const toast = useToast();
+  const { showToast } = useToast();
 
   const [stores, setStores] = useState<EcommerceStore[]>([]);
   const [logs, setLogs] = useState<EcommerceSyncLog[]>([]);
@@ -51,11 +51,11 @@ export default function EcommerceSettingsPage() {
       const res = await apiClient.get('/ecommerce/stores');
       setStores(res.data || []);
     } catch {
-      toast.error(t('common.error'));
+      showToast(t('common.error'), 'error');
     } finally {
       setLoadingStores(false);
     }
-  }, [t, toast]);
+  }, [t, showToast]);
 
   const loadLogs = useCallback(async (storeId?: string | null) => {
     setLoadingLogs(true);
@@ -65,11 +65,11 @@ export default function EcommerceSettingsPage() {
       });
       setLogs(res.data || []);
     } catch {
-      toast.error(t('common.error'));
+      showToast(t('common.error'), 'error');
     } finally {
       setLoadingLogs(false);
     }
-  }, [t, toast]);
+  }, [t, showToast]);
 
   useEffect(() => {
     loadStores();
@@ -79,29 +79,29 @@ export default function EcommerceSettingsPage() {
   const syncAll = async () => {
     try {
       await apiClient.post('/ecommerce/sync/all');
-      toast.success(t('actions.success','Thao tác thành công'));
+      showToast(t('actions.success','Thao tác thành công'), 'success');
       await loadStores();
       await loadLogs(selectedStoreId);
     } catch {
-      toast.error(t('common.error'));
+      showToast(t('common.error'), 'error');
     }
   };
 
   const syncStore = async (storeId: string) => {
     try {
       await apiClient.post(`/ecommerce/stores/${storeId}/sync`);
-      toast.success(t('actions.success','Thao tác thành công'));
+      showToast(t('actions.success','Thao tác thành công'), 'success');
       await loadStores();
       setSelectedStoreId(storeId);
       await loadLogs(storeId);
     } catch {
-      toast.error(t('common.error'));
+      showToast(t('common.error'), 'error');
     }
   };
 
   const handleCreateStore = async () => {
     if (!newStore.name) {
-      toast.error(t('validation.required', { field: t('ecommerce.create.name') }));
+        showToast(t('validation.required', { field: t('ecommerce.create.name') }), 'error');
       return;
     }
 
@@ -116,14 +116,14 @@ export default function EcommerceSettingsPage() {
         configJson: newStore.configJson,
       });
 
-      toast.success(t('actions.success', 'Thao tác thành công'));
+      showToast(t('actions.success', 'Thao tác thành công'), 'success');
       setNewStore({ platform: 'shopee', name: '', configJson: '{}' });
       await loadStores();
     } catch (err: any) {
       if (err instanceof SyntaxError) {
-        toast.error(t('ecommerce.create.invalidJson', 'JSON không hợp lệ'));
+        showToast(t('ecommerce.create.invalidJson', 'JSON không hợp lệ'), 'error');
       } else {
-        toast.error(t('common.error'));
+        showToast(t('common.error'), 'error');
       }
     } finally {
       setCreating(false);
@@ -236,9 +236,9 @@ export default function EcommerceSettingsPage() {
             <Select
               label={t('ecommerce.create.platform')}
               value={newStore.platform}
-              onChange={(v) => {
-                setNewStore({ ...newStore, platform: v });
-                setActiveTab(v);
+              onChange={(e) => {
+                setNewStore({ ...newStore, platform: e.target.value });
+                setActiveTab(e.target.value);
               }}
               options={[
                 { value: 'shopee', label: 'Shopee' },

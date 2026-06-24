@@ -9,7 +9,7 @@ import { useToast } from '@/components/providers/ToastProvider';
 
 export default function EmployeesPage() {
   const { t } = useTranslation('common');
-  const { showToast } = useToast();
+  const { info } = useToast();
   const [employees, setEmployees] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +29,7 @@ export default function EmployeesPage() {
           title={t('hr.employee.title')}
           description="Manage your employees"
           actions={
-            <Button onClick={() => showToast('info', 'Add employee form coming soon')}>
+            <Button onClick={() => info('Add employee form coming soon')}>
               {t('hr.employee.add')}
             </Button>
           }

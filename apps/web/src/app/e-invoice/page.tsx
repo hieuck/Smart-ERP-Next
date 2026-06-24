@@ -36,13 +36,15 @@ interface Stats {
   total_vat: string;
 }
 
-const STATUS_CONFIG = {
-  draft:     { variant: 'secondary' as const, label: 'Nháp',        icon: <Clock /> },
-  signed:    { variant: 'primary' as const,   label: 'Đã ký',       icon: <CheckCircle /> },
-  issued:    { variant: 'success' as const,   label: 'Đã phát hành', icon: <Send /> },
-  cancelled: { variant: 'danger' as const,    label: 'Đã hủy',      icon: <XCircle /> },
-  replaced:  { variant: 'secondary' as const, label: 'Đã thay thế', icon: <FileText /> },
-  adjusted:  { variant: 'warning' as const,   label: 'Điều chỉnh',  icon: <FileText /> },
+type StatusVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'error';
+
+const STATUS_CONFIG: Record<string, { variant: StatusVariant; label: string; icon: React.ReactNode }> = {
+  draft:     { variant: 'secondary', label: 'Nháp',        icon: <Clock /> },
+  signed:    { variant: 'primary',   label: 'Đã ký',       icon: <CheckCircle /> },
+  issued:    { variant: 'success',   label: 'Đã phát hành', icon: <Send /> },
+  cancelled: { variant: 'danger',    label: 'Đã hủy',      icon: <XCircle /> },
+  replaced:  { variant: 'secondary', label: 'Đã thay thế', icon: <FileText /> },
+  adjusted:  { variant: 'warning',   label: 'Điều chỉnh',  icon: <FileText /> },
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -114,8 +116,9 @@ export default function EInvoicePage() {
 
   const columns = [
     {
-      header: t('einvoice.invoiceNumber') ,
-      accessor: (row: EInvoice) => (
+      key: 'invoiceNumber',
+      label: t('einvoice.invoiceNumber'),
+      render: (row: EInvoice) => (
         <div>
           <span className="font-mono font-bold text-blue-600 dark:text-blue-400">
             {row.invoiceNumber ? `${row.invoiceSeries}/${row.invoiceNumber}` : '--'}
@@ -125,8 +128,9 @@ export default function EInvoicePage() {
       ),
     },
     {
-      header: t('einvoice.buyer') ,
-      accessor: (row: EInvoice) => (
+      key: 'buyer',
+      label: t('einvoice.buyer'),
+      render: (row: EInvoice) => (
         <div>
           <div className="font-semibold text-gray-900 dark:text-white">{row.buyerName}</div>
           {row.buyerTaxCode ? (
@@ -136,8 +140,9 @@ export default function EInvoicePage() {
       ),
     },
     {
-      header: t('einvoice.totalAmount') ,
-      accessor: (row: EInvoice) => (
+      key: 'totalAmount',
+      label: t('einvoice.totalAmount'),
+      render: (row: EInvoice) => (
         <div>
           <div className="font-bold text-gray-900 dark:text-white">{formatVND(row.totalAmount)}</div>
           <div className="text-xs text-gray-400">VAT: {formatVND(row.vatAmount)}</div>
@@ -145,21 +150,24 @@ export default function EInvoicePage() {
       ),
     },
     {
-      header: t('einvoice.status') ,
-      accessor: (row: EInvoice) => {
+      key: 'status',
+      label: t('einvoice.status'),
+      render: (row: EInvoice) => {
         const cfg = STATUS_CONFIG[row.status] || STATUS_CONFIG.draft;
         return <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.variant === 'primary' || cfg.variant === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : cfg.variant === 'warning' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' : cfg.variant === 'danger' || cfg.variant === 'error' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>{cfg.icon}{cfg.label}</span>;
       },
     },
     {
-      header: t('einvoice.issuedAt') ,
-      accessor: (row: EInvoice) => row.issuedAt
+      key: 'issuedAt',
+      label: t('einvoice.issuedAt'),
+      render: (row: EInvoice) => row.issuedAt
         ? new Date(row.issuedAt).toLocaleDateString('vi-VN')
         : <span className="text-gray-400">-</span>,
     },
     {
-      header: t('common.actions') ,
-      accessor: (row: EInvoice) => (
+      key: 'actions',
+      label: t('common.actions'),
+      render: (row: EInvoice) => (
         <div className="flex items-center gap-1">
           {row.status === 'draft' ? (
             <Button
@@ -169,7 +177,7 @@ export default function EInvoicePage() {
               loading={actionLoading === row.id}
               onClick={() => handleIssue(row.id)}
             >
-              {t('einvoice.issue') }
+              {t('einvoice.issue')}
             </Button>
           ) : null}
           {row.pdfUrl ? (
@@ -189,7 +197,7 @@ export default function EInvoicePage() {
               icon={<ExternalLink />}
               onClick={() => window.open(row.viewUrl!, '_blank')}
             >
-              {t('einvoice.view') }
+              {t('einvoice.view')}
             </Button>
           ) : null}
         </div>

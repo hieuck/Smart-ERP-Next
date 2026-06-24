@@ -107,8 +107,9 @@ export default function BOMPage() {
   const totalCycleTime = routingSteps.reduce((sum, s) => sum + s.setupTimeMinutes + s.cycleTimeMinutes, 0);
 
   const bomColumns = [
-    { label: '#', render: (row: BomItem) => <span className="text-gray-400 font-mono">{row.sequenceOrder}</span> },
+    { key: 'seq', label: '#', render: (row: BomItem) => <span className="text-gray-400 font-mono">{row.sequenceOrder}</span> },
     {
+      key: 'component',
       label: t('manufacturing.component'),
       render: (row: BomItem) => (
         <div className="flex items-center gap-2">
@@ -119,8 +120,9 @@ export default function BOMPage() {
         </div>
       )
     },
-    { label: t('manufacturing.quantity'), render: (row: BomItem) => <span className="font-semibold">{row.quantity}</span> },
+    { key: 'qty', label: t('manufacturing.quantity'), render: (row: BomItem) => <span className="font-semibold">{row.quantity}</span> },
     {
+      key: 'wastage',
       label: t('manufacturing.wastage'),
       render: (row: BomItem) => (
         <span className={row.wastagePercent > 5 ? 'text-amber-600 font-semibold' : 'text-gray-500'}>
@@ -129,10 +131,12 @@ export default function BOMPage() {
       )
     },
     {
+      key: 'cost',
       label: t('products.cost') ,
       render: (row: BomItem) => formatVND(row.unitCost)
     },
     {
+      key: 'subtotal',
       label: t('payment.subtotal') ,
       render: (row: BomItem) => {
         const effectiveQty = row.quantity * (1 + row.wastagePercent / 100);
@@ -142,8 +146,9 @@ export default function BOMPage() {
   ];
 
   const routingColumns = [
-    { label: '#', render: (row: RoutingStep) => <span className="text-gray-400 font-mono">{row.sequenceOrder}</span> },
+    { key: 'seq', label: '#', render: (row: RoutingStep) => <span className="text-gray-400 font-mono">{row.sequenceOrder}</span> },
     {
+      key: 'operation',
       label: t('manufacturing.operationName'),
       render: (row: RoutingStep) => (
         <div>
@@ -155,18 +160,22 @@ export default function BOMPage() {
       )
     },
     {
+      key: 'workCenter',
       label: t('manufacturing.workCenter'),
       render: (row: RoutingStep) => <span className="font-mono text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{row.workCenter}</span>
     },
     {
+      key: 'setupTime',
       label: t('manufacturing.setupTime'),
       render: (row: RoutingStep) => `${row.setupTimeMinutes} min`
     },
     {
+      key: 'cycleTime',
       label: t('manufacturing.cycleTime'),
       render: (row: RoutingStep) => <span className="font-semibold">{row.cycleTimeMinutes} min</span>
     },
     {
+      key: 'laborCost',
       label: t('manufacturing.laborCost'),
       render: (row: RoutingStep) => formatVND(row.laborCostPerHour) + '/h'
     },

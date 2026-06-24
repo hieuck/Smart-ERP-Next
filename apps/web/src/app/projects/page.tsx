@@ -27,10 +27,10 @@ export default function ProjectsPage() {
           actions={<Button>{t('projects.add')}</Button>}
         />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard title={t('projects.stats')} value="0" label={t('projects.totalTasks')} />
-          <StatCard title={t('projects.completedTasks')} value="0" label="" />
-          <StatCard title={t('projects.inProgressTasks')} value="0" label="" />
-          <StatCard title={t('projects.completionRate')} value="0%" label="" />
+          <StatCard title={t('projects.stats')} value="0" />
+          <StatCard title={t('projects.completedTasks')} value="0" />
+          <StatCard title={t('projects.inProgressTasks')} value="0" />
+          <StatCard title={t('projects.completionRate')} value="0%" />
         </div>
         <DataTable columns={columns} data={[]} loading={false} emptyMessage={t('common.noData')} />
       </div>

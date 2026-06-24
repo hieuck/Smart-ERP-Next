@@ -159,8 +159,8 @@ export default function EditProductPage() {
                   {t('products.translations')}
                 </label>
                 <ProductTranslationsEditor
-                  value={form.translations}
-                  onChange={(translations) => setForm(prev => ({ ...prev, translations }))}
+                  value={(form as any).translations}
+                  onChange={(translations: any) => setForm(prev => ({ ...prev, translations }))}
                 />
               </div>
             </div>

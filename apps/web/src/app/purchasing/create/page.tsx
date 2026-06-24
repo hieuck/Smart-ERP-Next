@@ -67,7 +67,7 @@ export default function CreatePurchaseOrderPage() {
     if (!productSearch.trim()) { setProductResults([]); return; }
     const timer = setTimeout(async () => {
       const res = await productsApi.getAll({ search: productSearch, limit: 8, isActive: true });
-      setProductResults(res.data?.items ?? res.items);
+      setProductResults(res.items);
       setShowProductDrop(true);
     }, 250);
     return () => clearTimeout(timer);

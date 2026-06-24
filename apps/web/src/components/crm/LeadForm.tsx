@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { leadsApi } from '@/lib/api-crm';
+import { leadsApi, CreateLeadInput } from '@/lib/api-crm';
 import { X } from 'lucide-react';
 
 interface LeadFormProps {
@@ -51,7 +51,7 @@ export default function LeadForm({ lead, onSuccess, onClose }: LeadFormProps) {
       if (lead?.id) {
         await leadsApi.update(lead.id, form);
       } else {
-        await leadsApi.create(form);
+        await leadsApi.create(form as CreateLeadInput);
       }
       onSuccess();
       onClose();
