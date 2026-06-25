@@ -52,8 +52,10 @@ export default function LoginPage() {
   };
 
   const fillDemo = () => {
-    if (emailRef.current) emailRef.current.value = 'admin@smarterp.vn';
-    if (passwordRef.current) passwordRef.current.value = 'admin123';
+    const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL || 'admin@smarterp.vn';
+    const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD || 'admin123';
+    if (emailRef.current) emailRef.current.value = demoEmail;
+    if (passwordRef.current) passwordRef.current.value = demoPassword;
   };
 
   return (
