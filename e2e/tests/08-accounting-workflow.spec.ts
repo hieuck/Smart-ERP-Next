@@ -51,9 +51,10 @@ test.describe('Accounting workflows', () => {
       const seeded = await jsonOk(await request.get(`${API}/accounting/accounts`, auth()), 'GET /accounting/accounts (after seed)');
       accts = Array.isArray(seeded) ? seeded : seeded.items ?? [];
     }
-    const debitAccount = accts.find((a: any) => a.accountCode === '1111') || accts[0];
-    const creditAccount = accts.find((a: any) => a.accountCode === '5111') || accts[1] || accts[0];
-    expect(debitAccount, 'No account found for journal entry').toBeDefined();
+    expect(accts.length, 'No accounts found after seed').toBeGreaterThanOrEqual(2);
+    // Use first two accounts — one as debit, one as credit
+    const debitAccount = accts[0];
+    const creditAccount = accts[accts.length - 1];
     const journalEntry = await jsonOk(await request.post(`${API}/accounting/entries`, {
       ...auth(),
       data: {
