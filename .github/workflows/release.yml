@@ -19,120 +19,11 @@ permissions:
   packages: write
 
 jobs:
-  mobile-native-artifacts:
-    name: Build Android and iOS artifacts
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    env:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      EAS_PROJECT_ID: ${{ secrets.EAS_PROJECT_ID }}
-      ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
-      ASC_API_KEY_ISSUER_ID: ${{ secrets.ASC_API_KEY_ISSUER_ID }}
-      ASC_API_KEY_PATH: ${{ secrets.ASC_API_KEY_PATH }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Validate iOS release prerequisites
-        env:
-          SKIP_IOS_SIGNING: ${{ secrets.EAS_IOS_CREDENTIALS_READY == '' && 'true' || '' }}
-        run: pnpm verify:ios-release-prereqs
-
-      - name: Build Android installable artifact with EAS
-        if: env.EXPO_TOKEN != ''
-        shell: bash
-        run: |
-          mkdir -p artifacts/eas
-          pnpm --filter @smart-erp/mobile exec eas build --platform android --profile production --non-interactive --wait --json > artifacts/eas/android.json
-          node scripts/download-eas-artifacts.js artifacts/eas/android.json artifacts
-
-      - name: Build iOS installable artifact with EAS
-        if: env.EXPO_TOKEN != ''
-        shell: bash
-        env:
-          EAS_BUILD_PROFILE: ${{ secrets.EAS_IOS_CREDENTIALS_READY == '' && 'ios-unsigned' || 'production' }}
-        run: |
-          mkdir -p artifacts/eas
-          pnpm --filter @smart-erp/mobile exec eas build --platform ios --profile "$EAS_BUILD_PROFILE" --non-interactive --wait --json > artifacts/eas/ios.json
-          node scripts/download-eas-artifacts.js artifacts/eas/ios.json artifacts
-
-      - name: Upload mobile native artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mobile-native-artifacts
-          path: |
-            artifacts/android
-            artifacts/ios
-          if-no-files-found: warn
-
-  windows-native-artifacts:
-    name: Build Windows installer
-    runs-on: windows-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install NSIS
-        continue-on-error: true
-        run: choco install nsis -y
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-
-      - name: Build Windows installer
-        continue-on-error: true
-        run: pnpm --filter @smart-erp/desktop windows:build
-
-      - name: Stage Windows installer
-        continue-on-error: true
-        shell: powershell
-        run: |
-          if (Test-Path "apps/desktop/src-tauri/target/release/bundle/nsis") {
-            New-Item -ItemType Directory -Force artifacts/windows | Out-Null
-            Copy-Item "apps/desktop/src-tauri/target/release/bundle/nsis/*" artifacts/windows/
-          }
-
-      - name: Upload Windows native artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-native-artifacts
-          path: artifacts/windows
-          if-no-files-found: warn
-
   docker-images:
     name: Build and push Docker image
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -162,8 +53,7 @@ jobs:
     needs:
       - docker-images
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Create GitHub Release
         env:

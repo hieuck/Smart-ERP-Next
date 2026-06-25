@@ -78,37 +78,6 @@ services:
     networks:
       - smart-erp-network
 
-  prometheus:
-    profiles: ["monitoring"]
-    image: prom/prometheus:latest
-    container_name: smart-erp-prometheus
-    ports:
-      - "9090:9090"
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    volumes:
-      - prometheus_data:/prometheus
-    restart: unless-stopped
-    networks:
-      - smart-erp-network
-
-  grafana:
-    profiles: ["monitoring"]
-    image: grafana/grafana:latest
-    container_name: smart-erp-grafana
-    ports:
-      - "3002:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
-    restart: unless-stopped
-    networks:
-      - smart-erp-network
-
 networks:
   smart-erp-network:
     driver: bridge
@@ -116,5 +85,3 @@ networks:
 volumes:
   postgres_data:
   api_uploads:
-  prometheus_data:
-  grafana_data:
