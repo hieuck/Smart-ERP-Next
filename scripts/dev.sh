@@ -10,7 +10,9 @@ if [ ! -f .env ]; then
 fi
 
 # Start PostgreSQL via Docker if not already running
-if ! docker compose ps postgres --format '{{.Status}}' 2>/dev/null | grep -q "healthy"; then
+if docker compose ps postgres --format '{{.Status}}' 2>/dev/null | grep -q "healthy"; then
+  echo "PostgreSQL already running"
+else
   echo "Starting PostgreSQL via Docker..."
   docker compose up -d postgres
   echo "Waiting for PostgreSQL to be ready..."

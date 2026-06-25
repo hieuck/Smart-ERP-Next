@@ -13,45 +13,28 @@
 
 **Yêu cầu:** Docker & Docker Compose
 
+### Cách 1: Nhanh nhất (dùng image có sẵn, không cần build)
+
 ```bash
-# 1. Clone & chạy — không cần .env, không cần cài đặt gì thêm
-git clone https://github.com/hieuck/Smart-ERP-Next.git
-cd Smart-ERP-Next
-docker compose up -d
-
-# 2. Mở trình duyệt
-# Web: http://localhost:3457
-# API: http://localhost:3456/api
-
-# 3. Đăng nhập
-# Email:    admin@smarterp.vn
-# Mật khẩu: admin123
+docker compose -f docker-compose.quickstart.yml up -d
+# Mở http://localhost:3457
+# Email: admin@smarterp.vn / Mật khẩu: admin123
 ```
+
+Image được tải sẵn từ GitHub Container Registry, không cần build.
 
 > Hệ thống tự động migrate database + seed dữ liệu demo ngay lần chạy đầu tiên.
 
-### Dùng image từ GitHub Container Registry:
+### Cách 2: Tự build (khi cần custom)
 
-**Bước 1:** Pull image
 ```bash
-docker pull ghcr.io/hieuck/smart-erp-next:latest
+git clone https://github.com/hieuck/Smart-ERP-Next.git
+cd Smart-ERP-Next
+docker compose up -d
+# Mở http://localhost:3457
 ```
 
-**Bước 2:** Chạy PostgreSQL (nếu chưa có)
-```bash
-docker run -d --name smart-erp-postgres \
-  -e POSTGRES_USER=smart_erp -e POSTGRES_PASSWORD=smart_erp -e POSTGRES_DB=smart_erp \
-  -v smart_erp_data:/var/lib/postgresql/data \
-  postgres:16-alpine
-```
-
-**Bước 3:** Chạy Smart ERP
-```bash
-docker run -d --name smart-erp -p 3457:3457 -p 3456:3456 \
-  -e DATABASE_URL=postgresql://smart_erp:smart_erp@host.docker.internal:5432/smart_erp \
-  -e JWT_SECRET=change-me-in-production \
-  ghcr.io/hieuck/smart-erp-next:latest
-```
+Build từ source, mất ~20 phút lần đầu. Phù hợp khi bạn muốn chỉnh sửa code.
 
 ---
 
