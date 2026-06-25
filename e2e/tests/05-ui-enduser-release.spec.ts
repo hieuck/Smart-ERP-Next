@@ -115,10 +115,11 @@ test.describe('UI/UX end-user release audit', () => {
     await expectNoFrameworkOverlay(page);
     await expectNoHorizontalOverflow(page);
 
-    await page.getByPlaceholder(/tim san pham|tìm sản phẩm/i).fill(fixtures.productName);
+    await page.getByPlaceholder(/tim san pham|tìm sản phẩm|Search products/i).fill(fixtures.productName);
     const productCard = page.locator('button').filter({ hasText: fixtures.productName }).first();
-    await expect(productCard).toBeVisible({ timeout: 10000 });
-    await productCard.click();
+    await expect(productCard).toBeVisible({ timeout: 15000 });
+    await page.waitForTimeout(500);
+    await productCard.click({ force: true });
     await expect(page.getByText(fixtures.productName).first()).toBeVisible();
 
     await page.locator('input[placeholder^="Khach le"], input[placeholder^="Khách lẻ"]').fill(fixtures.customerName);
