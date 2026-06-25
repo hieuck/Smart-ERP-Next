@@ -43,8 +43,8 @@ import { AnalyticsDashboardModule } from './analytics-dashboard/analytics-dashbo
 import { EInvoiceModule } from './e-invoice/e-invoice.module';
 import { CustomerPortalModule } from './customers/customer-portal.module';
 import { AnalyticsModule } from './analytics/analytics.module';
-import { ChatModule } from './chat/chat.module';
 import { SettingsModule } from './settings/settings.module';
+import { ChatModule } from './chat/chat.module';
 import { SocketModule } from './socket/socket.module';
 import { EcommerceModule } from './ecommerce/ecommerce.module';
 import { AiCopilotModule } from './ai-copilot/ai-copilot.module';
