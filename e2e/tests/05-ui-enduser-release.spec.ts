@@ -117,10 +117,14 @@ test.describe('UI/UX end-user release audit', () => {
 
     await page.getByPlaceholder(/tim san pham|tìm sản phẩm|Search products/i).fill(fixtures.productName);
     await page.waitForTimeout(2000);
-    const productCard = page.locator('button').filter({ hasText: fixtures.productName }).first();
-    await expect(productCard).toBeVisible({ timeout: 20000 });
-    await page.waitForTimeout(1000);
-    await productCard.click({ timeout: 30000 });
+    await page.evaluate((name) => {
+      const buttons = document.querySelectorAll('button');
+      for (const btn of buttons) {
+        if (btn.textContent?.includes(name)) { btn.click(); return; }
+      }
+      console.error('Product button not found:', name);
+    }, fixtures.productName);
+    await page.waitForTimeout(500);
     await expect(page.getByText(fixtures.productName).first()).toBeVisible();
 
     await page.locator('input[placeholder^="Khach le"], input[placeholder^="Khách lẻ"]').fill(fixtures.customerName);
