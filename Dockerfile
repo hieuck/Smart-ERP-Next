@@ -1,6 +1,7 @@
 # ──────────────────────────────────────────────────────────────
-# Smart ERP Next — Unified Docker Image (API + Web in one)
-# Usage: docker run -p 3457:3457 ghcr.io/hieuck/smart-erp-next
+# Smart ERP Next — Self-contained Docker Image
+# Postgres + API + Web in one container for zero-config demo
+# Usage: docker run -p 3456:3456 -p 3457:3457 ghcr.io/hieuck/smart-erp-next
 # ──────────────────────────────────────────────────────────────
 
 # Build stage
@@ -18,9 +19,10 @@ COPY apps/web/public/ ./apps/web/public/
 
 RUN pnpm install --no-frozen-lockfile && pnpm -r run build
 
-# Runtime stage
-FROM node:22-alpine
+# Runtime stage — based on postgres for embedded database
+FROM postgres:16-alpine
 WORKDIR /app
+
 ENV NODE_ENV=production
 ENV PORT=3456
 ENV WEB_PORT=3457
@@ -31,16 +33,18 @@ LABEL org.opencontainers.image.description="Hệ thống quản trị doanh nghi
 LABEL org.opencontainers.image.source="https://github.com/hieuck/Smart-ERP-Next"
 LABEL org.opencontainers.image.licenses="MIT"
 
-RUN npm install -g pnpm@10.33.0 && apk add --no-cache curl
+# Install Node.js + pnpm + curl
+RUN apk add --no-cache nodejs npm curl && \
+    npm install -g pnpm@10.33.0
 
-# Copy built artifacts + source (for workspace resolution)
+# Copy built artifacts
 COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY --from=build /app/packages /app/packages
 COPY --from=build /app/apps /app/apps
 COPY --from=build /app/scripts /app/scripts
 COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
 
-# Production install + workspace link (pnpm --prod strips workspace: links)
+# Production install
 RUN set -eux; \
     pnpm install --no-frozen-lockfile --prod; \
     for d in /app/packages/*/; do \
