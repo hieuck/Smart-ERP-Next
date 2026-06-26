@@ -42,8 +42,8 @@ Completed: 32 | Remaining: 6
 
 | Item | Impact | Notes |
 |------|--------|-------|
-| 166 coverage stubs | Medium | .coverage.spec.ts files inflate coverage % without testing logic |
-| ~58 modules flat import | Low | app.module.ts imports all modules without domain grouping |
+| ~48 modules flat import | Low | app.module.ts imports all modules without domain grouping |
+| Legacy .coverage.spec.ts convention | None | 166 co-located test files — all have real test logic (0 empty stubs) |
 
 ## Remaining
 
