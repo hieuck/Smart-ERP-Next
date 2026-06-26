@@ -139,6 +139,7 @@ describe("AuthService", () => {
       }),
     ).resolves.toEqual({
       access_token: "signed-token",
+      refresh_token: "signed-token",
       user: {
         email: "staff@example.com",
         id: "user-1",
@@ -147,12 +148,10 @@ describe("AuthService", () => {
         tenantId: "tenant-1",
       },
     });
-    expect(jwtService.sign).toHaveBeenCalledWith({
-      email: "staff@example.com",
-      role: "user",
-      sub: "user-1",
-      tenantId: "tenant-1",
-    });
+    expect(jwtService.sign).toHaveBeenCalledWith(
+      { email: "staff@example.com", role: "user", sub: "user-1", tenantId: "tenant-1" },
+      { expiresIn: "15m" },
+    );
   });
 
   it("creates a new tenant workspace and admin user for self-service signup", async () => {
@@ -258,7 +257,7 @@ describe("AuthService", () => {
       "tenant-1",
     );
 
-    expect(insertChains[1].values).toHaveBeenCalledWith(
+    expect(insertChains[2].values).toHaveBeenCalledWith(
       expect.objectContaining({
         email: "noname@example.com",
         name: null,

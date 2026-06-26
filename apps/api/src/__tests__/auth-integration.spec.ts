@@ -3,7 +3,7 @@ import { AuthService } from '../auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
-jest.mock('@smart-erp/database', () => ({ db: { select: jest.fn(), insert: jest.fn(), execute: jest.fn() } }));
+jest.mock('@smart-erp/database', () => ({ db: { select: jest.fn(), insert: jest.fn(() => ({ values: jest.fn() })), execute: jest.fn() } }));
 jest.mock('@smart-erp/database/schema', () => ({ users: {}, tenants: {} }));
 jest.mock('@smart-erp/database/drizzle', () => ({ eq: jest.fn(), sql: jest.fn() }));
 
@@ -53,10 +53,11 @@ describe('AuthService Integration (unit, with bcrypt)', () => {
     expect(result).toBeNull();
   });
 
-  it('login returns access_token and user', async () => {
+  it('login returns access_token, refresh_token, and user', async () => {
     const user = { id: 'uid-1', email: 'test@example.com', name: 'Test', tenantId: 't1', role: 'user' };
     const result = await authService.login(user);
     expect(result.access_token).toBe('signed-jwt');
+    expect(result.refresh_token).toBe('signed-jwt');
     expect(result.user.email).toBe('test@example.com');
   });
 

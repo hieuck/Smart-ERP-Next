@@ -1,9 +1,9 @@
-import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import { db } from "@smart-erp/database";
-import { tenants, users } from "@smart-erp/database/schema";
-import { eq } from "@smart-erp/database/drizzle";
+import { tenants, users, refreshTokens } from "@smart-erp/database/schema";
+import { eq, and } from "@smart-erp/database/drizzle";
 import { UsersService } from "../users/users.service";
 import { NotificationsGateway } from "../notifications/notifications.gateway";
 import { I18nService } from "../i18n/i18n.service";
@@ -35,8 +35,18 @@ export class AuthService {
       tenantId: user.tenantId,
       role: user.role ?? "user",
     };
+    const access_token = this.jwtService.sign(payload, { expiresIn: "15m" });
+    const refresh_token = this.jwtService.sign(payload, { expiresIn: "7d" });
+    const refreshHash = await bcrypt.hash(refresh_token, 10);
+    await db.insert(refreshTokens).values({
+      token: refreshHash,
+      userId: user.id,
+      tenantId: user.tenantId,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token,
+      refresh_token,
       user: {
         id: user.id,
         email: user.email,
@@ -45,6 +55,44 @@ export class AuthService {
         role: user.role ?? "user",
       },
     };
+  }
+
+  async refresh(refreshToken: string) {
+    let payload: { sub: string; email: string; tenantId: string; role: string };
+    try {
+      payload = this.jwtService.verify(refreshToken);
+    } catch {
+      throw new UnauthorizedException("Invalid or expired refresh token");
+    }
+    const [stored] = await db
+      .select()
+      .from(refreshTokens)
+      .where(
+        and(
+          eq(refreshTokens.userId, payload.sub),
+          eq(refreshTokens.revoked, false),
+        ),
+      )
+      .limit(1);
+    if (!stored) {
+      throw new UnauthorizedException("Refresh token not found or revoked");
+    }
+    const tokenMatch = await bcrypt.compare(refreshToken, stored.token);
+    if (!tokenMatch) {
+      throw new UnauthorizedException("Refresh token mismatch");
+    }
+    await db
+      .update(refreshTokens)
+      .set({ revoked: true })
+      .where(eq(refreshTokens.id, stored.id));
+    return this.login({ id: payload.sub, email: payload.email, tenantId: payload.tenantId, role: payload.role, name: undefined });
+  }
+
+  async logout(userId: string) {
+    await db
+      .update(refreshTokens)
+      .set({ revoked: true })
+      .where(eq(refreshTokens.userId, userId));
   }
 
   async register(

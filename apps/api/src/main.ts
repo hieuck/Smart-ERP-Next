@@ -7,6 +7,8 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { setupSwagger } from './swagger-setup';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ResponseFormatInterceptor } from './common/interceptors/response-format.interceptor';
+import { GlobalExceptionFilter } from './common/filters';
 let APP_VERSION = '0.0.0';
 try {
   APP_VERSION = JSON.parse(readFileSync(join(__dirname, '../../../package.json'), 'utf-8')).version || '0.0.0';
@@ -39,6 +41,8 @@ async function bootstrap() {
   if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
   app.useStaticAssets(uploadsDir, { prefix: '/uploads/' });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalInterceptors(new ResponseFormatInterceptor());
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   setupSwagger(app, APP_VERSION);
 

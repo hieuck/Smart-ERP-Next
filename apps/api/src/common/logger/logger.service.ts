@@ -13,9 +13,15 @@ export interface StructuredLogEntry {
 export class StructuredLogger implements NestLoggerService {
   private context?: string;
   private requestId?: string;
+  private logFile?: string;
+  private fs: typeof import('fs') | null = null;
 
   setContext(context: string) { this.context = context; }
   setRequestId(requestId: string) { this.requestId = requestId; }
+  setLogFile(path: string) {
+    this.logFile = path;
+    this.fs = require('fs');
+  }
 
   log(message: any, context?: string) { this.print('log', message, context); }
   error(message: any, trace?: string, context?: string) { this.print('error', message, context, { trace }); }
@@ -33,6 +39,9 @@ export class StructuredLogger implements NestLoggerService {
       meta: extra,
     };
     const output = JSON.stringify(entry);
+    if (this.logFile && this.fs) {
+      this.fs.appendFileSync(this.logFile, output + '\n');
+    }
     if (level === 'error') {
       console.error(output);
     } else {
