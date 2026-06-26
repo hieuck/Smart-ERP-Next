@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ main, dev ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 permissions:
   contents: read
 
@@ -39,7 +36,10 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm type-check
 
       - name: Check i18n keys and encoding
         run: pnpm audit:i18n
