@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-26)
 
-Completed: 28 | Remaining: 6
+Completed: 32 | Remaining: 6
 
 ## Completed
 
@@ -33,6 +33,17 @@ Completed: 28 | Remaining: 6
 | Real CSV/JSON data export | Medium | exportData() with 8 entity types, CSV escaping |
 | Lockfile prune | Low | removed stale apps/docs, apps/mobile entries |
 | pnpm deps fix | Low | added testing-library, jest-environment-jsdom |
+| Structured logging | Medium | StructuredLogger + RequestLoggingInterceptor + 11 tests |
+| JWT hardcoded secret | Critical | removed fallback 'super_secret_jwt_key_...' (P0 security) |
+| Helmet HTTP headers | Critical | added helmet() middleware (P0 security) |
+| Unguarded controllers | High | ForecastController + BenchmarksController secured (P1) |
+
+## Known Tech Debt
+
+| Item | Impact | Notes |
+|------|--------|-------|
+| 166 coverage stubs | Medium | .coverage.spec.ts files inflate coverage % without testing logic |
+| ~58 modules flat import | Low | app.module.ts imports all modules without domain grouping |
 
 ## Remaining
 
