@@ -47,6 +47,9 @@ jobs:
       - name: Run commit quality gate
         run: pnpm qa:commit
 
+      - name: Run unit tests
+        run: pnpm test
+
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v4
