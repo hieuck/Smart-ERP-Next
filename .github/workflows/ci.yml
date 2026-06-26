@@ -13,20 +13,6 @@ permissions:
   contents: read
 
 jobs:
-  i18n-audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-      - name: Check i18n keys and encoding
-        run: pnpm audit:i18n
-
   test-and-build:
     runs-on: ubuntu-latest
     services:
@@ -45,29 +31,47 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
+
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
+
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
+
+      - name: Check i18n keys and encoding
+        run: pnpm audit:i18n
+
       - name: Run commit quality gate
         run: pnpm qa:commit
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps
+
       - name: Apply database migrations + seed
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
         run: |
           cd packages/database && pnpm exec drizzle-kit migrate
           cd ../.. && npx tsx apps/api/src/common/seeds/main.seed.ts
+
       - name: Run API E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
           JWT_SECRET: ci-e2e-secret
           NODE_ENV: test
         run: pnpm test:api:e2e
+
       - name: Run web E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
@@ -75,6 +79,5 @@ jobs:
           NEXT_PUBLIC_API_URL: http://localhost:3456
           NODE_ENV: test
           PORT: '3001'
+          LOGIN_RATE_LIMIT: '1000'
         run: pnpm test:e2e
-      - name: Build all apps
-        run: pnpm build
