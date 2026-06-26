@@ -9,7 +9,7 @@ echo "============================================"
 if [ -n "$DATABASE_URL" ]; then
   if command -v npx >/dev/null 2>&1 && [ -f "packages/database/drizzle.config.ts" ]; then
     echo "Running database migrations..."
-    npx drizzle-kit migrate --config=packages/database/drizzle.config.ts 2>/dev/null || echo "Migration skipped"
+    npx drizzle-kit migrate --config=packages/database/drizzle.config.ts || echo "⚠️  Migration failed"
   fi
 
   # Auto-seed demo data if database is empty
@@ -24,13 +24,33 @@ if [ -n "$DATABASE_URL" ]; then
 
     if [ "$USER_COUNT" = "0" ]; then
       echo "Seeding demo data..."
-      node apps/api/dist/apps/api/src/common/seeds/main.seed.js 2>/dev/null && echo "Demo data seeded" || echo "Seed skipped"
+      node apps/api/dist/apps/api/src/common/seeds/main.seed.js && echo "Demo data seeded" || echo "⚠️  Seed failed"
     else
       echo "Database already populated, skipping seed"
     fi
   fi
 else
-  echo "DATABASE_URL not set, skipping migrations and seed"
+  echo ""
+  echo "============================================"
+  echo "  ⚠️  DATABASE_URL not set"
+  echo ""
+  echo "  Quick start with PostgreSQL:"
+  echo "    docker run -d --name smart-erp-postgres \\"
+  echo "      -e POSTGRES_USER=smart_erp \\"
+  echo "      -e POSTGRES_PASSWORD=smart_erp \\"
+  echo "      -e POSTGRES_DB=smart_erp \\"
+  echo "      postgres:16-alpine"
+  echo ""
+  echo "  Then run this container with:"
+  echo "    docker run -d --name smart-erp-app \\"
+  echo "      -p 3456:3456 -p 3457:3457 \\"
+  echo "      -e DATABASE_URL=postgresql://smart_erp:smart_erp@\\$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' smart-erp-postgres):5432/smart_erp \\"
+  echo "      ghcr.io/hieuck/smart-erp-next:latest"
+  echo ""
+  echo "  Or simpler: use docker compose"
+  echo "    docker compose up -d"
+  echo "============================================"
+  echo ""
 fi
 
 # Start API server
