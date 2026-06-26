@@ -36,12 +36,12 @@ describe('common auth strategies coverage', () => {
     }
   });
 
-  it('falls back to the built-in JWT secret when no secret is configured', () => {
+  it('throws when no JWT secret is configured (fail-fast instead of weak fallback)', () => {
     const originalSecret = process.env.JWT_SECRET;
     delete process.env.JWT_SECRET;
     const config = { get: jest.fn(() => undefined) };
 
-    new JwtStrategy(config as any);
+    expect(() => new JwtStrategy(config as any)).toThrow();
 
     expect(config.get).toHaveBeenCalledWith('JWT_SECRET');
     if (originalSecret === undefined) {

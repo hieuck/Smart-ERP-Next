@@ -4,6 +4,7 @@ import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 import { setupSwagger } from './swagger-setup';
 import { NestExpressApplication } from '@nestjs/platform-express';
 let APP_VERSION = '0.0.0';
@@ -33,6 +34,7 @@ async function bootstrap() {
     origin: corsOrigins,
     credentials: true
   });
+  app.use(helmet());
   const uploadsDir = join(process.cwd(), 'uploads');
   if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
   app.useStaticAssets(uploadsDir, { prefix: '/uploads/' });

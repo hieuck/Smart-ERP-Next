@@ -1,8 +1,10 @@
-import { Controller, Get, Req, Query } from '@nestjs/common';
+import { Controller, Get, Req, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { BenchmarkService } from './benchmark.service';
 import { RequestWithUser } from '../../common/interfaces/request-with-user.interface';
 
 @Controller('admin/benchmarks')
+@UseGuards(JwtAuthGuard)
 export class BenchmarksController {
   constructor(private readonly benchmarkService: BenchmarkService) {}
 
