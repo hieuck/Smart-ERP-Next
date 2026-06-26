@@ -1,4 +1,5 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ForecastModule } from './forecast/forecast.module';
 import { InventoryRecommendationModule } from './inventory-recommendation/inventory-recommendation.module';
@@ -6,6 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { LoggerModule } from './common/logger/logger.module';
+import { RequestLoggingInterceptor } from './common/interceptors/request-logging.interceptor';
 import { UsersModule } from './users/users.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -55,6 +58,7 @@ import { I18nModule } from './i18n/i18n.module';
 
 @Module({
   imports: [
+    LoggerModule,
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     I18nModule,
     CacheModule.register({ isGlobal: true, ttl: 60, max: 100 }),
@@ -110,6 +114,7 @@ import { I18nModule } from './i18n/i18n.module';
   providers: [
     AppService,
     { provide: DRIZZLE, useValue: db },
+    { provide: APP_INTERCEPTOR, useClass: RequestLoggingInterceptor },
   ],
 })
 export class AppModule implements NestModule {
