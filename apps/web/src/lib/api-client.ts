@@ -16,11 +16,16 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Unwrap NestJS serialization wrapper: { value: [...], Count: N } → [...]
+// Unwrap standard API response: { success, data } → data
+// Also handles legacy NestJS wrapper: { value: [...], Count: N } → [...]
 apiClient.interceptors.response.use(
   (response) => {
-    if (response.data && typeof response.data === 'object' && 'value' in response.data && Array.isArray(response.data.value)) {
-      response.data = response.data.value;
+    if (response.data && typeof response.data === 'object') {
+      if ('success' in response.data && 'data' in response.data) {
+        response.data = response.data.data;
+      } else if ('value' in response.data && Array.isArray(response.data.value)) {
+        response.data = response.data.value;
+      }
     }
     return response;
   },

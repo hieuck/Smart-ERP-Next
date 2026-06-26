@@ -14,6 +14,12 @@ export class ResponseFormatInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const requestId = request.requestId;
 
+    // Skip wrapping for auth endpoints (login/register/refresh already return compatible format)
+    const path = request.route?.path || request.url || '';
+    if (path.startsWith('/auth/') || path.startsWith('/api/auth/')) {
+      return next.handle();
+    }
+
     return next.handle().pipe(
       map((data) => ({
         success: true,
