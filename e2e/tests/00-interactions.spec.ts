@@ -216,28 +216,29 @@ test.describe('API CRUD tests', () => {
     const res = await request.post(`${API}/auth/login`, { data: { email: 'admin@demo.vn', password: 'admin123' } });
     if (res.ok()) { const b = await res.json(); token = b.access_token || (b.data && b.data.access_token) || ''; }
   });
+  function u(d: any): any { return d && d.success === true ? d.data : d; }
   function h(): Record<string, string> { return { Authorization: `Bearer ${token}` }; }
 
   test('Product CRUD: create → read → update → search', async ({ request }) => {
     const marker = `INT-${Date.now().toString(36)}`;
-    const created = await (await request.post(`${API}/products`, { headers: h(), data: { name: `Test ${marker}`, price: 50000, cost: 30000, stock: 10, category: 'E2E' } })).json();
+    const created = u(await (await request.post(`${API}/products`, { headers: h(), data: { name: `Test ${marker}`, price: 50000, cost: 30000, stock: 10, category: 'E2E' } })).json());
     expect(created.id).toBeTruthy();
-    const read = await (await request.get(`${API}/products/${created.id}`, { headers: h() })).json();
+    const read = u(await (await request.get(`${API}/products/${created.id}`, { headers: h() })).json());
     expect(read.name).toBe(`Test ${marker}`);
-    const updated = await (await request.patch(`${API}/products/${created.id}`, { headers: h(), data: { price: 55000 } })).json();
+    const updated = u(await (await request.patch(`${API}/products/${created.id}`, { headers: h(), data: { price: 55000 } })).json());
     expect(Number(updated.price)).toBe(55000);
-    const search = await (await request.get(`${API}/products?search=${encodeURIComponent(marker)}`, { headers: h() })).json();
-    const items = Array.isArray(search) ? search : search.data || search.items || [];
+    const search = u(await (await request.get(`${API}/products?search=${encodeURIComponent(marker)}`, { headers: h() })).json());
+    const items = Array.isArray(search) ? search : search.items || [];
     expect(items.some((i: any) => i.id === created.id)).toBeTruthy();
   });
 
   test('Customer CRUD: create → read → update', async ({ request }) => {
     const marker = `INT-${Date.now().toString(36)}`;
-    const created = await (await request.post(`${API}/customers`, { headers: h(), data: { code: marker, name: `Customer ${marker}`, phone: `09${Date.now().toString().slice(-8)}`, email: `${marker}@test.com` } })).json();
+    const created = u(await (await request.post(`${API}/customers`, { headers: h(), data: { code: marker, name: `Customer ${marker}`, phone: `09${Date.now().toString().slice(-8)}`, email: `${marker}@test.com` } })).json());
     expect(created.id).toBeTruthy();
-    const read = await (await request.get(`${API}/customers/${created.id}`, { headers: h() })).json();
+    const read = u(await (await request.get(`${API}/customers/${created.id}`, { headers: h() })).json());
     expect(read.id).toBe(created.id);
-    const updated = await (await request.patch(`${API}/customers/${created.id}`, { headers: h(), data: { debtLimit: 2000000 } })).json();
+    const updated = u(await (await request.patch(`${API}/customers/${created.id}`, { headers: h(), data: { debtLimit: 2000000 } })).json());
     expect(Number(updated.debtLimit)).toBe(2000000);
   });
 
@@ -245,20 +246,20 @@ test.describe('API CRUD tests', () => {
     const marker = `PO-${Date.now().toString(36)}`;
     const suppliersResp = await request.get(`${API}/suppliers?limit=1`, { headers: h() });
     expect(suppliersResp.ok()).toBeTruthy();
-    const suppliersBody = await suppliersResp.json();
-    const supplierList = Array.isArray(suppliersBody) ? suppliersBody : (suppliersBody.items || suppliersBody.data || []);
-    const supplierId = supplierList[0]?.id;
+    const supplierList = u(await suppliersResp.json());
+    const sItems = Array.isArray(supplierList) ? supplierList : supplierList.items || [];
+    const supplierId = sItems[0]?.id;
     expect(supplierId, 'No supplier found').toBeTruthy();
     const productsResp = await request.get(`${API}/products?limit=1`, { headers: h() });
     expect(productsResp.ok()).toBeTruthy();
-    const productsBody = await productsResp.json();
-    const productList = Array.isArray(productsBody) ? productsBody : (productsBody.items || productsBody.data || []);
-    const productId = productList[0]?.id;
+    const productList = u(await productsResp.json());
+    const pItems = Array.isArray(productList) ? productList : productList.items || [];
+    const productId = pItems[0]?.id;
     expect(productId, 'No product found').toBeTruthy();
 
     // Create PO
     const createResp = await request.post(`${API}/purchasing`, {
-      headers,
+      headers: h(),
       data: {
         supplierId: String(supplierId),
         expectedDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
@@ -270,20 +271,18 @@ test.describe('API CRUD tests', () => {
         }],
       },
     });
-    const createBody = createResp.ok() ? await createResp.json() : await createResp.text();
-    expect(createResp.ok(), `PO create failed: ${createResp.status()} ${typeof createBody === 'string' ? createBody : JSON.stringify(createBody)}`).toBeTruthy();
-    const po = typeof createBody === 'string' ? JSON.parse(createBody) : createBody;
-    expect(po.id).toBeTruthy();
+    const createBody = u(createResp.ok() ? await createResp.json() : {});
+    expect(createResp.ok(), `PO create failed: ${createResp.status()}`).toBeTruthy();
+    expect(createBody.id).toBeTruthy();
 
-    // Read PO
-    const readResp = await request.get(`${API}/purchasing/${po.id}`, { headers: h() });
+    const readResp = await request.get(`${API}/purchasing/${createBody.id}`, { headers: h() });
     expect(readResp.ok()).toBeTruthy();
-    const read = await readResp.json();
-    expect(read.id).toBe(po.id);
+    const read = u(await readResp.json());
+    expect(read.id).toBe(createBody.id);
   });
 
   test('User profile: GET /users/me', async ({ request }) => {
-    const me = await (await request.get(`${API}/users/me`, { headers: h() })).json();
+    const me = u(await (await request.get(`${API}/users/me`, { headers: h() })).json());
     expect(me.email).toBe('admin@demo.vn');
   });
 
