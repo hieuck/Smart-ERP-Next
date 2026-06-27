@@ -36,7 +36,7 @@ function hasItem(payload: any, predicate: (item: any) => boolean) {
 test.describe('Business persistence through real API', () => {
   test.beforeAll(async ({ request }) => {
     const response = await request.post(`${API}/auth/login`, {
-      data: { email: 'admin@smarterp.vn', password: 'admin123' },
+      data: { email: 'admin@demo.vn', password: 'admin123' },
     });
     const body = await jsonOk<{ access_token: string }>(response, 'POST /auth/login');
     token = body.access_token || body.data?.access_token;

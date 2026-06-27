@@ -20,7 +20,7 @@ async function fillLoginFields(page: Page, username: string, password: string) {
 }
 
 async function loginAsAdmin(page: Page) {
-  await fillLoginFields(page, 'admin@smarterp.vn', 'admin123');
+  await fillLoginFields(page, 'admin@demo.vn', 'admin123');
   const loginBtn = page.locator(loginButtonSelector).first();
   await expect(loginBtn).toBeEnabled();
   await Promise.all([
@@ -58,7 +58,7 @@ test.describe('Authentication', () => {
   });
 
   test('Login with wrong password → shows error', async ({ page }) => {
-    await fillLoginFields(page, 'admin@smarterp.vn', 'wrong_password_12345');
+    await fillLoginFields(page, 'admin@demo.vn', 'wrong_password_12345');
     const loginBtn = page.locator(loginButtonSelector).first();
     await loginBtn.click();
 
@@ -167,7 +167,7 @@ test.describe('API Endpoints', () => {
   test.beforeAll(async ({ request }) => {
     // Login via API to get token
     const res = await request.post('http://localhost:3456/auth/login', {
-      data: { email: 'admin@smarterp.vn', password: 'admin123' },
+      data: { email: 'admin@demo.vn', password: 'admin123' },
     });
     if (res.ok()) {
       const body = await res.json();

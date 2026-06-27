@@ -9,7 +9,7 @@ test.describe('E2E workflows', () => {
 
   test.beforeAll(async ({ request }) => {
     const r = await request.post(`${API}/auth/login`, {
-      data: { email: 'admin@smarterp.vn', password: 'admin123' },
+      data: { email: 'admin@demo.vn', password: 'admin123' },
     });
     const body = await r.json();
     token = body.access_token || body.data?.access_token;
@@ -20,7 +20,7 @@ test.describe('E2E workflows', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.evaluate((t) => {
       localStorage.setItem('access_token', t);
-      localStorage.setItem('user', JSON.stringify({ id: '1', email: 'admin@smarterp.vn', role: 'admin', tenantId: '1' }));
+      localStorage.setItem('user', JSON.stringify({ id: '1', email: 'admin@demo.vn', role: 'admin', tenantId: '1' }));
       localStorage.setItem('tenant_id', '1');
     }, token);
     await context.addCookies([{ name: 'access_token', value: token, domain: 'localhost', path: '/' }]);

@@ -14,7 +14,7 @@ async function loginByUi(page: Page) {
       if (attempt === 3) throw error;
     }
   }
-  await page.locator(emailSelector).fill('admin@smarterp.vn');
+  await page.locator(emailSelector).fill('admin@demo.vn');
   await page.locator(passwordSelector).fill('admin123');
   await page.getByRole('button', { name: /dang nhap|đăng nhập|login/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
@@ -51,7 +51,7 @@ test.describe('UI/UX end-user release audit', () => {
     await expect(page.locator(emailSelector)).toBeVisible();
     await expect(page.locator(passwordSelector)).toBeVisible();
     await page.getByRole('button', { name: /demo/i }).click();
-    await expect(page.locator(emailSelector)).toHaveValue('admin@smarterp.vn');
+    await expect(page.locator(emailSelector)).toHaveValue('admin@demo.vn');
     await expect(page.locator(passwordSelector)).toHaveValue('admin123');
     await expectNoFrameworkOverlay(page);
     await expectNoHorizontalOverflow(page);

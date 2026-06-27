@@ -9,7 +9,7 @@ let token: string;
 
 test.beforeAll(async ({ request }) => {
   const res = await request.post(`${API}/auth/login`, {
-    data: { email: 'admin@smarterp.vn', password: 'admin123' },
+    data: { email: 'admin@demo.vn', password: 'admin123' },
   });
   expect(res.ok()).toBeTruthy();
   const body = await res.json();
@@ -41,7 +41,7 @@ test.describe('API: Health', () => {
 test.describe('API: Auth', () => {
   test('POST /auth/login success', async ({ request }) => {
     const r = await request.post(`${API}/auth/login`, {
-      data: { email: 'admin@smarterp.vn', password: 'admin123' },
+      data: { email: 'admin@demo.vn', password: 'admin123' },
     });
     expect(r.ok()).toBeTruthy();
     const b = await r.json();
@@ -50,7 +50,7 @@ test.describe('API: Auth', () => {
   });
   test('POST /auth/login wrong password', async ({ request }) => {
     const r = await request.post(`${API}/auth/login`, {
-      data: { email: 'admin@smarterp.vn', password: 'wrongpass' },
+      data: { email: 'admin@demo.vn', password: 'wrongpass' },
     });
     expect(r.status()).toBeGreaterThanOrEqual(400);
   });

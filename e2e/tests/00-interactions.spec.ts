@@ -11,7 +11,7 @@ async function setupAuth(context: BrowserContext) {
   // Login via API
   const page = await context.newPage();
   const res = await page.request.post(`${API}/auth/login`, {
-    data: { email: 'admin@smarterp.vn', password: 'admin123' },
+    data: { email: 'admin@demo.vn', password: 'admin123' },
   });
   const body = await res.json();
   const token = body.access_token || body.data?.access_token;
@@ -19,7 +19,7 @@ async function setupAuth(context: BrowserContext) {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.evaluate((t) => {
     localStorage.setItem('access_token', t);
-    localStorage.setItem('user', JSON.stringify({ id: '1', email: 'admin@smarterp.vn', role: 'admin', tenantId: '1' }));
+    localStorage.setItem('user', JSON.stringify({ id: '1', email: 'admin@demo.vn', role: 'admin', tenantId: '1' }));
     localStorage.setItem('tenant_id', '1');
   }, token);
   // Set cookie for middleware
@@ -30,14 +30,14 @@ async function setupAuth(context: BrowserContext) {
 
 async function login(page: Page) {
   const res = await page.request.post(`${API}/auth/login`, {
-    data: { email: 'admin@smarterp.vn', password: 'admin123' },
+    data: { email: 'admin@demo.vn', password: 'admin123' },
   });
   const body = await res.json();
   const token = body.access_token || body.data?.access_token;
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.evaluate((t) => {
     localStorage.setItem('access_token', t);
-    localStorage.setItem('user', JSON.stringify({ id: '1', email: 'admin@smarterp.vn', role: 'admin', tenantId: '1' }));
+    localStorage.setItem('user', JSON.stringify({ id: '1', email: 'admin@demo.vn', role: 'admin', tenantId: '1' }));
     localStorage.setItem('tenant_id', '1');
   }, token);
 }
@@ -211,7 +211,7 @@ test.describe('API CRUD tests', () => {
   let token: string;
 
   test.beforeAll(async ({ request }) => {
-    const res = await request.post(`${API}/auth/login`, { data: { email: 'admin@smarterp.vn', password: 'admin123' } });
+    const res = await request.post(`${API}/auth/login`, { data: { email: 'admin@demo.vn', password: 'admin123' } });
     const body = await res.json();
     token = body.access_token || body.data?.access_token;
     expect(token).toBeTruthy();
@@ -295,7 +295,7 @@ test.describe('API CRUD tests', () => {
 
   test('User profile: GET /users/me', async ({ request }) => {
     const me = await (await request.get(`${API}/users/me`, { headers: { Authorization: `Bearer ${token}` } })).json();
-    expect(me.email).toBe('admin@smarterp.vn');
+    expect(me.email).toBe('admin@demo.vn');
     console.log('  ✅ User profile');
   });
 

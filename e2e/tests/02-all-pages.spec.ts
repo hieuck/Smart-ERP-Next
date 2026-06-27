@@ -69,7 +69,7 @@ test('smoke-login: /login loads on 3456 and accepts credentials', async ({ page 
   await expect(emailField).toBeVisible({ timeout: 10000 });
   const passwordField = page.locator(passwordSelector).first();
   await expect(passwordField).toBeVisible();
-  await emailField.fill('admin@smarterp.vn');
+  await emailField.fill('admin@demo.vn');
   await passwordField.fill('admin123');
   await page.locator(loginButtonSelector).first().click();
   await page.waitForTimeout(1000);

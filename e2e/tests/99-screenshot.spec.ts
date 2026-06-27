@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('capture products page with fix', async ({ page }) => {
   await page.goto('/login');
   await page.waitForSelector('input[type="email"]', { timeout: 10000 });
-  await page.locator('input[type="email"]').fill('admin@smarterp.vn');
+  await page.locator('input[type="email"]').fill('admin@demo.vn');
   await page.locator('input[type="password"]').fill('admin123');
   await page.getByRole('button', { name: /đăng nhập|login/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
