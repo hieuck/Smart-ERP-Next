@@ -33,7 +33,7 @@ export default function BarcodePrintPage() {
         products.forEach((p) => {
           const el = document.getElementById(`barcode-${p.id}`);
           if (el) {
-            try { JsBarcode(el, p.sku, { format: 'CODE128', width: 2, height: 60, displayValue: true, fontSize: 14 }); } catch { }
+            try { JsBarcode(el, p.sku, { format: 'CODE128', width: 2, height: 60, displayValue: true, fontSize: 14 }); } catch { /* invalid SKU */ }
           }
         });
       });
