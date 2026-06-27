@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { productsApi, type Product } from '@/lib/api-products';
 import AuthGuard from '@/components/layout/AuthGuard';
@@ -9,7 +9,7 @@ import { ArrowLeft, Printer } from 'lucide-react';
 export default function BarcodePrintPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const ids = searchParams.get('ids')?.split(',').filter(Boolean) || [];
+  const ids = useMemo(() => searchParams.get('ids')?.split(',').filter(Boolean) || [], [searchParams]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const printRef = useRef<HTMLDivElement>(null);
