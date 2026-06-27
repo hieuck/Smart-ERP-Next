@@ -58,6 +58,7 @@ import { db } from '@smart-erp/database';
 import { DRIZZLE } from './common/drizzle.decorator';
 import { I18nModule } from './i18n/i18n.module';
 import { ImportModule } from './import/import.module';
+import { OnboardingModule } from './onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -115,6 +116,7 @@ import { ImportModule } from './import/import.module';
     PrintModule,
     ExportPdfModule,
     ImportModule,
+    OnboardingModule,
   ],
   controllers: [AppController],
   providers: [
