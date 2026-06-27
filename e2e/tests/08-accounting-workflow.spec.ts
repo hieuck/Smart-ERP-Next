@@ -14,7 +14,6 @@ async function jsonOk<T = any>(response: APIResponse, label: string): Promise<T>
   if (parsed && parsed.success === true && 'data' in parsed) return parsed.data as T;
   return parsed as T;
 }
-}
 
 test.describe('Accounting workflows', () => {
   test.beforeAll(async ({ request }) => {
