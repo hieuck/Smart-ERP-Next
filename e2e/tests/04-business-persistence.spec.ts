@@ -10,7 +10,10 @@ function auth() {
 async function jsonOk<T = any>(response: APIResponse, label: string): Promise<T> {
   const text = await response.text();
   expect(response.ok(), `${label} failed: ${response.status()} ${text}`).toBeTruthy();
-  return text ? JSON.parse(text) as T : ({} as T);
+  const parsed = JSON.parse(text);
+  // Unwrap standardized response format: { success, data } → data
+  if (parsed && parsed.success === true && 'data' in parsed) return parsed.data as T;
+  return parsed as T;
 }
 
 async function textOk(response: APIResponse, label: string): Promise<string> {
