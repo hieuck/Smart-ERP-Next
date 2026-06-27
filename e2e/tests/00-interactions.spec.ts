@@ -13,12 +13,9 @@ async function setupAuth(context: BrowserContext) {
   const res = await page.request.post(`${API}/auth/login`, {
     data: { email: 'admin@demo.vn', password: 'admin123' },
   });
-  console.log(`[setupAuth] login status: ${res.status()}`);
   const body = await res.json();
-  console.log(`[setupAuth] response keys: ${Object.keys(body).join(', ')}`);
   const token = body.access_token || (body.data && body.data.access_token) || body.token;
-  console.log(`[setupAuth] token: ${token ? token.substring(0,10)+'...' : 'UNDEFINED'}`);
-  expect(token, 'Login should return a token').toBeTruthy();
+  if (!token) throw new Error(`Login failed (${res.status()}): ${JSON.stringify(body)}`);
   // Set localStorage for the SPA
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.evaluate((t) => {
@@ -36,12 +33,9 @@ async function login(page: Page) {
   const res = await page.request.post(`${API}/auth/login`, {
     data: { email: 'admin@demo.vn', password: 'admin123' },
   });
-  console.log(`[login] status: ${res.status()}`);
   const body = await res.json();
-  console.log(`[login] response keys: ${Object.keys(body).join(', ')}`);
   const token = body.access_token || (body.data && body.data.access_token) || body.token;
-  console.log(`[login] token: ${token ? token.substring(0,10)+'...' : 'UNDEFINED'}`);
-  expect(token, 'Login should return a token').toBeTruthy();
+  if (!token) throw new Error(`Login failed (${res.status()}): ${JSON.stringify(body)}`);
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.evaluate((t) => {
     localStorage.setItem('access_token', t);
