@@ -12,6 +12,7 @@
     "dexie": "4.4.2",
     "dexie-react-hooks": "4.4.0",
     "i18next": "^23.16.8",
+    "jsbarcode": "3.12.3",
     "jspdf": "4.2.1",
     "jspdf-autotable": "5.0.7",
     "lucide-react": "^0.394.0",
