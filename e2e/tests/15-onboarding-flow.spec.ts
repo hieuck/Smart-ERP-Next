@@ -29,7 +29,7 @@ test.describe('Onboarding Flow', () => {
     });
     expect(res.ok()).toBeTruthy();
     const body = u(await res.json());
-    expect(body.name).toBe('E2E Test Company');
+    expect(body.companyInfo.name).toBe('E2E Test Company');
   });
 
   test('POST /onboarding/complete marks onboarding done', async ({ request }) => {
