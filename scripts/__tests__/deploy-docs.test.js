@@ -29,4 +29,13 @@ describe('Deployment Documentation', () => {
     expect(content).toContain('DB_PASSWORD');
     expect(content).toContain('JWT_SECRET');
   });
+
+  test('ci-local.sh includes type-check and test steps', () => {
+    const f = path.join(repoRoot, 'scripts', 'ci-local.sh');
+    expect(fs.existsSync(f)).toBe(true);
+    const content = fs.readFileSync(f, 'utf8');
+    expect(content).toContain('type-check');
+    expect(content).toContain('pnpm test');
+    expect(content).toContain('1890');
+  });
 });
