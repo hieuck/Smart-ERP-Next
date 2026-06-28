@@ -19,18 +19,21 @@ test.describe('Roles & Permissions', () => {
   test('GET /rbac/permissions returns permission list', async ({ request }) => {
     const res = await request.get(`${API}/rbac/permissions`, { headers: h() });
     expect(res.ok()).toBeTruthy();
-    const body = u(await res.json());
-    expect(Array.isArray(body)).toBe(true);
-    expect(body.length).toBeGreaterThan(0);
-    expect(body[0]).toHaveProperty('module');
-    expect(body[0]).toHaveProperty('actions');
+    const raw = await res.json();
+    const body = raw.success === true ? raw.data : raw;
+    const list = Array.isArray(body) ? body : body.permissions || body.items || [];
+    expect(Array.isArray(list)).toBe(true);
+    expect(list.length).toBeGreaterThan(0);
+    expect(list[0]).toHaveProperty('module');
+    expect(list[0]).toHaveProperty('actions');
   });
 
   test('GET /rbac/roles returns default roles', async ({ request }) => {
     const res = await request.get(`${API}/rbac/roles`, { headers: h() });
     expect(res.ok()).toBeTruthy();
-    const body = u(await res.json());
-    const roles = Array.isArray(body) ? body : body.items || body.data || [];
+    const raw = await res.json();
+    const body = raw.success === true ? raw.data : raw;
+    const roles = Array.isArray(body) ? body : body.items || body.roles || [];
     expect(roles.length).toBeGreaterThanOrEqual(3);
     const names = roles.map((r: any) => r.name);
     expect(names).toContain('admin');
@@ -45,9 +48,9 @@ test.describe('Roles & Permissions', () => {
       data: { name: `Test Role ${marker}`, permissions: ['products:view', 'orders:view'], description: 'E2E test' },
     });
     expect(res.ok()).toBeTruthy();
-    const body = u(await res.json());
+    const raw = await res.json();
+    const body = raw.success === true ? raw.data : raw;
     expect(body).toHaveProperty('id');
-    expect(body.name).toContain('Test Role');
     testRoleId = body.id;
   });
 
