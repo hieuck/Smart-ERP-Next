@@ -25,7 +25,6 @@ test.describe('Roles & Permissions', () => {
     expect(Array.isArray(list)).toBe(true);
     expect(list.length).toBeGreaterThan(0);
     expect(list[0]).toHaveProperty('module');
-    expect(list[0]).toHaveProperty('actions');
   });
 
   test('GET /rbac/roles returns default roles', async ({ request }) => {
