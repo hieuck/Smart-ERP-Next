@@ -34,7 +34,7 @@
     "verify:ios-release-prereqs": "node scripts/verify-ios-release-prereqs.js",
     "verify:web-production": "node scripts/verify-web-production-build.js apps/web"
   },
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "**Hệ thống quản trị doanh nghiệp thế hệ mới** — vượt trội ERPNext, Odoo, KiotViet, Nhanhvn, MISA về tốc độ, trải nghiệm và khả năng mở rộng.",
   "main": "jest.config.js",
   "directories": {
