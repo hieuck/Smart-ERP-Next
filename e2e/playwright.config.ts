@@ -21,7 +21,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'node apps/api/dist/apps/api/src/main.js',
+      command: 'node ../apps/api/dist/apps/api/src/main.js',
       url: 'http://localhost:3456/health',
       timeout: 30000,
       reuseExistingServer: true,
