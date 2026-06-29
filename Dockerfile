@@ -67,38 +67,14 @@ COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml
 COPY --from=build /app/scripts /app/scripts
 COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
 
-# Copy node_modules from build stage (already contains all production deps)
+# Copy node_modules from build stage (hoisted → flat, no symlinks needed)
 COPY --from=build /app/node_modules /app/node_modules
 
-# Copy TypeScript source files needed by compiled JS (tsconfig paths)
-COPY packages/accounting/src ./packages/accounting/src
-COPY packages/database/src ./packages/database/src
-COPY packages/shared/src ./packages/shared/src
-COPY packages/hooks/src ./packages/hooks/src
-COPY packages/utils/src ./packages/utils/src
-COPY packages/validation/src ./packages/validation/src
-COPY packages/sync/src ./packages/sync/src
-COPY packages/types/src ./packages/types/src
-
-# Create workspace symlinks, remove pnpm
+# Clean up build artifacts not needed at runtime
 RUN set -eux; \
-    rm -rf /app/apps/web/src /app/apps/api/src /app/packages/*/__tests__; \
+    rm -rf /app/apps/web/src /app/apps/web/.next/cache /app/apps/api/src /app/packages/*/__tests__; \
     find /app/packages -type f \( -name '*.map' -o -name 'tsconfig*' \) -not -path '*/node_modules/*' -not -name 'drizzle.config.ts' -delete; \
     rm -f /usr/local/bin/pnpm /usr/local/lib/node_modules/pnpm; \
-    # Fix compiled JS path resolution: TypeScript emits relative paths
-    # from source location, but compiled output is in dist/ subdirectory.
-    # The dist/ COPY creates a real packages/ dir that shadows the symlink.
-    # Remove the real dir first, then create symlink at that path.
-    rm -rf /app/apps/api/dist/packages; \
-    ln -sfn /app/packages /app/apps/api/dist/packages; \
-    for d in /app/packages/*/; do \
-      name="$(basename "$d")"; \
-      link="/app/node_modules/@smart-erp/${name}"; \
-      mkdir -p "$(dirname "$link")"; \
-      rm -rf "$link"; \
-      ln -sf "$d" "$link"; \
-    done; \
-    # Keep .ts source files — compiled JS in apps/api references them via tsconfig paths
     chmod +x /app/docker-entrypoint.sh
 
 EXPOSE 3456 3457
