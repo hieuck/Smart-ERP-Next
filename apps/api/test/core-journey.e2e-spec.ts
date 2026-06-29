@@ -93,8 +93,8 @@ describe('Smart ERP Next - Core User Journey (E2E)', () => {
       VALUES (${productId}, 'Core Journey Inv Product', ${tenantId}, 'CJI-SKU', 100000, NOW(), NOW())
     `);
     await db.execute(sql`
-      INSERT INTO warehouses (id, name, tenant_id, created_at, updated_at)
-      VALUES (${warehouseId}, 'Core Journey WH', ${tenantId}, NOW(), NOW())
+      INSERT INTO warehouses (id, code, name, tenant_id, created_at, updated_at)
+      VALUES (${warehouseId}, 'CJ-WH', 'Core Journey WH', ${tenantId}, NOW(), NOW())
     `);
     await db.execute(sql`
       INSERT INTO inventory (id, product_id, warehouse_id, quantity, tenant_id, created_at, updated_at)
