@@ -99,8 +99,6 @@ RUN set -eux; \
       ln -sf "$d" "$link"; \
     done; \
     # Keep .ts source files — compiled JS in apps/api references them via tsconfig paths
-    # Replace accounting src/index.ts with CJS wrapper that re-exports from dist
-    printf '%s\n' '// Auto-generated CJS wrapper for runtime' 'const m = require("../dist/src/index.js");' 'export = m;' > /app/packages/accounting/src/index.ts; \
     chmod +x /app/docker-entrypoint.sh
 
 EXPOSE 3456 3457

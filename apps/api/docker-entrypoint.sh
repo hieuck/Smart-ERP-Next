@@ -51,10 +51,10 @@ fi
 
 # ── Migrations ────────────────────────────────────────────
 DRIZZLE_KIT="/app/node_modules/.bin/drizzle-kit"
-DRIZZLE_DIR="/app/packages/database"
-if [ -f "$DRIZZLE_KIT" ] && [ -f "$DRIZZLE_DIR/drizzle.config.ts" ]; then
+DRIZZLE_CONFIG="packages/database/drizzle.config.ts"
+if [ -f "$DRIZZLE_KIT" ] && [ -f "$DRIZZLE_CONFIG" ]; then
   echo "Running migrations..."
-  (cd "$DRIZZLE_DIR" && DATABASE_URL="$DATABASE_URL" node "$DRIZZLE_KIT" migrate) || echo "Migration issue (non-fatal)"
+  cd /app && node "$DRIZZLE_KIT" migrate --config="$DRIZZLE_CONFIG" || echo "Migration issue (non-fatal)"
 fi
 
 # ── Seed ──────────────────────────────────────────────────
@@ -78,7 +78,7 @@ fi
 
 # ── Start servers ─────────────────────────────────────────
 echo "Starting API server on port ${PORT:-3456}..."
-node --experimental-require-module apps/api/dist/apps/api/src/main.js &
+node apps/api/dist/apps/api/src/main.js &
 
 if [ -f "apps/web/.next/standalone/server.js" ]; then
   echo "Starting Web server on port ${WEB_PORT:-3457}..."
