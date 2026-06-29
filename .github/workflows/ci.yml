@@ -36,7 +36,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --shamefully-hoist
 
       - name: Type check
         run: pnpm type-check
@@ -81,16 +81,11 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Build API (nest build — full decorator metadata for @nestjs/swagger)
+      - name: Build API (nest build works with --shamefully-hoist node_modules)
         run: |
           pnpm --filter @smart-erp/database build
           pnpm --filter @smart-erp/accounting build
           cd apps/api && pnpm exec nest build
-          # Symlink so nest build's tsconfig-paths relative paths resolve at runtime
-          mkdir -p packages
-          ln -sfn "$PWD/../../packages/accounting" packages/accounting
-          ln -sfn "$PWD/../../packages/database" packages/database
-          ln -sfn "$PWD/../../packages/types" packages/types
 
       - name: Start servers & run Playwright E2E tests
         env:
