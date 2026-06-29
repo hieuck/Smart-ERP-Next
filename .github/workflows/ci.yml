@@ -81,7 +81,13 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Run web E2E tests
+      - name: Build API for fast E2E startup
+        run: |
+          pnpm --filter @smart-erp/database build
+          pnpm --filter @smart-erp/accounting build
+          pnpm --filter @smart-erp/api build
+
+      - name: Run web E2E tests (servers via Playwright config)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
           JWT_SECRET: ci-e2e-secret
