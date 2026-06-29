@@ -123,8 +123,8 @@ describe('InventoryRecommendation E2E', () => {
         VALUES (${productId}, 'E2E Test Product', ${tenantId}, 'E2E-SKU', 100000, NOW(), NOW())
       `);
       await db.execute(sql`
-        INSERT INTO warehouses (id, name, tenant_id, created_at, updated_at)
-        VALUES (${warehouseId}, 'E2E Warehouse', ${tenantId}, NOW(), NOW())
+        INSERT INTO warehouses (id, code, name, tenant_id, created_at, updated_at)
+        VALUES (${warehouseId}, 'E2E-WH', 'E2E Warehouse', ${tenantId}, NOW(), NOW())
       `);
       await db.execute(sql`
         INSERT INTO inventory (id, product_id, warehouse_id, quantity, tenant_id, created_at, updated_at)
