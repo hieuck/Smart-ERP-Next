@@ -81,10 +81,15 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Pre-build API dist for faster startup
-        run: pnpm --filter @smart-erp/api build
+      - name: Pre-build API with tsc (avoids nest build path hook)
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: |
+          pnpm --filter @smart-erp/database build
+          pnpm --filter @smart-erp/accounting build
+          cd apps/api && npx tsc -p tsconfig.json && node -e "require('fs').cpSync('src/i18n/locales', 'dist/apps/api/src/i18n/locales', {recursive: true, force: true})"
 
-      - name: Start API & Web servers, then run web E2E tests
+      - name: Start servers & run Playwright E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
           JWT_SECRET: ci-e2e-secret
@@ -92,20 +97,19 @@ jobs:
           NODE_ENV: test
           LOGIN_RATE_LIMIT: '1000'
         run: |
-          # Start API dev server in background
+          # Start pre-built API server directly with node (no compilation needed)
           echo "::group::Starting API server..."
-          pnpm --filter @smart-erp/api dev > /tmp/api-server.log 2>&1 &
+          node apps/api/dist/apps/api/src/main.js > /tmp/api-server.log 2>&1 &
           API_PID=$!
           echo "API PID: $API_PID"
           
-          # Wait for API health endpoint (up to 10 minutes)
-          echo "Waiting for API health endpoint..."
-          for i in $(seq 1 120); do
+          # Wait for API health endpoint (up to 30s — pre-built starts fast)
+          for i in $(seq 1 6); do
             if curl -s http://localhost:3456/health > /dev/null 2>&1; then
               echo "✅ API server ready (attempt $i)"
               break
             fi
-            echo "Attempt $i: not ready yet"
+            echo "Attempt $i: waiting..."
             sleep 5
             if ! kill -0 $API_PID 2>/dev/null; then
               echo "❌ API server process died"
@@ -121,14 +125,13 @@ jobs:
           WEB_PID=$!
           echo "Web PID: $WEB_PID"
           
-          # Wait for Web login page (up to 2.5 minutes)
-          echo "Waiting for Web login page..."
+          # Wait for Web login page
           for i in $(seq 1 30); do
             if curl -s -o /dev/null -w "%{http_code}" http://localhost:3457/login 2>/dev/null | grep -q "200\|302"; then
               echo "✅ Web server ready (attempt $i)"
               break
             fi
-            echo "Attempt $i: not ready yet"
+            echo "Attempt $i: waiting..."
             sleep 5
             if ! kill -0 $WEB_PID 2>/dev/null; then
               echo "❌ Web server process died"
@@ -138,7 +141,7 @@ jobs:
           done
           echo "::endgroup::"
           
-          # Run Playwright tests (servers already running → reuseExistingServer: true)
+          # Run Playwright tests
           echo "::group::Running Playwright E2E tests..."
           pnpm test:e2e
           EXIT_CODE=$?
@@ -147,10 +150,10 @@ jobs:
           # Show server logs on failure
           if [ $EXIT_CODE -ne 0 ]; then
             echo "::group::API server log (last 50 lines)"
-            tail -50 /tmp/api-server.log
+            tail -50 /tmp/api-server.log 2>/dev/null || echo "(empty)"
             echo "::endgroup::"
             echo "::group::Web server log (last 50 lines)"
-            tail -50 /tmp/web-server.log
+            tail -50 /tmp/web-server.log 2>/dev/null || echo "(empty)"
             echo "::endgroup::"
           fi
           
