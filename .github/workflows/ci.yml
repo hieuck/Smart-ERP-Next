@@ -90,8 +90,18 @@ jobs:
           LOGIN_RATE_LIMIT: '1000'
         run: |
           # Manual server startup (Playwright webServer having exit code 2 issues)
-          echo "::group::Starting API server..."
+          # Pre-built accounting/database dist needed for require.resolve in NestJS compiler hook
+          echo "::group::Building workspace packages..."
           mkdir -p node_modules/@smart-erp
+          for d in packages/*/; do
+            name="$(basename "$d")"
+            rm -rf "node_modules/@smart-erp/$name"
+            ln -sfn "$PWD/$d" "node_modules/@smart-erp/$name"
+          done
+          (cd packages/database && node ../../node_modules/typescript/bin/tsc -p tsconfig.json) 2>/dev/null || true
+          (cd packages/accounting && node ../../node_modules/typescript/bin/tsc -p tsconfig.json) 2>/dev/null || echo "pre-build skip"
+          echo "::endgroup::"
+          echo "::group::Starting API server..."
           for d in packages/*/; do
             name="$(basename "$d")"
             rm -rf "node_modules/@smart-erp/$name"
