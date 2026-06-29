@@ -81,13 +81,17 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Ensure workspace symlinks for Playwright server
+      - name: Ensure workspace node_modules for Playwright server
         run: |
           mkdir -p node_modules/@smart-erp
           for d in packages/*/; do
             name="$(basename "$d")"
-            ln -sfn "../../$d" "node_modules/@smart-erp/$name" 2>/dev/null || true
+            target="$PWD/$d"
+            link="node_modules/@smart-erp/$name"
+            rm -rf "$link"
+            ln -sfn "$target" "$link" 2>/dev/null || echo "skip $name"
           done
+          ls -la node_modules/@smart-erp/
 
       - name: Run web E2E tests
         env:
