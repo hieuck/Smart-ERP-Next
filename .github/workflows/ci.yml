@@ -81,6 +81,9 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
+      - name: Pre-build API dist for faster startup
+        run: pnpm --filter @smart-erp/api build
+
       - name: Start API & Web servers, then run web E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
@@ -95,9 +98,9 @@ jobs:
           API_PID=$!
           echo "API PID: $API_PID"
           
-          # Wait for API health endpoint (up to 5 minutes)
+          # Wait for API health endpoint (up to 10 minutes)
           echo "Waiting for API health endpoint..."
-          for i in $(seq 1 60); do
+          for i in $(seq 1 120); do
             if curl -s http://localhost:3456/health > /dev/null 2>&1; then
               echo "✅ API server ready (attempt $i)"
               break
