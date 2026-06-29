@@ -69,13 +69,19 @@ describe('Forecast E2E', () => {
 
   describe('GET /forecast/product/:id', () => {
     it('should return forecast data for product', async () => {
+      const productId = randomUUID();
+      await db.execute(sql`
+        INSERT INTO products (id, name, tenant_id, sku, created_at, updated_at)
+        VALUES (${productId}, 'E2E Forecast Product', ${tenantId}, 'FCT-SKU', NOW(), NOW())
+      `);
+
       const res = await request(app.getHttpServer())
-        .get('/forecast/product/prod-123')
+        .get(`/forecast/product/${productId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .set('X-Tenant-ID', tenantId);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('productId', 'prod-123');
+      expect(res.body).toHaveProperty('productId', productId);
       expect(res.body).toHaveProperty('data');
       expect(Array.isArray(res.body.data.predictions)).toBe(true);
     });
