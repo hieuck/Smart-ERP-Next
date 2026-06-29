@@ -81,11 +81,16 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Pre-build API dist
+      - name: Build API (nest build — full decorator metadata for @nestjs/swagger)
         run: |
           pnpm --filter @smart-erp/database build
           pnpm --filter @smart-erp/accounting build
-          cd apps/api && npx tsc -p tsconfig.json && node -e "require('fs').cpSync('src/i18n/locales', 'dist/apps/api/src/i18n/locales', {recursive: true, force: true})"
+          cd apps/api && pnpm exec nest build
+          # Symlink so nest build's tsconfig-paths relative paths resolve at runtime
+          mkdir -p packages
+          ln -sfn "$PWD/../../packages/accounting" packages/accounting
+          ln -sfn "$PWD/../../packages/database" packages/database
+          ln -sfn "$PWD/../../packages/types" packages/types
 
       - name: Start servers & run Playwright E2E tests
         env:
@@ -95,9 +100,9 @@ jobs:
           NODE_ENV: test
           LOGIN_RATE_LIMIT: '1000'
         run: |
-          # Start API server via tsx (handles workspace module resolution natively)
+          # Start pre-built API server (nest build + symlinks for path resolution)
           echo "::group::Starting API server..."
-          npx tsx apps/api/src/main.ts > /tmp/api-server.log 2>&1 &
+          node apps/api/dist/apps/api/src/main.js > /tmp/api-server.log 2>&1 &
           API_PID=$!
           echo "API PID: $API_PID"
           
