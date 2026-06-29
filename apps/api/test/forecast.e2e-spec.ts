@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { db, tenants, users } from '@smart-erp/database';
+import { sql } from '@smart-erp/database/drizzle';
 import { AppModule } from '../src/app.module';
 
 const { sign } = require('jsonwebtoken');
@@ -108,13 +109,29 @@ describe('InventoryRecommendation E2E', () => {
 
   describe('GET /inventory-recommendation/suggest', () => {
     it('should return reorder suggestion', async () => {
+      // Create a product with a valid UUID to avoid PG error
+      const productId = randomUUID();
+      const warehouseId = randomUUID();
+      await db.execute(sql`
+        INSERT INTO products (id, name, tenant_id, sku, created_at, updated_at)
+        VALUES (${productId}, 'E2E Test Product', ${tenantId}, 'E2E-SKU', NOW(), NOW())
+      `);
+      await db.execute(sql`
+        INSERT INTO warehouses (id, name, tenant_id, created_at, updated_at)
+        VALUES (${warehouseId}, 'E2E Warehouse', ${tenantId}, NOW(), NOW())
+      `);
+      await db.execute(sql`
+        INSERT INTO inventory (id, product_id, warehouse_id, quantity, tenant_id, created_at, updated_at)
+        VALUES (${randomUUID()}, ${productId}, ${warehouseId}, 50, ${tenantId}, NOW(), NOW())
+      `);
+
       const res = await request(app.getHttpServer())
-        .get('/inventory-recommendation/suggest?productId=prod-123&stock=50')
+        .get(`/inventory-recommendation/suggest?productId=${productId}&stock=50`)
         .set('Authorization', `Bearer ${authToken}`)
         .set('X-Tenant-ID', tenantId);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('productId', 'prod-123');
+      expect(res.body).toHaveProperty('productId', productId);
       expect(res.body).toHaveProperty('suggestedReorder');
     });
   });
