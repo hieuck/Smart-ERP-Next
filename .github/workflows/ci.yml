@@ -98,8 +98,8 @@ jobs:
             rm -rf "node_modules/@smart-erp/$name"
             ln -sfn "$PWD/$d" "node_modules/@smart-erp/$name"
           done
-          (cd packages/database && node ../../node_modules/typescript/bin/tsc -p tsconfig.json) 2>/dev/null || true
-          (cd packages/accounting && node ../../node_modules/typescript/bin/tsc -p tsconfig.json) 2>/dev/null || echo "pre-build skip"
+          (cd packages/database && npx --no-install tsc -p tsconfig.json) 2>/dev/null || true
+          (cd packages/accounting && npx --no-install tsc -p tsconfig.json) 2>/dev/null || echo "pre-build skip"
           echo "::endgroup::"
           echo "::group::Starting API server..."
           for d in packages/*/; do
