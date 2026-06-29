@@ -81,24 +81,58 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Ensure workspace node_modules for Playwright server
-        run: |
-          mkdir -p node_modules/@smart-erp
-          for d in packages/*/; do
-            name="$(basename "$d")"
-            target="$PWD/$d"
-            link="node_modules/@smart-erp/$name"
-            rm -rf "$link"
-            ln -sfn "$target" "$link" 2>/dev/null || echo "skip $name"
-          done
-          ls -la node_modules/@smart-erp/
-
-      - name: Run web E2E tests
+      - name: Start API servers and run Playwright E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
           JWT_SECRET: ci-e2e-secret
           NEXT_PUBLIC_API_URL: http://localhost:3456
           NODE_ENV: test
-          PORT: '3001'
           LOGIN_RATE_LIMIT: '1000'
-        run: pnpm test:e2e
+        run: |
+          # Manual server startup (Playwright webServer having exit code 2 issues)
+          echo "::group::Starting API server..."
+          mkdir -p node_modules/@smart-erp
+          for d in packages/*/; do
+            name="$(basename "$d")"
+            rm -rf "node_modules/@smart-erp/$name"
+            ln -sfn "$PWD/$d" "node_modules/@smart-erp/$name"
+          done
+          pnpm --filter @smart-erp/api dev > /tmp/api-server.log 2>&1 &
+          API_PID=$!
+          echo "API PID: $API_PID"
+          echo "::endgroup::"
+
+          echo "::group::Waiting for API health..."
+          for i in $(seq 1 60); do
+            if curl -s http://localhost:3456/health > /dev/null 2>&1; then
+              echo "✅ API ready (attempt $i)"
+              break
+            fi
+            echo "Attempt $i"
+            sleep 10
+            kill -0 $API_PID 2>/dev/null || { echo "❌ API died"; cat /tmp/api-server.log; exit 1; }
+          done
+          echo "::endgroup::"
+
+          echo "::group::Starting Web server..."
+          pnpm --filter @smart-erp/web dev --port 3457 > /tmp/web-server.log 2>&1 &
+          WEB_PID=$!
+          echo "Web PID: $WEB_PID"
+          for i in $(seq 1 30); do
+            if curl -s -o /dev/null -w "%{http_code}" http://localhost:3457/login 2>/dev/null | grep -q "200\|302"; then
+              echo "✅ Web ready (attempt $i)"
+              break
+            fi
+            echo "Attempt $i"
+            sleep 5
+            kill -0 $WEB_PID 2>/dev/null || { echo "❌ Web died"; cat /tmp/web-server.log; exit 1; }
+          done
+          echo "::endgroup::"
+
+          echo "::group::Running Playwright tests..."
+          API_PORT=3456 WEB_PORT=3457 pnpm test:e2e
+          EXIT_CODE=$?
+          echo "::endgroup::"
+
+          [ $EXIT_CODE -ne 0 ] && { echo "::group::API log"; tail -30 /tmp/api-server.log; echo "::endgroup::"; }
+          exit $EXIT_CODE
