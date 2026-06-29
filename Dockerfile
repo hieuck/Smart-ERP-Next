@@ -25,7 +25,9 @@ COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 
 # Step 2: Install deps (cached unless any package.json changes)
-RUN pnpm install --no-frozen-lockfile --ignore-scripts
+# npm_config_node_linker=hoisted ensures flat node_modules without symlinks
+# This is REQUIRED for Docker multi-stage: symlinks break when COPYing between stages
+RUN npm_config_node_linker=hoisted pnpm install --no-frozen-lockfile --ignore-scripts
 
 # Step 3: Copy source code (frequently changes, but install is cached)
 COPY packages/ ./packages/
@@ -68,14 +70,27 @@ COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
 # Copy node_modules from build stage (already contains all production deps)
 COPY --from=build /app/node_modules /app/node_modules
 
-# Remove TypeScript source from packages, remove pnpm, create workspace symlinks
+# Copy TypeScript source files needed by compiled JS (tsconfig paths)
+COPY packages/accounting/src ./packages/accounting/src
+COPY packages/database/src ./packages/database/src
+COPY packages/shared/src ./packages/shared/src
+COPY packages/hooks/src ./packages/hooks/src
+COPY packages/utils/src ./packages/utils/src
+COPY packages/validation/src ./packages/validation/src
+COPY packages/sync/src ./packages/sync/src
+COPY packages/types/src ./packages/types/src
+
+# Create workspace symlinks, remove pnpm
 RUN set -eux; \
-    rm -rf /app/apps/web/src /app/apps/api/src; \
-    for d in /app/packages/*/; do \
-      rm -rf "${d}src" "${d}__tests__" 2>/dev/null || true; \
-    done; \
-    find /app/packages -type f \( -name '*.ts' -o -name '*.map' -o -name 'tsconfig*' \) -not -path '*/node_modules/*' -not -name 'drizzle.config.ts' -delete; \
+    rm -rf /app/apps/web/src /app/apps/api/src /app/packages/*/__tests__; \
+    find /app/packages -type f \( -name '*.map' -o -name 'tsconfig*' \) -not -path '*/node_modules/*' -not -name 'drizzle.config.ts' -delete; \
     rm -f /usr/local/bin/pnpm /usr/local/lib/node_modules/pnpm; \
+    # Fix compiled JS path resolution: TypeScript emits relative paths
+    # from source location, but compiled output is in dist/ subdirectory.
+    # The dist/ COPY creates a real packages/ dir that shadows the symlink.
+    # Remove the real dir first, then create symlink at that path.
+    rm -rf /app/apps/api/dist/packages; \
+    ln -sfn /app/packages /app/apps/api/dist/packages; \
     for d in /app/packages/*/; do \
       name="$(basename "$d")"; \
       link="/app/node_modules/@smart-erp/${name}"; \

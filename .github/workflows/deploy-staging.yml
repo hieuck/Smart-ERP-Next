@@ -1,0 +1,46 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [ dev ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push staging image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/smart-erp-next:staging
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Deploy to staging
+        if: secrets.STAGING_HOST != ''
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            docker pull ghcr.io/${{ github.repository_owner }}/smart-erp-next:staging
+            cd /opt/smart-erp-next
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans

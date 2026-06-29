@@ -10,22 +10,39 @@ if [ -n "$DATABASE_URL" ]; then
   echo "Using external database: $DATABASE_URL"
 else
   echo "Starting embedded PostgreSQL..."
-
-  # PostgreSQL data directory (child of PGDATA or default)
   PGDATA="${PGDATA:-/var/lib/postgresql/data}"
 
-  if [ ! -f "$PGDATA/PG_VERSION" ]; then
-    echo "Initializing PostgreSQL database..."
-    initdb -D "$PGDATA" -U postgres 2>/dev/null
-  fi
+    # Check if PostgreSQL is already running
+    if su - postgres -c "pg_isready -U postgres" 2>/dev/null; then
+      echo "PostgreSQL already running"
+    else
+      if [ ! -f "$PGDATA/PG_VERSION" ]; then
+        echo "Initializing PostgreSQL database (this may take 10-30s on first run)..."
+        su - postgres -c "initdb -D '$PGDATA'"
+      fi
 
-  # Start PostgreSQL
-  pg_ctl -D "$PGDATA" -o "-p 5432" -l /tmp/pg.log start
-  echo "Waiting for PostgreSQL..."
-  until pg_isready -U postgres 2>/dev/null; do sleep 1; done
+      echo "Starting PostgreSQL..."
+      su - postgres -c "pg_ctl -D '$PGDATA' -o '-p 5432' -l /tmp/pg.log start" || {
+        echo "ERROR: PostgreSQL failed to start. Check log:"
+        su - postgres -c "cat /tmp/pg.log" 2>/dev/null || true
+        exit 1
+      }
 
-  # Create database if not exists
-  su - postgres -c "psql -tc \"SELECT 1 FROM pg_database WHERE datname='smart_erp'\" | grep -q 1 || createdb smart_erp" 2>/dev/null
+      echo "Waiting for PostgreSQL..."
+      TIMEOUT=30
+      while ! su - postgres -c "pg_isready -U postgres" 2>/dev/null; do
+        TIMEOUT=$((TIMEOUT - 1))
+        if [ $TIMEOUT -le 0 ]; then
+          echo "ERROR: PostgreSQL not ready after 30s. Log:"
+          su - postgres -c "cat /tmp/pg.log" 2>/dev/null || true
+          exit 1
+        fi
+        sleep 1
+      done
+
+      # Create database if not exists
+      su - postgres -c "psql -tc \"SELECT 1 FROM pg_database WHERE datname='smart_erp'\" | grep -q 1 || createdb smart_erp" 2>/dev/null || true
+    fi
 
   DATABASE_URL="postgresql://postgres@localhost:5432/smart_erp"
   export DATABASE_URL
@@ -33,9 +50,11 @@ else
 fi
 
 # ── Migrations ────────────────────────────────────────────
-if command -v npx >/dev/null 2>&1 && [ -f "packages/database/drizzle.config.ts" ]; then
+DRIZZLE_KIT="/app/node_modules/.bin/drizzle-kit"
+DRIZZLE_CONFIG="packages/database/drizzle.config.ts"
+if [ -f "$DRIZZLE_KIT" ] && [ -f "$DRIZZLE_CONFIG" ]; then
   echo "Running migrations..."
-  npx drizzle-kit migrate --config=packages/database/drizzle.config.ts || echo "Migration issue (non-fatal)"
+  cd /app && node "$DRIZZLE_KIT" migrate --config="$DRIZZLE_CONFIG" || echo "Migration issue (non-fatal)"
 fi
 
 # ── Seed ──────────────────────────────────────────────────
