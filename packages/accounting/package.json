@@ -11,7 +11,7 @@
     "@smart-erp/database": "workspace:*",
     "@smart-erp/types": "workspace:*",
     "@smart-erp/validation": "workspace:*",
-    "drizzle-orm": "^0.31.4",
+    "drizzle-orm": "^0.45.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
