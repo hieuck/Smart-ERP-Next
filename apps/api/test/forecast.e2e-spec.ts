@@ -115,20 +115,10 @@ describe('InventoryRecommendation E2E', () => {
 
   describe('GET /inventory-recommendation/suggest', () => {
     it('should return reorder suggestion', async () => {
-      // Create a product with a valid UUID to avoid PG error
       const productId = randomUUID();
-      const warehouseId = randomUUID();
       await db.execute(sql`
         INSERT INTO products (id, name, tenant_id, sku, price, created_at, updated_at)
         VALUES (${productId}, 'E2E Test Product', ${tenantId}, 'E2E-SKU', 100000, NOW(), NOW())
-      `);
-      await db.execute(sql`
-        INSERT INTO warehouses (id, code, name, tenant_id, created_at, updated_at)
-        VALUES (${warehouseId}, 'E2E-WH', 'E2E Warehouse', ${tenantId}, NOW(), NOW())
-      `);
-      await db.execute(sql`
-        INSERT INTO inventory (id, product_id, warehouse_id, quantity, tenant_id, created_at, updated_at)
-        VALUES (${randomUUID()}, ${productId}, ${warehouseId}, 50, ${tenantId}, NOW(), NOW())
       `);
 
       const res = await request(app.getHttpServer())
