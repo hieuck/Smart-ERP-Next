@@ -81,8 +81,8 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Pre-build dependencies for faster web E2E startup
-        run: pnpm --filter @smart-erp/database build && pnpm --filter @smart-erp/accounting build
+      - name: Build API + dependencies for faster web E2E startup
+        run: pnpm --filter @smart-erp/api build
 
       - name: Run web E2E tests
         env:
