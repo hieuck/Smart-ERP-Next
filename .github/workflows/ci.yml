@@ -81,13 +81,18 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Pre-build API with tsc (avoids nest build path hook)
+      - name: Pre-build API + symlink workspace packages for runtime resolution
         env:
           NODE_OPTIONS: --max-old-space-size=4096
         run: |
           pnpm --filter @smart-erp/database build
           pnpm --filter @smart-erp/accounting build
           cd apps/api && npx tsc -p tsconfig.json && node -e "require('fs').cpSync('src/i18n/locales', 'dist/apps/api/src/i18n/locales', {recursive: true, force: true})"
+          # Ensure workspace packages are resolvable at runtime
+          mkdir -p node_modules/@smart-erp
+          ln -sfn "$PWD/packages/accounting" node_modules/@smart-erp/accounting
+          ln -sfn "$PWD/packages/database" node_modules/@smart-erp/database
+          ln -sfn "$PWD/packages/types" node_modules/@smart-erp/types
 
       - name: Start servers & run Playwright E2E tests
         env:
