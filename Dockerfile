@@ -9,11 +9,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 RUN npm install -g pnpm@10.33.0 && apk add --no-cache curl
 
-# Step 0: Create .npmrc with hoisted linker (required for Docker multi-stage COPY)
-RUN echo "node-linker=hoisted" > /app/.npmrc
-
 # Step 1: Copy only package manifests (rarely change → cached install)
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/database/package.json packages/database/package.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY packages/utils/package.json packages/utils/package.json
@@ -28,8 +25,9 @@ COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 
 # Step 2: Install deps (cached unless any package.json changes)
-# node-linker=hoisted from .npmrc ensures flat node_modules without symlinks
-RUN pnpm install --no-frozen-lockfile --ignore-scripts
+# npm_config_node_linker=hoisted ensures flat node_modules without symlinks
+# This is REQUIRED for Docker multi-stage: symlinks break when COPYing between stages
+RUN npm_config_node_linker=hoisted pnpm install --no-frozen-lockfile --ignore-scripts
 
 # Step 3: Copy source code (frequently changes, but install is cached)
 COPY packages/ ./packages/
