@@ -71,8 +71,8 @@ describe('Forecast E2E', () => {
     it('should return forecast data for product', async () => {
       const productId = randomUUID();
       await db.execute(sql`
-        INSERT INTO products (id, name, tenant_id, sku, created_at, updated_at)
-        VALUES (${productId}, 'E2E Forecast Product', ${tenantId}, 'FCT-SKU', NOW(), NOW())
+        INSERT INTO products (id, name, tenant_id, sku, price, created_at, updated_at)
+        VALUES (${productId}, 'E2E Forecast Product', ${tenantId}, 'FCT-SKU', 100000, NOW(), NOW())
       `);
 
       const res = await request(app.getHttpServer())
@@ -119,8 +119,8 @@ describe('InventoryRecommendation E2E', () => {
       const productId = randomUUID();
       const warehouseId = randomUUID();
       await db.execute(sql`
-        INSERT INTO products (id, name, tenant_id, sku, created_at, updated_at)
-        VALUES (${productId}, 'E2E Test Product', ${tenantId}, 'E2E-SKU', NOW(), NOW())
+        INSERT INTO products (id, name, tenant_id, sku, price, created_at, updated_at)
+        VALUES (${productId}, 'E2E Test Product', ${tenantId}, 'E2E-SKU', 100000, NOW(), NOW())
       `);
       await db.execute(sql`
         INSERT INTO warehouses (id, name, tenant_id, created_at, updated_at)

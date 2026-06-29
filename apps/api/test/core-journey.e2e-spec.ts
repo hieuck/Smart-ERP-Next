@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { db, tenants, users } from '@smart-erp/database';
+import { sql } from '@smart-erp/database/drizzle';
 import { AppModule } from '../src/app.module';
 
 const { sign } = require('jsonwebtoken');
@@ -69,22 +70,43 @@ describe('Smart ERP Next - Core User Journey (E2E)', () => {
   });
 
   it('returns product forecast data for an authenticated user', async () => {
+    const productId = randomUUID();
+    await db.execute(sql`
+      INSERT INTO products (id, name, tenant_id, sku, price, created_at, updated_at)
+      VALUES (${productId}, 'Core Journey Product', ${tenantId}, 'CJ-SKU', 100000, NOW(), NOW())
+    `);
+
     const res = await authed(
-      request(app.getHttpServer()).get('/forecast/product/prod-123'),
+      request(app.getHttpServer()).get(`/forecast/product/${productId}`),
     );
 
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ productId: 'prod-123' });
+    expect(res.body).toMatchObject({ productId });
     expect(Array.isArray(res.body.data.predictions)).toBe(true);
   });
 
   it('returns inventory reorder recommendation for an authenticated user', async () => {
+    const productId = randomUUID();
+    const warehouseId = randomUUID();
+    await db.execute(sql`
+      INSERT INTO products (id, name, tenant_id, sku, price, created_at, updated_at)
+      VALUES (${productId}, 'Core Journey Inv Product', ${tenantId}, 'CJI-SKU', 100000, NOW(), NOW())
+    `);
+    await db.execute(sql`
+      INSERT INTO warehouses (id, name, tenant_id, created_at, updated_at)
+      VALUES (${warehouseId}, 'Core Journey WH', ${tenantId}, NOW(), NOW())
+    `);
+    await db.execute(sql`
+      INSERT INTO inventory (id, product_id, warehouse_id, quantity, tenant_id, created_at, updated_at)
+      VALUES (${randomUUID()}, ${productId}, ${warehouseId}, 50, ${tenantId}, NOW(), NOW())
+    `);
+
     const res = await authed(
-      request(app.getHttpServer()).get('/inventory-recommendation/suggest?productId=prod-123&stock=50'),
+      request(app.getHttpServer()).get(`/inventory-recommendation/suggest?productId=${productId}&stock=50`),
     );
 
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ productId: 'prod-123' });
+    expect(res.body).toMatchObject({ productId });
     expect(res.body).toHaveProperty('suggestedReorder');
   });
 
