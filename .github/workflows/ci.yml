@@ -81,6 +81,14 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
+      - name: Ensure workspace symlinks for Playwright server
+        run: |
+          mkdir -p node_modules/@smart-erp
+          for d in packages/*/; do
+            name="$(basename "$d")"
+            ln -sfn "../../$d" "node_modules/@smart-erp/$name" 2>/dev/null || true
+          done
+
       - name: Run web E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
