@@ -74,7 +74,7 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "build": "nest build && node -e \"require('fs').cpSync('src/i18n/locales', 'dist/apps/api/src/i18n/locales', {recursive: true, force: true})\"",
+    "build": "pnpm --filter @smart-erp/database build && pnpm --filter @smart-erp/accounting build && tsc -p tsconfig.json && node -e \"require('fs').cpSync('src/i18n/locales', 'dist/apps/api/src/i18n/locales', {recursive: true, force: true})\"",
     "dev": "pnpm --filter @smart-erp/database build && pnpm --filter @smart-erp/accounting build && nest start --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "start": "nest start",

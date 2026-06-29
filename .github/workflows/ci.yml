@@ -81,6 +81,9 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
+      - name: Build API for production (faster web E2E startup)
+        run: pnpm --filter @smart-erp/api build
+
       - name: Run web E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
