@@ -25,8 +25,6 @@ COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 
 # Step 2: Install deps (cached unless any package.json changes)
-# npm_config_node_linker=hoisted ensures flat node_modules without symlinks
-# This is REQUIRED for Docker multi-stage: symlinks break when COPYing between stages
 RUN npm_config_node_linker=hoisted pnpm install --no-frozen-lockfile --ignore-scripts
 
 # Step 3: Copy source code (frequently changes, but install is cached)
@@ -35,8 +33,16 @@ COPY apps/ ./apps/
 COPY scripts/ ./scripts/
 COPY apps/web/public/ ./apps/web/public/
 
-# Step 4: Build
-RUN pnpm -r run build
+# Step 4: Build (use pnpm exec with hoisted linker — tsc resolves from root node_modules/.bin)
+RUN pnpm --filter @smart-erp/shared exec tsc -b && \
+    pnpm --filter @smart-erp/utils exec tsc -b && \
+    pnpm --filter @smart-erp/validation exec tsc -b && \
+    pnpm --filter @smart-erp/hooks exec tsc -b && \
+    pnpm --filter @smart-erp/types exec tsc -b && \
+    pnpm --filter @smart-erp/database exec tsc -p tsconfig.json && \
+    pnpm --filter @smart-erp/accounting exec tsc -p tsconfig.json && \
+    pnpm --filter @smart-erp/api exec tsc -p tsconfig.json && \
+    pnpm --filter @smart-erp/api exec node -e "require('fs').cpSync('src/i18n/locales', 'dist/apps/api/src/i18n/locales', {recursive: true, force: true})"
 
 # Runtime stage — based on postgres for embedded database
 FROM postgres:16-alpine
@@ -67,11 +73,11 @@ COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml
 COPY --from=build /app/scripts /app/scripts
 COPY apps/api/docker-entrypoint.sh /app/docker-entrypoint.sh
 
-# Copy node_modules from build stage (hoisted → flat, no symlinks needed)
+# Copy node_modules from build stage
 COPY --from=build /app/node_modules /app/node_modules
 
-# Clean up build artifacts not needed at runtime
-RUN set -eux; \
+# Convert to hoisted linker for runtime (ensures @smart-erp/* are in node_modules)
+RUN npm_config_node_linker=hoisted pnpm install --no-frozen-lockfile --offline 2>/dev/null; \
     rm -rf /app/apps/web/src /app/apps/web/.next/cache /app/apps/api/src /app/packages/*/__tests__; \
     find /app/packages -type f \( -name '*.map' -o -name 'tsconfig*' \) -not -path '*/node_modules/*' -not -name 'drizzle.config.ts' -delete; \
     rm -f /usr/local/bin/pnpm /usr/local/lib/node_modules/pnpm; \
