@@ -1,0 +1,435 @@
+# Instincts generated from https://github.com/hieuck/Smart-ERP-Next
+# Generated: 2026-06-29T12:35:30.467Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: Smart-ERP-Next-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Commit Length
+
+## Action
+
+Keep commit messages concise (~47 characters)
+
+## Evidence
+
+- Average commit message length: 47 chars
+- Based on 2 commits
+
+---
+id: Smart-ERP-Next-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: Smart-ERP-Next-import-alias
+trigger: "when importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Import Alias
+
+## Action
+
+Use path aliases (@/, ~/) instead of relative imports
+
+## Evidence
+
+- Import analysis shows alias pattern
+- Example: import { x } from '@/lib/x'
+
+---
+id: Smart-ERP-Next-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: Smart-ERP-Next-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: 
+
+---
+id: Smart-ERP-Next-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Test Framework
+
+## Action
+
+Use jest as the test framework
+
+## Evidence
+
+- Test framework detected: jest
+- File pattern: *.test.js
+
+---
+id: Smart-ERP-Next-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.js
+
+## Evidence
+
+- File pattern: *.test.js
+- Consistent across test files
+
+---
+id: Smart-ERP-Next-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Test Types
+
+## Action
+
+Write unit, integration tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, integration
+- Coverage config: yes
+
+---
+id: Smart-ERP-Next-workflow-add-quality-gate-and-observability-workflow
+trigger: "when doing add quality gate and observability workflow"
+confidence: 0.55
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/hieuck/Smart-ERP-Next
+---
+
+# Smart ERP Next Workflow Add Quality Gate And Observability Workflow
+
+## Action
+
+Follow the add-quality-gate-and-observability-workflow workflow:
+1. Update or add CI workflow configuration (.github/workflows/ci.yml)
+2. Update GAPS.md to reflect new or resolved gaps
+3. Implement or update API versioning and monitoring logic in apps/api/src/common and apps/api/src/monitor
+4. Update or add PWA and i18n files in apps/web/public and apps/web/src/lib/locales
+5. Add or update documentation in docs/ (e.g., api-errors.md, api-versioning.md, i18n-parity.md, observability.md, pwa-offline.md, qa-gates.md)
+6. Update or add monitoring configurations in monitoring/grafana, monitoring/loki, monitoring/prometheus
+7. Add or update audit and quality scripts and their tests in scripts/ and scripts/__tests__/
+8. Update package.json if new scripts or dependencies are added
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~1x per month
+- Files: .github/workflows/ci.yml, GAPS.md, apps/api/src/common/api-versioning.ts
+
+---
+id: smart-erp-next-camelcase-files
+trigger: "When creating a new file or renaming an existing file"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Camelcase Files
+
+## Action
+
+Use camelCase for file names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.files
+- Consistent in apps/web/src/components/providers/ServiceWorkerProvider.tsx
+
+---
+id: smart-erp-next-camelcase-functions
+trigger: "When defining a new function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Camelcase Functions
+
+## Action
+
+Name the function using camelCase
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.functions
+- Examples in apps/api/src/common/api-versioning.ts
+
+---
+id: smart-erp-next-pascalcase-classes
+trigger: "When creating a new class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Pascalcase Classes
+
+## Action
+
+Name the class using PascalCase
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.classes
+- Examples in apps/api/src/monitor/status.controller.ts
+
+---
+id: smart-erp-next-screaming-snake-constants
+trigger: "When declaring a constant"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Screaming Snake Constants
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.constants
+- Examples in apps/api/src/common/api-versioning.ts
+
+---
+id: smart-erp-next-alias-imports
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Alias Imports
+
+## Action
+
+Use alias import style
+
+## Evidence
+
+- Pattern in codeStyle.importStyle
+- Examples in apps/web/src/app/layout.tsx
+
+---
+id: smart-erp-next-named-exports
+trigger: "When exporting functions, classes, or constants"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Named Exports
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle
+- Examples in apps/api/src/common/api-versioning.ts
+
+---
+id: smart-erp-next-jest-test-pattern
+trigger: "When adding a test file"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Jest Test Pattern
+
+## Action
+
+Name the test file with the pattern *.test.js
+
+## Evidence
+
+- Pattern in testing.filePattern
+- Examples in scripts/__tests__/audit-i18n-parity.test.js
+
+---
+id: smart-erp-next-jest-unit-integration
+trigger: "When writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Jest Unit Integration
+
+## Action
+
+Write both unit and integration tests using Jest
+
+## Evidence
+
+- Pattern in testing.testTypes
+- Examples in apps/api/src/common/api-versioning.spec.ts and apps/api/src/monitor/status.service.spec.ts
+
+---
+id: smart-erp-next-coverage-config
+trigger: "When configuring or updating tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Coverage Config
+
+## Action
+
+Ensure test coverage is configured in Jest
+
+## Evidence
+
+- Pattern in testing.coverageConfig
+- Presence of coverage config in package.json
+
+---
+id: smart-erp-next-atomic-commits
+trigger: "When making a commit"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Atomic Commits
+
+## Action
+
+Keep commits atomic: one logical change per commit
+
+## Evidence
+
+- Pattern in commits.averageLength and examples
+- Examples: 'Add i18n parity gate', 'Merge pull request #1...'
+
+---
+id: smart-erp-next-freeform-commit-messages
+trigger: "When writing a commit message"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Freeform Commit Messages
+
+## Action
+
+Use a short, freeform message describing the change (no strict prefix required)
+
+## Evidence
+
+- Pattern in commits.type
+- Examples: 'Add i18n parity gate', 'Merge pull request #1...'
+
+---
+id: smart-erp-next-add-quality-gate-workflow
+trigger: "When introducing or updating quality gates, observability, i18n parity, or PWA offline runtime"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: hieuck/Smart-ERP-Next
+---
+
+# Smart Erp Next Add Quality Gate Workflow
+
+## Action
+
+Follow the 'add-quality-gate-and-observability-workflow' steps: update CI config, GAPS.md, API monitoring, PWA/i18n files, docs, monitoring configs, audit scripts/tests, and package.json
+
+## Evidence
+
+- Workflow definition: add-quality-gate-and-observability-workflow
+- Commit sequence and files in workflow example
+
