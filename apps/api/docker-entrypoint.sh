@@ -10,22 +10,39 @@ if [ -n "$DATABASE_URL" ]; then
   echo "Using external database: $DATABASE_URL"
 else
   echo "Starting embedded PostgreSQL..."
-
-  # PostgreSQL data directory (child of PGDATA or default)
   PGDATA="${PGDATA:-/var/lib/postgresql/data}"
 
-  if [ ! -f "$PGDATA/PG_VERSION" ]; then
-    echo "Initializing PostgreSQL database..."
-    initdb -D "$PGDATA" -U postgres 2>/dev/null
+  # Check if PostgreSQL is already running
+  if pg_isready -U postgres 2>/dev/null; then
+    echo "PostgreSQL already running"
+  else
+    if [ ! -f "$PGDATA/PG_VERSION" ]; then
+      echo "Initializing PostgreSQL database (this may take 10-30s on first run)..."
+      initdb -D "$PGDATA" -U postgres
+    fi
+
+    echo "Starting PostgreSQL..."
+    pg_ctl -D "$PGDATA" -o "-p 5432" -l /tmp/pg.log start || {
+      echo "ERROR: PostgreSQL failed to start. Check log:"
+      cat /tmp/pg.log 2>/dev/null || true
+      exit 1
+    }
+
+    echo "Waiting for PostgreSQL..."
+    TIMEOUT=30
+    while ! pg_isready -U postgres 2>/dev/null; do
+      TIMEOUT=$((TIMEOUT - 1))
+      if [ $TIMEOUT -le 0 ]; then
+        echo "ERROR: PostgreSQL not ready after 30s. Log:"
+        cat /tmp/pg.log 2>/dev/null || true
+        exit 1
+      fi
+      sleep 1
+    done
+
+    # Create database if not exists
+    su - postgres -c "psql -tc \"SELECT 1 FROM pg_database WHERE datname='smart_erp'\" 2>/dev/null | grep -q 1 || createdb smart_erp" 2>/dev/null || true
   fi
-
-  # Start PostgreSQL
-  pg_ctl -D "$PGDATA" -o "-p 5432" -l /tmp/pg.log start
-  echo "Waiting for PostgreSQL..."
-  until pg_isready -U postgres 2>/dev/null; do sleep 1; done
-
-  # Create database if not exists
-  su - postgres -c "psql -tc \"SELECT 1 FROM pg_database WHERE datname='smart_erp'\" | grep -q 1 || createdb smart_erp" 2>/dev/null
 
   DATABASE_URL="postgresql://postgres@localhost:5432/smart_erp"
   export DATABASE_URL
