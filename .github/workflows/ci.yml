@@ -140,9 +140,16 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Running Playwright tests..."
-          API_PORT=3456 WEB_PORT=3457 pnpm test:e2e
+          API_PORT=3456 WEB_PORT=3457 pnpm test:e2e 2>&1
           EXIT_CODE=$?
           echo "::endgroup::"
 
-          [ $EXIT_CODE -ne 0 ] && { echo "::group::API log"; tail -30 /tmp/api-server.log; echo "::endgroup::"; }
+          [ $EXIT_CODE -ne 0 ] && {
+            echo "::group::API server log (last 50)"
+            tail -50 /tmp/api-server.log 2>/dev/null || echo "(empty)"
+            echo "::endgroup::"
+            echo "::group::Web server log (last 50)"
+            tail -50 /tmp/web-server.log 2>/dev/null || echo "(empty)"
+            echo "::endgroup::"
+          }
           exit $EXIT_CODE
