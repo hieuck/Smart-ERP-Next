@@ -21,9 +21,9 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm --filter @smart-erp/api start:prod',
+      command: 'pnpm --filter @smart-erp/api dev',
       url: 'http://localhost:3456/health',
-      timeout: 60000,
+      timeout: 180000,
       reuseExistingServer: true,
       env: {
         PORT: process.env.API_PORT ?? '3456',
