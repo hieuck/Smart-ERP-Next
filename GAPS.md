@@ -77,6 +77,20 @@ Completed: 52 | Remaining: 6
 | Domain refactoring | Medium | 48→6 domain modules |
 | API versioning | Low | Needs design + frontend coordination |
 
+## Team Role Assessment Addendum (2026-06-29)
+
+A role-based review has been added in `docs/team-role-gap-assessment.md` to translate the roadmap into a real dev-team operating model. The highest-priority gaps are product/test traceability, API governance, observability, security program automation, PWA/offline hardening, release rollback playbooks, and data governance for forecast/analytics.
+
+| Role area | New gap | Priority | Tracking |
+|-----------|---------|----------|----------|
+| Product + QA | PRD/persona/acceptance criteria must trace to automated tests | High | GAP-ROLE-01 |
+| Architecture + Backend | ADRs, API versioning, error catalog, and contract tests | High | GAP-ROLE-02/03 |
+| SRE + DevOps | Observability stack, SLOs, alerting, staging, rollback drill | High | GAP-ROLE-04/08 |
+| Security | Threat model, ASVS checklist, secret/dependency/container scanning | High | GAP-ROLE-05 |
+| Frontend/PWA | Production PWA manifest, service worker, offline UX test matrix | High | GAP-ROLE-06 |
+| Data/AI | Data contracts, PII classification, forecast accuracy monitoring | Medium | GAP-ROLE-09 |
+| Support/Docs | Incident runbook, support triage SOP, troubleshooting matrix | Medium | GAP-ROLE-10 |
+
 ## Closed (Won't Fix)
 
 | Gap | Notes |
