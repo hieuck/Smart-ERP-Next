@@ -81,78 +81,12 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Build API (nest build works with --shamefully-hoist node_modules)
-        run: |
-          pnpm --filter @smart-erp/database build
-          pnpm --filter @smart-erp/accounting build
-          cd apps/api && pnpm exec nest build
-
-      - name: Start servers & run Playwright E2E tests
+      - name: Run web E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
           JWT_SECRET: ci-e2e-secret
           NEXT_PUBLIC_API_URL: http://localhost:3456
           NODE_ENV: test
+          PORT: '3001'
           LOGIN_RATE_LIMIT: '1000'
-        run: |
-          # Start pre-built API server (nest build + symlinks for path resolution)
-          echo "::group::Starting API server..."
-          node apps/api/dist/apps/api/src/main.js > /tmp/api-server.log 2>&1 &
-          API_PID=$!
-          echo "API PID: $API_PID"
-          
-          # Wait for API health endpoint (up to 30s — pre-built starts fast)
-          for i in $(seq 1 6); do
-            if curl -s http://localhost:3456/health > /dev/null 2>&1; then
-              echo "✅ API server ready (attempt $i)"
-              break
-            fi
-            echo "Attempt $i: waiting..."
-            sleep 5
-            if ! kill -0 $API_PID 2>/dev/null; then
-              echo "❌ API server process died"
-              cat /tmp/api-server.log
-              exit 1
-            fi
-          done
-          echo "::endgroup::"
-          
-          # Start Web dev server in background
-          echo "::group::Starting Web server..."
-          pnpm --filter @smart-erp/web dev --port 3457 > /tmp/web-server.log 2>&1 &
-          WEB_PID=$!
-          echo "Web PID: $WEB_PID"
-          
-          # Wait for Web login page
-          for i in $(seq 1 30); do
-            if curl -s -o /dev/null -w "%{http_code}" http://localhost:3457/login 2>/dev/null | grep -q "200\|302"; then
-              echo "✅ Web server ready (attempt $i)"
-              break
-            fi
-            echo "Attempt $i: waiting..."
-            sleep 5
-            if ! kill -0 $WEB_PID 2>/dev/null; then
-              echo "❌ Web server process died"
-              cat /tmp/web-server.log
-              exit 1
-            fi
-          done
-          echo "::endgroup::"
-          
-          # Run Playwright tests
-          echo "::group::Running Playwright E2E tests..."
-          pnpm test:e2e
-          EXIT_CODE=$?
-          echo "::endgroup::"
-          
-          # Show server logs on failure
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "::group::API server log (last 50 lines)"
-            tail -50 /tmp/api-server.log 2>/dev/null || echo "(empty)"
-            echo "::endgroup::"
-            echo "::group::Web server log (last 50 lines)"
-            tail -50 /tmp/web-server.log 2>/dev/null || echo "(empty)"
-            echo "::endgroup::"
-          fi
-          
-          exit $EXIT_CODE
+        run: pnpm test:e2e
