@@ -81,18 +81,11 @@ jobs:
           NODE_ENV: test
         run: pnpm test:api:e2e
 
-      - name: Pre-build API + symlink workspace packages for runtime resolution
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
+      - name: Pre-build API dist
         run: |
           pnpm --filter @smart-erp/database build
           pnpm --filter @smart-erp/accounting build
           cd apps/api && npx tsc -p tsconfig.json && node -e "require('fs').cpSync('src/i18n/locales', 'dist/apps/api/src/i18n/locales', {recursive: true, force: true})"
-          # Ensure workspace packages are resolvable at runtime
-          mkdir -p node_modules/@smart-erp
-          ln -sfn "$PWD/packages/accounting" node_modules/@smart-erp/accounting
-          ln -sfn "$PWD/packages/database" node_modules/@smart-erp/database
-          ln -sfn "$PWD/packages/types" node_modules/@smart-erp/types
 
       - name: Start servers & run Playwright E2E tests
         env:
@@ -102,9 +95,9 @@ jobs:
           NODE_ENV: test
           LOGIN_RATE_LIMIT: '1000'
         run: |
-          # Start pre-built API server directly with node (no compilation needed)
+          # Start API server via tsx (handles workspace module resolution natively)
           echo "::group::Starting API server..."
-          node apps/api/dist/apps/api/src/main.js > /tmp/api-server.log 2>&1 &
+          npx tsx apps/api/src/main.ts > /tmp/api-server.log 2>&1 &
           API_PID=$!
           echo "API PID: $API_PID"
           
