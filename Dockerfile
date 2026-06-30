@@ -4,7 +4,7 @@
 # ──────────────────────────────────────────────────────────────
 
 # Build stage — optimized for Docker layer caching
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 ENV NODE_ENV=production
 RUN npm install -g pnpm@10.33.0 && apk add --no-cache curl
