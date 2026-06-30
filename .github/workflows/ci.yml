@@ -41,6 +41,18 @@ jobs:
       - name: Check dependency vulnerabilities
         run: pnpm audit --audit-level=high
 
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          hide-progress: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+        continue-on-error: true
+
       - name: Type check
         run: pnpm type-check
 

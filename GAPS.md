@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 120 | Remaining: 0
+Completed: 125 | Remaining: 0
 
 ## Completed
 
@@ -117,6 +117,10 @@ Completed: 120 | Remaining: 0
 | API key usage tracking | Medium | lastUsedAt timestamp on validate, getUsageStats endpoint (TDD: 2 tests) |
 | Input sanitization utility | Medium | sanitizeHtml/sanitizeUrl/trimAndClean in @smart-erp/utils (TDD: 8 tests) |
 | WebSocket shutdown notification | Medium | notifyShutdown emits server.shutdown event before force close |
+| Rate limit response headers | Medium | X-RateLimit-Limit/Remaing/Reset via interceptor (TDD: 2 tests) |
+| Security headers audit | Medium | helmet-config extracted, CSP audit tests (TDD: 5 tests) |
+| Slow query logging | Medium | SlowQueryLoggerInterceptor warns on >1s requests (TDD: 2 tests) |
+| Docker vulnerability scanning | High | Trivy filesystem scan in CI (HIGH/CRITICAL severity) |
 
 | Item | Impact | Notes |
 |------|--------|-------|
