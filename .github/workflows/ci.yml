@@ -113,8 +113,8 @@ jobs:
           echo "API PID: $API_PID"
           echo "::endgroup::"
 
-          echo "::group::Waiting for API health..."
-          for i in $(seq 1 60); do
+          echo "::group::Waiting for API health (up to 20 min)..."
+          for i in $(seq 1 120); do
             if curl -s http://localhost:3456/health > /dev/null 2>&1; then
               echo "✅ API ready (attempt $i)"
               break
