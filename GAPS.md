@@ -1,6 +1,6 @@
-# Smart ERP Next — Gaps & Roadmap (Updated 2026-06-28)
+# Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 57 | Remaining: 2
+Completed: 62 | Remaining: 2
 
 ## Completed
 
@@ -62,6 +62,11 @@ Completed: 57 | Remaining: 2
 | API versioning baseline | Low | header-based `X-API-Version` default v1, versioning/error docs, and contract config test |
 | Observability stack baseline | Medium | Prometheus/Grafana/Loki compose, `/status/metrics`, alert rules, dashboard provisioning, and config tests |
 | Multi-language i18n parity | Medium | Vietnamese mojibake fixes, vi/en key parity backfill, CI/commit parity audit, and regression test |
+| CSP headers for API | High | Content-Security-Policy configured with helmet() — script/style/img/connect/font restrictions |
+| CSP headers for Web (Next.js) | High | Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy via next.config.mjs headers() |
+| Dependency vulnerability scanning | High | `pnpm audit --audit-level=high` added to CI pipeline |
+| Global rate limiting | High | ThrottlerModule moved to global AppModule — ALL endpoints rate-limited by default, env-controlled via GLOBAL_RATE_LIMIT |
+| Remove unused bcrypt dependency | Low | Only bcryptjs is used in codebase; native bcrypt and @types/bcrypt removed |
 
 ## Known Tech Debt
 
@@ -77,6 +82,14 @@ Completed: 57 | Remaining: 2
 |-----|----------|-------|
 | Deploy staging server (VPS) | **High** | Needs VPS + GitHub secrets (STAGING_HOST, SSH_KEY) |
 | Domain refactoring | Medium | 48→6 domain modules |
+| Idempotency for order/payment/inventory | **High** | No idempotency key support — network retry can create duplicate orders |
+| Database migration rollback process | **High** | No rollback strategy or CI rollback step |
+| API contract testing | **High** | No Pact or OpenAPI spec enforcement in CI |
+| Bundle size monitoring | **High** | No Lighthouse CI or bundle analysis for Next.js |
+| Component + visual regression tests | **High** | Frontend has no component tests, no visual diff |
+| Cross-browser testing | Medium | Playwright only runs Chromium, no Firefox/Safari |
+| Accessibility testing | Medium | No axe-core or Lighthouse CI in pipeline |
+| Feature KPIs and success metrics | **High** | No measurable success criteria for ERP modules |
 
 ## Team Role Assessment Addendum (2026-06-29)
 

@@ -1,5 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ForecastModule } from './forecast/forecast.module';
 import { InventoryRecommendationModule } from './inventory-recommendation/inventory-recommendation.module';
@@ -40,6 +42,7 @@ import { InfraModule } from './modules/infra.module';
 @Module({
   imports: [
     LoggerModule,
+    ThrottlerModule.forRoot([{ name: 'global', ttl: 60000, limit: parseInt(process.env.GLOBAL_RATE_LIMIT || '200', 10) }]),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     I18nModule,
     CacheModule.register({ isGlobal: true, ttl: 60, max: 100 }),
@@ -77,6 +80,7 @@ import { InfraModule } from './modules/infra.module';
     AppService,
     { provide: DRIZZLE, useValue: db },
     { provide: APP_INTERCEPTOR, useClass: RequestLoggingInterceptor },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
 export class AppModule implements NestModule {

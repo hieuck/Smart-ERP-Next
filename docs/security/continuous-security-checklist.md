@@ -31,8 +31,14 @@ High-confidence patterns currently blocked:
 4. Re-run `pnpm audit:secrets` and `pnpm qa:commit`.
 5. Document the incident in the release notes if the secret ever reached a shared branch.
 
+## Completed
+
+- ✅ CSP headers configured for API (`helmet`) and Web (`next.config.mjs` headers): default-src, script-src, style-src, img-src, connect-src, font-src, frame-src, object-src, base-uri
+- ✅ Dependency vulnerability scanning (`pnpm audit --audit-level=high`) added to CI pipeline
+- ✅ Global rate limiting via `@nestjs/throttler` in AppModule with env-controlled `GLOBAL_RATE_LIMIT`
+- ✅ Removed unused native `bcrypt` dependency (only `bcryptjs` used)
+
 ## Future hardening backlog
 
-- Add dependency vulnerability scanning with an allowlisted severity policy.
-- Add container image scanning to the release workflow.
 - Expand the checklist into an ASVS control matrix for auth, tenant isolation, logging, and data export.
+- Add container image scanning to the release workflow.
