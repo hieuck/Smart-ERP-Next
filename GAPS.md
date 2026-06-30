@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 146 | Remaining: 0
+Completed: 151 | Remaining: 0
 
 ## Completed
 
@@ -140,6 +140,10 @@ Completed: 146 | Remaining: 0
 | Feature flags integration tests | High | setFlag + isEnabled + getAllFlags + update (TDD: 4 tests) |
 | Swagger docs for orders | Medium | @ApiOperation + @ApiResponse + @ApiBearerAuth on all endpoints |
 | Swagger API doc exports | Low | @ApiTags on 14 core controllers, full docs on Orders |
+| Backup scheduling docs | Low | docs/backup-scheduling.md with cron/systemd/service examples |
+| Telemetry service integration tests | High | track + trackPageView + error handling (TDD: 4 tests) |
+| Aggregation service integration tests | Medium | dailyRevenue + topProducts + orderStats (TDD: 4 tests) |
+| Load test with auth endpoints | Medium | products + orders endpoints added to load-test.mjs |
 
 | Item | Impact | Notes |
 |------|--------|-------|

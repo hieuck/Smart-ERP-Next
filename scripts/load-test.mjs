@@ -9,27 +9,30 @@ const REQUESTS_PER_USER = 20;
 const endpoints = [
   { method: 'GET', path: '/health', name: 'health' },
   { method: 'GET', path: '/status', name: 'status' },
+  { method: 'GET', path: '/products', name: 'products', auth: true },
+  { method: 'GET', path: '/orders', name: 'orders', auth: true },
 ];
 
-async function fetchWithTiming(method, path) {
-  const start = Date.now();
-  try {
-    const res = await fetch(`${BASE}${path}`, { method });
-    const ms = Date.now() - start;
-    return { status: res.status, ms, ok: res.ok };
-  } catch {
-    return { status: 0, ms: Date.now() - start, ok: false };
-  }
-}
-
 async function simulateUser(userId, results) {
+  let token = '';
   const loginRes = await fetchWithTiming('POST', '/auth/login');
+  if (loginRes.ok) token = 'dummy-jwt-token';
+
   for (const ep of endpoints) {
     for (let i = 0; i < REQUESTS_PER_USER; i++) {
-      const r = await fetchWithTiming(ep.method, ep.path);
+      const headers = {};
+      if (ep.auth && token) headers['Authorization'] = `Bearer ${token}`;
+      const r = await fetchWithTiming(ep.method, ep.path, headers);
       results.push({ ...r, user: userId, endpoint: ep.name });
     }
   }
+}
+
+function fetchWithTiming(method, path, headers = {}) {
+  const start = Date.now();
+  return fetch(`${BASE}${path}`, { method, headers })
+    .then((res) => ({ status: res.status, ms: Date.now() - start, ok: res.ok }))
+    .catch(() => ({ status: 0, ms: Date.now() - start, ok: false }));
 }
 
 async function main() {
