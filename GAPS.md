@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 73 | Remaining: 2
+Completed: 78 | Remaining: 2
 
 ## Completed
 
@@ -79,6 +79,9 @@ Completed: 73 | Remaining: 2
 | CodeQL SAST workflow | High | .github/workflows/codeql.yml — runs on push/PR/schedule for JS/TS |
 | Performance load test CI step | Low | node scripts/load-test.mjs runs after Playwright in CI |
 | Component test sample | Low | Button.test.tsx with render/click/variant tests |
+| Audit log interceptor | High | AuditLog decorator + interceptor for sensitive operations on orders |
+| API key management | High | ApiKeyService (generate/validate/revoke) + ApiKeyGuard + api_keys schema |
+| Flaky test detection script | Medium | scripts/audit-e2e-assertions.js enhanced with flaky detection |
 
 | Item | Impact | Notes |
 |------|--------|-------|

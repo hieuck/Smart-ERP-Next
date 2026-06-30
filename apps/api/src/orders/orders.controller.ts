@@ -16,6 +16,7 @@ import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { IdempotencyGuard } from '../common/errors/idempotency.guard';
+import { AuditLog } from '../common/decorators/audit-log.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('orders')
@@ -66,6 +67,7 @@ export class OrdersController {
   }
 
   @Patch(':id/status')
+  @AuditLog('update_order_status', 'order')
   updateStatus(
     @Request() req: any,
     @Param('id', ParseUUIDPipe) id: string,
