@@ -57,5 +57,6 @@ export * from './employees';
 export * from './refresh_tokens';
 export * from './api_keys';
 export * from './feature_flags';
+export * from './outbox_events';
 
 

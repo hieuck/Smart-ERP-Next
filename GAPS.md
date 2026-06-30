@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 90 | Remaining: 2
+Completed: 96 | Remaining: 2
 
 ## Completed
 
@@ -93,6 +93,11 @@ Completed: 90 | Remaining: 2
 | Semantic versioning policy | Low | docs/semver-policy.md with MAJOR/MINOR/PATCH definitions |
 | PII classification docs | Low | docs/pii-classification.md with data classification levels |
 | Competitive positioning docs | Low | docs/competitive-positioning.md with competitor analysis |
+| Outbox pattern for event durability | **High** | OutboxService (emit/processPending/cleanup) + outbox_events schema (TDD: 6 tests) |
+| Graceful shutdown | High | GracefulShutdownService with SIGTERM/SIGINT handlers, 30s timeout (TDD: 3 tests) |
+| Backup restore verification script | Medium | scripts/verify-backup.js with file validation + SQL content check |
+| Data archival strategy docs | Medium | docs/data-archival.md with retention policies per table |
+| Secrets management docs | Medium | docs/secrets-management.md with production recommendations |
 
 | Item | Impact | Notes |
 |------|--------|-------|
