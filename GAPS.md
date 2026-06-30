@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 181 | Remaining: 0
+Completed: 184 | Remaining: 0
 
 ## Completed
 
