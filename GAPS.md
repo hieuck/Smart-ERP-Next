@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 168 | Remaining: 0
+Completed: 171 | Remaining: 0
 
 ## Completed
 
@@ -155,6 +155,8 @@ Completed: 168 | Remaining: 0
 | API key rate limiting | High | ApiKeyThrottlerGuard with 200/100 per-minute limits (TDD: 4 tests) |
 | scheduler_log indexes | Medium | Index on job_name + created_at for query performance |
 | Compression middleware | Low | Express compression for API response body compression |
+| Auth flow integration tests | High | Full register→login→refresh→logout flow (TDD: 8 tests) |
+| OpenAPI spec generation script | Low | scripts/generate-api-docs.js exports Swagger spec to JSON |
 
 | Item | Impact | Notes |
 |------|--------|-------|
