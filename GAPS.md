@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 96 | Remaining: 2
+Completed: 101 | Remaining: 2
 
 ## Completed
 
@@ -98,6 +98,11 @@ Completed: 96 | Remaining: 2
 | Backup restore verification script | Medium | scripts/verify-backup.js with file validation + SQL content check |
 | Data archival strategy docs | Medium | docs/data-archival.md with retention policies per table |
 | Secrets management docs | Medium | docs/secrets-management.md with production recommendations |
+| Structured log shipping to Loki | Medium | LokiLoggerService with push/error methods (TDD: 5 tests) |
+| Alert notification service | High | AlertService with Slack/Email/PagerDuty channels (TDD: 5 tests) |
+| SBOM generation script | Low | scripts/generate-sbom.js — CycloneDX JSON from pnpm-lock.yaml |
+| Feature usage telemetry | Medium | TelemetryService + telemetry_events schema (TDD: 3 tests) |
+| Environment parity check | Low | scripts/check-env-parity.js — validates matching env var keys |
 
 | Item | Impact | Notes |
 |------|--------|-------|
