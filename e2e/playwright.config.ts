@@ -21,9 +21,9 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'pnpm --filter @smart-erp/api dev',
+      command: 'echo "servers already running"',
       url: 'http://localhost:3456/health',
-      timeout: 10000,
+      timeout: 5000,
       reuseExistingServer: true,
       env: {
         PORT: process.env.API_PORT ?? '3456',
@@ -32,9 +32,9 @@ export default defineConfig({
       },
     },
     {
-      command: 'pnpm --filter @smart-erp/web dev --port 3457',
+      command: 'echo "web already running"',
       url: 'http://localhost:3457/login',
-      timeout: 10000,
+      timeout: 5000,
       reuseExistingServer: true,
       env: {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3456',
