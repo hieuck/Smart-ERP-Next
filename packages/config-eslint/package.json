@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@antfu/eslint-config": "^2.27.3",
+    "@antfu/eslint-config": "^9.1.0",
     "eslint": "^8.57.1",
     "typescript": "^5.9.3"
   },
