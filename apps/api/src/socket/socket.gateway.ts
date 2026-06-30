@@ -75,6 +75,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return 'pong';
   }
 
+  @SubscribeMessage('reconnect')
+  handleReconnect(@ConnectedSocket() client: Socket): { status: string; rooms: string[] } {
+    const rooms = Array.from(client.rooms).filter((r) => r !== client.id);
+    return { status: 'reconnected', rooms };
+  }
+
   /**
    * Emit an activity to all clients belonging to the same tenant.
    */

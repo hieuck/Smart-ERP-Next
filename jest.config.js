@@ -54,6 +54,7 @@ module.exports = {
     '/.claude/',
     '/.claude/worktrees/',
     '/tests/',
+    '/test/',
     '.*\\.e2e-spec\\.ts$',
     'apps[\\\\/]api[\\\\/]src[\\\\/]__tests__[\\\\/]db\\.mock\\.ts$'
   ],
