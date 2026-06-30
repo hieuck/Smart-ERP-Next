@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
 
-Completed: 160 | Remaining: 0
+Completed: 164 | Remaining: 0
 
 ## Completed
 
@@ -149,6 +149,9 @@ Completed: 160 | Remaining: 0
 | API deprecation header pattern | Medium | @Deprecated decorator + Sunset/Deprecation/Link headers (TDD: 3 tests) |
 | SECURITY.md | **Critical** | Security policy with vulnerability reporting, supported versions, disclosure policy |
 | Docker image cleanup | Medium | Removes pnpm-store, .npm, *.d.ts, *.md, /tmp, apk cache in runtime stage (TDD: 6 tests) |
+| Cron scheduler monitoring | Medium | SchedulerMonitorService tracks runs/failures/consecutive failures (TDD: 5 tests) |
+| scheduler_log schema | Low | Database table for scheduler execution history |
+| Sentry error reporting | High | GlobalExceptionFilter captures 500 errors when SENTRY_DSN configured |
 
 | Item | Impact | Notes |
 |------|--------|-------|

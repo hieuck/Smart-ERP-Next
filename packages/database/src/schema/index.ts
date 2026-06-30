@@ -59,5 +59,6 @@ export * from './api_keys';
 export * from './feature_flags';
 export * from './outbox_events';
 export * from './telemetry_events';
+export * from './scheduler_log';
 
 
