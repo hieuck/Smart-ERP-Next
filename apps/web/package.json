@@ -7,7 +7,7 @@
     "@smart-erp/types": "workspace:*",
     "@smart-erp/utils": "workspace:*",
     "@smart-erp/validation": "workspace:*",
-    "axios": "^1.16.1",
+    "axios": "^1.18.1",
     "date-fns": "4.1.0",
     "dexie": "4.4.2",
     "dexie-react-hooks": "4.4.0",
