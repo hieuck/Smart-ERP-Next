@@ -2,7 +2,7 @@ import { io, type Socket } from 'socket.io-client';
 
 let socket: Socket | null = null;
 
-const API_URL = typeof window !== 'undefined' ? window.location.origin : '';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
 
 export function initSocket(userId: string, tenantId?: string): Socket {
   if (socket?.connected) return socket;

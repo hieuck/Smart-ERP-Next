@@ -45,7 +45,7 @@ describe('api-client coverage', () => {
   it('configures the axios client and attaches auth tokens to requests', () => {
     expect(apiClient).toBe(mockApi);
     expect(mockAxios.create).toHaveBeenCalledWith({
-      baseURL: 'http://localhost:3456',
+      baseURL: '',
       headers: { 'Content-Type': 'application/json' },
     });
 

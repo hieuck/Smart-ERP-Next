@@ -58,13 +58,13 @@ describe('web socket coverage', () => {
     warn.mockRestore();
   });
 
-  it('uses the local API URL fallback when the environment URL is absent', async () => {
+  it('uses relative URL when no environment URL is set', async () => {
     delete process.env.NEXT_PUBLIC_API_URL;
     const { closeSocket, initSocket } = await import('./socket');
 
     initSocket('user-1');
 
-    expect(mockIo).toHaveBeenCalledWith('http://localhost:3456/notifications', expect.objectContaining({
+    expect(mockIo).toHaveBeenCalledWith('/notifications', expect.objectContaining({
       auth: { tenantId: undefined, userId: 'user-1' },
     }));
     closeSocket();
