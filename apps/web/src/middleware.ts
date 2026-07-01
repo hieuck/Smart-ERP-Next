@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
 const PUBLIC_PATHS = ['/', '/login', '/register', '/mvp', '/privacy', '/terms'];
 
 /** Static asset patterns — never redirect these */
-const STATIC_PATTERN = /^\/(_next|api|favicon\.ico|robots\.txt|sitemap\.xml)/;
+const STATIC_PATTERN = /^\/(_next|api|favicon\.ico|robots\.txt|sitemap\.xml|manifest\.json|sw\.js|offline\.html)/;
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

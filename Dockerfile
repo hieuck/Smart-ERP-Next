@@ -44,7 +44,7 @@ RUN node node_modules/.bin/tsc -p packages/database/tsconfig.json && \
     node -e "require('fs').cpSync('src/i18n/locales', '../../apps/api/dist/apps/api/src/i18n/locales', {recursive: true, force: true})"
 
 # Step 5: Build Next.js web app
-RUN cd apps/web && node ../../node_modules/.bin/next build
+RUN cd apps/web && rm -rf .next/cache && node ../../node_modules/.bin/next build
 
 # Runtime stage — based on postgres for embedded database
 FROM postgres:18-alpine
