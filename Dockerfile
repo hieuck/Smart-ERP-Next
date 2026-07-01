@@ -43,6 +43,9 @@ RUN node node_modules/.bin/tsc -p packages/database/tsconfig.json && \
     cd apps/api && node ../../node_modules/.bin/tsc -p tsconfig.json && \
     node -e "require('fs').cpSync('src/i18n/locales', '../../apps/api/dist/apps/api/src/i18n/locales', {recursive: true, force: true})"
 
+# Step 5: Build Next.js web app
+RUN cd apps/web && node ../../node_modules/.bin/next build
+
 # Runtime stage — based on postgres for embedded database
 FROM postgres:18-alpine
 WORKDIR /app
@@ -62,6 +65,7 @@ COPY --from=build /app/packages /app/packages
 COPY --from=build /app/apps/api/dist /app/apps/api/dist
 COPY --from=build /app/apps/api/package.json /app/apps/api/package.json
 COPY --from=build /app/apps/web/.next /app/apps/web/.next
+COPY --from=build /app/apps/web/.next/static /app/apps/web/.next/standalone/apps/web/.next/static
 COPY --from=build /app/apps/web/public /app/apps/web/public
 COPY --from=build /app/apps/web/package.json /app/apps/web/package.json
 COPY --from=build /app/apps/web/next.config.mjs /app/apps/web/next.config.mjs

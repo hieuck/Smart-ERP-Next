@@ -87,7 +87,7 @@ if [ -f "apps/web/.next/standalone/server.js" ]; then
   cd /app
 elif [ -f "apps/web/.next/standalone/apps/web/server.js" ]; then
   echo "Starting Web server (monorepo) on port ${WEB_PORT:-3457}..."
-  cd apps/web && PORT="${WEB_PORT:-3457}" node .next/standalone/apps/web/server.js &
+  cd apps/web && PORT="${WEB_PORT:-3457}" HOSTNAME="0.0.0.0" node .next/standalone/apps/web/server.js &
   cd /app
 fi
 
