@@ -96,5 +96,5 @@ LABEL org.opencontainers.image.title="Smart ERP Next" \
 
 EXPOSE 3456 3457
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -f http://127.0.0.1:3456/health || exit 1
+  CMD curl -f -H "X-API-Version: 1" http://127.0.0.1:3456/health || exit 1
 CMD ["/app/docker-entrypoint.sh"]

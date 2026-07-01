@@ -31,7 +31,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' ws: wss:",
+              "connect-src 'self' ws: wss: http://localhost:3456 http://127.0.0.1:3456",
               "frame-src 'none'",
               "object-src 'none'",
               "base-uri 'self'",
@@ -44,10 +44,19 @@ const nextConfig = {
       },
     ];
   },
-  rewrites: process.env.NODE_ENV === 'development' ? async () => [
-    { source: '/api/:path*', destination: 'http://localhost:3456/api/:path*' },
-    { source: '/socket.io/:path*', destination: 'http://localhost:3456/socket.io/:path*' },
-  ] : undefined,
+  async rewrites() {
+    if (process.env.NODE_ENV === 'development' || process.env.NEXT_API_URL) {
+      const apiUrl = process.env.NEXT_API_URL || 'http://localhost:3456';
+      return [
+        { source: '/api/:path*', destination: `${apiUrl}/api/:path*` },
+        { source: '/auth/:path*', destination: `${apiUrl}/auth/:path*` },
+        { source: '/health', destination: `${apiUrl}/health` },
+        { source: '/status', destination: `${apiUrl}/status` },
+        { source: '/socket.io/:path*', destination: `${apiUrl}/socket.io/:path*` },
+      ];
+    }
+    return [];
+  },
 };
 
 export default nextConfig;
