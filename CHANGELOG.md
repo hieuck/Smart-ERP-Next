@@ -5,6 +5,42 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.4.3] — 2026-07-02
+
+### Fixed
+- Container crash after 1-6 hours (`wait -n` exits when web server crashes)
+- Web server watchdog with auto-respawn + memory limit (512MB)
+- ReportsModule missing from domain modules (all /reports/* endpoints returned 404)
+- Docker CACHEBUST build arg for reliable incremental builds
+
+### Added
+- X-API-Version: 1 header to axios client (fixes all API calls from frontend)
+- ReportBugButton floating component (bottom-right → GitHub Issues)
+- Sentry error tracking config (set SENTRY_DSN to enable)
+- Static file middleware exclusion (sw.js, manifest.json, offline.html no longer redirect)
+
+### Changed
+- Container base image optimizations (pnpm-store cleanup, .d.ts removal)
+- Docker HEALTHCHECK uses X-API-Version header
+- WebSocket URL uses window.location.origin instead of hardcoded localhost
+
+## [0.3.0] — 2026-06-30
+
+### Added
+- CSP headers, rate limiting, idempotency guard, error code catalog
+- Feature flags, 2FA/TOTP foundation, audit log interceptor
+- API key management service + guard, pagination DTO
+- Test data factories, analytics aggregation, migration rollback script
+- Outbox pattern, graceful shutdown, structured Loki logging
+- 115 GAPS closed, 96 new tests, 15+ architectural docs
+
+### Fixed
+- 48 flat modules → 12 domain modules (Core, Commerce, Finance, Infra, Analytics...)
+- TelemetryService registered as NestJS provider
+- cache-manager v7 → v5 (NestJS compatibility)
+- drizzle-kit 0.22.8 → 0.31.10 (ORM compatibility)
+- Next.js standalone static file serving
+
 ## [0.2.2] — 2026-06-26
 
 ### Fixed

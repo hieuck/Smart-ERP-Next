@@ -1,18 +1,25 @@
-﻿# Smart ERP Next v0.2.2
+﻿# Smart ERP Next v0.4.3
 
 ## Quick Start
 ```bash
-docker compose up -d
+docker run -p 3456:3456 -p 3457:3457 \
+  -e DB_PASSWORD=yourpass -e JWT_SECRET=yoursecret \
+  ghcr.io/hieuck/smart-erp-next:v0.4.3
+
 # Web: http://localhost:3457
+# API: http://localhost:3456 (header: X-API-Version: 1)
 # Login: admin@smarterp.vn / admin123
 ```
 
 ## What's new
-- **One-click startup**: `docker compose up -d` dùng image GHCR có sẵn, không cần build
-- **TDD coverage**: 966 tests, 216 suites, 93.1% coverage, 100% testable files
-- **All modules wired**: 48 modules registered, Analytics/Chat/Settings/Socket/Ecommerce/AiCopilot
-- **29+ bugs fixed**: POS negative discount, duplicate API calls, i18n hardcoded strings, race conditions
-- **0 @ts-nocheck**, **0 type errors**: Toàn bộ codebase sạch TypeScript
+- **X-API-Version header** — root cause của mọi lỗi API từ frontend, đã fix
+- **Container stability** — watchdog respawn + memory limit, không còn crash
+- **CACHEBUST build** — Docker build luôn dùng code mới nhất
+- **Reports module** — tất cả /reports/* endpoints hoạt động
+- **2,059 tests** — 327 suites, tất cả xanh
+- **0 TypeScript errors, 0 ESLint warnings**
+- **181 GAPS closed**, 115+ architectural docs
+- **Domain refactoring** — 48 flat modules → 12 domain modules
 - **i18n 4 locales**: vi, en, pt, ru
 
 ## Tech Stack
