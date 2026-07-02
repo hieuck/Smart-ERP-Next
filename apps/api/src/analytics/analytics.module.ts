@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ReportsModule } from '../reports/reports.module';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
 import { AnomalyService } from './anomaly.service';
@@ -13,6 +14,7 @@ import { PredictiveAnalyticsController } from './predictive-analytics.controller
 import { TelemetryService } from './telemetry.service';
 
 @Module({
+  imports: [ReportsModule],
   providers: [
     AnalyticsService,
     AnomalyService,

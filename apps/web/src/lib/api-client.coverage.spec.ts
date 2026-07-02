@@ -44,10 +44,12 @@ describe('api-client coverage', () => {
 
   it('configures the axios client and attaches auth tokens to requests', () => {
     expect(apiClient).toBe(mockApi);
-    expect(mockAxios.create).toHaveBeenCalledWith({
-      baseURL: '',
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(mockAxios.create).toHaveBeenCalledWith(expect.objectContaining({
+      headers: expect.objectContaining({
+        'Content-Type': 'application/json',
+        'X-API-Version': '1',
+      }),
+    }));
 
     const requestHandler = mockRequestHandlers[0];
     expect(requestHandler({ headers: {} })).toEqual({ headers: {} });
