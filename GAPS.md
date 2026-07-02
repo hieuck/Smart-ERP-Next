@@ -1,6 +1,6 @@
-# Smart ERP Next — Gaps & Roadmap (Updated 2026-06-30)
+# Smart ERP Next — Gaps & Roadmap (Updated 2026-07-02)
 
-Completed: 186 | Remaining: 0
+Completed: 191 | Remaining: 1
 
 ## Completed
 
@@ -166,6 +166,11 @@ Completed: 186 | Remaining: 0
 | Merge Dependabot react group PR | Medium | react, react-dom, react-i18next, react-icons updated |
 | Fix deploy-staging CI failure noise | Medium | Gated job on STAGING_HOST secret, skipped when unconfigured |
 | Fix CodeQL SAST SARIF upload failure | Low | Removed custom output/category from analyze step |
+| Product/QA traceability foundation | High | PRD template, product-to-test matrix, and `pnpm audit:product-traceability` quality gate added |
+| Real-team role readiness operating model | Medium | RACI/checklist/evidence cadence matrix plus `pnpm audit:team-roles` quality gate added |
+| Flaky test quarantine policy | Medium | `pnpm audit:flaky-tests` blocks committed focused tests and unowned skips/quarantines; policy documented in `docs/qa/flaky-test-policy.md` |
+| Idempotency key route scoping | High | IdempotencyGuard now scopes keys by method + route + key to avoid false conflicts across endpoints; regression test added |
+| Idempotency store TTL and bound | High | IdempotencyGuard now expires old keys and caps in-memory records via IDEMPOTENCY_TTL_MS/IDEMPOTENCY_MAX_RECORDS; TDD regression tests added |
 
 | Item | Impact | Notes |
 |------|--------|-------|
@@ -179,13 +184,14 @@ Completed: 186 | Remaining: 0
 |-----|----------|-------|
 | Deploy staging server (VPS) | **High** | Needs VPS + GitHub secrets (STAGING_HOST, SSH_KEY) — blocked on infrastructure |
 
-## Team Role Assessment Addendum (2026-06-29)
+## Team Role Assessment Addendum (2026-07-02)
 
-A role-based review has been added in `docs/team-role-gap-assessment.md` to translate the roadmap into a real dev-team operating model. The highest-priority gaps are product/test traceability, API governance, observability, security program automation, PWA/offline hardening, release rollback playbooks, and data governance for forecast/analytics.
+A role-based review has been added in `docs/team-role-gap-assessment.md` to translate the roadmap into a real dev-team operating model. The highest-priority gaps are now staging infrastructure, endpoint-level API governance, SLO burn-rate alert tuning, security program automation, PWA conflict UX, release rollback drills, and data governance for forecast/analytics. Product/test traceability now has a baseline PRD template, matrix, and audit gate; real-team role readiness now has a RACI/checklist matrix and audit gate; flaky-test quarantine ownership now has a documented policy and audit gate.
 
 | Role area | New gap | Priority | Tracking |
 |-----------|---------|----------|----------|
-| Product + QA | PRD/persona/acceptance criteria must trace to automated tests | High | GAP-ROLE-01 |
+| Product + QA | ✅ PRD template + product-to-test matrix + audit gate added; continue expanding per module PRD rows | Medium | GAP-ROLE-01 |
+| Engineering management | ✅ Real-team RACI/checklist/evidence cadence matrix added; continue using it in PR reviews | Medium | ROLE-OPS |
 | Architecture + Backend | API versioning baseline and error catalog shipped; ADR/domain-boundary work remains | High | GAP-ROLE-02/03 |
 | SRE + DevOps | Observability stack baseline and alert rules shipped; staging/rollback drill and SLO burn-rate alerts remain | High | GAP-ROLE-04/08 |
 | Security | Secret scanning now gates commits/CI; dependency/container scans and ASVS matrix remain | High | GAP-ROLE-05 |
