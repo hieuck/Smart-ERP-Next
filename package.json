@@ -35,10 +35,13 @@
     "verify:ios-release-prereqs": "node scripts/verify-ios-release-prereqs.js",
     "verify:web-production": "node scripts/verify-web-production-build.js apps/web",
     "audit:secrets": "node scripts/audit-secrets.js",
-    "audit:i18n-parity": "node scripts/audit-i18n-parity.js"
+    "audit:i18n-parity": "node scripts/audit-i18n-parity.js",
+    "audit:product-traceability": "node scripts/audit-product-traceability.js",
+    "audit:team-roles": "node scripts/audit-team-role-readiness.js",
+    "audit:flaky-tests": "node scripts/audit-flaky-tests.js"
   },
   "version": "1.0.0",
-  "description": "**Hệ thống quản trị doanh nghiệp thế hệ mới** — vượt trội ERPNext, Odoo, KiotViet, Nhanhvn, MISA về tốc độ, trải nghiệm và khả năng mở rộng.",
+  "description": "**H\u1ec7 th\u1ed1ng qu\u1ea3n tr\u1ecb doanh nghi\u1ec7p th\u1ebf h\u1ec7 m\u1edbi** \u2014 v\u01b0\u1ee3t tr\u1ed9i ERPNext, Odoo, KiotViet, Nhanhvn, MISA v\u1ec1 t\u1ed1c \u0111\u1ed9, tr\u1ea3i nghi\u1ec7m v\u00e0 kh\u1ea3 n\u0103ng m\u1edf r\u1ed9ng.",
   "main": "jest.config.js",
   "directories": {
     "doc": "docs",
@@ -90,11 +93,3 @@
   "homepage": "https://github.com/hieuck/Smart-ERP-Next#readme",
   "packageManager": "pnpm@10.33.0"
 }
-
-
-
-
-
-
-
-

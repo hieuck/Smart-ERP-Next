@@ -27,6 +27,24 @@ const COMMON_GATES = [
     args: ['audit:secrets'],
   },
   {
+    id: 'product-traceability',
+    name: 'Audit Product/QA traceability matrix',
+    command: 'pnpm',
+    args: ['audit:product-traceability'],
+  },
+  {
+    id: 'team-role-readiness',
+    name: 'Audit real-team role readiness coverage',
+    command: 'pnpm',
+    args: ['audit:team-roles'],
+  },
+  {
+    id: 'flaky-test-policy',
+    name: 'Audit focused tests and flaky quarantine ownership',
+    command: 'pnpm',
+    args: ['audit:flaky-tests'],
+  },
+  {
     id: 'type-check',
     name: 'Type-check all workspaces',
     command: 'pnpm',

@@ -54,7 +54,7 @@ test.describe('Roles & Permissions', () => {
   });
 
   test('DELETE /rbac/roles/:id removes custom role', async ({ request }) => {
-    test.skip(!testRoleId, 'No role to delete');
+    test.skip(!testRoleId, 'Prerequisite role creation failed; delete test has no role to delete');
     const res = await request.delete(`${API}/rbac/roles/${testRoleId}`, { headers: h() });
     expect(res.ok()).toBeTruthy();
   });
