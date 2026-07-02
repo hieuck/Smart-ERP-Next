@@ -2,12 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [ dev ]
+    branches: [dev]
   pull_request:
-    branches: [ main, dev ]
+    branches: [main, dev]
 
 permissions:
   contents: read
+  security-events: write
 
 jobs:
   test-and-build:
@@ -33,7 +34,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -42,16 +43,29 @@ jobs:
         run: pnpm audit --audit-level=high
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        id: trivy
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
+          scan-type: fs
+          scan-ref: .
           hide-progress: true
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'HIGH,CRITICAL'
-          exit-code: '1'
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          exit-code: "1"
         continue-on-error: true
+
+      - name: Upload Trivy SARIF report
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Enforce Trivy vulnerability gate
+        if: steps.trivy.outcome == 'failure'
+        run: |
+          echo "Trivy found HIGH/CRITICAL vulnerabilities. SARIF was uploaded before failing the job."
+          exit 1
 
       - name: Type check
         run: pnpm type-check
@@ -102,8 +116,8 @@ jobs:
           JWT_SECRET: ci-e2e-secret
           NEXT_PUBLIC_API_URL: http://localhost:3456
           NODE_ENV: test
-          LOGIN_RATE_LIMIT: '1000'
-          PORT: '3456'
+          LOGIN_RATE_LIMIT: "1000"
+          PORT: "3456"
         run: |
           # Manual server startup (Playwright webServer having exit code 2 issues)
           # Pre-built accounting/database dist needed for require.resolve in NestJS compiler hook

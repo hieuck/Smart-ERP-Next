@@ -49,10 +49,9 @@
     "analyze": "ANALYZE=true next build",
     "clean": "rm -rf .next",
     "dev": "node ../../scripts/run-web-dev.js",
-    "lint": "next lint --max-warnings=0",
+    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint . --max-warnings=0",
     "start": "node ../../scripts/run-web-start.js",
     "type-check": "tsc --noEmit --incremental false"
   },
   "version": "0.1.0"
 }
-
