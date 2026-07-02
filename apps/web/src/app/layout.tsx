@@ -83,6 +83,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Anti-flash dark mode script - must run before body renders */}
         <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){ try {
+            window.__CAPTURED_ERRORS = [];
+            var orig = console.error;
+            console.error = function() {
+              window.__CAPTURED_ERRORS.push(Array.from(arguments).join(' '));
+              if (window.__CAPTURED_ERRORS.length > 50) window.__CAPTURED_ERRORS.shift();
+              orig.apply(console, arguments);
+            };
+          } catch(e){} })();
+        ` }} />
       </head>
       <body className={`${inter.variable} ${beVietnamPro.variable} font-sans antialiased`}>
         <ErrorBoundary>
