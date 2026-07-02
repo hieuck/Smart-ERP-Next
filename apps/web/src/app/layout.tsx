@@ -7,6 +7,7 @@ import { ToastProvider } from '@/components/providers/ToastProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { ServiceWorkerProvider } from '@/components/providers/ServiceWorkerProvider';
 import { SyncConflictModal } from '@/components/SyncConflictModal';
+import ReportBugButton from '@/components/ReportBugButton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const inter = Inter({
@@ -91,6 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ServiceWorkerProvider>
                   {children}
                   <SyncConflictModal />
+                  <ReportBugButton />
                 </ServiceWorkerProvider>
               </ThemeProvider>
             </ToastProvider>
