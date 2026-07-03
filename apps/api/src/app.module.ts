@@ -11,6 +11,7 @@ import { SlowQueryLoggerInterceptor } from './common/interceptors/slow-query-log
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { RequestTimeoutMiddleware } from './common/middleware/request-timeout.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import { DefaultApiVersionMiddleware } from './common/middleware/default-api-version.middleware';
 import { db } from '@smart-erp/database';
 import { DRIZZLE } from './common/drizzle.decorator';
 import { I18nModule } from './i18n/i18n.module';
@@ -62,7 +63,7 @@ import { InventoryRecommendationModule } from './inventory-recommendation/invent
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(RequestIdMiddleware, RequestTimeoutMiddleware, TenantMiddleware)
+      .apply(DefaultApiVersionMiddleware, RequestIdMiddleware, RequestTimeoutMiddleware, TenantMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }
