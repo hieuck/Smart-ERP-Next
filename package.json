@@ -91,5 +91,12 @@
     "url": "https://github.com/hieuck/Smart-ERP-Next/issues"
   },
   "homepage": "https://github.com/hieuck/Smart-ERP-Next#readme",
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "overrides": {
+      "ws": "^8.21.0",
+      "form-data": "^4.0.6",
+      "multer": "^2.2.0"
+    }
+  }
 }

@@ -1,7 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -35,7 +34,6 @@ import { InventoryRecommendationModule } from './inventory-recommendation/invent
     ThrottlerModule.forRoot([{ name: 'global', ttl: 60000, limit: parseInt(process.env.GLOBAL_RATE_LIMIT || '200', 10) }]),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     I18nModule,
-    CacheModule.register({ isGlobal: true, ttl: 60, max: 100 }),
     // Domain modules
     CoreModule,
     CommerceModule,

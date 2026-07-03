@@ -41,7 +41,7 @@ describe('Domain module structure', () => {
 
     // Verify domain module files exist
     for (const dm of domainModules) {
-      const modulePath = dm.replace('./modules/', 'apps/api/src/modules/') + '.ts';
+      const modulePath = require('path').join(__dirname, '../modules/', require('path').basename(dm)) + '.ts';
       expect(() => fs.accessSync(modulePath)).not.toThrow();
     }
   });

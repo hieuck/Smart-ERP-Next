@@ -12,7 +12,7 @@ jest.mock('@smart-erp/database/drizzle', () => ({
 
 import { BadRequestException } from '@nestjs/common';
 import { ImportService } from '../import/import.service';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@stackline/xlsx';
 
 function createTestXlsx(rows: Record<string, any>[]): Buffer {
   const ws = XLSX.utils.json_to_sheet(rows);

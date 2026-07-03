@@ -14,6 +14,10 @@ describe('AuthModule JWT registration', () => {
         if (key === 'JWT_SECRET') return 'secret-1';
         return fallback;
       }),
+      getOrThrow: jest.fn((key: string) => {
+        if (key === 'JWT_SECRET') return 'secret-1';
+        throw new Error(`Missing config key: ${key}`);
+      }),
     };
 
     expect(options.useFactory(config)).toEqual({
