@@ -33,7 +33,7 @@ export default defineConfig({
   webServer: [
     {
       command: 'node -e "setInterval(()=>{}, 1 << 30)"',
-      url: 'http://localhost:3456/health',
+      port: Number(process.env.API_PORT ?? 3456),
       timeout: 5000,
       reuseExistingServer: true,
       env: {
@@ -44,7 +44,7 @@ export default defineConfig({
     },
     {
       command: 'node -e "setInterval(()=>{}, 1 << 30)"',
-      url: 'http://localhost:3457/login',
+      port: Number(process.env.WEB_PORT ?? 3457),
       timeout: 5000,
       reuseExistingServer: true,
       env: {
