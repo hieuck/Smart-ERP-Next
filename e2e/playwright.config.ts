@@ -32,7 +32,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: 'echo "servers already running"',
+      command: 'node -e "setInterval(()=>{}, 1 << 30)"',
       url: 'http://localhost:3456/health',
       timeout: 5000,
       reuseExistingServer: true,
@@ -43,7 +43,7 @@ export default defineConfig({
       },
     },
     {
-      command: 'echo "web already running"',
+      command: 'node -e "setInterval(()=>{}, 1 << 30)"',
       url: 'http://localhost:3457/login',
       timeout: 5000,
       reuseExistingServer: true,
