@@ -5,7 +5,7 @@
 
 # Build stage — optimized for Docker layer caching
 ARG CACHEBUST
-FROM node:26-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apk add --no-cache curl && npm install -g pnpm@10.33.0
@@ -48,7 +48,7 @@ RUN node node_modules/.bin/tsc -p packages/database/tsconfig.json && \
 RUN echo "Cache bust: ${CACHEBUST:-none}" && cd apps/web && rm -rf .next/cache .next/server && node ../../node_modules/.bin/next build
 
 # Runtime stage — based on postgres for embedded database
-FROM postgres:18-alpine
+FROM postgres:16-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -57,7 +57,7 @@ ENV WEB_PORT=3457
 ENV NEXT_PUBLIC_API_URL=http://localhost:3456
 
 # Install Node.js + curl (no pnpm — use node_modules from build stage)
-RUN apk add --no-cache nodejs curl
+RUN apk upgrade --no-cache && apk add --no-cache nodejs curl
 
 # Copy complete node_modules (hoisted, no symlinks) and built artifacts
 COPY --from=build /app/node_modules /app/node_modules
