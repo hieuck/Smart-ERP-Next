@@ -1,3 +1,5 @@
+export * from "./data-contracts";
+export * from "./data-contract-registry";
 export * from "./localization";
 export * from "./modules";
 export * from "./platforms";

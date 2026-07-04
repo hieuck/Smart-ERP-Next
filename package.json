@@ -42,10 +42,11 @@
     "audit:github-actions": "node scripts/audit-github-actions.js",
     "audit:troubleshooting-matrix": "node scripts/audit-troubleshooting-matrix.js",
     "audit:pwa-conflict-matrix": "node scripts/audit-pwa-conflict-matrix.js",
-    "audit:gaps": "node scripts/audit-gaps.js"
+    "audit:gaps": "node scripts/audit-gaps.js",
+    "audit:data-governance": "node scripts/audit-data-governance.js"
   },
   "version": "1.0.0",
-  "description": "**H\u1ec7 th\u1ed1ng qu\u1ea3n tr\u1ecb doanh nghi\u1ec7p th\u1ebf h\u1ec7 m\u1edbi** \u2014 v\u01b0\u1ee3t tr\u1ed9i ERPNext, Odoo, KiotViet, Nhanhvn, MISA v\u1ec1 t\u1ed1c \u0111\u1ed9, tr\u1ea3i nghi\u1ec7m v\u00e0 kh\u1ea3 n\u0103ng m\u1edf r\u1ed9ng.",
+  "description": "**Hệ thống quản trị doanh nghiệp thế hệ mới** — vượt trội ERPNext, Odoo, KiotViet, Nhanhvn, MISA về tốc độ, trải nghiệm và khả năng mở rộng.",
   "main": "jest.config.js",
   "directories": {
     "doc": "docs",
