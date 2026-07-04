@@ -42,6 +42,7 @@
     "audit:github-actions": "node scripts/audit-github-actions.js",
     "audit:troubleshooting-matrix": "node scripts/audit-troubleshooting-matrix.js",
     "audit:pwa-conflict-matrix": "node scripts/audit-pwa-conflict-matrix.js",
+    "audit:bug-report-capture": "node scripts/audit-bug-report-capture.js",
     "audit:gaps": "node scripts/audit-gaps.js"
   },
   "version": "1.0.0",
