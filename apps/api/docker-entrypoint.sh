@@ -5,6 +5,26 @@ echo "============================================"
 echo "  Smart ERP Next — Starting..."
 echo "============================================"
 
+# ── Required secrets ──────────────────────────────────────
+# The container must have JWT_SECRET and API_KEY_HMAC_SECRET to start.
+# For zero-config demos, generate cryptographically random defaults when they
+# are not supplied. In production, always pass strong, persistent secrets.
+generate_secret() {
+  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+}
+
+if [ -z "${JWT_SECRET:-}" ]; then
+  JWT_SECRET=$(generate_secret)
+  export JWT_SECRET
+  echo "WARNING: JWT_SECRET not provided; a random demo secret was generated."
+fi
+
+if [ -z "${API_KEY_HMAC_SECRET:-}" ]; then
+  API_KEY_HMAC_SECRET=$(generate_secret)
+  export API_KEY_HMAC_SECRET
+  echo "WARNING: API_KEY_HMAC_SECRET not provided; a random demo secret was generated."
+fi
+
 # ── Database ──────────────────────────────────────────────
 if [ -n "$DATABASE_URL" ]; then
   echo "Using external database: $DATABASE_URL"
