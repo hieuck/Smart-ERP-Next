@@ -186,7 +186,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          {t('appName')} v0.2.0 · MIT License
+          {t('appName')} v{process.env.NEXT_PUBLIC_APP_VERSION} · MIT License
         </p>
       </div>
     </div>
