@@ -33,6 +33,7 @@ Standardize how support requests, bug reports and user questions are received, t
    - `bug` → assign to module owner from `docs/ownership-matrix.md`.
    - `feature` → product backlog, tag `GAP-ROLE-01`.
    - `question` → update `docs/USER_GUIDE_VI.md` or FAQ.
+- For known failure patterns, check `docs/runbooks/troubleshooting-matrix.md` first.
 
 5. **Track**
    - Link GitHub issue to PR.

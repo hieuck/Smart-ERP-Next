@@ -32,7 +32,7 @@ Smart ERP Next đã có nền tảng mạnh cho một ERP SME: monorepo rõ ràn
 | Security Engineer | Đã xử lý một số P0 như JWT secret, Helmet (CSP added), auth guards, pnpm audit CI, ✅ CodeQL SAST. | Cần threat model, OWASP ASVS checklist, DAST/container scan, audit log retention, permission test matrix. | High |
 | Data Engineer / Analytics | Có forecast docs, analytics/reports E2E và database package. | Cần data contracts, warehouse/export strategy, event naming, reconciliation reports, forecast accuracy monitoring và PII classification. | Medium |
 | UX Researcher / Designer | User guide và flows hiện diện. | Cần usability test script, role-based journey maps, accessibility review, empty/error/loading state inventory và localization review cho tiếng Việt/English. | Medium |
-| Technical Writer / Support | Docs user/dev/API/production có sẵn. | Cần docs information architecture, release notes template cho non-technical users, troubleshooting matrix, support triage SOP và onboarding checklist theo role. | Medium |
+| Technical Writer / Support | Docs user/dev/API/production có sẵn. | ✅ Troubleshooting matrix added; còn docs information architecture, release notes template cho non-technical users và onboarding checklist theo role. | Medium |
 | Release Manager | Có release workflow và release notes generator. | Cần semantic versioning policy, changelog governance, release candidate checklist, rollback criteria và production readiness review. | Medium |
 
 ## Gap backlog đề xuất cho chủ repo
@@ -48,7 +48,7 @@ Smart ERP Next đã có nền tảng mạnh cho một ERP SME: monorepo rõ ràn
 | GAP-ROLE-07 | QA traceability và flakiness chưa được quản trị | Số lượng test cao nhưng cần biết test nào bảo vệ rủi ro nào. | ✅ Product traceability audit, role-readiness audit, and flaky quarantine policy/audit added; next: CI artifact/coverage reporting plan. | QA/SDET |
 | GAP-ROLE-08 | Release/rollback chưa có playbook đầy đủ | Giảm downtime và rollback panic khi production lỗi. | ✅ Added `docs/runbooks/release-playbook.md`, `docs/runbooks/rollback-playbook.md` and CI job-level `API_KEY_HMAC_SECRET`; next: staging rollback drill. | Release Manager |
 | GAP-ROLE-09 | Data governance/forecast monitoring thiếu | AI/forecast cần đo accuracy và bảo vệ PII. | Thêm data contract template, PII classification, forecast evaluation baseline. | Data/AI |
-| GAP-ROLE-10 | Support/incident docs thiếu | Chủ repo/team support cần triage nhanh khi user báo lỗi. | ✅ Added `docs/runbooks/incident-runbook.md` and `docs/runbooks/support-triage-sop.md`; next: troubleshooting matrix. | Support + SRE |
+| GAP-ROLE-10 | Support/incident docs thiếu | Chủ repo/team support cần triage nhanh khi user báo lỗi. | ✅ Added `docs/runbooks/incident-runbook.md`, `docs/runbooks/support-triage-sop.md` and `docs/runbooks/troubleshooting-matrix.md`; `pnpm audit:troubleshooting-matrix` gate added. | Support + SRE |
 
 ## Recommended next PR sequence (Updated 2026-06-30)
 
