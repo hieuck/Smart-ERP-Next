@@ -161,10 +161,9 @@ export class EcommerceService {
     const store = await this.getStore(storeId);
     const config: AmazonConfig = JSON.parse(store.configJson || '{}');
     const client = new AmazonClient(config);
-    // @ts-ignore
-    const res = await client.listProducts();
+    const products = await client.getProducts();
     let total = 0;
-    for (const product of res.products) {
+    for (const product of products) {
       await this.upsertProductFromAmazon(store.tenantId, product);
       total++;
     }
@@ -175,10 +174,9 @@ export class EcommerceService {
     const store = await this.getStore(storeId);
     const config: AmazonConfig = JSON.parse(store.configJson || '{}');
     const client = new AmazonClient(config);
-    // @ts-ignore
-    const res = await client.listOrders();
+    const orders = await client.getOrders();
     let total = 0;
-    for (const order of res.orders) {
+    for (const order of orders) {
       await this.upsertOrderFromAmazon(store.tenantId, order);
       total++;
     }
@@ -272,10 +270,9 @@ export class EcommerceService {
     const store = await this.getStore(storeId);
     const config: EbayConfig = JSON.parse(store.configJson || '{}');
     const client = new EbayClient(config);
-    // @ts-ignore
-    const res = await client.listProducts();
+    const products = await client.getProducts();
     let total = 0;
-    for (const product of res.products) {
+    for (const product of products) {
       await this.upsertProductFromEbay(store.tenantId, product);
       total++;
     }
@@ -286,10 +283,9 @@ export class EcommerceService {
     const store = await this.getStore(storeId);
     const config: EbayConfig = JSON.parse(store.configJson || '{}');
     const client = new EbayClient(config);
-    // @ts-ignore
-    const res = await client.listOrders();
+    const orders = await client.getOrders();
     let total = 0;
-    for (const order of res.orders) {
+    for (const order of orders) {
       await this.upsertOrderFromEbay(store.tenantId, order);
       total++;
     }
