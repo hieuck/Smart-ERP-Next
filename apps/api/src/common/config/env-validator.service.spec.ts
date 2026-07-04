@@ -5,6 +5,11 @@ describe('EnvValidatorService', () => {
 
   beforeEach(() => {
     validator = new EnvValidatorService();
+    process.env.API_KEY_HMAC_SECRET = 'api-key-hmac-secret';
+  });
+
+  afterEach(() => {
+    delete process.env.API_KEY_HMAC_SECRET;
   });
 
   it('passes when all required env vars are set', () => {
@@ -28,11 +33,20 @@ describe('EnvValidatorService', () => {
     expect(errors.some((e) => e.includes('DATABASE_URL'))).toBe(true);
   });
 
+  it('reports missing API_KEY_HMAC_SECRET', () => {
+    process.env.JWT_SECRET = 'some-secret';
+    process.env.DATABASE_URL = 'postgresql://localhost:5432/db';
+    delete process.env.API_KEY_HMAC_SECRET;
+    const errors = validator.validate();
+    expect(errors.some((e) => e.includes('API_KEY_HMAC_SECRET'))).toBe(true);
+  });
+
   it('reports multiple missing vars', () => {
     delete process.env.JWT_SECRET;
     delete process.env.DATABASE_URL;
+    delete process.env.API_KEY_HMAC_SECRET;
     const errors = validator.validate();
-    expect(errors.length).toBeGreaterThanOrEqual(2);
+    expect(errors.length).toBeGreaterThanOrEqual(3);
   });
 
   it('warns when JWT_SECRET looks like a default/dev value', () => {

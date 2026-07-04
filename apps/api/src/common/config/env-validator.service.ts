@@ -11,6 +11,7 @@ export class EnvValidatorService {
     const required = {
       JWT_SECRET: 'JWT signing key',
       DATABASE_URL: 'PostgreSQL connection string',
+      API_KEY_HMAC_SECRET: 'HMAC signing key for API key hashes',
     };
 
     for (const [key, description] of Object.entries(required)) {

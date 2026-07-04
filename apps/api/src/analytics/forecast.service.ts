@@ -1,11 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { orders, orderItems } from '@smart-erp/database/schema';
 import { eq, and, gte, sql, desc } from '@smart-erp/database/drizzle';
 
+const MAX_FORECAST_DAYS = 365;
+
+function sanitizeDays(days: number): number {
+  if (!Number.isFinite(days) || !Number.isInteger(days) || days < 1) {
+    throw new BadRequestException('days must be a positive integer');
+  }
+  return Math.min(days, MAX_FORECAST_DAYS);
+}
+
 @Injectable()
 export class ForecastService {
   async getDemandForecast(tenantId: string, productId: string, days = 30) {
+    days = sanitizeDays(days);
     // Fetch last 90 days of sales for this product
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 90);

@@ -1,7 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { orders, payments } from '@smart-erp/database/schema';
 import { and, eq, sql } from '@smart-erp/database/drizzle';
+
+const MAX_FORECAST_DAYS = 365;
+const MAX_HISTORY_DAYS = 730;
+
+function sanitizeDays(days: number, max: number): number {
+  if (!Number.isFinite(days) || !Number.isInteger(days) || days < 1) {
+    throw new BadRequestException('days must be a positive integer');
+  }
+  return Math.min(days, max);
+}
 
 interface DailyCashFlow {
   date: string;
@@ -17,6 +27,7 @@ export class CashflowForecastService {
    * @param alpha Smoothing factor (0.1-0.3 recommended)
    */
   private exponentialSmoothing(data: number[], days: number, alpha = 0.2): number[] {
+    days = sanitizeDays(days, MAX_FORECAST_DAYS);
     if (data.length === 0) return new Array(days).fill(0);
     let forecast = data[data.length - 1];
     const forecasts: number[] = [];
@@ -28,6 +39,7 @@ export class CashflowForecastService {
   }
 
   async getHistoricalDailyNet(tenantId: string, daysBack = 90): Promise<DailyCashFlow[]> {
+    daysBack = sanitizeDays(daysBack, MAX_HISTORY_DAYS);
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - daysBack);
     startDate.setHours(0, 0, 0, 0);
@@ -75,6 +87,7 @@ export class CashflowForecastService {
   }
 
   async forecast(tenantId: string, days = 30): Promise<{ dates: string[]; values: number[]; historical: DailyCashFlow[] }> {
+    days = sanitizeDays(days, MAX_FORECAST_DAYS);
     const historical = await this.getHistoricalDailyNet(tenantId);
     const netValues = historical.map(h => h.net);
     const forecastValues = this.exponentialSmoothing(netValues, days);
