@@ -34,13 +34,30 @@ test.describe('UI/UX end-user release audit', () => {
 
   test('POS page loads and shows search and cart UI', async ({ page }) => {
     const consoleErrors: string[] = [];
-    page.on('console', (msg) => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+        // eslint-disable-next-line no-console
+        console.log(`[E2E console error] ${msg.text()}`);
+      }
+    });
+    page.on('pageerror', (err) => {
+      consoleErrors.push(err.message);
+      // eslint-disable-next-line no-console
+      console.log(`[E2E page error] ${err.message}`);
+    });
 
     await loginByUi(page);
     await page.goto('/pos');
     await expect(page.getByPlaceholder(/tim san pham|tìm sản phẩm|Search products/i)).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(/gio hang trong|giỏ hàng trống/i)).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(1000);
+
+    if (consoleErrors.length > 0) {
+      // eslint-disable-next-line no-console
+      console.error('Captured console/page errors during POS test:', consoleErrors);
+    }
+
     expect(consoleErrors.length).toBe(0);
   });
 
