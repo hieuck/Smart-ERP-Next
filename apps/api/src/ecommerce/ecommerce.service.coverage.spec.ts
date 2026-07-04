@@ -5,8 +5,8 @@ const mockDb = {
 };
 
 const mockTikTokClient = { getProducts: jest.fn(), getOrders: jest.fn() };
-const mockAmazonClient = { listProducts: jest.fn(), listOrders: jest.fn() };
-const mockEbayClient = { listProducts: jest.fn(), listOrders: jest.fn() };
+const mockAmazonClient = { getProducts: jest.fn(), getOrders: jest.fn() };
+const mockEbayClient = { getProducts: jest.fn(), getOrders: jest.fn() };
 const mockShopeeClient = { getProducts: jest.fn(), getOrders: jest.fn() };
 
 jest.mock('@smart-erp/database', () => ({ db: mockDb }));
@@ -266,10 +266,10 @@ describe('EcommerceService coverage', () => {
       .mockResolvedValueOnce({ products: [{ id: 'tp-1' }], pagination: { has_more: true } })
       .mockResolvedValueOnce({ products: [{ id: 'tp-2' }], pagination: { has_more: false } });
     mockTikTokClient.getOrders.mockResolvedValue({ orders: [{ order_id: 'to-1' }], pagination: { has_more: false } });
-    mockAmazonClient.listProducts.mockResolvedValue({ products: [{ asin: 'a-1' }] });
-    mockAmazonClient.listOrders.mockResolvedValue({ orders: [{ AmazonOrderId: 'ao-1' }] });
-    mockEbayClient.listProducts.mockResolvedValue({ products: [{ itemId: 'e-1' }] });
-    mockEbayClient.listOrders.mockResolvedValue({ orders: [{ orderId: 'eo-1' }] });
+    mockAmazonClient.getProducts.mockResolvedValue([{ asin: 'a-1' }]);
+    mockAmazonClient.getOrders.mockResolvedValue([{ AmazonOrderId: 'ao-1' }]);
+    mockEbayClient.getProducts.mockResolvedValue([{ itemId: 'e-1' }]);
+    mockEbayClient.getOrders.mockResolvedValue([{ orderId: 'eo-1' }]);
     mockShopeeClient.getProducts.mockResolvedValue({ products: [{ id: 's-1' }], pagination: { hasNext: false } });
     mockShopeeClient.getOrders.mockResolvedValue({ orders: [{ orderSn: 'so-1' }], pagination: { hasMore: false } });
 
@@ -305,10 +305,10 @@ describe('EcommerceService coverage', () => {
     );
     mockTikTokClient.getProducts.mockResolvedValueOnce({ products: [], pagination: { has_more: false } });
     mockTikTokClient.getOrders.mockResolvedValueOnce({ orders: [], pagination: { has_more: false } });
-    mockAmazonClient.listProducts.mockResolvedValueOnce({ products: [] });
-    mockAmazonClient.listOrders.mockResolvedValueOnce({ orders: [] });
-    mockEbayClient.listProducts.mockResolvedValueOnce({ products: [] });
-    mockEbayClient.listOrders.mockResolvedValueOnce({ orders: [] });
+    mockAmazonClient.getProducts.mockResolvedValueOnce([]);
+    mockAmazonClient.getOrders.mockResolvedValueOnce([]);
+    mockEbayClient.getProducts.mockResolvedValueOnce([]);
+    mockEbayClient.getOrders.mockResolvedValueOnce([]);
     mockShopeeClient.getProducts.mockResolvedValueOnce({ products: [], pagination: { hasNext: false } });
     mockShopeeClient.getOrders.mockResolvedValueOnce({ orders: [], pagination: { hasMore: false } });
 

@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-07-04)
 
-Completed: 183 | Remaining: 1
+Completed: 186 | Remaining: 1
 
 ## Completed
 
@@ -194,6 +194,9 @@ Completed: 183 | Remaining: 1
 | Staging deploy preflight | Medium | deploy-staging.yml validates VPS secrets and sets up Docker Buildx before deploy |
 | GitHub Actions policy audit | Medium | `pnpm audit:github-actions` gates mutable actions, missing SARIF, and ungated staging steps |
 | Next.js 16 lint command | High | Web lint uses ESLint flat config directly because `next lint` was removed in Next.js 16 |
+| Marketplace stock push integration | High | Inventory stock push now posts filtered available-stock payloads to configured marketplace endpoints, keeps pending status when endpoint config is absent, and fails fast on upstream HTTP errors |
+| Ecommerce client API drift | High | Amazon/eBay sync paths now call the implemented client methods (`getProducts`/`getOrders`) instead of ignored non-existent `listProducts`/`listOrders` APIs |
+| Exchange-rate schema drift | High | Exchange-rate cache now queries/inserts through the real `exchange_rates` currency-id schema instead of ignored non-existent `baseCurrency`/`targetCurrency` fields |
 
 ## Remaining
 

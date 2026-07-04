@@ -1,4 +1,4 @@
-import { Injectable, ConflictException } from "@nestjs/common";
+import { Injectable, ConflictException, BadGatewayException } from "@nestjs/common";
 import { db } from "@smart-erp/database";
 import { products, inventoryTransactions, inventoryReservations, ecommerceStores } from "@smart-erp/database/schema";
 import { eq, and, sql, desc, gte, lte } from "@smart-erp/database/drizzle";
@@ -354,9 +354,46 @@ export class InventoryService {
       available: Math.max(0, r.stock - r.safety_buffer - r.reserved_qty),
     }));
 
-    // TODO: Call actual marketplace API here
-    // For now, return the data to be pushed
-    return { storeId, items, pushedAt: new Date() };
+    const config = this.parseMarketplaceConfig(store.configJson);
+    const payload = {
+      storeId,
+      platform: store.platform,
+      items: items.filter((item) => Boolean(item.externalId)),
+      pushedAt: new Date(),
+    };
+
+    if (!config.stockSyncEndpoint) {
+      return { ...payload, status: 'pending_configuration' };
+    }
+
+    const response = await fetch(config.stockSyncEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new BadGatewayException(`Marketplace stock sync failed with status ${response.status}`);
+    }
+
+    return { ...payload, status: 'pushed' };
+  }
+
+  private parseMarketplaceConfig(configJson?: string | null): { stockSyncEndpoint?: string; apiKey?: string } {
+    if (!configJson) return {};
+
+    try {
+      const parsed = JSON.parse(configJson) as { stockSyncEndpoint?: unknown; apiKey?: unknown };
+      return {
+        stockSyncEndpoint: typeof parsed.stockSyncEndpoint === 'string' ? parsed.stockSyncEndpoint : undefined,
+        apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey : undefined,
+      };
+    } catch {
+      return {};
+    }
   }
 
   /**
@@ -372,7 +409,8 @@ export class InventoryService {
     for (const store of stores) {
       try {
         const result = await this.pushStockToMarketplace(tenantId, store.id);
-        results.push({ status: 'success', ...result });
+        const { status: pushStatus, ...resultDetails } = result;
+        results.push({ status: 'success', pushStatus, ...resultDetails });
       } catch (err: any) {
         results.push({ status: 'error', error: err.message });
       }
@@ -381,5 +419,3 @@ export class InventoryService {
     return results;
   }
 }
-
-
