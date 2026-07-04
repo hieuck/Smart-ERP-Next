@@ -4,11 +4,13 @@ import { GlobalExceptionFilter } from '../common/filters/global-exception.filter
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('ResponseFormatInterceptor', () => {
-  it('wraps successful responses in { success, data, requestId }', (done) => {
+  it('wraps successful responses in { success, data, requestId } and sets safe JSON headers', (done) => {
     const interceptor = new ResponseFormatInterceptor();
+    const mockSetHeader = jest.fn();
     const mockContext = {
       switchToHttp: () => ({
-        getRequest: () => ({ requestId: 'req-123' }),
+        getRequest: () => ({ requestId: 'req-123', originalUrl: '/api/v1/products' }),
+        getResponse: () => ({ setHeader: mockSetHeader, headersSent: false }),
       }),
     } as any;
     interceptor
@@ -20,6 +22,8 @@ describe('ResponseFormatInterceptor', () => {
             data: { items: [] },
             requestId: 'req-123',
           });
+          expect(mockSetHeader).toHaveBeenCalledWith('Content-Type', 'application/json; charset=utf-8');
+          expect(mockSetHeader).toHaveBeenCalledWith('X-Content-Type-Options', 'nosniff');
           done();
         },
       });
