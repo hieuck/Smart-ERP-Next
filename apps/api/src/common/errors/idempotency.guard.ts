@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus, Optional } from '@nestjs/common';
 import { ErrorCode } from './error-codes';
 
 interface IdempotencyRecord {
@@ -23,7 +23,7 @@ export class IdempotencyGuard implements CanActivate {
   private readonly maxRecords: number;
   private readonly now: () => number;
 
-  constructor(options: IdempotencyGuardOptions = {}) {
+  constructor(@Optional() options: IdempotencyGuardOptions = {}) {
     this.ttlMs = options.ttlMs ?? Number(process.env.IDEMPOTENCY_TTL_MS || DEFAULT_TTL_MS);
     this.maxRecords = options.maxRecords ?? Number(process.env.IDEMPOTENCY_MAX_RECORDS || DEFAULT_MAX_RECORDS);
     this.now = options.now ?? Date.now;

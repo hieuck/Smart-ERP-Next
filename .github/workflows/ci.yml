@@ -130,7 +130,7 @@ jobs:
 
           echo "::group::Waiting for API health (up to 20 min)..."
           for i in $(seq 1 120); do
-            if curl -s http://localhost:3456/health > /dev/null 2>&1; then
+            if curl -sf http://localhost:3456/health > /dev/null 2>&1; then
               echo "✅ API ready (attempt $i)"
               break
             fi

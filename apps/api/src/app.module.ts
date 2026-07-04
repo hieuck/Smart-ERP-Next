@@ -1,7 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,6 +11,7 @@ import { SlowQueryLoggerInterceptor } from './common/interceptors/slow-query-log
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { RequestTimeoutMiddleware } from './common/middleware/request-timeout.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import { DefaultApiVersionMiddleware } from './common/middleware/default-api-version.middleware';
 import { db } from '@smart-erp/database';
 import { DRIZZLE } from './common/drizzle.decorator';
 import { I18nModule } from './i18n/i18n.module';
@@ -28,6 +28,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { CrmModule } from './crm/crm.module';
 import { ForecastModule } from './forecast/forecast.module';
 import { InventoryRecommendationModule } from './inventory-recommendation/inventory-recommendation.module';
+import { ExportModule } from './exports/export.module';
 
 @Module({
   imports: [
@@ -35,7 +36,6 @@ import { InventoryRecommendationModule } from './inventory-recommendation/invent
     ThrottlerModule.forRoot([{ name: 'global', ttl: 60000, limit: parseInt(process.env.GLOBAL_RATE_LIMIT || '200', 10) }]),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     I18nModule,
-    CacheModule.register({ isGlobal: true, ttl: 60, max: 100 }),
     // Domain modules
     CoreModule,
     CommerceModule,
@@ -50,6 +50,7 @@ import { InventoryRecommendationModule } from './inventory-recommendation/invent
     CrmModule,
     ForecastModule,
     InventoryRecommendationModule,
+    ExportModule,
   ],
   controllers: [AppController],
   providers: [
@@ -64,7 +65,7 @@ import { InventoryRecommendationModule } from './inventory-recommendation/invent
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(RequestIdMiddleware, RequestTimeoutMiddleware, TenantMiddleware)
+      .apply(DefaultApiVersionMiddleware, RequestIdMiddleware, RequestTimeoutMiddleware, TenantMiddleware)
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

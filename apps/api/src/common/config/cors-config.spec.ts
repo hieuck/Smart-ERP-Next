@@ -1,6 +1,11 @@
 import { buildCorsOptions } from './cors-config';
 
 describe('CORS config', () => {
+  beforeEach(() => {
+    delete process.env.CORS_ORIGINS;
+    delete process.env.NODE_ENV;
+  });
+
   afterEach(() => {
     delete process.env.CORS_ORIGINS;
     delete process.env.NODE_ENV;

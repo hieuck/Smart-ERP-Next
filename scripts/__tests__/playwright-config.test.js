@@ -9,8 +9,8 @@ describe('Playwright release configuration', () => {
     );
 
     expect(config).toContain("baseURL: 'http://localhost:3457'");
-    expect(config).toContain("url: 'http://localhost:3456/health'");
-    expect(config).toContain("url: 'http://localhost:3457/login'");
+    expect(config).toContain("port: Number(process.env.API_PORT ?? 3456)");
+    expect(config).toContain("port: Number(process.env.WEB_PORT ?? 3457)");
     expect(config).toContain("NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3456'");
   });
 });

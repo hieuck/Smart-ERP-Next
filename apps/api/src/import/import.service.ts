@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { products } from '@smart-erp/database/schema';
-import * as XLSX from 'xlsx';
+import * as XLSX from '@stackline/xlsx';
 import { randomUUID } from 'crypto';
 
 export interface ImportRow {
