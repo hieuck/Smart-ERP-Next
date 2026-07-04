@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-07-04)
 
-Completed: 183 | Remaining: 1
+Completed: 184 | Remaining: 1
 
 ## Completed
 
@@ -183,6 +183,7 @@ Completed: 183 | Remaining: 1
 | Support troubleshooting matrix | Medium | `docs/runbooks/troubleshooting-matrix.md` with symptom/cause/fix/owner/escalation and `scripts/audit-troubleshooting-matrix.js` gate |
 | CodeQL setup documentation | Low | `docs/security/codeql-setup.md` explains default setup and why PR checks show multiple CodeQL entries (issue #52) |
 | PWA conflict UX matrix | Medium | `docs/pwa/conflict-ux-matrix.md` maps offline/remote conflict scenarios to UX patterns, gaps and test matrix |
+| Data governance baseline | Medium | `docs/data/data-contracts.md` defines core entity/event/API/database/sync contracts; `pnpm audit:data-contracts` guards required sections and related docs |
 
 | Item | Impact | Notes |
 |------|--------|-------|
