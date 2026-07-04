@@ -18,6 +18,9 @@ const nextConfig = {
   ...(process.env.ANALYZE === 'true' ? { outputFileTracing: true } : {}),
   compress: true,
   poweredByHeader: false,
+  env: {
+    NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version || '1.0.0',
+  },
   async headers() {
     return [
       {

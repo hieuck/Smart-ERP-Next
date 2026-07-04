@@ -44,6 +44,10 @@
     "typescript": "^5.9.3"
   },
   "name": "@smart-erp/web",
+  "version": "1.0.0",
+  "description": "Smart ERP Next web frontend — React / Next.js PWA for POS, inventory, accounting, manufacturing and CRM.",
+  "license": "MIT",
+  "author": "hieuck <hieuck.dev@gmail.com>",
   "private": true,
   "scripts": {
     "build": "next build",
@@ -53,7 +57,6 @@
     "lint": "cross-env ESLINT_USE_FLAT_CONFIG=true eslint . --max-warnings=0",
     "start": "node ../../scripts/run-web-start.js",
     "type-check": "tsc --noEmit --incremental false"
-  },
-  "version": "0.1.0"
+  }
 }
 
