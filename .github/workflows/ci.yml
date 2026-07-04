@@ -13,6 +13,8 @@ permissions:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    env:
+      API_KEY_HMAC_SECRET: ci-hmac-secret
     services:
       postgres:
         image: postgres:16
