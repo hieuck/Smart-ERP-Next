@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-07-04)
 
-Completed: 177 | Remaining: 1
+Completed: 180 | Remaining: 1
 
 ## Completed
 
@@ -177,6 +177,9 @@ Completed: 177 | Remaining: 1
 | Incident runbook | High | `docs/runbooks/incident-runbook.md` with severity levels, roles, response steps and post-mortem template |
 | Support triage SOP | Medium | `docs/runbooks/support-triage-sop.md` with channels, SLA, classification and escalation |
 | SLO burn-rate alerts | High | `monitoring/prometheus/alerts.yml` extended with fast/slow burn-rate alerts against 99.9% availability SLO + `scripts/__tests__/prometheus-alerts.spec.js` |
+| Threat model | High | `docs/security/threat-model.md` with STRIDE analysis, threat actors and risk register |
+| ASVS Level 2 checklist | High | `docs/security/asvs-checklist.md` mapped to project controls, tests and owners |
+| Container image scan | High | `container-scan` job in `.github/workflows/ci.yml` builds image and runs Trivy HIGH/CRITICAL scan with SARIF upload |
 
 | Item | Impact | Notes |
 |------|--------|-------|
@@ -197,7 +200,7 @@ Completed: 177 | Remaining: 1
 
 ## Team Role Assessment Addendum (2026-07-02)
 
-A role-based review has been added in `docs/team-role-gap-assessment.md` to translate the roadmap into a real dev-team operating model. The highest-priority gaps are now staging infrastructure, endpoint-level API governance, security program automation, PWA conflict UX, and data governance for forecast/analytics. SLO burn-rate alerts, release/rollback playbooks and incident response runbooks have been added. Product/test traceability now has a baseline PRD template, matrix, and audit gate; real-team role readiness now has a RACI/checklist matrix and audit gate; flaky-test quarantine ownership now has a documented policy and audit gate.
+A role-based review has been added in `docs/team-role-gap-assessment.md` to translate the roadmap into a real dev-team operating model. The highest-priority gaps are now staging infrastructure, endpoint-level API governance, PWA conflict UX, and data governance for forecast/analytics. Security baseline (threat model, ASVS checklist and container image scan), SLO burn-rate alerts, release/rollback playbooks and incident response runbooks have been added. Product/test traceability now has a baseline PRD template, matrix, and audit gate; real-team role readiness now has a RACI/checklist matrix and audit gate; flaky-test quarantine ownership now has a documented policy and audit gate.
 
 | Role area | New gap | Priority | Tracking |
 |-----------|---------|----------|----------|
@@ -205,7 +208,7 @@ A role-based review has been added in `docs/team-role-gap-assessment.md` to tran
 | Engineering management | ✅ Real-team RACI/checklist/evidence cadence matrix added; continue using it in PR reviews | Medium | ROLE-OPS |
 | Architecture + Backend | API versioning baseline and error catalog shipped; ADR 0001/0002 added; domain-boundary work remains | High | GAP-ROLE-02/03 |
 | SRE + DevOps | Observability stack baseline and alert rules shipped; release/rollback playbooks, incident runbook and SLO burn-rate alerts added; staging/rollback drill remains | High | GAP-ROLE-04/08 |
-| Security | Secret scanning now gates commits/CI; dependency/container scans and ASVS matrix remain | High | GAP-ROLE-05 |
+| Security | Secret scanning now gates commits/CI; ✅ threat model, ✅ ASVS Level 2 checklist and ✅ container image scan added; next: DLP review and field-level PII encryption | High | GAP-ROLE-05 |
 | Frontend/PWA | Production PWA manifest, service worker, offline fallback, and asset tests shipped; conflict UX matrix remains | High | GAP-ROLE-06 |
 | Data/AI | Data contracts, PII classification, forecast accuracy monitoring | Medium | GAP-ROLE-09 |
 | Support/Docs | Incident runbook and support triage SOP added; troubleshooting matrix remains | Medium | GAP-ROLE-10 |

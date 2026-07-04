@@ -18,16 +18,22 @@ describe('run-api-e2e wrapper', () => {
   it('builds a localhost DATABASE_URL when caller did not provide one', () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'api-e2e-env-'));
     fs.writeFileSync(path.join(tempDir, '.env'), 'DB_USER=app\nDB_PASSWORD=pass\n');
-    const originalDatabaseUrl = process.env.DATABASE_URL;
-    delete process.env.DATABASE_URL;
+
+    const keys = ['DATABASE_URL', 'DB_USER', 'DB_PASSWORD', 'DB_PORT', 'DB_NAME'];
+    const originals = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+    for (const key of keys) {
+      delete process.env[key];
+    }
 
     try {
       expect(buildApiE2EEnv(tempDir).DATABASE_URL).toBe('postgresql://app:pass@localhost:5432/smart_erp');
     } finally {
-      if (originalDatabaseUrl === undefined) {
-        delete process.env.DATABASE_URL;
-      } else {
-        process.env.DATABASE_URL = originalDatabaseUrl;
+      for (const key of keys) {
+        if (originals[key] === undefined) {
+          delete process.env[key];
+        } else {
+          process.env[key] = originals[key];
+        }
       }
     }
   });

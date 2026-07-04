@@ -43,7 +43,7 @@ Smart ERP Next đã có nền tảng mạnh cho một ERP SME: monorepo rõ ràn
 | GAP-ROLE-02 | Thiếu ADR cho quyết định kiến trúc lớn | Giúp team mới hiểu trade-off và tránh refactor cảm tính. | ✅ Added `docs/adr/0001-record-architecture-decisions.md` and `docs/adr/0002-api-versioning-and-domain-boundaries.md`; future ADRs follow this format. | Architect |
 | GAP-ROLE-03 | API versioning/error catalog chưa chuẩn hóa | Bảo vệ backward compatibility cho web/mobile/integration partners. | Header-based `X-API-Version` v1, `docs/api-versioning.md`, `docs/api-errors.md` và config contract test đã có; tiếp theo là endpoint-by-endpoint contract tests. | Backend |
 | GAP-ROLE-04 | Observability production chưa đủ | Không thể vận hành ERP nếu không có logs/metrics/traces/alerts. | ✅ Prometheus/Grafana/Loki compose, `/status/metrics`, dashboard provisioning and SLO burn-rate alerts in `monitoring/prometheus/alerts.yml` with test; next: ship structured logs to Loki and native Prometheus metrics. | SRE/DevOps |
-| GAP-ROLE-05 | Security program chưa có checklist liên tục | ERP chứa dữ liệu tài chính/khách hàng nhạy cảm. | ✅ CSP headers (API + Web), ✅ pnpm audit CI; còn threat model, ASVS checklist, container scan. | Security |
+| GAP-ROLE-05 | Security program chưa có checklist liên tục | ERP chứa dữ liệu tài chính/khách hàng nhạy cảm. | ✅ CSP headers (API + Web), ✅ pnpm audit CI, ✅ threat model, ✅ ASVS Level 2 checklist, ✅ container image scan in CI; còn DLP review và field-level PII encryption. | Security |
 | GAP-ROLE-06 | PWA/offline production gap | SME cần bán hàng/kho hoạt động khi mạng yếu. | Manifest, service worker, offline fallback và asset tests đã có; tiếp theo là conflict test matrix theo nghiệp vụ. | Frontend/PWA |
 | GAP-ROLE-07 | QA traceability và flakiness chưa được quản trị | Số lượng test cao nhưng cần biết test nào bảo vệ rủi ro nào. | ✅ Product traceability audit, role-readiness audit, and flaky quarantine policy/audit added; next: CI artifact/coverage reporting plan. | QA/SDET |
 | GAP-ROLE-08 | Release/rollback chưa có playbook đầy đủ | Giảm downtime và rollback panic khi production lỗi. | ✅ Added `docs/runbooks/release-playbook.md`, `docs/runbooks/rollback-playbook.md` and CI job-level `API_KEY_HMAC_SECRET`; next: staging rollback drill. | Release Manager |
@@ -54,7 +54,7 @@ Smart ERP Next đã có nền tảng mạnh cho một ERP SME: monorepo rõ ràn
 
 1. **PR 1 — Product/QA traceability foundation**: ✅ PRD template, test traceability matrix và audit script đã thêm; tiếp theo mở rộng PRD theo module.
 2. **PR 2 — Production readiness pack**: ✅ `docs/runbooks/*`, ADRs and SLO burn-rate alerts added; next: staging server and rollback drill.
-3. **PR 3 — Security baseline**: ✅ CSP headers, ✅ pnpm audit CI, ✅ CodeQL SAST; còn container scan, ASVS checklist.
+3. **PR 3 — Security baseline**: ✅ CSP headers, ✅ pnpm audit CI, ✅ CodeQL SAST, ✅ container image scan, ✅ threat model, ✅ ASVS checklist; còn DLP review, field-level PII encryption.
 4. **PR 4 — API governance**: ✅ global rate limiting, ✅ error code catalog, ✅ idempotency guard, ✅ migration rollback, ✅ pagination DTO; còn contract tests, outbox/saga pattern.
 5. **PR 5 — PWA/offline hardening**: manifest/service worker, offline UX states và conflict-resolution test matrix.
 6. **PR 6 — Engineering quality**: ✅ bundle analyzer, ✅ component test sample, ✅ cross-browser, ✅ load test CI; còn visual regression, accessibility, flaky policy.
