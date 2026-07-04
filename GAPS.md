@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-07-04)
 
-Completed: 182 | Remaining: 1
+Completed: 183 | Remaining: 1
 
 ## Completed
 
@@ -182,6 +182,7 @@ Completed: 182 | Remaining: 1
 | Container image scan | High | `container-scan` job in `.github/workflows/ci.yml` builds image and runs Trivy HIGH/CRITICAL scan with SARIF upload |
 | Support troubleshooting matrix | Medium | `docs/runbooks/troubleshooting-matrix.md` with symptom/cause/fix/owner/escalation and `scripts/audit-troubleshooting-matrix.js` gate |
 | CodeQL setup documentation | Low | `docs/security/codeql-setup.md` explains default setup and why PR checks show multiple CodeQL entries (issue #52) |
+| PWA conflict UX matrix | Medium | `docs/pwa/conflict-ux-matrix.md` maps offline/remote conflict scenarios to UX patterns, gaps and test matrix |
 
 | Item | Impact | Notes |
 |------|--------|-------|
