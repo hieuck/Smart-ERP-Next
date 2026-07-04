@@ -67,6 +67,17 @@ jobs:
           echo "Trivy found HIGH/CRITICAL vulnerabilities. SARIF was uploaded before failing the job."
           exit 1
 
+      - name: Debug Trivy results (table)
+        if: failure()
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          hide-progress: true
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: "0"
+
       - name: Type check
         run: pnpm type-check
 
