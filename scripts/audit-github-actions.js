@@ -49,11 +49,54 @@ function assert(condition, findings, file, reason) {
   if (!condition) findings.push({ file, reason });
 }
 
+const FORBIDDEN_WORKFLOWS = [
+  "codeql.yml",
+  "eslint.yml",
+  "build-ios.yml",
+  "npm-publish.yml",
+  "npm-publish-github-packages.yml",
+  "summary.yml",
+];
+
 function auditGithubActions() {
   const findings = [];
+  const files = listWorkflowFiles();
 
-  for (const file of listWorkflowFiles()) {
+  for (const file of files) {
     collectUses(readWorkflow(file), file, findings);
+  }
+
+  for (const file of FORBIDDEN_WORKFLOWS) {
+    if (files.includes(file)) {
+      findings.push({
+        file,
+        reason: `Workflow ${file} conflicts with repo tooling or references non-existent project files; remove it`,
+      });
+    }
+  }
+
+  if (files.includes("node.js.yml")) {
+    const nodejs = readWorkflow("node.js.yml");
+    const hasPnpmSetup = JSON.stringify(nodejs).includes("pnpm/action-setup");
+    if (!hasPnpmSetup) {
+      findings.push({
+        file: "node.js.yml",
+        reason: "Node.js CI must use pnpm/action-setup to match the monorepo package manager",
+      });
+    }
+    const serialized = JSON.stringify(nodejs);
+    const hasNpmCi = /\bnpm\s+(ci|install)\b/.test(serialized);
+    if (hasNpmCi) {
+      findings.push({
+        file: "node.js.yml",
+        reason: "Node.js CI must run pnpm install instead of npm install / npm ci",
+      });
+    }
+  } else {
+    findings.push({
+      file: "node.js.yml",
+      reason: "Node.js CI workflow is missing",
+    });
   }
 
   const ci = readWorkflow("ci.yml");
