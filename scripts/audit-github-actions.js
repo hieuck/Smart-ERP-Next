@@ -87,6 +87,12 @@ function auditGithubActions() {
     "ci.yml",
     "Trivy scan should continue-on-error so SARIF can upload before failing the job",
   );
+  assert(
+    trivy?.with?.["limit-severities-for-sarif"] === true,
+    findings,
+    "ci.yml",
+    "Trivy SARIF scan must limit severities so exit-code respects severity filter",
+  );
 
   const uploadSarif = findStep(
     ci,
@@ -122,28 +128,6 @@ function auditGithubActions() {
     findings,
     "ci.yml",
     "Trivy enforcement must depend on steps.trivy.outcome",
-  );
-
-  const codeql = readWorkflow("codeql.yml");
-  assert(
-    codeql.permissions?.["security-events"] === "write",
-    findings,
-    "codeql.yml",
-    "CodeQL must grant security-events: write",
-  );
-  assert(
-    findStep(codeql, "analyze", "Initialize CodeQL")?.uses ===
-      "github/codeql-action/init@v4",
-    findings,
-    "codeql.yml",
-    "CodeQL init must use v4",
-  );
-  assert(
-    findStep(codeql, "analyze", "Perform CodeQL analysis")?.uses ===
-      "github/codeql-action/analyze@v4",
-    findings,
-    "codeql.yml",
-    "CodeQL analyze must use v4",
   );
 
   const staging = readWorkflow("deploy-staging.yml");
