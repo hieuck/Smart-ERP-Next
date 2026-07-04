@@ -1,4 +1,10 @@
 {
+  "name": "smart-erp-next",
+  "version": "1.0.0",
+  "description": "Hệ thống quản trị doanh nghiệp thế hệ mới — vượt trội ERPNext, Odoo, KiotViet, Nhanhvn, MISA về tốc độ, trải nghiệm và khả năng mở rộng.",
+  "private": true,
+  "author": "hieuck <hieuck.dev@gmail.com>",
+  "license": "MIT",
   "devDependencies": {
     "@axe-core/playwright": "^4.9.0",
     "@playwright/test": "1.60.0",
@@ -44,6 +50,7 @@
     "audit:pwa-conflict-matrix": "node scripts/audit-pwa-conflict-matrix.js",
     "audit:bug-report-capture": "node scripts/audit-bug-report-capture.js",
     "audit:data-contracts": "node scripts/audit-data-contracts.js",
+    "audit:github-actions": "node scripts/audit-github-actions.js",
     "audit:gaps": "node scripts/audit-gaps.js"
   },
   "version": "1.0.0",

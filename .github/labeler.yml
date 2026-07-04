@@ -1,0 +1,25 @@
+documentation:
+  - docs/**/*
+  - '**/*.md'
+
+frontend:
+  - apps/web/**/*
+
+backend:
+  - apps/api/**/*
+
+devops:
+  - .github/workflows/**/*
+  - Dockerfile
+  - docker-compose*
+
+security:
+  - docs/security/**/*
+  - scripts/audit-secrets.js
+
+dependencies:
+  - package.json
+  - pnpm-lock.yaml
+  - pnpm-workspace.yaml
+  - apps/*/package.json
+  - packages/*/package.json
