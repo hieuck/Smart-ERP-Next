@@ -45,6 +45,18 @@ const COMMON_GATES = [
     args: ['audit:flaky-tests'],
   },
   {
+    id: 'github-actions',
+    name: 'Audit GitHub Actions policy and security gates',
+    command: 'pnpm',
+    args: ['audit:github-actions'],
+  },
+  {
+    id: 'gaps-roadmap',
+    name: 'Audit gaps roadmap summary and blocked items',
+    command: 'pnpm',
+    args: ['audit:gaps'],
+  },
+  {
     id: 'type-check',
     name: 'Type-check all workspaces',
     command: 'pnpm',

@@ -1,6 +1,6 @@
 # Smart ERP Next — Gaps & Roadmap (Updated 2026-07-02)
 
-Completed: 191 | Remaining: 1
+Completed: 171 | Remaining: 1
 
 ## Completed
 
@@ -177,6 +177,11 @@ Completed: 191 | Remaining: 1
 | ~48 modules flat import | Low | app.module.ts imports all modules without domain grouping |
 | E2E test coverage (12 files) | Medium | Covers critical paths, missing edge cases |
 | Docker image size ~2GB | Low | postgres:16-alpine base is large |
+| Trivy SARIF upload + safe pin | High | CI uploads Trivy SARIF to code scanning and pins action to v0.35.0 |
+| Trivy vulnerability enforcement | High | CI fails after SARIF upload when Trivy finds HIGH/CRITICAL issues |
+| Staging deploy preflight | Medium | deploy-staging.yml validates VPS secrets and sets up Docker Buildx before deploy |
+| GitHub Actions policy audit | Medium | `pnpm audit:github-actions` gates mutable actions, missing SARIF, and ungated staging steps |
+| Next.js 16 lint command | High | Web lint uses ESLint flat config directly because `next lint` was removed in Next.js 16 |
 
 ## Remaining
 
