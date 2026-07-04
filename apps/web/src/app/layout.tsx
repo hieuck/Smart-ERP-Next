@@ -86,12 +86,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){ try {
             window.__CAPTURED_ERRORS = [];
+            function pushErr(msg){ window.__CAPTURED_ERRORS.push(msg); if (window.__CAPTURED_ERRORS.length > 50) window.__CAPTURED_ERRORS.shift(); }
             var orig = console.error;
             console.error = function() {
-              window.__CAPTURED_ERRORS.push(Array.from(arguments).join(' '));
-              if (window.__CAPTURED_ERRORS.length > 50) window.__CAPTURED_ERRORS.shift();
+              pushErr(Array.from(arguments).join(' '));
               orig.apply(console, arguments);
             };
+            window.addEventListener('error', function(event){ pushErr('uncaught: ' + event.message + ' @ ' + (event.filename || '') + ':' + (event.lineno || 0)); });
+            window.addEventListener('unhandledrejection', function(event){ pushErr('unhandledrejection: ' + event.reason); });
           } catch(e){} })();
         ` }} />
       </head>

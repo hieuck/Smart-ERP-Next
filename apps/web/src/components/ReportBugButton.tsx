@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Bug, Loader2 } from 'lucide-react';
 
 export default function ReportBugButton() {
@@ -9,6 +9,11 @@ export default function ReportBugButton() {
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+  }, []);
 
   const buildBody = useCallback(() => {
     const lines = [
@@ -40,7 +45,7 @@ export default function ReportBugButton() {
     window.open(url, '_blank');
     setSubmitting(false);
     setDone(true);
-    setTimeout(() => { setOpen(false); setDone(false); setTitle(''); setDescription(''); }, 2000);
+    closeTimerRef.current = setTimeout(() => { setOpen(false); setDone(false); setTitle(''); setDescription(''); }, 2000);
   };
 
   return (
