@@ -324,6 +324,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
+    "loading": "Loading dashboard...",
     "todayRevenue": "Today's Revenue",
     "todayOrders": "Today's Orders",
     "newCustomers": "New Customers",

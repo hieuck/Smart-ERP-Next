@@ -60,41 +60,20 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-red-100 text-red-700',
 };
 
-// Mock data for when API is not ready
-const mockStats: DashboardStats = {
-  todayRevenue: 12_500_000,
-  todayOrders: 24,
-  totalCustomers: 1_248,
-  lowStockCount: 7,
-  revenueChart: [
-    { date: 'T2', revenue: 8_200_000 },
-    { date: 'T3', revenue: 11_500_000 },
-    { date: 'T4', revenue: 9_800_000 },
-    { date: 'T5', revenue: 14_200_000 },
-    { date: 'T6', revenue: 10_600_000 },
-    { date: 'T7', revenue: 16_800_000 },
-    { date: 'CN', revenue: 12_500_000 },
-  ],
-  recentOrders: [
-    { id: '1', code: 'DH-001', customerName: 'Customer A', total: 1_250_000, status: 'delivered', createdAt: new Date().toISOString() },
-    { id: '2', code: 'DH-002', customerName: 'Customer B', total: 850_000, status: 'processing', createdAt: new Date().toISOString() },
-    { id: '3', code: 'DH-003', customerName: 'Customer C', total: 2_100_000, status: 'confirmed', createdAt: new Date().toISOString() },
-    { id: '4', code: 'DH-004', customerName: 'Customer D', total: 450_000, status: 'shipped', createdAt: new Date().toISOString() },
-    { id: '5', code: 'DH-005', customerName: 'Customer E', total: 3_200_000, status: 'draft', createdAt: new Date().toISOString() },
-  ],
-  topProducts: [
-    { id: '1', name: 'Sản phẩm A', sku: 'SP-001', sold: 142, revenue: 7_100_000 },
-    { id: '2', name: 'Sản phẩm B', sku: 'SP-002', sold: 98, revenue: 4_900_000 },
-    { id: '3', name: 'Sản phẩm C', sku: 'SP-003', sold: 76, revenue: 3_800_000 },
-    { id: '4', name: 'Sản phẩm D', sku: 'SP-004', sold: 54, revenue: 2_700_000 },
-    { id: '5', name: 'Sản phẩm E', sku: 'SP-005', sold: 43, revenue: 2_150_000 },
-  ],
+const emptyStats: DashboardStats = {
+  todayRevenue: 0,
+  todayOrders: 0,
+  totalCustomers: 0,
+  lowStockCount: 0,
+  revenueChart: [],
+  recentOrders: [],
+  topProducts: [],
 };
 
 export default function DashboardPage() {
   const { t } = useTranslation('common');
-  const [stats, setStats] = useState<DashboardStats>(mockStats);
-  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<DashboardStats>(emptyStats);
+  const [loading, setLoading] = useState(true);
   const [apiFailed, setApiFailed] = useState(false);
 
   useEffect(() => {
@@ -125,9 +104,15 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        {loading && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 text-sm text-blue-700 dark:text-blue-400 animate-pulse">
+            {t('dashboard.loading', 'Loading dashboard...')}
+          </div>
+        )}
+
         {apiFailed && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-sm text-red-700 dark:text-red-400">
-            {t('dashboard.apiFailed', 'Could not load live data. Showing cached values.')}
+            {t('dashboard.apiFailed', 'Could not load live data.')}
           </div>
         )}
 
