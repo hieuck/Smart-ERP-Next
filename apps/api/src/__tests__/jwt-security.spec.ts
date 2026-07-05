@@ -20,7 +20,7 @@ describe('JwtStrategy - Security', () => {
 
   it('constructs successfully when JWT_SECRET is set', () => {
     process.env.JWT_SECRET = 'test-secret-value';
-    const configService = new ConfigService({ JWT_SECRET: 'config-secret-for-tests' });
+    const configService = new ConfigService({ JWT_SECRET: 'test-config-secret-for-tests' });
     const strategy = new JwtStrategy(configService);
     expect(strategy).toBeDefined();
   });

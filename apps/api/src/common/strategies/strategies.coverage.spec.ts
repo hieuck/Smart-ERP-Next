@@ -6,7 +6,7 @@ describe('common auth strategies coverage', () => {
   it('normalizes jwt payloads and defaults missing roles', async () => {
     const strategy = new JwtStrategy({
       get: jest.fn(),
-      getOrThrow: jest.fn(() => 'a-long-enough-secret-for-tests'),
+      getOrThrow: jest.fn(() => 'test-long-enough-secret-for-tests'),
     } as any);
 
     await expect(
@@ -27,7 +27,7 @@ describe('common auth strategies coverage', () => {
   it('uses the ConfigService JWT secret when no environment secret is present', () => {
     const originalSecret = process.env.JWT_SECRET;
     delete process.env.JWT_SECRET;
-    const config = { getOrThrow: jest.fn(() => 'config-secret-for-tests') };
+    const config = { getOrThrow: jest.fn(() => 'test-config-secret-for-tests') };
 
     new JwtStrategy(config as any);
 
