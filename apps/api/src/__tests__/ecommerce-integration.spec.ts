@@ -5,8 +5,8 @@ const mockDb = {
 };
 
 const mockTikTokClient = { getProducts: jest.fn(), getOrders: jest.fn() };
-const mockAmazonClient = { listProducts: jest.fn(), listOrders: jest.fn() };
-const mockEbayClient = { listProducts: jest.fn(), listOrders: jest.fn() };
+const mockAmazonClient = { getProducts: jest.fn(), getOrders: jest.fn() };
+const mockEbayClient = { getProducts: jest.fn(), getOrders: jest.fn() };
 const mockShopeeClient = { getProducts: jest.fn(), getOrders: jest.fn() };
 
 jest.mock('@smart-erp/database', () => ({ db: mockDb }));
@@ -276,8 +276,8 @@ describe('ECommerceService integration', () => {
         [{ id: 'am-store', tenantId: 't1', configJson: '{}' }],
         [{ id: 'am-store', tenantId: 't1', configJson: '{}' }],
       );
-      mockAmazonClient.listProducts.mockResolvedValue({ products: [{ asin: 'a1' }, { asin: 'a2' }] });
-      mockAmazonClient.listOrders.mockResolvedValue({ orders: [{ AmazonOrderId: 'ao1' }] });
+      mockAmazonClient.getProducts.mockResolvedValue([{ asin: 'a1' }, { asin: 'a2' }]);
+      mockAmazonClient.getOrders.mockResolvedValue([{ AmazonOrderId: 'ao1' }]);
 
       const prodResult = await service.syncAmazonProducts('am-store');
       expect(prodResult).toBe(2);
@@ -313,8 +313,8 @@ describe('ECommerceService integration', () => {
         [{ id: 'eb-store', tenantId: 't1', configJson: '{}' }],
         [{ id: 'eb-store', tenantId: 't1', configJson: '{}' }],
       );
-      mockEbayClient.listProducts.mockResolvedValue({ products: [{ itemId: 'eb1' }] });
-      mockEbayClient.listOrders.mockResolvedValue({ orders: [{ orderId: 'eo1' }] });
+      mockEbayClient.getProducts.mockResolvedValue([{ itemId: 'eb1' }]);
+      mockEbayClient.getOrders.mockResolvedValue([{ orderId: 'eo1' }]);
 
       const prodResult = await service.syncEbayProducts('eb-store');
       expect(prodResult).toBe(1);

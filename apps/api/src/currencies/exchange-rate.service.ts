@@ -2,10 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { DrizzleService } from '../drizzle/drizzle.service';
-import { currencies, exchangeRates } from '@smart-erp/database';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { firstValueFrom } from 'rxjs';
-import * as crypto from 'crypto';
 
 export interface ExchangeRate {
   fromCurrency: string;
@@ -13,6 +11,14 @@ export interface ExchangeRate {
   rate: number;
   source: string;
   fetchedAt: string;
+}
+
+interface ExchangeRateRow {
+  from_currency: string;
+  to_currency: string;
+  rate: string | number;
+  source: string | null;
+  fetched_at: Date | string;
 }
 
 @Injectable()
@@ -108,69 +114,23 @@ export class ExchangeRateService {
   }
 
   private async getCachedRate(fromCurrency: string, toCurrency: string): Promise<ExchangeRate | null> {
-    const [rate] = await this.drizzle.db
-      .select()
-      .from(exchangeRates)
-      .where(
-        and(
-          // @ts-ignore
-          eq(exchangeRates.baseCurrency, fromCurrency),
-          // @ts-ignore
-          eq(exchangeRates.targetCurrency, toCurrency),
-        ),
-      )
-      // @ts-ignore
-      .orderBy(desc(exchangeRates.fetchedAt))
-      .limit(1);
+    const rate = await this.findLatestRate(fromCurrency, toCurrency);
 
     if (rate) {
-      // @ts-ignore
-      const age = Date.now() - new Date(rate.fetchedAt).getTime();
+      const age = Date.now() - new Date(rate.fetched_at).getTime();
       // Cache valid for 1 hour (3600000ms)
       if (age < 3600000) {
-        return {
-          // @ts-ignore
-          fromCurrency: rate.baseCurrency,
-          // @ts-ignore
-          toCurrency: rate.targetCurrency,
-          rate: Number(rate.rate),
-          // @ts-ignore
-          source: rate.source,
-          // @ts-ignore
-          fetchedAt: rate.fetchedAt,
-        };
+        return this.mapRateRow(rate, rate.source ?? 'cached');
       }
     }
     return null;
   }
 
   private async getLastKnownRate(fromCurrency: string, toCurrency: string): Promise<ExchangeRate> {
-    const [rate] = await this.drizzle.db
-      .select()
-      .from(exchangeRates)
-      .where(
-        and(
-          // @ts-ignore
-          eq(exchangeRates.baseCurrency, fromCurrency),
-          // @ts-ignore
-          eq(exchangeRates.targetCurrency, toCurrency),
-        ),
-      )
-      // @ts-ignore
-      .orderBy(desc(exchangeRates.fetchedAt))
-      .limit(1);
+    const rate = await this.findLatestRate(fromCurrency, toCurrency);
 
     if (rate) {
-      return {
-        // @ts-ignore
-        fromCurrency: rate.baseCurrency,
-        // @ts-ignore
-        toCurrency: rate.targetCurrency,
-        rate: Number(rate.rate),
-        source: 'cached',
-        // @ts-ignore
-        fetchedAt: rate.fetchedAt,
-      };
+      return this.mapRateRow(rate, 'cached');
     }
 
     // Ultimate fallback
@@ -178,13 +138,53 @@ export class ExchangeRateService {
   }
 
   private async cacheRate(rate: ExchangeRate) {
-    await this.drizzle.db.insert(exchangeRates).values({
-      baseCurrency: rate.fromCurrency,
-      targetCurrency: rate.toCurrency,
-      rate: rate.rate,
-      source: rate.source,
-      fetchedAt: rate.fetchedAt,
-    } as any);
+    await this.drizzle.db.execute(
+      sql`INSERT INTO exchange_rates (from_currency_id, to_currency_id, rate, effective_date)
+          SELECT from_currency.id, to_currency.id, ${rate.rate}, ${rate.fetchedAt}
+          FROM currencies from_currency
+          CROSS JOIN currencies to_currency
+          WHERE from_currency.code = ${rate.fromCurrency}
+            AND to_currency.code = ${rate.toCurrency}`,
+    );
+  }
+
+  private async findLatestRate(fromCurrency: string, toCurrency: string): Promise<ExchangeRateRow | null> {
+    const result = await this.drizzle.db.execute(
+      sql`SELECT
+            from_currency.code AS from_currency,
+            to_currency.code AS to_currency,
+            er.rate,
+            'database' AS source,
+            er.effective_date AS fetched_at
+          FROM exchange_rates er
+          INNER JOIN currencies from_currency ON from_currency.id = er.from_currency_id
+          INNER JOIN currencies to_currency ON to_currency.id = er.to_currency_id
+          WHERE from_currency.code = ${fromCurrency}
+            AND to_currency.code = ${toCurrency}
+          ORDER BY er.effective_date DESC
+          LIMIT 1`,
+    );
+
+    return this.getRows<ExchangeRateRow>(result)[0] ?? null;
+  }
+
+  private getRows<T>(result: unknown): T[] {
+    if (Array.isArray(result)) return result as T[];
+    if (result && typeof result === 'object' && 'rows' in result) {
+      return (result as { rows?: T[] }).rows ?? [];
+    }
+    return [];
+  }
+
+  private mapRateRow(row: ExchangeRateRow, source: string): ExchangeRate {
+    const fetchedAt = row.fetched_at ? new Date(row.fetched_at) : new Date();
+    return {
+      fromCurrency: row.from_currency,
+      toCurrency: row.to_currency,
+      rate: Number(row.rate),
+      source,
+      fetchedAt: Number.isNaN(fetchedAt.getTime()) ? new Date().toISOString() : fetchedAt.toISOString(),
+    };
   }
 
   private async logConversion(

@@ -231,7 +231,7 @@ describe('InventoryService coverage', () => {
     selectQueue.push([]);
     await expect(service.pushStockToMarketplace('tenant-1', 'missing')).rejects.toThrow('Store not found');
 
-    selectQueue.push([{ id: 'store-1' }]);
+    selectQueue.push([{ id: 'store-1', platform: 'shopify', configJson: '{}' }]);
     mockDb.execute.mockResolvedValueOnce({
       rows: [
         { product_id: 'p1', external_id: 'ext-1', stock: 10, reserved_qty: 3, safety_buffer: 2 },
@@ -241,11 +241,51 @@ describe('InventoryService coverage', () => {
 
     await expect(service.pushStockToMarketplace('tenant-1', 'store-1')).resolves.toMatchObject({
       storeId: 'store-1',
+      status: 'pending_configuration',
       items: [
         { productId: 'p1', externalId: 'ext-1', available: 5 },
         { productId: 'p2', externalId: 'ext-2', available: 0 },
       ],
     });
+
+    const fetchMock = jest.fn().mockResolvedValue({ ok: true, status: 200 });
+    jest.spyOn(global, 'fetch').mockImplementation(fetchMock as any);
+    selectQueue.push([{
+      id: 'store-live',
+      platform: 'shopify',
+      configJson: JSON.stringify({ stockSyncEndpoint: 'https://marketplace.example/stock', apiKey: 'key-1' }),
+    }]);
+    mockDb.execute.mockResolvedValueOnce({
+      rows: [
+        { product_id: 'p1', external_id: 'ext-1', stock: 10, reserved_qty: 1, safety_buffer: 2 },
+        { product_id: 'p2', external_id: null, stock: 5, reserved_qty: 0, safety_buffer: 0 },
+      ],
+    });
+
+    await expect(service.pushStockToMarketplace('tenant-1', 'store-live')).resolves.toMatchObject({
+      storeId: 'store-live',
+      platform: 'shopify',
+      status: 'pushed',
+      items: [{ productId: 'p1', externalId: 'ext-1', available: 7 }],
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://marketplace.example/stock',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({ Authorization: 'Bearer key-1' }),
+      }),
+    );
+
+    fetchMock.mockResolvedValueOnce({ ok: false, status: 503 });
+    selectQueue.push([{
+      id: 'store-fail-http',
+      platform: 'shopify',
+      configJson: JSON.stringify({ stockSyncEndpoint: 'https://marketplace.example/stock' }),
+    }]);
+    mockDb.execute.mockResolvedValueOnce({ rows: [] });
+    await expect(service.pushStockToMarketplace('tenant-1', 'store-fail-http')).rejects.toThrow(
+      'Marketplace stock sync failed with status 503',
+    );
 
     selectQueue.push([{ id: 'store-ok' }, { id: 'store-fail' }]);
     jest.spyOn(service, 'pushStockToMarketplace')

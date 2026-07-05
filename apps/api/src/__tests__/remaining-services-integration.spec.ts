@@ -597,34 +597,39 @@ describe('Remaining Services Integration', () => {
     });
 
     it('fetchRate fetches from API when not cached', async () => {
-      mockDb.select.mockReturnValue(makeQueryBuilder([]));
+      mockDb.execute.mockReturnValue([]);
       mockHttp.get.mockReturnValue(of({ data: { rates: { VND: 25400 } } } as any));
-      mockDb.insert.mockReturnValue(makeQueryBuilder([]));
       const result = await service.fetchRate('USD', 'VND');
       expect(result.rate).toBe(25400);
       expect(result.source).toBe('openexchangerates');
     });
 
     it('fetchRate uses cached rate when recent', async () => {
-      mockDb.select.mockReturnValue(makeQueryBuilder([{ baseCurrency: 'USD', targetCurrency: 'VND', rate: '25000', source: 'openexchangerates', fetchedAt: new Date().toISOString() }]));
+      mockDb.execute.mockReturnValue([
+        {
+          from_currency: 'USD',
+          to_currency: 'VND',
+          rate: '25000',
+          source: 'openexchangerates',
+          fetched_at: new Date().toISOString(),
+        },
+      ]);
       const result = await service.fetchRate('USD', 'VND');
       expect(result.rate).toBe(25000);
     });
 
     it('fetchRate fallbacks on API error', async () => {
-      mockDb.select.mockReturnValueOnce(makeQueryBuilder([]));
+      mockDb.execute.mockReturnValueOnce([]);
       mockHttp.get.mockReturnValue(throwError(() => new Error('Network error')));
-      mockDb.select.mockReturnValueOnce(makeQueryBuilder([]));
+      mockDb.execute.mockReturnValueOnce([]);
       const result = await service.fetchRate('USD', 'VND');
       expect(result.rate).toBe(1);
       expect(result.source).toBe('fallback');
     });
 
     it('convert converts amount', async () => {
-      mockDb.select.mockReturnValue(makeQueryBuilder([]));
+      mockDb.execute.mockReturnValue([]);
       mockHttp.get.mockReturnValue(of({ data: { rates: { VND: 25000 } } } as any));
-      mockDb.insert.mockReturnValue(makeQueryBuilder([]));
-      mockDb.execute.mockResolvedValue([]);
       const result = await service.convert(100, 'USD', 'VND', 't1');
       expect(result.convertedAmount).toBe(2500000);
       expect(result.rate).toBe(25000);

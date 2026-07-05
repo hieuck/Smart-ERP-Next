@@ -2,38 +2,16 @@ import { of } from 'rxjs';
 
 jest.mock('@smart-erp/database', () => ({
   currencies: {},
-  exchangeRates: {
-    baseCurrency: 'exchangeRates.baseCurrency',
-    targetCurrency: 'exchangeRates.targetCurrency',
-    fetchedAt: 'exchangeRates.fetchedAt',
-  },
+  exchangeRates: {},
 }));
 
 jest.mock('drizzle-orm', () => ({
-  eq: jest.fn((field, value) => ({ op: 'eq', field, value })),
-  and: jest.fn((...conditions) => ({ op: 'and', conditions })),
-  desc: jest.fn((field) => ({ op: 'desc', field })),
   sql: jest.fn((strings, ...values) => ({ op: 'sql', strings, values })),
 }));
 
 import { ExchangeRateService } from './exchange-rate.service';
 
-const selectQueue: any[][] = [];
-
-const makeSelectChain = (rows: any[]) => {
-  const chain: any = {
-    from: jest.fn(() => chain),
-    where: jest.fn(() => chain),
-    orderBy: jest.fn(() => chain),
-    limit: jest.fn(() => chain),
-    then: jest.fn((onFulfilled, onRejected) => Promise.resolve(rows).then(onFulfilled, onRejected)),
-  };
-  return chain;
-};
-
-const makeInsertChain = () => ({
-  values: jest.fn().mockResolvedValue(undefined),
-});
+const executeQueue: any[] = [];
 
 describe('ExchangeRateService coverage', () => {
   const config = { get: jest.fn() };
@@ -48,15 +26,13 @@ describe('ExchangeRateService coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers().setSystemTime(new Date('2026-05-21T03:00:00.000Z'));
-    selectQueue.length = 0;
+    executeQueue.length = 0;
     config.get.mockImplementation((key: string) => ({
       EXCHANGE_RATE_API_KEY: 'api-key',
       EXCHANGE_RATE_API_URL: 'https://rates.test/latest',
     } as Record<string, string>)[key]);
     http.get.mockReturnValue(of({ data: { rates: { VND: 25000 } } }));
-    db.select.mockImplementation(() => makeSelectChain(selectQueue.shift() ?? []));
-    db.insert.mockImplementation(() => makeInsertChain());
-    db.execute.mockResolvedValue([]);
+    db.execute.mockImplementation(() => Promise.resolve(executeQueue.shift() ?? { rows: [] }));
     service = new ExchangeRateService(config as any, http as any, { db } as any);
   });
 
@@ -74,19 +50,19 @@ describe('ExchangeRateService coverage', () => {
       fetchedAt: '2026-05-21T03:00:00.000Z',
     });
 
-    selectQueue.push([{ baseCurrency: 'USD', targetCurrency: 'VND', rate: 24900, source: 'cache', fetchedAt: '2026-05-21T02:30:00.000Z' }]);
+    executeQueue.push({ rows: [{ from_currency: 'USD', to_currency: 'VND', rate: 24900, source: 'database', fetched_at: '2026-05-21T02:30:00.000Z' }] });
     await expect(service.fetchRate('USD', 'VND')).resolves.toEqual({
       fromCurrency: 'USD',
       toCurrency: 'VND',
       rate: 24900,
-      source: 'cache',
+      source: 'database',
       fetchedAt: '2026-05-21T02:30:00.000Z',
     });
     expect(http.get).not.toHaveBeenCalled();
   });
 
   it('fetches and caches external rates when cache is missing or stale', async () => {
-    selectQueue.push([{ baseCurrency: 'USD', targetCurrency: 'VND', rate: 24000, source: 'old', fetchedAt: '2026-05-21T00:00:00.000Z' }]);
+    executeQueue.push({ rows: [{ from_currency: 'USD', to_currency: 'VND', rate: 24000, source: 'database', fetched_at: '2026-05-21T00:00:00.000Z' }] }, { rows: [] });
 
     await expect(service.fetchRate('USD', 'VND')).resolves.toEqual({
       fromCurrency: 'USD',
@@ -98,14 +74,14 @@ describe('ExchangeRateService coverage', () => {
     expect(http.get).toHaveBeenCalledWith('https://rates.test/latest/USD', {
       params: { apikey: 'api-key' },
     });
-    expect(db.insert).toHaveBeenCalled();
+    expect(db.execute).toHaveBeenCalledTimes(2);
   });
 
   it('uses the default exchange-rate API URL when no configured URL exists', async () => {
     config.get.mockImplementation((key: string) => ({
       EXCHANGE_RATE_API_KEY: 'api-key',
     } as Record<string, string>)[key]);
-    selectQueue.push([]);
+    executeQueue.push({ rows: [] }, { rows: [] });
 
     await expect(service.fetchRate('EUR', 'VND')).resolves.toMatchObject({
       fromCurrency: 'EUR',
@@ -123,7 +99,7 @@ describe('ExchangeRateService coverage', () => {
       throw new Error('network down');
     });
 
-    selectQueue.push([], [{ baseCurrency: 'USD', targetCurrency: 'VND', rate: 24500, source: 'old', fetchedAt: '2026-05-20T00:00:00.000Z' }]);
+    executeQueue.push({ rows: [] }, { rows: [{ from_currency: 'USD', to_currency: 'VND', rate: 24500, source: 'database', fetched_at: '2026-05-20T00:00:00.000Z' }] });
     await expect(service.fetchRate('USD', 'VND')).resolves.toEqual({
       fromCurrency: 'USD',
       toCurrency: 'VND',
@@ -132,7 +108,7 @@ describe('ExchangeRateService coverage', () => {
       fetchedAt: '2026-05-20T00:00:00.000Z',
     });
 
-    selectQueue.push([], []);
+    executeQueue.push({ rows: [] }, { rows: [] });
     await expect(service.fetchRate('EUR', 'VND')).resolves.toEqual({
       fromCurrency: 'EUR',
       toCurrency: 'VND',
@@ -146,7 +122,7 @@ describe('ExchangeRateService coverage', () => {
   it('falls back when an external provider response does not contain the requested rate', async () => {
     const warnSpy = jest.spyOn((service as any).logger, 'error').mockImplementation(() => undefined);
     http.get.mockReturnValue(of({ data: { rates: {} } }));
-    selectQueue.push([], []);
+    executeQueue.push({ rows: [] }, { rows: [] });
 
     await expect(service.fetchRate('USD', 'JPY')).resolves.toEqual({
       fromCurrency: 'USD',
