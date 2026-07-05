@@ -44,7 +44,7 @@ test('Monorepo root structure', () => {
 
 // Test 2: Apps directory structure
 test('Apps directory structure', () => {
-  const apps = ['api', 'web', 'mobile'];
+  const apps = ['api', 'web'];
   apps.forEach(app => {
     const appDir = `apps/${app}`;
     if (!fs.existsSync(appDir)) {
@@ -61,7 +61,7 @@ test('Apps directory structure', () => {
 
 // Test 3: Packages directory structure
 test('Packages directory structure', () => {
-  const packages = ['database', 'i18n', 'ui', 'shared', 'types', 'utils'];
+  const packages = ['database', 'shared', 'types', 'utils', 'validation', 'sync', 'accounting'];
   packages.forEach(pkg => {
     const pkgDir = `packages/${pkg}`;
     if (!fs.existsSync(pkgDir)) {
@@ -90,7 +90,7 @@ test('API structure', () => {
 test('Web structure', () => {
   const webFiles = [
     'apps/web/package.json',
-    'apps/web/next.config.js'
+    'apps/web/next.config.mjs'
   ];
 
   webFiles.forEach(file => {
@@ -115,12 +115,11 @@ test('Database package structure', () => {
   });
 });
 
-// Test 7: i18n package structure
-test('i18n package structure', () => {
+// Test 7: Web i18n locale files
+test('Web i18n locale files', () => {
   const i18nFiles = [
-    'packages/i18n/src/locales/vi/common.json',
-    'packages/i18n/src/locales/en/common.json',
-    'packages/i18n/package.json'
+    'apps/web/src/lib/locales/vi/common.json',
+    'apps/web/src/lib/locales/en/common.json'
   ];
 
   i18nFiles.forEach(file => {
