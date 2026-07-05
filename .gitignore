@@ -65,3 +65,4 @@ package-lock.json
 # Coverage (explicit)
 apps/coverage/
 
+/.kimchi

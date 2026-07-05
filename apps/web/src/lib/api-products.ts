@@ -48,8 +48,11 @@ export interface ProductImageUploadResponse {
 
 export function resolveProductImageUrl(imageUrl?: string | null): string {
   if (!imageUrl) return '';
+  // Keep absolute URLs, data URIs and blob URLs as-is.
   if (/^(https?:|data:|blob:)/i.test(imageUrl)) return imageUrl;
-  if (imageUrl.startsWith('/')) return `${API_BASE_URL}${imageUrl}`;
+  // Keep relative paths (e.g. /uploads/...) relative so they are served from
+  // the same origin and go through next.config.js rewrites. This avoids
+  // cross-origin problems when the API is on a different host/port.
   return imageUrl;
 }
 
@@ -86,7 +89,9 @@ export const productsApi = {
     const res = await apiClient.post<ProductImageUploadResponse>('/products/upload-image', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return { ...res.data, imageUrl: resolveProductImageUrl(res.data.imageUrl) };
+    // The API returns a relative path (e.g. /uploads/products/...); keep it
+    // relative so the browser loads it through the web app's same-origin rewrite.
+    return res.data;
   },
 
   update: async (id: string, data: Partial<Product> | Record<string, any>): Promise<Product> => {
