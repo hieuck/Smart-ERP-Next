@@ -55,6 +55,9 @@ const nextConfig = {
       { source: '/health', destination: `${apiUrl}/health` },
       { source: '/status', destination: `${apiUrl}/status` },
       { source: '/socket.io/:path*', destination: `${apiUrl}/socket.io/:path*` },
+      // Proxy uploaded product images through the web origin so they work
+      // regardless of how NEXT_PUBLIC_API_URL is configured.
+      { source: '/uploads/:path*', destination: `${apiUrl}/uploads/:path*` },
     ];
   },
 };

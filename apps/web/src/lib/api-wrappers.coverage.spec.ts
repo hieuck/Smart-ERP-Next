@@ -40,7 +40,7 @@ describe('web api wrapper coverage', () => {
     });
     await expect(productsApi.uploadImage({ name: 'product.png' } as any)).resolves.toEqual({
       filename: 'product.png',
-      imageUrl: 'http://api.test/uploads/products/tenant/product.png',
+      imageUrl: '/uploads/products/tenant/product.png',
       mimeType: 'image/png',
       size: 11,
     });
@@ -74,14 +74,17 @@ describe('web api wrapper coverage', () => {
     expect(mockApiClient.get).toHaveBeenCalledWith('/products/product-1/transactions');
   });
 
-  it('resolves product image URLs without rewriting external or empty values', () => {
+  it('keeps product image URLs relative for same-origin rewrite and preserves external/empty values', () => {
+    // Relative upload paths should stay relative so next.config.js rewrites
+    // proxy them through the web origin (avoids cross-origin API issues).
     expect(resolveProductImageUrl('/uploads/products/tenant/product.png')).toBe(
-      'http://api.test/uploads/products/tenant/product.png',
+      '/uploads/products/tenant/product.png',
     );
+    expect(resolveProductImageUrl('products/local.png')).toBe('products/local.png');
+    // Absolute/data/blob URLs are passed through unchanged.
     expect(resolveProductImageUrl('https://cdn.test/product.png')).toBe('https://cdn.test/product.png');
     expect(resolveProductImageUrl('data:image/png;base64,abc')).toBe('data:image/png;base64,abc');
     expect(resolveProductImageUrl('blob:http://web.test/id')).toBe('blob:http://web.test/id');
-    expect(resolveProductImageUrl('products/local.png')).toBe('products/local.png');
     expect(resolveProductImageUrl('')).toBe('');
     expect(resolveProductImageUrl(null)).toBe('');
   });
