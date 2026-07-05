@@ -1,4 +1,9 @@
-```markdown
+---
+name: smart-erp-next
+description: Repo-specific patterns and workflows for the Smart-ERP-Next JavaScript codebase, including coding conventions, testing patterns, quality gates, observability, i18n, and PWA features.
+license: MIT
+---
+
 # Smart-ERP-Next Development Patterns
 
 > Auto-generated skill from repository analysis
@@ -121,5 +126,3 @@ test('should detect missing i18n keys', () => {
 | Command            | Purpose                                                                 |
 |--------------------|-------------------------------------------------------------------------|
 | /add-quality-gate  | Initiate or update quality gates, observability, i18n, and PWA features |
-
-```
