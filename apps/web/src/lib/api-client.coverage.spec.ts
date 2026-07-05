@@ -26,7 +26,7 @@ jest.mock('axios', () => ({
   create: mockAxios.create,
 }));
 
-import { apiClient, authApi, usersApi } from './api-client';
+import { API_BASE_URL, API_BROWSER_BASE_URL, apiClient, authApi, usersApi } from './api-client';
 
 describe('api-client coverage', () => {
   beforeEach(() => {
@@ -44,7 +44,11 @@ describe('api-client coverage', () => {
 
   it('configures the axios client and attaches auth tokens to requests', () => {
     expect(apiClient).toBe(mockApi);
+    // In the test environment (SSR) the browser base URL falls back to the
+    // absolute API_BASE_URL so server-side calls still work.
+    expect(API_BROWSER_BASE_URL).toBe(API_BASE_URL);
     expect(mockAxios.create).toHaveBeenCalledWith(expect.objectContaining({
+      baseURL: API_BASE_URL,
       headers: expect.objectContaining({
         'Content-Type': 'application/json',
         'X-API-Version': '1',

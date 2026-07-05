@@ -50,6 +50,9 @@ const nextConfig = {
   async rewrites() {
     const apiUrl = process.env.NEXT_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3456';
     return [
+      // Single same-origin proxy for all API calls from the browser. The
+      // /api-gateway prefix avoids collisions with Next.js pages/static files.
+      { source: '/api-gateway/:path*', destination: `${apiUrl}/:path*` },
       { source: '/api/:path*', destination: `${apiUrl}/api/:path*` },
       { source: '/auth/:path*', destination: `${apiUrl}/auth/:path*` },
       { source: '/health', destination: `${apiUrl}/health` },
