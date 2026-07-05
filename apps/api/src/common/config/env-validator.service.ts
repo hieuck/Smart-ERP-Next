@@ -1,8 +1,18 @@
 import { Injectable } from '@nestjs/common';
 
-const DEFAULT_PATTERNS = [
+export const DEFAULT_PATTERNS = [
   'dev-secret', 'change-in-production', 'change_me', 'your-secret',
 ];
+
+export function validateJwtSecret(secret: string | undefined): string[] {
+  const issues: string[] = [];
+  if (!secret || secret.length < 16) {
+    issues.push('JWT_SECRET is missing or too short (must be at least 16 characters)');
+  } else if (DEFAULT_PATTERNS.some((p) => secret.toLowerCase().includes(p))) {
+    issues.push('JWT_SECRET appears to use a default/dev value — set a strong production secret');
+  }
+  return issues;
+}
 
 @Injectable()
 export class EnvValidatorService {
