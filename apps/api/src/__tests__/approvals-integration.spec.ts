@@ -202,14 +202,32 @@ describe('ApprovalsService', () => {
         .mockReturnValueOnce(chainBuilder([mockRequest]))
         .mockReturnValueOnce(chainBuilder(mockChainItems));
 
+      const capturedWhere: any[] = [];
+      const whereMock = jest.fn().mockImplementation((condition) => {
+        capturedWhere.push(condition);
+        return Promise.resolve(undefined);
+      });
+
       (mockDb.update as jest.Mock)
-        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue(undefined) }) })
-        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue(undefined) }) })
-        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue(undefined) }) });
+        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: whereMock }) })
+        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: whereMock }) })
+        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: whereMock }) });
 
       await service.approveStep(tenantId, requestId, approverId);
 
       expect(mockNotifications.notifyApprovalDecision).not.toHaveBeenCalled();
+      // The last approvalRequests update must filter by tenantId + requestId
+      expect(capturedWhere.length).toBeGreaterThanOrEqual(1);
+      const lastWhere = capturedWhere[capturedWhere.length - 1];
+      expect(lastWhere).toEqual(
+        expect.objectContaining({
+          op: 'and',
+          conditions: expect.arrayContaining([
+            expect.objectContaining({ op: 'eq', value: tenantId }),
+            expect.objectContaining({ op: 'eq', value: requestId }),
+          ]),
+        }),
+      );
     });
   });
 
@@ -236,14 +254,32 @@ describe('ApprovalsService', () => {
         .mockReturnValueOnce(chainBuilder([mockRequest]))
         .mockReturnValueOnce(chainBuilder(mockChainItems));
 
+      const capturedWhere: any[] = [];
+      const whereMock = jest.fn().mockImplementation((condition) => {
+        capturedWhere.push(condition);
+        return Promise.resolve(undefined);
+      });
+
       (mockDb.update as jest.Mock)
-        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue(undefined) }) })
-        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: jest.fn().mockResolvedValue(undefined) }) });
+        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: whereMock }) })
+        .mockReturnValueOnce({ set: jest.fn().mockReturnValue({ where: whereMock }) });
 
       await service.rejectStep(tenantId, requestId, approverId, 'Not approved');
 
       expect(mockNotifications.notifyApprovalDecision).toHaveBeenCalledWith(
         tenantId, requestId, 'rejected', 'Request rejected',
+      );
+      // The approvalRequests update must filter by tenantId + requestId
+      expect(capturedWhere.length).toBeGreaterThanOrEqual(1);
+      const lastWhere = capturedWhere[capturedWhere.length - 1];
+      expect(lastWhere).toEqual(
+        expect.objectContaining({
+          op: 'and',
+          conditions: expect.arrayContaining([
+            expect.objectContaining({ op: 'eq', value: tenantId }),
+            expect.objectContaining({ op: 'eq', value: requestId }),
+          ]),
+        }),
       );
     });
   });
