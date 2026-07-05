@@ -156,22 +156,20 @@ test('Configuration files', () => {
     console.log('⚠️  Prettier configuration not found (optional)');
   }
 
-  // Check for flat-config ESLint config in common locations
-  const eslintConfigs = ['eslint.config.mjs', 'eslint.config.js', 'eslint.config.cjs'];
+  // Check for ESLint config in any common location
+  const eslintConfigs = ['.eslintrc.js', '.eslintrc.json', '.eslintrc'];
   const hasEslintConfig = eslintConfigs.some(config => fs.existsSync(config));
 
   if (!hasEslintConfig) {
-    // Check if ESLint flat config exists in app/package directories
+    // Check if ESLint config exists in app directories
     const appEslintConfigs = [
-      'apps/web/eslint.config.mjs',
-      'apps/web/eslint.config.js',
-      'apps/api/eslint.config.mjs',
-      'apps/api/eslint.config.js',
+      'apps/web/.eslintrc.json',
+      'apps/api/.eslintrc.js'
     ];
 
     const hasAppEslintConfig = appEslintConfigs.some(config => fs.existsSync(config));
     if (!hasAppEslintConfig) {
-      console.log('⚠️  ESLint flat configuration not found (optional)');
+      console.log('⚠️  ESLint configuration not found (optional)');
     }
   }
 }, true);

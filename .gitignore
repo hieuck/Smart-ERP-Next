@@ -65,9 +65,6 @@ package-lock.json
 # Coverage (explicit)
 apps/coverage/
 
-# Legacy ESLint configs (repo uses flat config: eslint.config.mjs)
-.eslintrc.*
-
 # Local type-check output artifacts
 type_check_result*.txt
 
