@@ -4,7 +4,10 @@ import { LocalStrategy } from './local.strategy';
 
 describe('common auth strategies coverage', () => {
   it('normalizes jwt payloads and defaults missing roles', async () => {
-    const strategy = new JwtStrategy({ get: jest.fn(() => 'secret') } as any);
+    const strategy = new JwtStrategy({
+      get: jest.fn(),
+      getOrThrow: jest.fn(() => 'a-long-enough-secret-for-tests'),
+    } as any);
 
     await expect(
       strategy.validate({ email: 'user@example.com', sub: 'user-1', tenantId: 'tenant-1' }),
@@ -24,11 +27,11 @@ describe('common auth strategies coverage', () => {
   it('uses the ConfigService JWT secret when no environment secret is present', () => {
     const originalSecret = process.env.JWT_SECRET;
     delete process.env.JWT_SECRET;
-    const config = { get: jest.fn(() => 'config-secret') };
+    const config = { getOrThrow: jest.fn(() => 'config-secret-for-tests') };
 
     new JwtStrategy(config as any);
 
-    expect(config.get).toHaveBeenCalledWith('JWT_SECRET');
+    expect(config.getOrThrow).toHaveBeenCalledWith('JWT_SECRET');
     if (originalSecret === undefined) {
       delete process.env.JWT_SECRET;
     } else {
@@ -39,11 +42,15 @@ describe('common auth strategies coverage', () => {
   it('throws when no JWT secret is configured (fail-fast instead of weak fallback)', () => {
     const originalSecret = process.env.JWT_SECRET;
     delete process.env.JWT_SECRET;
-    const config = { get: jest.fn(() => undefined) };
+    const config = {
+      getOrThrow: jest.fn(() => {
+        throw new Error('JWT_SECRET not found');
+      }),
+    };
 
     expect(() => new JwtStrategy(config as any)).toThrow();
 
-    expect(config.get).toHaveBeenCalledWith('JWT_SECRET');
+    expect(config.getOrThrow).toHaveBeenCalledWith('JWT_SECRET');
     if (originalSecret === undefined) {
       delete process.env.JWT_SECRET;
     } else {
