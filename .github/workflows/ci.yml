@@ -112,14 +112,14 @@ jobs:
       - name: Run API E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
-          JWT_SECRET: ci-e2e-secret
+          JWT_SECRET: ci-e2e-secret-with-adequate-length
           NODE_ENV: test
         run: pnpm test:api:e2e
 
       - name: Start API servers and run Playwright E2E tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
-          JWT_SECRET: ci-e2e-secret
+          JWT_SECRET: ci-e2e-secret-with-adequate-length
           NEXT_PUBLIC_API_URL: http://localhost:3456
           NODE_ENV: test
           LOGIN_RATE_LIMIT: '1000'
