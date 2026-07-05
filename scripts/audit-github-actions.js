@@ -40,9 +40,17 @@ function collectUses(node, file, findings, pathParts = []) {
 }
 
 function findStep(workflow, jobName, stepName) {
-  return workflow.jobs?.[jobName]?.steps?.find(
-    (step) => step.name === stepName,
-  );
+  if (jobName) {
+    return workflow.jobs?.[jobName]?.steps?.find(
+      (step) => step.name === stepName,
+    );
+  }
+  // Search across all jobs when no specific job is provided.
+  for (const job of Object.values(workflow.jobs || {})) {
+    const step = job.steps?.find((s) => s.name === stepName);
+    if (step) return step;
+  }
+  return undefined;
 }
 
 function assert(condition, findings, file, reason) {
@@ -90,11 +98,7 @@ function auditGithubActions() {
     "CI must grant security-events: write for SARIF upload",
   );
 
-  const trivy = findStep(
-    ci,
-    "test-and-build",
-    "Run Trivy vulnerability scanner",
-  );
+  const trivy = findStep(ci, undefined, "Run Trivy vulnerability scanner");
   assert(
     trivy?.id === "trivy",
     findings,
@@ -120,11 +124,7 @@ function auditGithubActions() {
     "Trivy SARIF scan must limit severities so exit-code respects severity filter",
   );
 
-  const uploadSarif = findStep(
-    ci,
-    "test-and-build",
-    "Upload Trivy SARIF report",
-  );
+  const uploadSarif = findStep(ci, undefined, "Upload Trivy SARIF report");
   assert(
     uploadSarif?.uses === "github/codeql-action/upload-sarif@v4",
     findings,
@@ -138,11 +138,7 @@ function auditGithubActions() {
     "Trivy SARIF upload must run with if: always()",
   );
 
-  const enforceTrivy = findStep(
-    ci,
-    "test-and-build",
-    "Enforce Trivy vulnerability gate",
-  );
+  const enforceTrivy = findStep(ci, undefined, "Enforce Trivy vulnerability gate");
   assert(
     Boolean(enforceTrivy),
     findings,
