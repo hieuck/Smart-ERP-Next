@@ -12,6 +12,7 @@ import { ChurnController } from './churn.controller';
 import { PredictiveAnalyticsService } from './predictive-analytics.service';
 import { PredictiveAnalyticsController } from './predictive-analytics.controller';
 import { TelemetryService } from './telemetry.service';
+import { DataContractsController } from './data-contracts.controller';
 
 @Module({
   imports: [ReportsModule],
@@ -30,6 +31,7 @@ import { TelemetryService } from './telemetry.service';
     ClvController,
     ChurnController,
     PredictiveAnalyticsController,
+    DataContractsController,
   ],
   exports: [AnalyticsService, TelemetryService],
 })
