@@ -75,29 +75,12 @@ function auditGithubActions() {
     }
   }
 
-  if (files.includes("node.js.yml")) {
-    const nodejs = readWorkflow("node.js.yml");
-    const hasPnpmSetup = JSON.stringify(nodejs).includes("pnpm/action-setup");
-    if (!hasPnpmSetup) {
-      findings.push({
-        file: "node.js.yml",
-        reason: "Node.js CI must use pnpm/action-setup to match the monorepo package manager",
-      });
-    }
-    const serialized = JSON.stringify(nodejs);
-    const hasNpmCi = /\bnpm\s+(ci|install)\b/.test(serialized);
-    if (hasNpmCi) {
-      findings.push({
-        file: "node.js.yml",
-        reason: "Node.js CI must run pnpm install instead of npm install / npm ci",
-      });
-    }
-  } else {
-    findings.push({
-      file: "node.js.yml",
-      reason: "Node.js CI workflow is missing",
-    });
-  }
+  assert(
+    !files.includes("node.js.yml"),
+    findings,
+    "node.js.yml",
+    "Duplicate Node.js CI workflow must be removed; build/test is consolidated into ci.yml",
+  );
 
   const ci = readWorkflow("ci.yml");
   assert(
