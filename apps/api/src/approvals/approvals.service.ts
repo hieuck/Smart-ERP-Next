@@ -122,7 +122,8 @@ export class ApprovalsService {
         .where(eq(approvalChainItems.id, items[nextIdx].id));
       await this.drizzle.db
         .update(approvalRequests)
-        .set({ currentStepIndex: nextIdx.toString(), updatedAt: new Date() });
+        .set({ currentStepIndex: nextIdx.toString(), updatedAt: new Date() })
+        .where(and(eq(approvalRequests.tenantId, tenantId), eq(approvalRequests.id, requestId)));
     }
   }
 
@@ -154,7 +155,8 @@ export class ApprovalsService {
 
     await this.drizzle.db
       .update(approvalRequests)
-      .set({ status: 'rejected', updatedAt: new Date() });
+      .set({ status: 'rejected', updatedAt: new Date() })
+      .where(and(eq(approvalRequests.tenantId, tenantId), eq(approvalRequests.id, requestId)));
 
     this.notificationsGateway.notifyApprovalDecision(tenantId, requestId, 'rejected', 'Request rejected');
   }
