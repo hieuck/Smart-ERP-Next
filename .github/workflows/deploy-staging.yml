@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Validate staging configuration
         if: vars.STAGING_ENABLED == 'true'
