@@ -177,12 +177,13 @@ export class ExchangeRateService {
   }
 
   private mapRateRow(row: ExchangeRateRow, source: string): ExchangeRate {
+    const fetchedAt = row.fetched_at ? new Date(row.fetched_at) : new Date();
     return {
       fromCurrency: row.from_currency,
       toCurrency: row.to_currency,
       rate: Number(row.rate),
       source,
-      fetchedAt: new Date(row.fetched_at).toISOString(),
+      fetchedAt: Number.isNaN(fetchedAt.getTime()) ? new Date().toISOString() : fetchedAt.toISOString(),
     };
   }
 
