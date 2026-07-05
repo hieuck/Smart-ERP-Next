@@ -29,6 +29,8 @@ module.exports = {
     '^@smart-erp/database/schema$': '<rootDir>/../../packages/database/src/schema/index.ts',
     '^@smart-erp/database/drizzle$': '<rootDir>/../../packages/database/src/drizzle.ts',
     '^@smart-erp/database$': '<rootDir>/../../packages/database/src/index.ts',
+    '^@smart-erp/shared/data-contracts$': '<rootDir>/../../packages/shared/src/data-contracts.ts',
+    '^@smart-erp/shared/data-contract-registry$': '<rootDir>/../../packages/shared/src/data-contract-registry.ts',
     '^@smart-erp/(.*)$': '<rootDir>/../../packages/$1/src/index.ts',
   },
   testPathIgnorePatterns: ['/node_modules/', '/test/'],
