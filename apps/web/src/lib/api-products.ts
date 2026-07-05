@@ -1,4 +1,4 @@
-import { API_BASE_URL, apiClient } from './api-client';
+import { apiClient } from './api-client';
 
 export interface Product {
   id: string;
