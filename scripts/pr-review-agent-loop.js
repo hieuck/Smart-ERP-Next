@@ -257,13 +257,19 @@ function evaluatePR(pr, reviews) {
   };
 }
 
+function escapeForDoubleQuotedShellArg(value) {
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"');
+}
+
 function requestChanges(pr, issues) {
   const body =
     `PR chưa đạt yêu cầu để merge:\n` +
     issues.map((i) => `- ${i}`).join('\n');
   log('ACTION', `Request changes on PR #${pr.number}: ${pr.title}`);
   const result = run(
-    `gh pr review ${pr.number} --request-changes --body "${body.replace(/"/g, '\\"')}"`,
+    `gh pr review ${pr.number} --request-changes --body "${escapeForDoubleQuotedShellArg(body)}"`,
   );
   if (!result.ok) {
     log('ERROR', `Request changes PR #${pr.number} thất bại: ${result.stderr}`);
