@@ -16,6 +16,16 @@
       "import": "./dist/utils/formatters.js",
       "require": "./dist/utils/formatters.cjs"
     },
+    "./data-contracts": {
+      "types": "./dist/data-contracts.d.ts",
+      "import": "./dist/data-contracts.js",
+      "require": "./dist/data-contracts.cjs"
+    },
+    "./data-contract-registry": {
+      "types": "./dist/data-contract-registry.d.ts",
+      "import": "./dist/data-contract-registry.js",
+      "require": "./dist/data-contract-registry.cjs"
+    },
     "./ui/*": {
       "types": "./dist/ui/*.d.ts",
       "import": "./dist/ui/*.js",
