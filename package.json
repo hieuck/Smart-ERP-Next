@@ -27,7 +27,7 @@
     "clean": "node scripts/run-turbo.js clean && remove-items /all node_modules",
     "dev": "node scripts/run-turbo.js dev",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "lint": "node scripts/run-turbo.js lint",
+    "lint": "node scripts/run-turbo.js lint && eslint --version",
     "qa:commit": "node scripts/quality-gate.js commit",
     "qa:release": "node scripts/quality-gate.js release",
     "smoke:release-runtime": "node scripts/release-runtime-smoke.js",

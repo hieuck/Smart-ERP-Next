@@ -3,6 +3,7 @@
   "tagline": "Hệ thống quản trị doanh nghiệp thông minh",
   "dashboard": {
     "title": "Tổng quan",
+    "loading": "Đang tải dữ liệu...",
     "todayRevenue": "Doanh thu hôm nay",
     "todayOrders": "Đơn hàng hôm nay",
     "newCustomers": "Khách hàng mới",
