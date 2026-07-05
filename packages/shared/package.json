@@ -2,34 +2,28 @@
   "name": "@smart-erp/shared",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "default": "./dist/index.js"
     },
     "./utils/formatters": {
       "types": "./dist/utils/formatters.d.ts",
-      "import": "./dist/utils/formatters.js",
-      "require": "./dist/utils/formatters.cjs"
+      "default": "./dist/utils/formatters.js"
     },
     "./data-contracts": {
       "types": "./dist/data-contracts.d.ts",
-      "import": "./dist/data-contracts.js",
-      "require": "./dist/data-contracts.cjs"
+      "default": "./dist/data-contracts.js"
     },
     "./data-contract-registry": {
       "types": "./dist/data-contract-registry.d.ts",
-      "import": "./dist/data-contract-registry.js",
-      "require": "./dist/data-contract-registry.cjs"
+      "default": "./dist/data-contract-registry.js"
     },
     "./ui/*": {
       "types": "./dist/ui/*.d.ts",
-      "import": "./dist/ui/*.js",
-      "require": "./dist/ui/*.cjs"
+      "default": "./dist/ui/*.js"
     }
   },
   "scripts": {
