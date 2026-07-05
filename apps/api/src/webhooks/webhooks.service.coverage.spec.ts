@@ -30,6 +30,10 @@ describe('WebhooksService', () => {
     expect(result.id).toBe('wh-1');
   });
 
+  it('rejects subscriptions with dangerous local URLs to prevent SSRF', async () => {
+    await expect(service.subscribe('t1', 'http://localhost:3456/health', ['order.created'])).rejects.toThrow();
+  });
+
   it('listSubscriptions returns array', async () => {
     mockDb.where.mockResolvedValue([{ id: 'wh-1', active: true }]);
     const result = await service.listSubscriptions('t1');

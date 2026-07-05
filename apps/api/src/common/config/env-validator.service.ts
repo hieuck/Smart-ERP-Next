@@ -26,6 +26,10 @@ export class EnvValidatorService {
 
     for (const [key, description] of Object.entries(required)) {
       const value = process.env[key];
+      if (key === 'JWT_SECRET') {
+        issues.push(...validateJwtSecret(value));
+        continue;
+      }
       if (!value) {
         issues.push(`Missing required env var: ${key} (${description})`);
       } else if (DEFAULT_PATTERNS.some((p) => value.toLowerCase().includes(p))) {
