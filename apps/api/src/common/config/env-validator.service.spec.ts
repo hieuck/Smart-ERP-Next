@@ -13,7 +13,7 @@ describe('EnvValidatorService', () => {
   });
 
   it('passes when all required env vars are set', () => {
-    process.env.JWT_SECRET = 'some-secret';
+    process.env.JWT_SECRET = 'test-some-secret-long-enough';
     process.env.DATABASE_URL = 'postgresql://localhost:5432/db';
     const errors = validator.validate();
     expect(errors).toHaveLength(0);
@@ -23,18 +23,25 @@ describe('EnvValidatorService', () => {
     delete process.env.JWT_SECRET;
     process.env.DATABASE_URL = 'postgresql://localhost:5432/db';
     const errors = validator.validate();
-    expect(errors.some((e) => e.includes('JWT_SECRET'))).toBe(true);
+    expect(errors.some((e) => e.includes('JWT_SECRET') && e.includes('missing'))).toBe(true);
+  });
+
+  it('reports JWT_SECRET that is too short', () => {
+    process.env.JWT_SECRET = 'short';
+    process.env.DATABASE_URL = 'postgresql://localhost:5432/db';
+    const errors = validator.validate();
+    expect(errors.some((e) => e.includes('JWT_SECRET') && e.includes('too short'))).toBe(true);
   });
 
   it('reports missing DATABASE_URL', () => {
-    process.env.JWT_SECRET = 'some-secret';
+    process.env.JWT_SECRET = 'test-some-secret-long-enough';
     delete process.env.DATABASE_URL;
     const errors = validator.validate();
     expect(errors.some((e) => e.includes('DATABASE_URL'))).toBe(true);
   });
 
   it('reports missing API_KEY_HMAC_SECRET', () => {
-    process.env.JWT_SECRET = 'some-secret';
+    process.env.JWT_SECRET = 'test-some-secret-long-enough';
     process.env.DATABASE_URL = 'postgresql://localhost:5432/db';
     delete process.env.API_KEY_HMAC_SECRET;
     const errors = validator.validate();
@@ -57,7 +64,7 @@ describe('EnvValidatorService', () => {
   });
 
   it('accepts production-grade JWT_SECRET', () => {
-    process.env.JWT_SECRET = 'aB3$xK9#mN7@pQ2$rT5*vW8&zC1';
+    process.env.JWT_SECRET = 'test-aB3$xK9#mN7@pQ2$rT5*vW8&zC1';
     process.env.DATABASE_URL = 'postgresql://localhost:5432/db';
     const warnings = validator.validate();
     expect(warnings.some((w) => w.includes('JWT_SECRET') && w.includes('default'))).toBe(false);
