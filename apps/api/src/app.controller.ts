@@ -1,12 +1,25 @@
 import { Controller, Get } from '@nestjs/common';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { db } from '@smart-erp/database';
 import { sql } from '@smart-erp/database/drizzle';
+
+const apiVersion = (() => {
+  try {
+    const pkg = JSON.parse(
+      readFileSync(join(__dirname, '..', 'package.json'), 'utf8'),
+    );
+    return pkg.version || 'unknown';
+  } catch {
+    return 'unknown';
+  }
+})();
 
 @Controller()
 export class AppController {
   @Get()
   getRoot() {
-    return { name: 'Smart ERP Next API', version: '0.3.0' };
+    return { name: 'Smart ERP Next API', version: apiVersion };
   }
 
   @Get('health')
