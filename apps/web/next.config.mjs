@@ -20,7 +20,6 @@ const nextConfig = {
     '@smart-erp/hooks',
     '@smart-erp/utils',
     '@smart-erp/sync',
-    '@smart-erp/ui',
   ],
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
