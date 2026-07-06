@@ -35,6 +35,7 @@ describe('tenant RLS middleware coverage', () => {
     } as any;
     drizzle.db.execute
       .mockResolvedValueOnce({ rows: [{ permissions: ['orders.read'], role: 'admin' }] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] });
 
     await middleware.use(req, {} as any, next);
@@ -45,7 +46,9 @@ describe('tenant RLS middleware coverage', () => {
       sub: 'user-1',
       tenantId: 'tenant-1',
     });
-    expect(drizzle.db.execute).toHaveBeenCalledTimes(2);
+    expect(drizzle.db.execute).toHaveBeenCalledTimes(3);
+    expect(sqlCallParams(drizzle.db.execute.mock.calls[1])).toEqual(['']);
+    expect(sqlCallParams(drizzle.db.execute.mock.calls[2])).toEqual(['tenant-1']);
     expect(next).toHaveBeenCalled();
   });
 
@@ -56,6 +59,7 @@ describe('tenant RLS middleware coverage', () => {
     } as any;
     drizzle.db.execute
       .mockResolvedValueOnce({ rows: [{ permissions: null, role: 'staff' }] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] });
 
     await middleware.use(req, {} as any, next);
@@ -68,11 +72,20 @@ describe('tenant RLS middleware coverage', () => {
   });
 
   it('sets RLS tenant context for unauthenticated tenant-scoped requests', async () => {
-    drizzle.db.execute.mockResolvedValueOnce({ rows: [] });
+    drizzle.db.execute
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
 
     await middleware.use({ headers: { 'x-tenant-id': 'tenant-1' } } as any, {} as any, next);
 
-    expect(drizzle.db.execute).toHaveBeenCalledTimes(1);
+    expect(drizzle.db.execute).toHaveBeenCalledTimes(2);
+    expect(sqlCallParams(drizzle.db.execute.mock.calls[0])).toEqual(['']);
+    expect(sqlCallParams(drizzle.db.execute.mock.calls[1])).toEqual(['tenant-1']);
     expect(next).toHaveBeenCalled();
   });
 });
+
+function sqlCallParams(call: unknown[]): unknown[] {
+  const sql = call[0] as any;
+  return sql?.values ?? [];
+}
