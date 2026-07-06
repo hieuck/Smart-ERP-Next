@@ -31,7 +31,7 @@
     "class-validator": "^0.14.4",
     "compression": "^1.7.4",
     "date-fns": "^3.6.0",
-    "dotenv": "^16.6.1",
+    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "helmet": "^7.2.0",
     "nestjs-i18n": "10.8.4",
