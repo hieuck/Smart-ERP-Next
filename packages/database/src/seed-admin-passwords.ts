@@ -19,8 +19,8 @@ export interface LogSeedAdminCredentialsOptions {
  * Uses 32 bytes from `crypto.randomBytes` encoded as base64url. This keeps the
  * full entropy of the random bytes instead of truncating to a fixed length.
  */
-export function generateAdminPassword(): { password: string; hash: string } {
-  const password = randomBytes(32).toString('base64url');
+export function generateAdminPassword(overridePassword?: string): { password: string; hash: string } {
+  const password = overridePassword ?? randomBytes(32).toString('base64url');
   const hash = bcrypt.hashSync(password, 10);
   return { password, hash };
 }

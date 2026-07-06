@@ -66,8 +66,13 @@ async function seed() {
     const usersToInsert = [];
     const adminCredentials: { email: string; password: string; role: string }[] = [];
 
+    // E2E tests log in with fixed demo credentials. Allow overriding the
+    // generated admin passwords via SEED_ADMIN_PASSWORD while keeping random
+    // passwords the default for non-E2E environments.
+    const overrideAdminPassword = process.env.SEED_ADMIN_PASSWORD;
+
     for (const account of adminAccounts) {
-      const { password, hash } = generateAdminPassword();
+      const { password, hash } = generateAdminPassword(overrideAdminPassword);
       usersToInsert.push({
         tenantId,
         email: account.email,
@@ -96,7 +101,11 @@ async function seed() {
       }
     }
     const users = await db.insert(schema.users).values(usersToInsert).returning();
-    logSeedAdminCredentials(adminCredentials);
+    // When SEED_ADMIN_PASSWORD is set (e.g. E2E), the runner already knows the
+    // credentials; skip the dev/test credential log to avoid leaking passwords.
+    if (!overrideAdminPassword) {
+      logSeedAdminCredentials(adminCredentials);
+    }
     const adminUser = users[0];
 
     // 3. Seed Warehouses

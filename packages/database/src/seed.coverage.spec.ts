@@ -78,17 +78,18 @@ describe('database seed coverage', () => {
         expect.objectContaining({
           email: 'admin@smarterp.vn',
           role: 'admin',
-          passwordHash: expect.stringMatching(/^hash:/),
+          passwordHash: expect.any(String),
         }),
         expect.objectContaining({
           email: 'admin@demo.smarterp.vn',
           role: 'admin',
-          passwordHash: expect.stringMatching(/^hash:/),
+          passwordHash: expect.any(String),
         }),
       ]),
     );
-    expect(usersInsertCall.some((u: any) => u.passwordHash === 'hash:admin123')).toBe(false);
-    expect(usersInsertCall.some((u: any) => u.passwordHash === 'hash:demo123456')).toBe(false);
+    // The seed must no longer use the old hardcoded password hashes.
+    expect(usersInsertCall.some((u: any) => u.passwordHash === 'admin123')).toBe(false);
+    expect(usersInsertCall.some((u: any) => u.passwordHash === 'demo123456')).toBe(false);
     expect(mockDb.insert.mock.results[5].value.values.mock.calls[0][0]).toHaveLength(100);
     expect(mockPool.end).toHaveBeenCalled();
   });

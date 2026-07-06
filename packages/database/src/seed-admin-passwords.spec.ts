@@ -23,6 +23,13 @@ describe('seed-admin-passwords', () => {
       expect(first.password).not.toBe(second.password);
       expect(first.hash).not.toBe(second.hash);
     });
+
+    it('can use an override password when provided', () => {
+      const { password, hash } = generateAdminPassword('e2e-fixed-password');
+
+      expect(password).toBe('e2e-fixed-password');
+      expect(bcrypt.compareSync('e2e-fixed-password', hash)).toBe(true);
+    });
   });
 
   describe('logSeedAdminCredentials', () => {
