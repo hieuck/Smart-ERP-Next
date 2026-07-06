@@ -2,8 +2,8 @@
   "extends": "@smart-erp/tsconfig/react-library.json",
   "compilerOptions": {
     "declaration": true,
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "noEmit": false,
     "outDir": "./dist",
     "rootDir": "./src"
