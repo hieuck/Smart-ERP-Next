@@ -1,0 +1,24 @@
+#!/bin/sh
+# Pre-commit hook: scan staged text files for encoding/BOM/mojibake/line-ending issues.
+# This is a fast local gate. For full quality certification, run: pnpm qa:commit
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+# Build a list of existing files (ignore deletions).
+FILES=""
+for f in $STAGED_FILES; do
+  if [ -f "$f" ]; then
+    FILES="$FILES $f"
+  fi
+done
+
+if [ -z "$FILES" ]; then
+  exit 0
+fi
+
+echo "[pre-commit] Running encoding audit on staged files..."
+node scripts/audit-encoding.js $FILES
+exit $?

@@ -21,6 +21,12 @@ const COMMON_GATES = [
     args: ['audit:i18n-parity'],
   },
   {
+    id: 'encoding',
+    name: 'Audit file encoding, BOM, line endings and mojibake',
+    command: 'pnpm',
+    args: ['audit:encoding'],
+  },
+  {
     id: 'secret-audit',
     name: 'Audit tracked files for high-confidence secrets',
     command: 'pnpm',
