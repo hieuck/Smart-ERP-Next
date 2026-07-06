@@ -10,6 +10,7 @@ import {
   UseGuards,
   Request,
   ParseUUIDPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { LeadsService } from './leads.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
@@ -26,6 +27,15 @@ export class LeadsController {
     return this.leadsService.create(req.user.tenantId, req.user.sub, dto);
   }
 
+  private parsePositiveInt(value: string | undefined, field: string): number | undefined {
+    if (value === undefined || value === '') return undefined;
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      throw new BadRequestException(`${field} must be a positive integer`);
+    }
+    return parsed;
+  }
+
   @Get()
   findAll(
     @Request() req: any,
@@ -37,8 +47,8 @@ export class LeadsController {
     @Query('assignedToId') assignedToId?: string,
   ) {
     return this.leadsService.findAll(req.user.tenantId, {
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
+      page: this.parsePositiveInt(page, 'page'),
+      limit: this.parsePositiveInt(limit, 'limit'),
       search,
       status,
       source,
