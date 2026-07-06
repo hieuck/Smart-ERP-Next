@@ -3,25 +3,62 @@ import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
 
 describe('common auth strategies coverage', () => {
-  it('normalizes jwt payloads and defaults missing roles', async () => {
-    const strategy = new JwtStrategy({
-      get: jest.fn(),
-      getOrThrow: jest.fn(() => 'test-long-enough-secret-for-tests'),
-    } as any);
+  const makeJwtStrategy = (usersService: any) =>
+    new JwtStrategy(
+      {
+        get: jest.fn(),
+        getOrThrow: jest.fn(() => 'test-long-enough-secret-for-tests'),
+      } as any,
+      usersService,
+    );
+
+  it('looks up the user from the database and returns current role/tenant', async () => {
+    const usersService = {
+      findActiveByIdAndTenant: jest.fn().mockResolvedValue({
+        id: 'user-1',
+        email: 'user@example.com',
+        role: 'manager',
+        tenantId: 'tenant-1',
+        isActive: true,
+      }),
+    };
+    const strategy = makeJwtStrategy(usersService);
 
     await expect(
-      strategy.validate({ email: 'user@example.com', sub: 'user-1', tenantId: 'tenant-1' }),
+      strategy.validate({ email: 'stale@example.com', sub: 'user-1', tenantId: 'tenant-1', role: 'admin' }),
     ).resolves.toEqual({
-      email: 'user@example.com',
-      role: 'user',
       sub: 'user-1',
-      tenantId: 'tenant-1',
       userId: 'user-1',
+      email: 'user@example.com',
+      tenantId: 'tenant-1',
+      role: 'manager',
     });
 
+    expect(usersService.findActiveByIdAndTenant).toHaveBeenCalledWith('user-1', 'tenant-1');
+  });
+
+  it('rejects JWT when the user does not exist in the database', async () => {
+    const usersService = {
+      findActiveByIdAndTenant: jest.fn().mockResolvedValue(null),
+    };
+    const strategy = makeJwtStrategy(usersService);
+
     await expect(
-      strategy.validate({ email: 'admin@example.com', role: 'admin', sub: 'user-2', tenantId: 'tenant-1' }),
-    ).resolves.toMatchObject({ role: 'admin', userId: 'user-2' });
+      strategy.validate({ sub: 'deleted-user', tenantId: 'tenant-1' }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('rejects JWT when the user belongs to a different tenant', async () => {
+    const usersService = {
+      findActiveByIdAndTenant: jest.fn().mockResolvedValue(null),
+    };
+    const strategy = makeJwtStrategy(usersService);
+
+    await expect(
+      strategy.validate({ sub: 'user-1', tenantId: 'tenant-2' }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+
+    expect(usersService.findActiveByIdAndTenant).toHaveBeenCalledWith('user-1', 'tenant-2');
   });
 
   it('uses the ConfigService JWT secret when no environment secret is present', () => {

@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, jsonb, boolean } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -9,6 +9,7 @@ export const users = pgTable('users', {
   preferences: jsonb('preferences').$type<{ theme?: 'light' | 'dark'; language?: string }>(),
   passwordHash: text('password_hash'),
   role: text('role').notNull().default('user'), // 'admin', 'manager', 'user'
+  isActive: boolean('is_active').notNull().default(true),
   tenantId: uuid('tenant_id').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
