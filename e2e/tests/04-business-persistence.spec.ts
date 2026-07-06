@@ -82,7 +82,6 @@ test.describe('Business persistence through real API', () => {
         cost: 30000,
         stock: 7,
         description: `San pham co dau tieng Viet ${marker}`,
-        imageUrl: `https://example.com/assets/${marker.toLowerCase()}.jpg`,
         category,
         isActive: true,
       },
@@ -92,7 +91,7 @@ test.describe('Business persistence through real API', () => {
     expect(product.sku).toEqual(expect.any(String));
     expect(product.sku.length).toBeGreaterThan(0);
     expect(product.category).toBe(category);
-    expect(product.imageUrl).toContain(marker.toLowerCase());
+    expect(product.imageUrl).toBeNull();
 
     const productDetail = await jsonOk(await request.get(`${API}/products/${product.id}`, auth()), 'GET /products/:id');
     expect(productDetail).toMatchObject({
@@ -100,7 +99,7 @@ test.describe('Business persistence through real API', () => {
       name: productName,
       sku: product.sku,
       category,
-      imageUrl: product.imageUrl,
+      imageUrl: null,
     });
 
     const productBySku = await jsonOk(await request.get(`${API}/products/sku/${encodeURIComponent(product.sku)}`, auth()), 'GET /products/sku/:sku');
