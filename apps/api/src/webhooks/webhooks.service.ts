@@ -90,10 +90,11 @@ export class WebhooksService {
   private async deliverWebhook(sub: any, payload: WebhookPayload) {
     const MAX_RETRIES = 3;
     const RETRY_DELAYS = [1000, 5000, 30000]; // 1s, 5s, 30s
+    const TIMEOUT_MS = 10_000; // 10 seconds per attempt
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      const start = Date.now();
       try {
-        const start = Date.now();
         const response = await fetch(sub.url, {
           method: 'POST',
           headers: {
@@ -102,15 +103,19 @@ export class WebhooksService {
             'X-Webhook-Event': payload.event,
           },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(TIMEOUT_MS),
         });
 
         await this.logDelivery(sub.id, payload, response.ok ? 'success' : 'failed', response.status, Date.now() - start);
         return;
       } catch (error: any) {
+        const isTimeout = error?.name === 'AbortError' || error?.message?.toLowerCase().includes('timeout');
+        const errorMessage = isTimeout ? 'Webhook delivery timed out' : error.message;
+
         if (attempt < MAX_RETRIES - 1) {
           await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS[attempt]));
         } else {
-          await this.logDelivery(sub.id, payload, 'failed', 0, 0, error.message);
+          await this.logDelivery(sub.id, payload, 'failed', isTimeout ? 504 : 0, Date.now() - start, errorMessage);
         }
       }
     }

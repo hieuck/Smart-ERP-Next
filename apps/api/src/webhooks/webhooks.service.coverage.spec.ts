@@ -72,4 +72,22 @@ describe('WebhooksService', () => {
     await service.dispatch('order.created', 't1', {});
     expect(mockFetch).not.toHaveBeenCalled();
   });
+
+  it('dispatches fail fast when the subscriber does not respond within the timeout', async () => {
+    mockDb.where.mockResolvedValue([{ id: 'wh-1', url: 'https://hook.example.com', events: ['order.created'], active: true, secret: null }]);
+    mockFetch.mockImplementation(() => new Promise((_resolve, reject) => {
+      const error = new Error('The operation was aborted');
+      (error as any).name = 'AbortError';
+      reject(error);
+    }));
+    mockDb.insert.mockReturnValue({ values: jest.fn() });
+
+    await service.dispatch('order.created', 't1', { orderId: 'o-1' });
+
+    expect(mockFetch).toHaveBeenCalledTimes(3); // 3 retries
+    expect(mockFetch).toHaveBeenLastCalledWith(
+      'https://hook.example.com',
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+  }, 15_000);
 });
