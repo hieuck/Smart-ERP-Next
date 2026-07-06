@@ -42,9 +42,16 @@ export class IdempotencyGuard implements CanActivate {
 
     this.pruneExpiredRecords();
 
-    const scope = `${request.method}:${request.originalUrl || request.url || request.path || ''}:${key}`;
+    const user = request.user ?? {};
+    const tenantId = user.tenantId ?? '';
+    const userId = user.userId ?? user.id ?? '';
+    const scope = `${tenantId}:${userId}:${request.method}:${request.originalUrl || request.url || request.path || ''}:${key}`;
     const existing = this.store.get(scope);
     if (existing) {
+      if (existing.statusCode) {
+        response.status(existing.statusCode).json(existing.body);
+        return false;
+      }
       throw new HttpException(
         { success: false, data: null, error: ErrorCode.IDEMPOTENCY_REPLAY },
         HttpStatus.CONFLICT,
