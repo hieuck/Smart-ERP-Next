@@ -49,7 +49,7 @@ const makeInsertChain = () => {
 const createService = () => {
   const usersService = { findByEmail: jest.fn() };
   const jwtService = { sign: jest.fn(() => "signed-token") };
-  const notificationsGateway = { broadcast: jest.fn() };
+  const notificationsGateway = { broadcastToTenant: jest.fn() };
   const i18n = {
     t: jest.fn(
       (key: string, _lang?: string, args?: { field?: string }) =>
@@ -201,7 +201,8 @@ describe("AuthService", () => {
         tenantId: "tenant-1",
       }),
     );
-    expect(notificationsGateway.broadcast).toHaveBeenCalledWith(
+    expect(notificationsGateway.broadcastToTenant).toHaveBeenCalledWith(
+      "tenant-1",
       "user.registered",
       expect.objectContaining({
         email: "owner@example.com",

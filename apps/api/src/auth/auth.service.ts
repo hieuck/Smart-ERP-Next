@@ -128,13 +128,17 @@ export class AuthService {
       })
       .returning();
 
-    this.notificationsGateway.broadcast("user.registered", {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      tenantId: user.tenantId,
-      timestamp: new Date().toISOString(),
-    });
+    this.notificationsGateway.broadcastToTenant(
+      user.tenantId,
+      "user.registered",
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        tenantId: user.tenantId,
+        timestamp: new Date().toISOString(),
+      },
+    );
 
     return this.login(user);
   }
