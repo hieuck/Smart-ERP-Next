@@ -373,8 +373,8 @@ importers:
         specifier: 4.4.0
         version: 4.4.0(dexie@4.4.2)(react@19.2.7)
       i18next:
-        specifier: ^23.16.8
-        version: 23.16.8
+        specifier: ^26.2.0
+        version: 26.3.4(typescript@5.9.3)
       jsbarcode:
         specifier: 3.12.3
         version: 3.12.3
@@ -397,8 +397,8 @@ importers:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
       react-i18next:
-        specifier: ^14.1.3
-        version: 14.1.3(i18next@23.16.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^17.0.8
+        version: 17.0.8(i18next@26.3.4(typescript@5.9.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.3)
       react-icons:
         specifier: 5.7.0
         version: 5.7.0(react@19.2.7)
@@ -5756,8 +5756,13 @@ packages:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
 
-  i18next@23.16.8:
-    resolution: {integrity: sha512-06r/TitrM88Mg5FdUXAKL96dJMzgqLE5dv3ryBAra4KCwD9mJ4ndOTS95ZuymIGoE+2hzfdaMak2X11/es7ZWg==}
+  i18next@26.3.4:
+    resolution: {integrity: sha512-pa7m0d7pBDqGHZxljT+WPFeyFgQ7P7SciPPo1tTqYuO0z4sqADYhwnBESmmGp/wEof1inwdls/k8ZgTg8rxFHA==}
+    peerDependencies:
+      typescript: ^5 || ^6
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
@@ -7610,17 +7615,20 @@ packages:
     peerDependencies:
       react: ^19.2.7
 
-  react-i18next@14.1.3:
-    resolution: {integrity: sha512-wZnpfunU6UIAiJ+bxwOiTmBOAaB14ha97MjOEnLGac2RJ+h/maIYXZuTHlmyqQVX1UVHmU1YDTQ5vxLmwfXTjw==}
+  react-i18next@17.0.8:
+    resolution: {integrity: sha512-0ooKbGLU8JXhe1zwpQUWIeXSgLPOfwJmgheWRIUpcoA0CpyabpGhayjdG+/eA5esC1AQ8h2jWpXjJfzQzeDOCw==}
     peerDependencies:
-      i18next: '>= 23.2.3'
+      i18next: '>= 26.2.0'
       react: '>= 16.8.0'
       react-dom: '*'
       react-native: '*'
+      typescript: ^5 || ^6
     peerDependenciesMeta:
       react-dom:
         optional: true
       react-native:
+        optional: true
+      typescript:
         optional: true
 
   react-icons@5.7.0:
@@ -12919,7 +12927,7 @@ snapshots:
 
   canvg@3.0.11:
     dependencies:
-      '@babel/runtime': 7.29.2
+      '@babel/runtime': 7.29.7
       '@types/raf': 3.4.3
       core-js: 3.49.0
       raf: 3.4.1
@@ -14903,9 +14911,9 @@ snapshots:
 
   human-signals@2.1.0: {}
 
-  i18next@23.16.8:
-    dependencies:
-      '@babel/runtime': 7.29.7
+  i18next@26.3.4(typescript@5.9.3):
+    optionalDependencies:
+      typescript: 5.9.3
 
   iconv-lite@0.6.3:
     dependencies:
@@ -17453,14 +17461,16 @@ snapshots:
       react: 19.2.7
       scheduler: 0.27.0
 
-  react-i18next@14.1.3(i18next@23.16.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  react-i18next@17.0.8(i18next@26.3.4(typescript@5.9.3))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.3):
     dependencies:
       '@babel/runtime': 7.29.7
       html-parse-stringify: 3.0.1
-      i18next: 23.16.8
+      i18next: 26.3.4(typescript@5.9.3)
       react: 19.2.7
+      use-sync-external-store: 1.6.0(react@19.2.7)
     optionalDependencies:
       react-dom: 19.2.7(react@19.2.7)
+      typescript: 5.9.3
 
   react-icons@5.7.0(react@19.2.7):
     dependencies:
