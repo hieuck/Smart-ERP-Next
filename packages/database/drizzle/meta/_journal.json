@@ -43,6 +43,13 @@
       "when": 1782600000000,
       "tag": "0005_add_users_is_active",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1819728000000,
+      "tag": "0006_add_attendance_checkout_coords",
+      "breakpoints": true
     }
   ]
 }

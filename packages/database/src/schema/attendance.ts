@@ -69,9 +69,12 @@ export const attendanceRecords = pgTable(
       enum: ['manual', 'biometric', 'qr', 'gps', 'app'],
     }).default('app'),
 
-    /** Toa do GPS khi check-in (tuong lai) */
+    /** Toa do GPS khi check-in */
     checkInLatitude:  numeric('check_in_latitude',  { precision: 10, scale: 7 }),
     checkInLongitude: numeric('check_in_longitude', { precision: 10, scale: 7 }),
+    /** Toa do GPS khi check-out */
+    checkOutLatitude:  numeric('check_out_latitude',  { precision: 10, scale: 7 }),
+    checkOutLongitude: numeric('check_out_longitude', { precision: 10, scale: 7 }),
 
     /** Trang thai: present | absent | late | half_day | leave */
     status: text('status', {
