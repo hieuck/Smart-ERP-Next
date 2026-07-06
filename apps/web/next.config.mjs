@@ -1,5 +1,16 @@
 /** @type {import('next').NextConfig} */
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3456';
+const API_ORIGIN = (() => {
+  try {
+    return new URL(API_URL).origin;
+  } catch {
+    return 'http://localhost:3456';
+  }
+})();
+const WS_ORIGIN = API_ORIGIN.replace(/^http/, 'ws');
+const WSS_ORIGIN = API_ORIGIN.replace(/^http/, 'wss');
+
 const nextConfig = {
   output: 'standalone',
   transpilePackages: [
@@ -34,7 +45,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' ws: wss: http://localhost:3456 http://127.0.0.1:3456",
+              `connect-src 'self' ws: wss: http://localhost:3456 http://127.0.0.1:3456 ${API_ORIGIN} ${WS_ORIGIN} ${WSS_ORIGIN}`,
               "frame-src 'none'",
               "object-src 'none'",
               "base-uri 'self'",
@@ -48,7 +59,7 @@ const nextConfig = {
     ];
   },
   async rewrites() {
-    const apiUrl = process.env.NEXT_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3456';
+    const apiUrl = process.env.NEXT_API_URL || API_URL;
     return [
       // Single same-origin proxy for all API calls from the browser. The
       // /api-gateway prefix avoids collisions with Next.js pages/static files.
