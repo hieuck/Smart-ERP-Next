@@ -39,9 +39,9 @@ describe('seed-admin-passwords', () => {
       loggerSpy = jest.fn();
     });
 
-    it('logs credentials in non-production environments', () => {
+    it('logs account emails and roles in non-production environments', () => {
       logSeedAdminCredentials(
-        [{ email: 'admin@example.com', password: 'secret', role: 'admin' }],
+        [{ email: 'admin@example.com', role: 'admin' }],
         { nodeEnv: 'development', logger: loggerSpy },
       );
 
@@ -50,9 +50,19 @@ describe('seed-admin-passwords', () => {
       );
     });
 
+    it('does not include plaintext passwords in the log', () => {
+      logSeedAdminCredentials(
+        [{ email: 'admin@example.com', role: 'admin' }],
+        { nodeEnv: 'development', logger: loggerSpy },
+      );
+
+      const allCalls = loggerSpy.mock.calls.map((call: string[]) => call.join(' ')).join(' ');
+      expect(allCalls).not.toContain('secret');
+    });
+
     it('does not log credentials in production', () => {
       logSeedAdminCredentials(
-        [{ email: 'admin@example.com', password: 'secret', role: 'admin' }],
+        [{ email: 'admin@example.com', role: 'admin' }],
         { nodeEnv: 'production', logger: loggerSpy },
       );
 

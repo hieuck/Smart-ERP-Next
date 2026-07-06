@@ -64,7 +64,7 @@ async function seed() {
     ];
 
     const usersToInsert = [];
-    const adminCredentials: { email: string; password: string; role: string }[] = [];
+    const adminCredentials: { email: string; role: string }[] = [];
 
     // E2E tests log in with fixed demo credentials. Allow overriding the
     // generated admin passwords via SEED_ADMIN_PASSWORD while keeping random
@@ -80,7 +80,7 @@ async function seed() {
         role: account.role,
         passwordHash: hash,
       });
-      adminCredentials.push({ email: account.email, password, role: account.role });
+      adminCredentials.push({ email: account.email, role: account.role });
     }
 
     for (let i = 0; i < 3; i++) {

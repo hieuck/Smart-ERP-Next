@@ -3,7 +3,6 @@ import * as bcrypt from 'bcryptjs';
 
 export interface SeedAdminCredential {
   email: string;
-  password: string;
   role: string;
 }
 
@@ -46,9 +45,12 @@ export function logSeedAdminCredentials(
 
   const log = options.logger ?? console.log;
   log('\n⚠️  Seeded admin accounts created with randomly generated passwords:');
-  for (const { email, password, role } of credentials) {
-    log(`   ${role}: ${email} / ${password}`);
+  for (const { email, role } of credentials) {
+    // Do not print the plaintext password to the console. Code scanning tools
+    // flag clear-text logging of credentials, and the password can be rotated
+    // from the database if needed during local development.
+    log(`   ${role}: ${email}`);
   }
-  log('   These credentials are logged only in development/test mode.');
+  log('   Plaintext passwords are intentionally not logged.');
   log('   Rotate them before using this database in production.\n');
 }
