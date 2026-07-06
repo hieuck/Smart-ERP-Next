@@ -33,8 +33,11 @@ describe('DocumentScannerService coverage', () => {
     }));
   });
 
-  it('falls back to local mock scan results for known and unknown hints', async () => {
-    config.get.mockReturnValueOnce(undefined);
+  it('falls back to local mock scan results for known and unknown hints in non-production', async () => {
+    config.get.mockImplementation((key: string) => {
+      if (key === 'NODE_ENV') return 'development';
+      return undefined;
+    });
     jest.spyOn(global as any, 'fetch')
       .mockResolvedValueOnce({ ok: false } as any)
       .mockRejectedValueOnce(new Error('offline'))
@@ -50,5 +53,25 @@ describe('DocumentScannerService coverage', () => {
       type: 'unknown',
       fields: { rawText: expect.objectContaining({ value: 'Unable to recognize document' }) },
     });
+  });
+
+  it('throws in production when the OCR service is unavailable', async () => {
+    config.get.mockImplementation((key: string) => {
+      if (key === 'NODE_ENV') return 'production';
+      return 'https://ocr.test';
+    });
+    jest.spyOn(global as any, 'fetch').mockRejectedValueOnce(new Error('offline'));
+
+    await expect(service.scanDocument('base64', 'invoice')).rejects.toThrow('OCR service unavailable');
+  });
+
+  it('throws in production when the OCR service returns a non-ok response', async () => {
+    config.get.mockImplementation((key: string) => {
+      if (key === 'NODE_ENV') return 'production';
+      return 'https://ocr.test';
+    });
+    jest.spyOn(global as any, 'fetch').mockResolvedValueOnce({ ok: false, status: 503 } as any);
+
+    await expect(service.scanDocument('base64', 'invoice')).rejects.toThrow('OCR service unavailable');
   });
 });
