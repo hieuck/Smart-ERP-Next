@@ -47,7 +47,7 @@ describe('database seed coverage', () => {
     jest.clearAllMocks();
     jest.spyOn(console, 'log').mockImplementation(() => undefined);
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
-    jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    // seed.ts now uses crypto.randomBytes/randomInt for randomness
     returningQueue.length = 0;
     mockDb.insert.mockImplementation(() => makeInsertChain(returningQueue));
   });

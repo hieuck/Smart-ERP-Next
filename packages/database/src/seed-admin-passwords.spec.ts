@@ -9,7 +9,8 @@ describe('seed-admin-passwords', () => {
     it('returns a strong random password and a bcrypt hash', () => {
       const { password, hash } = generateAdminPassword();
 
-      expect(password).toHaveLength(32);
+      // 32 random bytes encoded as base64url => 43 characters.
+      expect(password).toHaveLength(43);
       expect(password).not.toBe('admin123');
       expect(password).not.toBe('demo123456');
       expect(bcrypt.compareSync(password, hash)).toBe(true);
@@ -25,38 +26,35 @@ describe('seed-admin-passwords', () => {
   });
 
   describe('logSeedAdminCredentials', () => {
-    const originalEnv = process.env.NODE_ENV;
-    let consoleSpy: jest.SpyInstance;
+    let loggerSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    });
-
-    afterEach(() => {
-      consoleSpy.mockRestore();
-      process.env.NODE_ENV = originalEnv;
+      loggerSpy = jest.fn();
     });
 
     it('logs credentials in non-production environments', () => {
-      process.env.NODE_ENV = 'development';
+      logSeedAdminCredentials(
+        [{ email: 'admin@example.com', password: 'secret', role: 'admin' }],
+        { nodeEnv: 'development', logger: loggerSpy },
+      );
 
-      logSeedAdminCredentials([
-        { email: 'admin@example.com', password: 'secret', role: 'admin' },
-      ]);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(loggerSpy).toHaveBeenCalledWith(
         expect.stringContaining('admin@example.com'),
       );
     });
 
     it('does not log credentials in production', () => {
-      process.env.NODE_ENV = 'production';
+      logSeedAdminCredentials(
+        [{ email: 'admin@example.com', password: 'secret', role: 'admin' }],
+        { nodeEnv: 'production', logger: loggerSpy },
+      );
 
-      logSeedAdminCredentials([
-        { email: 'admin@example.com', password: 'secret', role: 'admin' },
-      ]);
+      expect(loggerSpy).not.toHaveBeenCalled();
+    });
 
-      expect(consoleSpy).not.toHaveBeenCalled();
+    it('does not log anything when the credentials list is empty', () => {
+      logSeedAdminCredentials([], { nodeEnv: 'development', logger: loggerSpy });
+      expect(loggerSpy).not.toHaveBeenCalled();
     });
   });
 });

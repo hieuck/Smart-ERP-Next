@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import { randomBytes, randomInt } from 'crypto';
 import * as schema from './schema';
 import * as dotenv from 'dotenv';
 import path from 'path';
@@ -13,15 +14,32 @@ const pool = new Pool({
 
 const db = drizzle(pool, { schema });
 
-// Helper functions for fake data
-const randomString = (length = 6) => Math.random().toString(36).substring(2, 2 + length).toUpperCase();
-const randomNumber = (min = 10, max = 1000) => Math.floor(Math.random() * (max - min + 1)) + min;
-const randomElement = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
+// Helper functions for fake data (use crypto instead of Math.random)
+const ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const randomString = (length = 6) => {
+  const bytes = randomBytes(length);
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += ALPHANUMERIC[bytes[i] % ALPHANUMERIC.length];
+  }
+  return result.toUpperCase();
+};
+const randomNumber = (min = 10, max = 1000) => randomInt(min, max + 1);
+const randomElement = <T>(arr: T[]): T => arr[randomInt(0, arr.length)];
 const firstNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Phan', 'Vũ', 'Võ', 'Đặng'];
 const lastNames = ['Anh', 'Bình', 'Châu', 'Dũng', 'Em', 'Phong', 'Giang', 'Hải', 'Linh', 'Minh'];
 const randomName = () => `${randomElement(firstNames)} ${randomElement(lastNames)}`;
 const randomCompany = () => `${randomElement(['Công ty TNHH', 'Tập đoàn', 'Cửa hàng'])} ${randomName()}`;
-const randomEmail = () => `${randomString(5).toLowerCase()}@example.com`;
+
+const usedEmails = new Set<string>();
+const randomEmail = () => {
+  let email: string;
+  do {
+    email = `${randomString(5).toLowerCase()}@example.com`;
+  } while (usedEmails.has(email));
+  usedEmails.add(email);
+  return email;
+};
 
 async function seed() {
   console.log('🌱 Starting Database Seeding (Native JS Version)...');
@@ -62,14 +80,20 @@ async function seed() {
 
     for (let i = 0; i < 3; i++) {
       const { password, hash } = generateAdminPassword();
+      const role = i === 0 ? 'manager' : 'user';
+      const email = randomEmail();
       usersToInsert.push({
         tenantId,
-        email: randomEmail(),
+        email,
         name: randomName(),
-        role: i === 0 ? 'manager' : 'user',
+        role,
         passwordHash: hash,
       });
-      adminCredentials.push({ email: usersToInsert[usersToInsert.length - 1].email, password, role: usersToInsert[usersToInsert.length - 1].role });
+      // Only admin/manager accounts are useful to log as "seed admin credentials".
+      // Regular user accounts are not privileged and should not be printed.
+      if (role === 'manager') {
+        adminCredentials.push({ email, password, role });
+      }
     }
     const users = await db.insert(schema.users).values(usersToInsert).returning();
     logSeedAdminCredentials(adminCredentials);
