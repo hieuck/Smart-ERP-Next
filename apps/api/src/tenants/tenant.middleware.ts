@@ -43,10 +43,13 @@ export class TenantMiddleware implements NestMiddleware {
       };
     }
 
+    // Reset any stale tenant context before applying the current tenant.
+    // Connection pooling means the same connection may have served a different
+    // tenant in the previous request, so we clear the RLS variable first.
+    await this.drizzle.db.execute(sql`SET app.current_tenant_id = ${''}`);
+
     // Set tenant context for RLS (Row Level Security)
-    await this.drizzle.db.execute(
-      sql`SET app.current_tenant_id = ${tenantId}`
-    );
+    await this.drizzle.db.execute(sql`SET app.current_tenant_id = ${tenantId}`);
 
     next();
   }
