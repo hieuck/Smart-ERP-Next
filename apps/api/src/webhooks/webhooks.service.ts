@@ -211,7 +211,11 @@ export class WebhooksService {
     return this.drizzle.db
       .select()
       .from(webhookDeliveryLogs)
-      .where(eq(webhookDeliveryLogs.webhookId, subscriptionId))
+      .innerJoin(webhookSubscriptions, eq(webhookDeliveryLogs.webhookId, webhookSubscriptions.id))
+      .where(and(
+        eq(webhookDeliveryLogs.webhookId, subscriptionId),
+        eq(webhookSubscriptions.tenantId, tenantId),
+      ))
       .orderBy(desc(webhookDeliveryLogs.createdAt))
       .limit(limit);
   }

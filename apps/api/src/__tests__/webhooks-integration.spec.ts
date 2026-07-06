@@ -6,6 +6,7 @@ const mockDb = {
   returning: jest.fn().mockResolvedValue([{ id: 'wh-1', url: 'https://hook.example.com', events: ['order.created'], active: true }]),
   select: jest.fn().mockReturnThis(),
   from: jest.fn().mockReturnThis(),
+  innerJoin: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
   orderBy: jest.fn().mockReturnThis(),
   limit: jest.fn().mockReturnThis(),
@@ -121,6 +122,7 @@ describe('WebhooksService (direct instantiation)', () => {
       const logs = [
         { webhookId: 'sub-1', event: 'order.created', statusCode: '200' },
       ];
+      mockDb.innerJoin.mockReturnThis();
       mockDb.where.mockReturnThis();
       mockDb.orderBy.mockReturnThis();
       mockDb.limit.mockResolvedValue(logs);
@@ -129,6 +131,7 @@ describe('WebhooksService (direct instantiation)', () => {
 
       expect(result).toEqual(logs);
       expect(mockDb.select).toHaveBeenCalled();
+      expect(mockDb.innerJoin).toHaveBeenCalled();
       expect(mockDb.orderBy).toHaveBeenCalled();
       expect(mockDb.limit).toHaveBeenCalled();
     });
