@@ -5,7 +5,7 @@
 
 # Build stage — optimized for Docker layer caching
 ARG CACHEBUST
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apk add --no-cache curl && npm install -g pnpm@10.33.0
@@ -48,7 +48,7 @@ RUN node node_modules/.bin/tsc -p packages/database/tsconfig.json && \
 RUN echo "Cache bust: ${CACHEBUST:-none}" && cd apps/web && rm -rf .next/cache .next/server && node ../../node_modules/.bin/next build
 
 # Runtime stage — based on postgres for embedded database
-FROM postgres:16-alpine
+FROM postgres:18-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production
