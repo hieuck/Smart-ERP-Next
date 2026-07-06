@@ -237,8 +237,8 @@ importers:
         specifier: ^0.45.2
         version: 0.45.2(@types/pg@8.20.0)(expo-sqlite@15.1.4(expo@54.0.34(@babel/core@7.29.7)(graphql@16.8.1)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)(typescript@5.9.3))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.2.7))(react@19.2.7))(pg@8.21.0)
       helmet:
-        specifier: ^7.2.0
-        version: 7.2.0
+        specifier: ^8.2.0
+        version: 8.2.0
       nestjs-i18n:
         specifier: 10.8.4
         version: 10.8.4(@nestjs/common@11.1.27(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.27)(class-validator@0.14.4)(rxjs@7.8.2)
@@ -1926,6 +1926,9 @@ packages:
   '@expo/json-file@10.2.0':
     resolution: {integrity: sha512-S6XzKe3R9GQeHiUPXc3xJjOv2VJhOEwFYf7xdC2z2cUqt3kZJ9mSO877sNQloVdnW/SUCtPY3bexlM7nwq+CAQ==}
 
+  '@expo/json-file@11.0.0':
+    resolution: {integrity: sha512-pHJCETqFL5x5BzNV6cEPwjwuECgGmnl0bNmfHIJ6LM1tlh2eVXi5HEdit3zby/JO/B8Otk5cgcqtJXgvvUat3A==}
+
   '@expo/metro-config@54.0.15':
     resolution: {integrity: sha512-SqIya4VZ9KHM1S9g+xR0A+QKw1Tfs7Gacx6bQNJ98vs4+O7I5+QP5mHZIB0QSZLUV8opiXebHYTiTu+0OAsIUw==}
     peerDependencies:
@@ -1937,12 +1940,12 @@ packages:
   '@expo/metro@54.2.0':
     resolution: {integrity: sha512-h68TNZPGsk6swMmLm9nRSnE2UXm48rWwgcbtAHVMikXvbxdS41NDHHeqg1rcQ9AbznDRp6SQVC2MVpDnsRKU1w==}
 
-  '@expo/osascript@2.6.0':
-    resolution: {integrity: sha512-QvqDBlJXa8CS2vRORJ4wEflY1m0vVI07uSJdIRgBrLxRPBcsrXxrtU7+wXRXMqfq9zLwNP9XbvRsXF2omoDylg==}
+  '@expo/osascript@2.7.0':
+    resolution: {integrity: sha512-wKIXL8UtbuX4KwavPasIW3CUcgTbYfjzLcgUhjyKUAYDEqMaf6gmU1bqz3ffBPTokmX+G8/vFG1ZuI9etQWukA==}
     engines: {node: '>=12'}
 
-  '@expo/package-manager@1.12.1':
-    resolution: {integrity: sha512-fQLiFAcFRWF53mtuLK32SUJQ1ahhrTcBZPZPedYTiUT5ha5FF+UO6bPtCc0Y/hgj0/m3HCGBAuSHjbg2kI9oPQ==}
+  '@expo/package-manager@1.13.0':
+    resolution: {integrity: sha512-s3W3eZafJDEyVL7W/jxj2Nz3eONKxSCU604S5xj8ijrVaRz83x0DnZznLf/UXQEI1w+FyibH68nHeQyk767b1A==}
 
   '@expo/plist@0.4.9':
     resolution: {integrity: sha512-MPVpmKGfnQEnrCzgxuXcmPP/y/t6AVm+DcSb2Myp21LKWv1N3l8uFxMggesfF4ixAxkRlGmMMx9GyDC9M+XklQ==}
@@ -3990,8 +3993,8 @@ packages:
   brace-expansion@1.1.14:
     resolution: {integrity: sha512-MWPGfDxnyzKU7rNOW9SP/c50vi3xrmrua/+6hfPbCS2ABNWfx24vPidzvC7krjU/RTo235sV776ymlsMtGKj8g==}
 
-  brace-expansion@2.1.0:
-    resolution: {integrity: sha512-TN1kCZAgdgweJhWWpgKYrQaMNHcDULHkWwQIspdtjV4Y5aurRdZpjAqn6yX3FPqTA9ngHCc4hJxMAMgGfve85w==}
+  brace-expansion@2.1.1:
+    resolution: {integrity: sha512-WR1cURNjuvBLMZBMbqM0UoE+WAfdUcEV1ccD8PVBVOI+Z3ND4+SZbN8RsfT2bMuG1qwz5RFvPukSZm5fF2D5eA==}
 
   brace-expansion@5.0.7:
     resolution: {integrity: sha512-7oFy703dxfY3/NLxC1fh2SUCQ0H9rmAY+5EpDVfXjUTTs+HEwR2nYaqLv+GWcTsumwxPfiz6CzCNkwXwBUwqCA==}
@@ -4811,6 +4814,9 @@ packages:
 
   es-module-lexer@2.2.0:
     resolution: {integrity: sha512-3lGxdTXCLfe1MYfTz1y2ksAAUM4NAOP6rPEjxGJVKO7TZ5+tvHCaQWGpC4Y3IXvW3ece0Cz1cIP4FWBxOnGCTQ==}
+
+  es-module-lexer@2.3.0:
+    resolution: {integrity: sha512-KLdwQm2NvGLDkQDCGvmiQrhkd0JbMzXthwQAUgWjQuQdBLFa3eiBP5arXZyA+f8x+x7OXgud6bq2rxjGtHV2tw==}
 
   es-object-atoms@1.1.2:
     resolution: {integrity: sha512-HWcBoN6NileqtSydK2FqHbS/LoDd2pqrnQHLyJzBj4kOp/ky2MWMN694xOfkK8/SnUsW2DH7EfyVlydKCsm1Zw==}
@@ -5659,9 +5665,9 @@ packages:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
 
-  helmet@7.2.0:
-    resolution: {integrity: sha512-ZRiwvN089JfMXokizgqEPXsl2Guk094yExfoDXR0cBYWxtBbaSww/w+vT4WEJsBW2iTUi1GgZ6swmoug3Oy4Xw==}
-    engines: {node: '>=16.0.0'}
+  helmet@8.2.0:
+    resolution: {integrity: sha512-DRgTIUgnWcJ62KyarxxziuqYxKGnR6Rgg19BlbucN/dpmJbl1XOit6qvoOX0ZT+HhWe5OUVhU/a1zpGyc1xA0Q==}
+    engines: {node: '>=18.0.0'}
 
   hermes-estree@0.25.1:
     resolution: {integrity: sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw==}
@@ -7299,6 +7305,10 @@ packages:
 
   picomatch@4.0.4:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
+    engines: {node: '>=12'}
+
+  picomatch@4.0.5:
+    resolution: {integrity: sha512-RvwwcruNjI1ncT5xRakeyS9Lf8lcItv34KD+aif+VH9kduAyfYBipGh12274xtenIPZ119/R9BdTBa8gAwSh0A==}
     engines: {node: '>=12'}
 
   pify@2.3.0:
@@ -10108,8 +10118,8 @@ snapshots:
       '@expo/json-file': 10.2.0
       '@expo/metro': 54.2.0
       '@expo/metro-config': 54.0.15(expo@54.0.34(@babel/core@7.29.7)(graphql@16.8.1)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)(typescript@5.9.3))
-      '@expo/osascript': 2.6.0
-      '@expo/package-manager': 1.12.1
+      '@expo/osascript': 2.7.0
+      '@expo/package-manager': 1.13.0
       '@expo/plist': 0.4.9
       '@expo/prebuild-config': 54.0.8(expo@54.0.34(@babel/core@7.29.7)(graphql@16.8.1)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)(typescript@5.9.3))(typescript@5.9.3)
       '@expo/schema-utils': 0.1.8
@@ -10140,7 +10150,7 @@ snapshots:
       node-forge: 1.4.0
       npm-package-arg: 11.0.3
       ora: 3.4.0
-      picomatch: 4.0.4
+      picomatch: 4.0.5
       pretty-bytes: 5.6.0
       pretty-format: 29.7.0
       progress: 2.0.3
@@ -10289,6 +10299,12 @@ snapshots:
       json5: 2.2.3
     optional: true
 
+  '@expo/json-file@11.0.0':
+    dependencies:
+      '@babel/code-frame': 7.29.7
+      json5: 2.2.3
+    optional: true
+
   '@expo/metro-config@54.0.15(expo@54.0.34(@babel/core@7.29.7)(graphql@16.8.1)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)(typescript@5.9.3))':
     dependencies:
       '@babel/code-frame': 7.29.7
@@ -10309,7 +10325,7 @@ snapshots:
       hermes-parser: 0.29.1
       jsc-safe-url: 0.2.4
       lightningcss: 1.32.0
-      picomatch: 4.0.4
+      picomatch: 4.0.5
       postcss: 8.4.49
       resolve-from: 5.0.0
     optionalDependencies:
@@ -10342,14 +10358,14 @@ snapshots:
       - utf-8-validate
     optional: true
 
-  '@expo/osascript@2.6.0':
+  '@expo/osascript@2.7.0':
     dependencies:
       '@expo/spawn-async': 1.8.0
     optional: true
 
-  '@expo/package-manager@1.12.1':
+  '@expo/package-manager@1.13.0':
     dependencies:
-      '@expo/json-file': 10.2.0
+      '@expo/json-file': 11.0.0
       '@expo/spawn-async': 1.8.0
       chalk: 4.1.2
       npm-package-arg: 11.0.3
@@ -12726,7 +12742,7 @@ snapshots:
       balanced-match: 1.0.2
       concat-map: 0.0.1
 
-  brace-expansion@2.1.0:
+  brace-expansion@2.1.1:
     dependencies:
       balanced-match: 1.0.2
     optional: true
@@ -13532,6 +13548,8 @@ snapshots:
       math-intrinsics: 1.1.0
 
   es-module-lexer@2.2.0: {}
+
+  es-module-lexer@2.3.0: {}
 
   es-object-atoms@1.1.2:
     dependencies:
@@ -14707,7 +14725,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  helmet@7.2.0: {}
+  helmet@8.2.0: {}
 
   hermes-estree@0.25.1: {}
 
@@ -15235,7 +15253,7 @@ snapshots:
       jest-regex-util: 30.4.0
       jest-util: 30.4.1
       jest-worker: 30.4.1
-      picomatch: 4.0.4
+      picomatch: 4.0.5
       walker: 1.0.8
     optionalDependencies:
       fsevents: 2.3.3
@@ -16586,7 +16604,7 @@ snapshots:
 
   minimatch@9.0.9:
     dependencies:
-      brace-expansion: 2.1.0
+      brace-expansion: 2.1.1
     optional: true
 
   minimist@1.2.8: {}
@@ -17028,6 +17046,9 @@ snapshots:
   picomatch@2.3.2: {}
 
   picomatch@4.0.4: {}
+
+  picomatch@4.0.5:
+    optional: true
 
   pify@2.3.0: {}
 
@@ -18261,7 +18282,7 @@ snapshots:
 
   ts-declaration-location@1.0.7(typescript@5.9.3):
     dependencies:
-      picomatch: 4.0.4
+      picomatch: 4.0.5
       typescript: 5.9.3
     optional: true
 
@@ -18723,7 +18744,7 @@ snapshots:
       browserslist: 4.28.4
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.24.1
-      es-module-lexer: 2.2.0
+      es-module-lexer: 2.3.0
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
