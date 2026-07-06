@@ -215,6 +215,7 @@ jobs:
       - name: Apply database migrations + seed
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
+          SEED_ADMIN_PASSWORD: admin123
         run: |
           cd packages/database && pnpm exec drizzle-kit migrate
           cd ../.. && npx tsx apps/api/src/common/seeds/main.seed.ts
@@ -230,6 +231,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/smart_erp_test
           JWT_SECRET: ci-e2e-secret-with-adequate-length
+          SEED_ADMIN_PASSWORD: admin123
           NEXT_PUBLIC_API_URL: http://localhost:3456
           NODE_ENV: test
           LOGIN_RATE_LIMIT: '1000'
