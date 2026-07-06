@@ -1,15 +1,23 @@
 import { ExecutionContext, HttpException } from '@nestjs/common';
 import { IdempotencyGuard } from './idempotency.guard';
 
-function createContext(method: string, url: string, key?: string): ExecutionContext {
+function createContext(
+  method: string,
+  url: string,
+  key?: string,
+  tenantId = 'tenant-1',
+  userId = 'user-1',
+): ExecutionContext {
   const request = {
     method,
     originalUrl: url,
     url,
     headers: key ? { 'idempotency-key': key } : {},
+    user: { tenantId, userId },
   };
   const response = {
     statusCode: 201,
+    status: jest.fn().mockReturnThis(),
     json: jest.fn(),
   };
 
@@ -59,5 +67,34 @@ describe('IdempotencyGuard', () => {
     expect(guard.canActivate(createContext('POST', '/orders', 'new-key'))).toBe(true);
 
     expect(guard.canActivate(createContext('POST', '/orders', 'old-key'))).toBe(true);
+  });
+
+  it('does not collide when different tenants use the same idempotency key', () => {
+    const guard = new IdempotencyGuard();
+
+    expect(guard.canActivate(createContext('POST', '/orders', 'same-key', 'tenant-a'))).toBe(true);
+    expect(guard.canActivate(createContext('POST', '/orders', 'same-key', 'tenant-b'))).toBe(true);
+  });
+
+  it('does not collide when different users in the same tenant use the same idempotency key', () => {
+    const guard = new IdempotencyGuard();
+
+    expect(guard.canActivate(createContext('POST', '/orders', 'same-key', 'tenant-a', 'user-a'))).toBe(true);
+    expect(guard.canActivate(createContext('POST', '/orders', 'same-key', 'tenant-a', 'user-b'))).toBe(true);
+  });
+
+  it('returns the cached response body on replay instead of throwing a generic error', () => {
+    const guard = new IdempotencyGuard();
+    const firstContext = createContext('POST', '/orders', 'replay-key');
+
+    expect(guard.canActivate(firstContext)).toBe(true);
+    (firstContext.switchToHttp().getResponse() as any).json({ id: 'order-1' });
+
+    const replayContext = createContext('POST', '/orders', 'replay-key');
+    expect(guard.canActivate(replayContext)).toBe(false);
+
+    const replayResponse = replayContext.switchToHttp().getResponse() as any;
+    expect(replayResponse.status).toHaveBeenCalledWith(201);
+    expect(replayResponse.json).toHaveBeenCalledWith({ id: 'order-1' });
   });
 });
