@@ -47,7 +47,7 @@ describe('database seed coverage', () => {
     jest.clearAllMocks();
     jest.spyOn(console, 'log').mockImplementation(() => undefined);
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
-    jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    // seed.ts now uses crypto.randomBytes/randomInt for randomness
     returningQueue.length = 0;
     mockDb.insert.mockImplementation(() => makeInsertChain(returningQueue));
   });
@@ -72,10 +72,24 @@ describe('database seed coverage', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(mockDb.insert).toHaveBeenCalledTimes(6);
-    expect(mockDb.insert.mock.results[1].value.values).toHaveBeenCalledWith(expect.arrayContaining([
-      expect.objectContaining({ email: 'admin@smarterp.vn', passwordHash: 'hash:admin123' }),
-      expect.objectContaining({ email: 'admin@demo.smarterp.vn', passwordHash: 'hash:demo123456' }),
-    ]));
+    const usersInsertCall = mockDb.insert.mock.results[1].value.values.mock.calls[0][0];
+    expect(usersInsertCall).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          email: 'admin@smarterp.vn',
+          role: 'admin',
+          passwordHash: expect.any(String),
+        }),
+        expect.objectContaining({
+          email: 'admin@demo.smarterp.vn',
+          role: 'admin',
+          passwordHash: expect.any(String),
+        }),
+      ]),
+    );
+    // The seed must no longer use the old hardcoded password hashes.
+    expect(usersInsertCall.some((u: any) => u.passwordHash === 'admin123')).toBe(false);
+    expect(usersInsertCall.some((u: any) => u.passwordHash === 'demo123456')).toBe(false);
     expect(mockDb.insert.mock.results[5].value.values.mock.calls[0][0]).toHaveLength(100);
     expect(mockPool.end).toHaveBeenCalled();
   });

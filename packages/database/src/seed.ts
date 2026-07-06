@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import { randomBytes, randomInt } from 'crypto';
 import * as schema from './schema';
 import * as dotenv from 'dotenv';
 import path from 'path';
@@ -13,15 +14,33 @@ const pool = new Pool({
 
 const db = drizzle(pool, { schema });
 
-// Helper functions for fake data
-const randomString = (length = 6) => Math.random().toString(36).substring(2, 2 + length).toUpperCase();
-const randomNumber = (min = 10, max = 1000) => Math.floor(Math.random() * (max - min + 1)) + min;
-const randomElement = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
+// Helper functions for fake data (use crypto instead of Math.random)
+const ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const randomString = (length = 6) => {
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    // Use randomInt for an unbiased pick from the alphabet (CodeQL flags
+    // modulo on cryptographically secure random bytes as biased).
+    result += ALPHANUMERIC[randomInt(0, ALPHANUMERIC.length)];
+  }
+  return result.toUpperCase();
+};
+const randomNumber = (min = 10, max = 1000) => randomInt(min, max + 1);
+const randomElement = <T>(arr: T[]): T => arr[randomInt(0, arr.length)];
 const firstNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Phan', 'Vũ', 'Võ', 'Đặng'];
 const lastNames = ['Anh', 'Bình', 'Châu', 'Dũng', 'Em', 'Phong', 'Giang', 'Hải', 'Linh', 'Minh'];
 const randomName = () => `${randomElement(firstNames)} ${randomElement(lastNames)}`;
 const randomCompany = () => `${randomElement(['Công ty TNHH', 'Tập đoàn', 'Cửa hàng'])} ${randomName()}`;
-const randomEmail = () => `${randomString(5).toLowerCase()}@example.com`;
+
+const usedEmails = new Set<string>();
+const randomEmail = () => {
+  let email: string;
+  do {
+    email = `${randomString(5).toLowerCase()}@example.com`;
+  } while (usedEmails.has(email));
+  usedEmails.add(email);
+  return email;
+};
 
 async function seed() {
   console.log('🌱 Starting Database Seeding (Native JS Version)...');
@@ -37,49 +56,57 @@ async function seed() {
 
     // 2. Seed Users
     console.log('Seeding Users...');
-    const bcrypt = require('bcryptjs');
-    const adminHash = bcrypt.hashSync('admin123', 10);
-    const demoHash = bcrypt.hashSync('demo123456', 10);
+    const { generateAdminPassword, logSeedAdminCredentials } = require('./seed-admin-passwords');
+
+    const adminAccounts = [
+      { email: 'admin@smarterp.vn', name: 'E2E Admin User', role: 'admin' },
+      { email: 'admin@demo.smarterp.vn', name: 'Demo Admin User', role: 'admin' },
+      { email: 'admin@demo.vn', name: 'Original Admin User', role: 'admin' },
+    ];
 
     const usersToInsert = [];
-    
-    // Seed admin@smarterp.vn for E2E
-    usersToInsert.push({
-      tenantId,
-      email: 'admin@smarterp.vn',
-      name: 'E2E Admin User',
-      role: 'admin',
-      passwordHash: adminHash,
-    });
+    const adminCredentials: { email: string; role: string }[] = [];
 
-    // Seed admin@demo.smarterp.vn for UI Demo
-    usersToInsert.push({
-      tenantId,
-      email: 'admin@demo.smarterp.vn',
-      name: 'Demo Admin User',
-      role: 'admin',
-      passwordHash: demoHash,
-    });
+    // E2E tests log in with fixed demo credentials. Allow overriding the
+    // generated admin passwords via SEED_ADMIN_PASSWORD while keeping random
+    // passwords the default for non-E2E environments.
+    const overrideAdminPassword = process.env.SEED_ADMIN_PASSWORD;
 
-    // Seed admin@demo.vn for original default
-    usersToInsert.push({
-      tenantId,
-      email: 'admin@demo.vn',
-      name: 'Original Admin User',
-      role: 'admin',
-      passwordHash: adminHash,
-    });
-
-    for (let i = 0; i < 3; i++) {
+    for (const account of adminAccounts) {
+      const { password, hash } = generateAdminPassword(overrideAdminPassword);
       usersToInsert.push({
         tenantId,
-        email: randomEmail(),
-        name: randomName(),
-        role: i === 0 ? 'manager' : 'user',
-        passwordHash: adminHash,
+        email: account.email,
+        name: account.name,
+        role: account.role,
+        passwordHash: hash,
       });
+      adminCredentials.push({ email: account.email, role: account.role });
+    }
+
+    for (let i = 0; i < 3; i++) {
+      const { password, hash } = generateAdminPassword();
+      const role = i === 0 ? 'manager' : 'user';
+      const email = randomEmail();
+      usersToInsert.push({
+        tenantId,
+        email,
+        name: randomName(),
+        role,
+        passwordHash: hash,
+      });
+      // Only admin/manager accounts are useful to log as "seed admin credentials".
+      // Regular user accounts are not privileged and should not be printed.
+      if (role === 'manager') {
+        adminCredentials.push({ email, password, role });
+      }
     }
     const users = await db.insert(schema.users).values(usersToInsert).returning();
+    // When SEED_ADMIN_PASSWORD is set (e.g. E2E), the runner already knows the
+    // credentials; skip the dev/test credential log to avoid leaking passwords.
+    if (!overrideAdminPassword) {
+      logSeedAdminCredentials(adminCredentials);
+    }
     const adminUser = users[0];
 
     // 3. Seed Warehouses
