@@ -4,7 +4,7 @@
     "idb": "^8.0.3"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "main": "./src/index.ts",
   "name": "@smart-erp/sync",
