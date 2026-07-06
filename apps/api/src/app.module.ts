@@ -11,6 +11,7 @@ import { SlowQueryLoggerInterceptor } from './common/interceptors/slow-query-log
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { RequestTimeoutMiddleware } from './common/middleware/request-timeout.middleware';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import { parsePositiveRateLimit } from './common/utils/parse-rate-limit';
 import { DefaultApiVersionMiddleware } from './common/middleware/default-api-version.middleware';
 import { db } from '@smart-erp/database';
 import { DRIZZLE } from './common/drizzle.decorator';
@@ -33,7 +34,7 @@ import { ExportModule } from './exports/export.module';
 @Module({
   imports: [
     LoggerModule,
-    ThrottlerModule.forRoot([{ name: 'global', ttl: 60000, limit: parseInt(process.env.GLOBAL_RATE_LIMIT || '200', 10) }]),
+    ThrottlerModule.forRoot([{ name: 'global', ttl: 60000, limit: parsePositiveRateLimit(process.env.GLOBAL_RATE_LIMIT, 200) }]),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     I18nModule,
     // Domain modules
