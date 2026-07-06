@@ -255,7 +255,7 @@ describe('ECommerceService integration', () => {
         .mockResolvedValueOnce({ products: [{ id: 'p1' }, { id: 'p2' }], pagination: { has_more: true } })
         .mockResolvedValueOnce({ products: [{ id: 'p3' }], pagination: { has_more: false } });
 
-      const result = await service.syncTikTokShopProducts('tt-store');
+      const result = await service.syncTikTokShopProducts('tt-store', 't1');
       expect(result).toBe(3);
       expect(mockTikTokClient.getProducts).toHaveBeenCalledTimes(2);
     });
@@ -266,7 +266,7 @@ describe('ECommerceService integration', () => {
         orders: [{ order_id: 'o1' }], pagination: { has_more: false },
       });
 
-      const result = await service.syncTikTokShopOrders('tt-store', '2025-01-01');
+      const result = await service.syncTikTokShopOrders('tt-store', 't1', '2025-01-01');
       expect(result).toBe(1);
       expect(mockTikTokClient.getOrders).toHaveBeenCalledWith('2025-01-01', 1, 100);
     });
@@ -279,10 +279,10 @@ describe('ECommerceService integration', () => {
       mockAmazonClient.getProducts.mockResolvedValue([{ asin: 'a1' }, { asin: 'a2' }]);
       mockAmazonClient.getOrders.mockResolvedValue([{ AmazonOrderId: 'ao1' }]);
 
-      const prodResult = await service.syncAmazonProducts('am-store');
+      const prodResult = await service.syncAmazonProducts('am-store', 't1');
       expect(prodResult).toBe(2);
 
-      const ordResult = await service.syncAmazonOrders('am-store');
+      const ordResult = await service.syncAmazonOrders('am-store', 't1');
       expect(ordResult).toBe(1);
     });
 
@@ -292,7 +292,7 @@ describe('ECommerceService integration', () => {
         .mockResolvedValueOnce({ products: [{ id: 'sp1' }], pagination: { hasNext: true } })
         .mockResolvedValueOnce({ products: [{ id: 'sp2' }, { id: 'sp3' }], pagination: { hasNext: false } });
 
-      const result = await service.syncShopeeProducts('sp-store');
+      const result = await service.syncShopeeProducts('sp-store', 't1');
       expect(result).toBe(3);
       expect(mockShopeeClient.getProducts).toHaveBeenCalledTimes(2);
     });
@@ -303,7 +303,7 @@ describe('ECommerceService integration', () => {
         orders: [{ orderSn: 'so1' }], pagination: { hasMore: false },
       });
 
-      const result = await service.syncShopeeOrders('sp-store', '2025-01-01');
+      const result = await service.syncShopeeOrders('sp-store', 't1', '2025-01-01');
       expect(result).toBe(1);
       expect(mockShopeeClient.getOrders).toHaveBeenCalledWith('2025-01-01', 1, 50);
     });
@@ -316,10 +316,10 @@ describe('ECommerceService integration', () => {
       mockEbayClient.getProducts.mockResolvedValue([{ itemId: 'eb1' }]);
       mockEbayClient.getOrders.mockResolvedValue([{ orderId: 'eo1' }]);
 
-      const prodResult = await service.syncEbayProducts('eb-store');
+      const prodResult = await service.syncEbayProducts('eb-store', 't1');
       expect(prodResult).toBe(1);
 
-      const ordResult = await service.syncEbayOrders('eb-store');
+      const ordResult = await service.syncEbayOrders('eb-store', 't1');
       expect(ordResult).toBe(1);
     });
   });
