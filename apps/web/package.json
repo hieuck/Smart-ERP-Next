@@ -11,7 +11,7 @@
     "date-fns": "4.1.0",
     "dexie": "4.4.2",
     "dexie-react-hooks": "4.4.0",
-    "i18next": "^23.16.8",
+    "i18next": "^26.2.0",
     "jsbarcode": "3.12.3",
     "jspdf": "4.2.1",
     "jspdf-autotable": "5.0.7",
