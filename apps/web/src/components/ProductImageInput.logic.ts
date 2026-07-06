@@ -7,3 +7,19 @@ export function validateProductImageFile(file?: Pick<File, 'size' | 'type'> | nu
   if (file.size > PRODUCT_IMAGE_MAX_BYTES) return 'Ảnh phải nhỏ hơn 5MB.';
   return '';
 }
+
+export function validateProductImageUrl(url?: string | null): string {
+  if (!url) return '';
+
+  // Allow absolute HTTP(S) URLs and protocol-relative URLs.
+  if (/^https?:\/\//i.test(url) || /^\/\//i.test(url)) {
+    return '';
+  }
+
+  // Allow same-origin relative paths.
+  if (url.startsWith('/')) {
+    return '';
+  }
+
+  return 'URL ảnh không hợp lệ.';
+}
