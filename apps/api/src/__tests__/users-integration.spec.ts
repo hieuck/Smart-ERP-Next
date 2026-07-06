@@ -37,23 +37,32 @@ describe('UsersService (direct instantiation)', () => {
 
   describe('create', () => {
     it('throws BadRequestException when tenantId is missing', async () => {
-      await expect(service.create({ email: 'test@test.com' } as any))
+      await expect(service.create({ email: 'test@test.com', password: 'secret123' } as any))
         .rejects.toThrow('tenantId is required');
     });
 
     it('throws ConflictException when email already exists', async () => {
       (db as any).then.mockImplementation((resolve: any) => resolve([{ id: '1' }]));
-      await expect(service.create({ email: 'dup@test.com', tenantId: 't1' } as any))
+      await expect(service.create({ email: 'dup@test.com', tenantId: 't1', password: 'secret123' } as any))
         .rejects.toThrow('Email already in use');
     });
 
+    it('rejects supplied passwordHash', async () => {
+      await expect(
+        service.create({ email: 'new@test.com', tenantId: 't1', password: 'secret123', passwordHash: 'known-hash' } as any),
+      ).rejects.toThrow('passwordHash is not allowed');
+    });
+
     it('creates and returns a new user', async () => {
-      const dto = { email: 'new@test.com', name: 'New User', tenantId: 't1' } as any;
+      const dto = { email: 'new@test.com', name: 'New User', tenantId: 't1', password: 'secret123' } as any;
       const expected = { id: 'uid-1', email: 'new@test.com', name: 'New User', tenantId: 't1', role: 'user' };
       (db as any).returning.mockResolvedValue([expected]);
 
       const result = await service.create(dto);
       expect(result).toEqual(expected);
+      expect((db as any).insert.mock.results[0].value.values).toHaveBeenCalledWith(
+        expect.objectContaining({ passwordHash: expect.any(String) }),
+      );
     });
   });
 
