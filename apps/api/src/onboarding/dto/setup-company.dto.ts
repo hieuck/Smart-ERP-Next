@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsIn } from 'class-validator';
 
 export class SetupCompanyDto {
   @IsString() @IsNotEmpty() name: string;
@@ -9,5 +9,7 @@ export class SetupCompanyDto {
 
   @IsString() @IsOptional() phone?: string;
 
-  @IsString() @IsNotEmpty() industry: 'retail' | 'fnb' | 'service';
+  @IsIn(['retail', 'fnb', 'service'])
+  @IsString() @IsNotEmpty()
+  industry: 'retail' | 'fnb' | 'service';
 }
