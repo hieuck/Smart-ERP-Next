@@ -76,6 +76,24 @@ jobs:
       - name: Run commit quality gate
         run: pnpm qa:commit
 
+  encoding-audit:
+    name: File encoding, BOM and mojibake check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check file encoding
+        run: pnpm audit:encoding
+
   secret-audit:
     name: Committed secrets check
     runs-on: ubuntu-latest

@@ -77,6 +77,15 @@ module.exports = {
       },
     }],
   },
+  modulePathIgnorePatterns: [
+    '/node_modules/',
+    '/.claude/',
+    '/.claude/worktrees/',
+    '/dist/',
+    '/build/',
+    '/.next/',
+    '/.next-dev/',
+  ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/apps/web/src/$1',
     '^@smart-erp/database/schema$': '<rootDir>/packages/database/src/schema/index.ts',
