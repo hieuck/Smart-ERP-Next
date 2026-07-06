@@ -72,10 +72,23 @@ describe('database seed coverage', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(mockDb.insert).toHaveBeenCalledTimes(6);
-    expect(mockDb.insert.mock.results[1].value.values).toHaveBeenCalledWith(expect.arrayContaining([
-      expect.objectContaining({ email: 'admin@smarterp.vn', passwordHash: 'hash:admin123' }),
-      expect.objectContaining({ email: 'admin@demo.smarterp.vn', passwordHash: 'hash:demo123456' }),
-    ]));
+    const usersInsertCall = mockDb.insert.mock.results[1].value.values.mock.calls[0][0];
+    expect(usersInsertCall).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          email: 'admin@smarterp.vn',
+          role: 'admin',
+          passwordHash: expect.stringMatching(/^hash:/),
+        }),
+        expect.objectContaining({
+          email: 'admin@demo.smarterp.vn',
+          role: 'admin',
+          passwordHash: expect.stringMatching(/^hash:/),
+        }),
+      ]),
+    );
+    expect(usersInsertCall.some((u: any) => u.passwordHash === 'hash:admin123')).toBe(false);
+    expect(usersInsertCall.some((u: any) => u.passwordHash === 'hash:demo123456')).toBe(false);
     expect(mockDb.insert.mock.results[5].value.values.mock.calls[0][0]).toHaveLength(100);
     expect(mockPool.end).toHaveBeenCalled();
   });

@@ -37,49 +37,42 @@ async function seed() {
 
     // 2. Seed Users
     console.log('Seeding Users...');
-    const bcrypt = require('bcryptjs');
-    const adminHash = bcrypt.hashSync('admin123', 10);
-    const demoHash = bcrypt.hashSync('demo123456', 10);
+    const { generateAdminPassword, logSeedAdminCredentials } = require('./seed-admin-passwords');
+
+    const adminAccounts = [
+      { email: 'admin@smarterp.vn', name: 'E2E Admin User', role: 'admin' },
+      { email: 'admin@demo.smarterp.vn', name: 'Demo Admin User', role: 'admin' },
+      { email: 'admin@demo.vn', name: 'Original Admin User', role: 'admin' },
+    ];
 
     const usersToInsert = [];
-    
-    // Seed admin@smarterp.vn for E2E
-    usersToInsert.push({
-      tenantId,
-      email: 'admin@smarterp.vn',
-      name: 'E2E Admin User',
-      role: 'admin',
-      passwordHash: adminHash,
-    });
+    const adminCredentials: { email: string; password: string; role: string }[] = [];
 
-    // Seed admin@demo.smarterp.vn for UI Demo
-    usersToInsert.push({
-      tenantId,
-      email: 'admin@demo.smarterp.vn',
-      name: 'Demo Admin User',
-      role: 'admin',
-      passwordHash: demoHash,
-    });
-
-    // Seed admin@demo.vn for original default
-    usersToInsert.push({
-      tenantId,
-      email: 'admin@demo.vn',
-      name: 'Original Admin User',
-      role: 'admin',
-      passwordHash: adminHash,
-    });
+    for (const account of adminAccounts) {
+      const { password, hash } = generateAdminPassword();
+      usersToInsert.push({
+        tenantId,
+        email: account.email,
+        name: account.name,
+        role: account.role,
+        passwordHash: hash,
+      });
+      adminCredentials.push({ email: account.email, password, role: account.role });
+    }
 
     for (let i = 0; i < 3; i++) {
+      const { password, hash } = generateAdminPassword();
       usersToInsert.push({
         tenantId,
         email: randomEmail(),
         name: randomName(),
         role: i === 0 ? 'manager' : 'user',
-        passwordHash: adminHash,
+        passwordHash: hash,
       });
+      adminCredentials.push({ email: usersToInsert[usersToInsert.length - 1].email, password, role: usersToInsert[usersToInsert.length - 1].role });
     }
     const users = await db.insert(schema.users).values(usersToInsert).returning();
+    logSeedAdminCredentials(adminCredentials);
     const adminUser = users[0];
 
     // 3. Seed Warehouses
