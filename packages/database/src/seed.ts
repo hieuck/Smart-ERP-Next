@@ -17,10 +17,11 @@ const db = drizzle(pool, { schema });
 // Helper functions for fake data (use crypto instead of Math.random)
 const ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const randomString = (length = 6) => {
-  const bytes = randomBytes(length);
   let result = '';
   for (let i = 0; i < length; i++) {
-    result += ALPHANUMERIC[bytes[i] % ALPHANUMERIC.length];
+    // Use randomInt for an unbiased pick from the alphabet (CodeQL flags
+    // modulo on cryptographically secure random bytes as biased).
+    result += ALPHANUMERIC[randomInt(0, ALPHANUMERIC.length)];
   }
   return result.toUpperCase();
 };
