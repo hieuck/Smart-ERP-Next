@@ -1,6 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  forceExit: true,
   roots: ['<rootDir>'],
   collectCoverage: true,
   setupFiles: ['<rootDir>/scripts/jest-setup.js'],
