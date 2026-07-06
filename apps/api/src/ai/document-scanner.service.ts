@@ -33,11 +33,18 @@ export class DocumentScannerService {
       if (response.ok) {
         return await response.json() as ScannedDocument;
       }
+
+      this.logger.warn(`AI OCR service returned ${response.status}`);
     } catch (error: any) {
       this.logger.warn(`AI OCR service unavailable: ${error.message}`);
     }
 
-    // Fallback: return mock data for development
+    // In production, never return mock data; surface the failure explicitly.
+    if (this.config.get('NODE_ENV') === 'production') {
+      throw new Error('OCR service unavailable');
+    }
+
+    // Fallback: return mock data for development only.
     return this.getMockScanResult(hint);
   }
 
