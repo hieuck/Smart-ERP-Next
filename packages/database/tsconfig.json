@@ -16,5 +16,5 @@
     "target": "ES2022"
   },
   "include": ["src/index.ts", "src/db.ts", "src/drizzle.ts", "src/schema/**/*.ts"],
-  "exclude": ["node_modules", "dist", "__tests__", "src/seed.ts", "src/migrate.ts"]
+  "exclude": ["node_modules", "dist", "__tests__", "src/seed.ts", "src/migrate.ts", "**/*.spec.ts", "**/*.test.ts"]
 }
