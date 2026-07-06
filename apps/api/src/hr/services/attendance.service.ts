@@ -166,8 +166,8 @@ export class AttendanceService {
       .set({
         checkOutAt: checkOut,
         checkOutMethod: (data.method as any) ?? 'app',
-        checkInLatitude: data.latitude ? String(data.latitude) : undefined,
-        checkInLongitude: data.longitude ? String(data.longitude) : undefined,
+        checkOutLatitude: data.latitude ? String(data.latitude) : undefined,
+        checkOutLongitude: data.longitude ? String(data.longitude) : undefined,
         actualHours: String(actualHours),
         overtimeHours: String(overtimeHours),
         updatedAt: new Date(),

@@ -185,9 +185,41 @@ describe('AttendanceService coverage', () => {
     expect(updateValues).toHaveBeenCalledWith(
       expect.objectContaining({
         checkOutMethod: 'app',
-        checkInLatitude: undefined,
-        checkInLongitude: undefined,
+        checkOutLatitude: undefined,
+        checkOutLongitude: undefined,
         overtimeHours: '0',
+      }),
+    );
+  });
+
+  it('stores checkout coordinates in checkout fields and does not overwrite check-in fields', async () => {
+    selectQueue.push([{
+      id: 'att-coords',
+      checkInAt: new Date('2026-05-21T08:00:00.000Z'),
+      checkInLatitude: '10.1',
+      checkInLongitude: '106.7',
+      checkOutAt: null,
+    }]);
+    updateQueue.push([{ id: 'att-coords', actualHours: '2', overtimeHours: '0' }]);
+
+    await expect(service.checkOut('tenant-1', 'emp-1', {
+      method: 'gps',
+      latitude: 10.8,
+      longitude: 107.2,
+    })).resolves.toEqual({ id: 'att-coords', actualHours: '2', overtimeHours: '0' });
+
+    const updateValues = db.update.mock.results[0].value.set;
+    expect(updateValues).toHaveBeenCalledWith(
+      expect.objectContaining({
+        checkOutMethod: 'gps',
+        checkOutLatitude: '10.8',
+        checkOutLongitude: '107.2',
+      }),
+    );
+    expect(updateValues).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        checkInLatitude: expect.anything(),
+        checkInLongitude: expect.anything(),
       }),
     );
   });
