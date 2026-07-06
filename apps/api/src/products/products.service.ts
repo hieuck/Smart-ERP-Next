@@ -272,16 +272,16 @@ export class ProductsService {
 
   async importFromCsv(tenantId: string, buffer: Buffer) {
     const csv = buffer.toString('utf8');
-    const lines = csv.split('\n').filter(l => l.trim());
-    if (lines.length < 2) throw new BadRequestException('CSV must have headers and data');
+    const rows = ProductsService.parseCsv(csv);
+    if (rows.length < 2) throw new BadRequestException('CSV must have headers and data');
 
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const headers = rows[0].map(h => h.trim().toLowerCase());
     const required = ['sku', 'name', 'price'];
     for (const f of required) if (!headers.includes(f)) throw new BadRequestException(`Missing column: ${f}`);
 
     const results: { created: number; updated: number; errors: string[] } = { created: 0, updated: 0, errors: [] };
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
+    for (let i = 1; i < rows.length; i++) {
+      const values = rows[i];
       const row = Object.fromEntries(headers.map((h, idx) => [h, values[idx]]));
       if (!row.sku) { results.errors.push(`Line ${i+1}: missing sku`); continue; }
       const exist = await this.findBySku(tenantId, row.sku).catch(() => null);
@@ -318,6 +318,49 @@ export class ProductsService {
       .from(inventoryTransactions)
       .where(and(eq(inventoryTransactions.tenantId, tenantId), eq(inventoryTransactions.productId, productId)))
       .orderBy(desc(inventoryTransactions.createdAt));
+  }
+
+  private static parseCsv(csv: string): string[][] {
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentField = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < csv.length; i++) {
+      const char = csv[i];
+      const nextChar = csv[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          currentField += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        currentRow.push(currentField);
+        currentField = '';
+      } else if ((char === '\n' || char === '\r') && !inQuotes) {
+        if (currentRow.length > 0 || currentField.length > 0) {
+          currentRow.push(currentField);
+          rows.push(currentRow);
+          currentRow = [];
+          currentField = '';
+        }
+        if (char === '\r' && nextChar === '\n') {
+          i++;
+        }
+      } else {
+        currentField += char;
+      }
+    }
+
+    if (currentRow.length > 0 || currentField.length > 0) {
+      currentRow.push(currentField);
+      rows.push(currentRow);
+    }
+
+    return rows;
   }
 
   private cleanOptionalText(value?: string | null) {
