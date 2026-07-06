@@ -19,8 +19,17 @@ export class UsersController {
   }
 
   @Get()
-  findAll(@Request() req: any, @Query('search') search?: string) {
-    return this.usersService.findAll(req.user.tenantId, search);
+  findAll(
+    @Request() req: any,
+    @Query('search') search?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.usersService.findAll(req.user.tenantId, {
+      search,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    });
   }
 
   @Get('me')

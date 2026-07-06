@@ -38,7 +38,9 @@ const makeSelectChain = (rows: any[]) => {
   const chain: any = {
     from: jest.fn(() => chain),
     where: jest.fn(() => chain),
-    orderBy: jest.fn(() => Promise.resolve(rows)),
+    orderBy: jest.fn(() => chain),
+    limit: jest.fn(() => chain),
+    offset: jest.fn(() => Promise.resolve(rows)),
     then: jest.fn((onFulfilled, onRejected) => Promise.resolve(rows).then(onFulfilled, onRejected)),
   };
   return chain;
@@ -123,12 +125,52 @@ describe('UsersService coverage', () => {
   });
 
   it('finds users by tenant, id, and email with not-found handling', async () => {
-    selectQueue.push([{ id: 'user-1' }], [], [{ id: 'user-1' }], [{ id: 'user-email' }]);
+    selectQueue.push([], [{ id: 'user-1' }], [{ id: 'user-email' }]);
 
-    await expect(service.findAll('tenant-1', 'lan')).resolves.toEqual([{ id: 'user-1' }]);
     await expect(service.findOne('tenant-1', 'missing')).rejects.toBeInstanceOf(NotFoundException);
     await expect(service.findOne('tenant-1', 'user-1')).resolves.toEqual({ id: 'user-1' });
     await expect(service.findByEmail('a@test.com')).resolves.toEqual({ id: 'user-email' });
+  });
+
+  it('returns paginated results with default page and limit', async () => {
+    selectQueue.push([{ id: 'user-1' }, { id: 'user-2' }]);
+
+    const result = await service.findAll('tenant-1');
+
+    expect(result).toEqual({
+      data: [{ id: 'user-1' }, { id: 'user-2' }],
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 2,
+        totalPages: 1,
+      },
+    });
+  });
+
+  it('applies page and limit options', async () => {
+    selectQueue.push([{ id: 'user-3' }]);
+
+    const result = await service.findAll('tenant-1', { page: 2, limit: 5 });
+
+    expect(result).toEqual({
+      data: [{ id: 'user-3' }],
+      pagination: {
+        page: 2,
+        limit: 5,
+        total: 1,
+        totalPages: 1,
+      },
+    });
+  });
+
+  it('caps limit at a maximum value', async () => {
+    selectQueue.push([{ id: 'user-1' }]);
+
+    await service.findAll('tenant-1', { limit: 500 });
+
+    const selectChain = mockDb.select.mock.results[0].value;
+    expect(selectChain.limit).toHaveBeenCalledWith(100);
   });
 
   it('updates, updates profile, removes users, and summarizes role stats', async () => {

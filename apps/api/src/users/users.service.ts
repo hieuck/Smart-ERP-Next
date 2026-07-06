@@ -44,7 +44,14 @@ export class UsersService {
   }
 
   /** Always scoped to tenantId — never returns cross-tenant data */
-  async findAll(tenantId: string, search?: string) {
+  async findAll(
+    tenantId: string,
+    options: { search?: string; page?: number; limit?: number } = {},
+  ) {
+    const { search } = options;
+    const page = Math.max(1, Number(options.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(options.limit) || 20));
+
     const conditions = [eq(users.tenantId, tenantId)];
 
     if (search) {
@@ -56,7 +63,7 @@ export class UsersService {
       );
     }
 
-    return db
+    const data = await db
       .select({
         id: users.id,
         email: users.email,
@@ -69,7 +76,19 @@ export class UsersService {
       })
       .from(users)
       .where(and(...conditions))
-      .orderBy(users.createdAt);
+      .orderBy(users.createdAt)
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total: data.length,
+        totalPages: Math.ceil(data.length / limit),
+      },
+    };
   }
 
   async findOne(tenantId: string, id: string) {
