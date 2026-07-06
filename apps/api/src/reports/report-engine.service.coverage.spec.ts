@@ -11,7 +11,7 @@ jest.mock('drizzle-orm', () => ({
   ),
 }));
 
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ReportEngineService } from './report-engine.service';
 
 const makeSelectChain = (rows: any[]) => {
@@ -81,5 +81,54 @@ describe('ReportEngineService coverage', () => {
     await expect(service.runTemplate('tenant-1', 'template-1', { code: "A'B", min: 10 })).resolves.toEqual([{ id: 'row-1' }]);
     expect(drizzle.db.execute).toHaveBeenCalledWith(expect.objectContaining({ op: 'raw' }));
     expect(ReportEngineService.getRevenueReportSql()).toContain('date_trunc');
+  });
+
+  it('rejects non-SELECT SQL when creating templates', async () => {
+    await expect(service.createTemplate('tenant-1', {
+      name: 'Bad',
+      querySql: "DELETE FROM orders WHERE tenant_id = 't1'",
+      parameters: {},
+      outputSchema: {},
+    })).rejects.toBeInstanceOf(ForbiddenException);
+
+    await expect(service.createTemplate('tenant-1', {
+      name: 'Bad',
+      querySql: "INSERT INTO orders (id) VALUES ('x')",
+      parameters: {},
+      outputSchema: {},
+    })).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('rejects SQL accessing forbidden tables when creating templates', async () => {
+    await expect(service.createTemplate('tenant-1', {
+      name: 'Bad',
+      querySql: 'SELECT * FROM users',
+      parameters: {},
+      outputSchema: {},
+    })).rejects.toBeInstanceOf(ForbiddenException);
+
+    await expect(service.createTemplate('tenant-1', {
+      name: 'Bad',
+      querySql: 'SELECT * FROM api_keys',
+      parameters: {},
+      outputSchema: {},
+    })).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('rejects forbidden keywords in template SQL', async () => {
+    await expect(service.createTemplate('tenant-1', {
+      name: 'Bad',
+      querySql: "SELECT * FROM orders; DROP TABLE orders;",
+      parameters: {},
+      outputSchema: {},
+    })).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('re-validates SQL at run time', async () => {
+    // Template stored elsewhere may bypass create-time validation; run time must reject it.
+    selectQueue.push([{ id: 'template-1', querySql: 'DELETE FROM orders' }]);
+
+    await expect(service.runTemplate('tenant-1', 'template-1', {}))
+      .rejects.toBeInstanceOf(ForbiddenException);
   });
 });

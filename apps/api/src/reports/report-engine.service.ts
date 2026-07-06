@@ -1,14 +1,52 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { reportTemplates, ReportTemplate } from '@smart-erp/database';
-import { eq, and } from 'drizzle-orm';
-import { sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
+
+const FORBIDDEN_KEYWORDS = [
+  'insert', 'update', 'delete', 'drop', 'alter', 'create', 'truncate',
+  'grant', 'revoke', 'execute', 'call', 'copy', 'merge', 'replace',
+  'into', 'from information_schema', 'from pg_',
+];
+
+const FORBIDDEN_TABLES = [
+  'users', 'api_keys', 'refresh_tokens', 'passwords', 'secrets',
+  'tenants', 'approval_requests', 'approval_chain_items',
+];
+
+function validateReportSql(querySql: string): void {
+  if (typeof querySql !== 'string' || !querySql.trim()) {
+    throw new BadRequestException('querySql must be a non-empty string');
+  }
+
+  const normalized = querySql.replace(/\s+/g, ' ').trim().toLowerCase();
+
+  // Only allow read-only SELECT statements
+  if (!normalized.startsWith('select')) {
+    throw new ForbiddenException('Report SQL must be a SELECT statement');
+  }
+
+  for (const keyword of FORBIDDEN_KEYWORDS) {
+    if (normalized.includes(keyword)) {
+      throw new ForbiddenException(`Forbidden SQL keyword or pattern: ${keyword}`);
+    }
+  }
+
+  for (const table of FORBIDDEN_TABLES) {
+    const regex = new RegExp(`\\b${table}\\b`, 'i');
+    if (regex.test(querySql)) {
+      throw new ForbiddenException(`Access to table "${table}" is not allowed in report SQL`);
+    }
+  }
+}
 
 @Injectable()
 export class ReportEngineService {
   constructor(private drizzle: DrizzleService) {}
 
   async createTemplate(tenantId: string, data: any): Promise<ReportTemplate> {
+    validateReportSql(data.querySql);
+
     const [template] = await this.drizzle.db
       .insert(reportTemplates)
       .values({
@@ -43,6 +81,8 @@ export class ReportEngineService {
 
   async runTemplate(tenantId: string, templateId: string, parameters: Record<string, any>): Promise<any[]> {
     const template = await this.getTemplate(tenantId, templateId);
+    validateReportSql(template.querySql);
+
     // Validate parameters — reject non-primitive values
     for (const [key, value] of Object.entries(parameters)) {
       if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
@@ -50,14 +90,14 @@ export class ReportEngineService {
       }
     }
 
-    // Replace placeholders in SQL with parameterized values
+    // Replace placeholders in SQL with parameterized values.
+    // Parameters are validated primitives; tenantId is the authenticated tenant.
     let sqlQuery = template.querySql;
     for (const [key, value] of Object.entries(parameters)) {
       const placeholder = new RegExp(`:${key}\\b`, 'g');
       const escaped = typeof value === 'string' ? `'${value.replace(/'/g, "''")}'` : value;
       sqlQuery = sqlQuery.replace(placeholder, String(escaped));
     }
-    // Add tenantId
     sqlQuery = sqlQuery.replace(/:tenantId/g, `'${tenantId}'`);
 
     const result = await this.drizzle.db.execute(sql.raw(sqlQuery));

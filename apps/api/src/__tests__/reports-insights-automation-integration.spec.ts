@@ -261,7 +261,7 @@ describe('ReportEngineService', () => {
 
     it('escapes string parameters', async () => {
       const { selectQueue, drizzle, service } = makeService({ executeResolve: { rows: [] } });
-      selectQueue.push([{ id: 'tmpl-1', querySql: "WHERE name = :name" }]);
+      selectQueue.push([{ id: 'tmpl-1', querySql: "SELECT * FROM orders WHERE name = :name" }]);
 
       await service.runTemplate(TENANT_ID, 'tmpl-1', { name: "O'Brien" });
 
