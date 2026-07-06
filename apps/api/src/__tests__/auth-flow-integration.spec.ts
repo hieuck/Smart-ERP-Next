@@ -19,7 +19,7 @@ const mockQuery = (data: any[]) => {
 describe('Auth Flow Integration', () => {
   let authService: AuthService;
   let mockJwtService: { sign: jest.Mock; verify: jest.Mock };
-  let mockGateway: { broadcast: jest.Mock };
+  let mockGateway: { broadcastToTenant: jest.Mock };
   let mockI18n: { t: jest.Mock };
 
   beforeEach(() => {
@@ -29,7 +29,7 @@ describe('Auth Flow Integration', () => {
       sign: jest.fn(() => 'signed-jwt-token'),
       verify: jest.fn(() => ({ sub: 'user-1', email: 'test@test.com', tenantId: 't1', role: 'user' })),
     };
-    mockGateway = { broadcast: jest.fn() };
+    mockGateway = { broadcastToTenant: jest.fn() };
     mockI18n = { t: jest.fn((k: string) => k) };
 
     authService = new AuthService(
