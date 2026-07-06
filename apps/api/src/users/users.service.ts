@@ -95,6 +95,25 @@ export class UsersService {
     return user;
   }
 
+  /**
+   * Look up an active user by ID and tenant. Returns `null` if the user does
+   * not exist, is disabled, or does not belong to the tenant.
+   */
+  async findActiveByIdAndTenant(id: string, tenantId: string) {
+    const [user] = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        role: users.role,
+        tenantId: users.tenantId,
+        isActive: users.isActive,
+      })
+      .from(users)
+      .where(and(eq(users.id, id), eq(users.tenantId, tenantId), eq(users.isActive, true)));
+    return user ?? null;
+  }
+
   async update(tenantId: string, id: string, dto: UpdateUserDto) {
     const updates = await this.buildUpdateSet(dto);
 

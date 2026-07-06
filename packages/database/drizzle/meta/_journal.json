@@ -36,6 +36,13 @@
       "when": 1782598914364,
       "tag": "0004_ancient_the_fallen",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1782600000000,
+      "tag": "0005_add_users_is_active",
+      "breakpoints": true
     }
   ]
 }
