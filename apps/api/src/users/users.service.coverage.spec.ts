@@ -74,18 +74,18 @@ describe('UsersService coverage', () => {
   });
 
   it('validates tenant and email uniqueness before creating users', async () => {
-    await expect(service.create({ email: 'a@test.com' } as any)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.create({ email: 'a@test.com', password: 'secret123' } as any)).rejects.toBeInstanceOf(BadRequestException);
 
     selectQueue.push([{ id: 'existing' }]);
-    await expect(service.create({ email: 'a@test.com', tenantId: 'tenant-1' } as any)).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.create({ email: 'a@test.com', tenantId: 'tenant-1', password: 'secret123' } as any)).rejects.toBeInstanceOf(ConflictException);
 
     selectQueue.push([]);
     returningQueue.push([{ id: 'user-1', email: 'a@test.com' }]);
-    await expect(service.create({ email: 'a@test.com', tenantId: 'tenant-1', name: 'A' } as any)).resolves.toEqual({ id: 'user-1', email: 'a@test.com' });
+    await expect(service.create({ email: 'a@test.com', tenantId: 'tenant-1', name: 'A', password: 'secret123' } as any)).resolves.toEqual({ id: 'user-1', email: 'a@test.com' });
 
     selectQueue.push([]);
     returningQueue.push([{ id: 'user-2', email: 'b@test.com', name: null }]);
-    await expect(service.create({ email: 'b@test.com', tenantId: 'tenant-1' } as any)).resolves.toEqual({
+    await expect(service.create({ email: 'b@test.com', tenantId: 'tenant-1', password: 'secret123' } as any)).resolves.toEqual({
       id: 'user-2',
       email: 'b@test.com',
       name: null,
@@ -94,7 +94,32 @@ describe('UsersService coverage', () => {
       email: 'b@test.com',
       name: null,
       role: 'user',
+      passwordHash: expect.any(String),
     }));
+  });
+
+  it('rejects supplied passwordHash on create', async () => {
+    await expect(
+      service.create({ email: 'a@test.com', tenantId: 'tenant-1', password: 'secret123', passwordHash: 'known-hash' } as any),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('rejects supplied passwordHash on update and hashes plaintext password', async () => {
+    returningQueue.push([{ id: 'user-1', email: 'a@test.com' }]);
+
+    await expect(
+      service.update('tenant-1', 'user-1', { passwordHash: 'known-hash' } as any),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    returningQueue.push([{ id: 'user-1', email: 'a@test.com' }]);
+    await expect(service.update('tenant-1', 'user-1', { password: 'newsecret123' } as any)).resolves.toEqual({
+      id: 'user-1',
+      email: 'a@test.com',
+    });
+
+    expect(mockDb.update.mock.results[0].value.set).toHaveBeenCalledWith(
+      expect.objectContaining({ passwordHash: expect.any(String) }),
+    );
   });
 
   it('finds users by tenant, id, and email with not-found handling', async () => {

@@ -1,0 +1,103 @@
+{
+  "hadOpenPRs": true,
+  "prs": {
+    "136": {
+      "number": 136,
+      "headRefOid": "18ec31f163ce6c43e5ef6f98ae4e6fb236583f1b",
+      "mergeStateStatus": "UNSTABLE",
+      "mergeable": "MERGEABLE",
+      "reviewDecision": "",
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-07-05T11:01:36Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/hieuck/Smart-ERP-Next/actions/runs/28738410167/job/85216688726",
+          "name": "test-and-build",
+          "startedAt": "2026-07-05T10:55:57Z",
+          "status": "COMPLETED",
+          "workflowName": "CI"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-07-05T10:56:29Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/hieuck/Smart-ERP-Next/actions/runs/28738409654/job/85216687923",
+          "name": "Analyze (actions)",
+          "startedAt": "2026-07-05T10:55:54Z",
+          "status": "COMPLETED",
+          "workflowName": "CodeQL"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-07-05T10:55:58Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/hieuck/Smart-ERP-Next/actions/runs/28738410164/job/85216688670",
+          "name": "label",
+          "startedAt": "2026-07-05T10:55:54Z",
+          "status": "COMPLETED",
+          "workflowName": "Labeler"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-07-05T10:57:23Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/hieuck/Smart-ERP-Next/actions/runs/28738409654/job/85216687930",
+          "name": "Analyze (javascript-typescript)",
+          "startedAt": "2026-07-05T10:55:54Z",
+          "status": "COMPLETED",
+          "workflowName": "CodeQL"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-07-05T10:56:33Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/hieuck/Smart-ERP-Next/actions/runs/28738409654/job/85216687950",
+          "name": "Analyze (python)",
+          "startedAt": "2026-07-05T10:55:54Z",
+          "status": "COMPLETED",
+          "workflowName": "CodeQL"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-07-05T11:01:36Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/hieuck/Smart-ERP-Next/actions/runs/28738410167/job/85217080980",
+          "name": "Container image security scan",
+          "startedAt": "2026-07-05T11:01:36Z",
+          "status": "COMPLETED",
+          "workflowName": "CI"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-07-05T10:56:22Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/hieuck/Smart-ERP-Next/runs/85216718561",
+          "name": "CodeQL",
+          "startedAt": "2026-07-05T10:56:20Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-07-05T10:57:51Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/hieuck/Smart-ERP-Next/runs/85216816522",
+          "name": "Trivy",
+          "startedAt": "2026-07-05T10:57:49Z",
+          "status": "COMPLETED",
+          "workflowName": ""
+        },
+        {
+          "__typename": "StatusContext",
+          "context": "CodeRabbit",
+          "startedAt": "2026-07-05T10:58:44Z",
+          "state": "SUCCESS",
+          "targetUrl": ""
+        }
+      ],
+      "reviewRequests": [],
+      "updatedAt": "2026-07-05T10:58:43Z"
+    }
+  }
+}

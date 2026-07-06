@@ -7,6 +7,7 @@ import {
 import { db } from "@smart-erp/database";
 import { users } from "@smart-erp/database/schema";
 import { eq, and, ilike, or, sql } from "@smart-erp/database/drizzle";
+import * as bcrypt from "bcryptjs";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 
@@ -17,8 +18,16 @@ export class UsersService {
       throw new BadRequestException("tenantId is required");
     }
 
+    if ((createUserDto as any).passwordHash !== undefined) {
+      throw new BadRequestException(
+        "passwordHash is not allowed; provide password instead",
+      );
+    }
+
     const existing = await this.findByEmail(createUserDto.email);
     if (existing) throw new ConflictException("Email already in use");
+
+    const passwordHash = await bcrypt.hash(createUserDto.password, 10);
 
     const [user] = await db
       .insert(users)
@@ -26,8 +35,8 @@ export class UsersService {
         email: createUserDto.email,
         name: createUserDto.name ?? null,
         tenantId: createUserDto.tenantId,
-        passwordHash: (createUserDto as any).passwordHash ?? null,
-        role: (createUserDto as any).role ?? "user",
+        passwordHash,
+        role: createUserDto.role ?? "user",
       })
       .returning();
 
@@ -87,9 +96,11 @@ export class UsersService {
   }
 
   async update(tenantId: string, id: string, dto: UpdateUserDto) {
+    const updates = await this.buildUpdateSet(dto);
+
     const [user] = await db
       .update(users)
-      .set({ ...dto, updatedAt: new Date() })
+      .set({ ...updates, updatedAt: new Date() })
       .where(and(eq(users.tenantId, tenantId), eq(users.id, id)))
       .returning();
 
@@ -98,14 +109,34 @@ export class UsersService {
   }
 
   async updateProfile(tenantId: string, userId: string, dto: UpdateUserDto) {
+    const updates = await this.buildUpdateSet(dto);
+
     const [user] = await db
       .update(users)
-      .set({ ...dto, updatedAt: new Date() })
+      .set({ ...updates, updatedAt: new Date() })
       .where(and(eq(users.tenantId, tenantId), eq(users.id, userId)))
       .returning();
 
     if (!user) throw new NotFoundException("User not found");
     return user;
+  }
+
+  private async buildUpdateSet(
+    dto: UpdateUserDto,
+  ): Promise<Partial<Omit<UpdateUserDto, "password">>> {
+    if ((dto as any).passwordHash !== undefined) {
+      throw new BadRequestException(
+        "passwordHash is not allowed; provide password instead",
+      );
+    }
+
+    const { password, ...rest } = dto as any;
+
+    if (password !== undefined) {
+      (rest as any).passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    return rest;
   }
 
   async remove(tenantId: string, id: string) {
