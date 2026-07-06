@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { customers, orders } from '@smart-erp/database';
 import { eq, sql, desc } from 'drizzle-orm';
@@ -75,9 +75,13 @@ export class PredictiveAnalyticsService {
   }
 
   /**
-   * Get weekly sales trend for the past 12 weeks.
+   * Get weekly sales trend for the past N weeks.
    */
   async getSalesTrend(tenantId: string, weeks = 12): Promise<SalesTrend[]> {
+    if (!Number.isInteger(weeks) || weeks < 1 || weeks > 52) {
+      throw new BadRequestException('weeks must be an integer between 1 and 52');
+    }
+
     const trend = await this.drizzle.db.execute(
       sql`
         SELECT
@@ -86,7 +90,7 @@ export class PredictiveAnalyticsService {
           COUNT(*) as orders_count
         FROM orders
         WHERE tenant_id = ${tenantId}
-          AND created_at >= NOW() - INTERVAL '${sql.raw(`${weeks} weeks`)}'
+          AND created_at >= NOW() - INTERVAL '1 week' * ${weeks}
           AND status != 'cancelled'
         GROUP BY DATE_TRUNC('week', created_at)
         ORDER BY period ASC
