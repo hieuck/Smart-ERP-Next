@@ -5,7 +5,7 @@
 
 # Build stage — optimized for Docker layer caching
 ARG CACHEBUST
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apk add --no-cache curl && npm install -g pnpm@10.33.0
