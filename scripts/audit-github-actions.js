@@ -58,7 +58,6 @@ function assert(condition, findings, file, reason) {
 }
 
 const FORBIDDEN_WORKFLOWS = [
-  "codeql.yml",
   "eslint.yml",
   "build-ios.yml",
   "npm-publish.yml",
