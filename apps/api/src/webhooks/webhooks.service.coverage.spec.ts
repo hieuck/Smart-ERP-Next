@@ -1,4 +1,5 @@
 import { WebhooksService } from './webhooks.service';
+import { webhookSubscriptions } from '@smart-erp/database';
 
 const mockDb = {
   insert: jest.fn().mockReturnThis(),
@@ -6,6 +7,7 @@ const mockDb = {
   returning: jest.fn().mockResolvedValue([{ id: 'wh-1', url: 'https://hook.example.com', events: ['order.created'], active: true }]),
   select: jest.fn().mockReturnThis(),
   from: jest.fn().mockReturnThis(),
+  innerJoin: jest.fn().mockReturnThis(),
   where: jest.fn().mockReturnThis(),
   orderBy: jest.fn().mockReturnThis(),
   limit: jest.fn().mockReturnThis(),
@@ -47,11 +49,35 @@ describe('WebhooksService', () => {
   });
 
   it('getDeliveryLogs returns logs', async () => {
+    mockDb.innerJoin.mockReturnThis();
     mockDb.where.mockReturnThis();
     mockDb.orderBy.mockReturnThis();
     mockDb.limit.mockResolvedValue([{ id: 'log-1', webhookId: 'wh-1', status: 'success' }]);
     const result = await service.getDeliveryLogs('t1', 'wh-1');
     expect(result).toHaveLength(1);
+  });
+
+  it('getDeliveryLogs enforces tenant isolation by joining with webhookSubscriptions', async () => {
+    mockDb.innerJoin.mockReturnThis();
+    mockDb.where.mockReturnThis();
+    mockDb.orderBy.mockReturnThis();
+    mockDb.limit.mockResolvedValue([{ id: 'log-1', webhookId: 'wh-1', status: 'success' }]);
+
+    await service.getDeliveryLogs('t1', 'wh-1');
+
+    expect(mockDb.innerJoin).toHaveBeenCalledWith(webhookSubscriptions, expect.anything());
+  });
+
+  it('getDeliveryLogs applies both subscriptionId and tenantId filters', async () => {
+    mockDb.innerJoin.mockReturnThis();
+    mockDb.where.mockReturnThis();
+    mockDb.orderBy.mockReturnThis();
+    mockDb.limit.mockResolvedValue([{ id: 'log-1', webhookId: 'wh-1', status: 'success' }]);
+
+    await service.getDeliveryLogs('t1', 'wh-1');
+
+    expect(mockDb.innerJoin).toHaveBeenCalledWith(webhookSubscriptions, expect.anything());
+    expect(mockDb.where).toHaveBeenCalledWith(expect.anything());
   });
 
   it('dispatch sends webhook to matching subscriptions', async () => {
