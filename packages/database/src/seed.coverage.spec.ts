@@ -47,6 +47,8 @@ describe('database seed coverage', () => {
     jest.clearAllMocks();
     jest.spyOn(console, 'log').mockImplementation(() => undefined);
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    // Ensure DATABASE_URL is present so the seed module guard does not exit.
+    process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
     // seed.ts now uses crypto.randomBytes/randomInt for randomness
     returningQueue.length = 0;
     mockDb.insert.mockImplementation(() => makeInsertChain(returningQueue));
@@ -106,5 +108,24 @@ describe('database seed coverage', () => {
 
     expect(console.error).toHaveBeenCalledWith('❌ Error during seeding:', expect.any(Error));
     expect(mockPool.end).toHaveBeenCalled();
+  });
+
+  it('exits immediately when DATABASE_URL is not set', async () => {
+    delete process.env.DATABASE_URL;
+    const exitSpy = jest
+      .spyOn(process, 'exit')
+      .mockImplementation(() => undefined as never);
+
+    await jest.isolateModulesAsync(async () => {
+      await import('./seed');
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('DATABASE_URL is required'),
+    );
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(mockDb.insert).not.toHaveBeenCalled();
+    exitSpy.mockRestore();
   });
 });

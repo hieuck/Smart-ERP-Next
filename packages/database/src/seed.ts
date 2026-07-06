@@ -8,11 +8,12 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config();
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/smart_erp',
-});
+async function seed() {
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
 
-const db = drizzle(pool, { schema });
+  const db = drizzle(pool, { schema });
 
 // Helper functions for fake data (use crypto instead of Math.random)
 const ALPHANUMERIC = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -42,7 +43,6 @@ const randomEmail = () => {
   return email;
 };
 
-async function seed() {
   console.log('🌱 Starting Database Seeding (Native JS Version)...');
 
   try {
@@ -178,4 +178,9 @@ async function seed() {
   }
 }
 
-seed();
+if (!process.env.DATABASE_URL) {
+  console.error('❌ DATABASE_URL is required but not set. Please set it explicitly to avoid seeding the wrong database.');
+  process.exit(1);
+} else {
+  seed();
+}
