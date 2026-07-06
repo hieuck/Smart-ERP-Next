@@ -8,6 +8,7 @@ import {
   PRODUCT_IMAGE_ACCEPT,
   PRODUCT_IMAGE_MAX_BYTES,
   validateProductImageFile,
+  validateProductImageUrl,
 } from './ProductImageInput.logic';
 
 const inputClass =
@@ -66,7 +67,14 @@ export function ProductImageInput({ value, onChange, disabled = false }: Product
               type="text"
               name="imageUrl"
               value={value}
-              onChange={(event) => onChange(event.target.value)}
+              onChange={(event) => {
+                const nextValue = event.target.value;
+                const validationError = validateProductImageUrl(nextValue);
+                setError(validationError);
+                if (!validationError) {
+                  onChange(nextValue);
+                }
+              }}
               disabled={disabled || uploading}
               placeholder="https://example.com/product.jpg hoặc tải ảnh từ thiết bị"
               className={`${inputClass} pl-10`}

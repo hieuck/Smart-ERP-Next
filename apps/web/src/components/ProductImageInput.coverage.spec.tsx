@@ -9,6 +9,7 @@ import {
   PRODUCT_IMAGE_ACCEPT,
   PRODUCT_IMAGE_MAX_BYTES,
   validateProductImageFile,
+  validateProductImageUrl,
 } from './ProductImageInput.logic';
 
 const mockUploadImage = jest.fn();
@@ -110,5 +111,36 @@ describe('ProductImageInput coverage', () => {
     });
     expect(await screen.findByText('Đang tải lên...')).toBeInTheDocument();
     resolveUpload!({ imageUrl: '/uploads/products/done.png' });
+  });
+
+  it('rejects non-HTTP/relative image URLs and accepts safe ones', () => {
+    expect(validateProductImageUrl('')).toBe('');
+    expect(validateProductImageUrl('https://example.com/img.jpg')).toBe('');
+    expect(validateProductImageUrl('http://example.com/img.jpg')).toBe('');
+    expect(validateProductImageUrl('/uploads/products/tenant/img.png')).toBe('');
+    expect(validateProductImageUrl('//cdn.example.com/img.jpg')).toBe('');
+    expect(validateProductImageUrl('javascript:alert(1)')).toBe('URL ảnh không hợp lệ.');
+    expect(validateProductImageUrl('data:image/png;base64,abc')).toBe('URL ảnh không hợp lệ.');
+    expect(validateProductImageUrl('blob:https://example.com/uuid')).toBe('URL ảnh không hợp lệ.');
+    expect(validateProductImageUrl('ftp://example.com/img.jpg')).toBe('URL ảnh không hợp lệ.');
+  });
+
+  it('does not call onChange and shows error when an invalid URL is typed', () => {
+    const onChange = jest.fn();
+    render(<ProductImageInput value="" onChange={onChange} />);
+    fireEvent.change(screen.getByPlaceholderText(/https:\/\/example\.com/), {
+      target: { value: 'javascript:alert(1)' },
+    });
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText('URL ảnh không hợp lệ.')).toBeInTheDocument();
+  });
+
+  it('calls onChange when a valid URL is typed', () => {
+    const onChange = jest.fn();
+    render(<ProductImageInput value="" onChange={onChange} />);
+    fireEvent.change(screen.getByPlaceholderText(/https:\/\/example\.com/), {
+      target: { value: 'https://example.com/img.jpg' },
+    });
+    expect(onChange).toHaveBeenCalledWith('https://example.com/img.jpg');
   });
 });
