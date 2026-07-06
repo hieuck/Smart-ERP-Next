@@ -72,11 +72,16 @@ function gitAttributesFor(files) {
 
   const attrs = new Map();
   for (const line of output) {
-    const match = line.match(/^(.+): text: (.+)$/);
-    if (match) {
-      const [, file, value] = match;
-      attrs.set(file, value);
-    }
+    // Git check-attr output format: "<path>: text: <value>"
+    // Split only on the first occurrence of ": text: " so filenames containing
+    // colons are parsed correctly.
+    const marker = ': text: ';
+    const markerIndex = line.indexOf(marker);
+    if (markerIndex === -1) continue;
+
+    const file = line.slice(0, markerIndex);
+    const value = line.slice(markerIndex + marker.length);
+    attrs.set(file, value);
   }
 
   return attrs;
@@ -100,7 +105,7 @@ function isValidUtf8(buffer) {
 }
 
 function containsCrlf(buffer) {
-  return buffer.includes('\r\n');
+  return buffer.indexOf(Buffer.from([0x0d, 0x0a])) !== -1;
 }
 
 function containsMojibake(text) {

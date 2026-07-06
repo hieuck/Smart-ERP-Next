@@ -19,8 +19,19 @@ function mojibakeString(text) {
   return Buffer.from(text, 'utf8').toString('latin1');
 }
 
+const tempDirs = [];
+
+function runGit(cwd, args) {
+  const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
+  if (result.status !== 0) {
+    throw new Error(`git ${args.join(' ')} failed: ${result.stderr || result.stdout}`);
+  }
+  return result;
+}
+
 function createTempRepo(files) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'audit-encoding-'));
+  tempDirs.push(tmp);
   fs.mkdirSync(path.join(tmp, '.git'), { recursive: true });
 
   const gitAttributes = [
@@ -43,14 +54,24 @@ function createTempRepo(files) {
     }
   }
 
-  spawnSync('git', ['init', '--quiet'], { cwd: tmp });
-  spawnSync('git', ['config', 'user.email', 'test@example.com'], { cwd: tmp });
-  spawnSync('git', ['config', 'user.name', 'Test'], { cwd: tmp });
-  spawnSync('git', ['add', '.'], { cwd: tmp });
-  spawnSync('git', ['commit', '-m', 'initial', '--quiet'], { cwd: tmp });
+  runGit(tmp, ['init', '--quiet']);
+  runGit(tmp, ['config', 'user.email', 'test@example.com']);
+  runGit(tmp, ['config', 'user.name', 'Test']);
+  runGit(tmp, ['add', '.']);
+  runGit(tmp, ['commit', '-m', 'initial', '--quiet']);
 
   return tmp;
 }
+
+afterAll(() => {
+  for (const tmp of tempDirs) {
+    try {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    } catch {
+      // Ignore cleanup failures on transient directories.
+    }
+  }
+});
 
 describe('encoding audit', () => {
   describe('tracked files', () => {
