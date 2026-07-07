@@ -119,7 +119,7 @@ export class PayrollService {
     return this.drizzle.db.execute(sql`
       SELECT p.*, u.name as employee_name, u.email as employee_email
       FROM payslips p
-      JOIN users u ON u.id = p.employee_id
+      JOIN users u ON u.id = p.employee_id AND u.tenant_id = ${tenantId}
       WHERE p.tenant_id = ${tenantId} AND p.board_id = ${boardId}
     `);
   }
