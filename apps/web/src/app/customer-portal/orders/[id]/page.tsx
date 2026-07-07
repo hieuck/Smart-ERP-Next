@@ -40,10 +40,10 @@ export default function PortalOrderDetailPage() {
       portalApi.getOrders(),
       portalApi.getOrderTracking(id),
     ])
-      .then(([ordersRes, trackingRes]) => {
-        const found = (ordersRes.data ?? []).find((o: PortalOrder) => o.id === id);
+      .then(([orders, tracking]) => {
+        const found = (orders ?? []).find((o: PortalOrder) => o.id === id);
         setOrder(found ?? null);
-        setTracking(trackingRes.data ?? null);
+        setTracking(tracking ?? null);
       })
       .catch(() => router.push('/customer-portal'))
       .finally(() => setLoading(false));
