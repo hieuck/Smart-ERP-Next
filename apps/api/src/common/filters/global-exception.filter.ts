@@ -53,6 +53,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       }
     }
 
+    const logMessage = `${request?.method ?? 'UNKNOWN'} ${request?.url ?? 'unknown'} ${status}`;
+    const stack = exception instanceof Error ? exception.stack : String(exception);
+    this.logger.error(logMessage, stack, GlobalExceptionFilter.name);
+
     response.status(status).json({
       success: false,
       data: null,
