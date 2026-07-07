@@ -40,7 +40,9 @@ export class StructuredLogger implements NestLoggerService {
     };
     const output = JSON.stringify(entry);
     if (this.logFile && this.fs) {
-      this.fs.appendFileSync(this.logFile, output + '\n');
+      this.fs.appendFile(this.logFile, output + '\n', (err) => {
+        if (err) console.error('Failed to write log file:', err);
+      });
     }
     if (level === 'error') {
       console.error(output);
