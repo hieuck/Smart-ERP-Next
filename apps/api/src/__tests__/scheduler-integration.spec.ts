@@ -6,7 +6,7 @@ jest.mock('@smart-erp/database', () => {
   m.delete = jest.fn();
   return { db: m };
 });
-jest.mock('@smart-erp/database/schema', () => ({ products: {}, activityLogs: {} }));
+jest.mock('@smart-erp/database/schema', () => ({ products: {}, activityLogs: {}, tenants: {} }));
 jest.mock('@smart-erp/database/drizzle', () => ({ eq: jest.fn(), and: jest.fn(), lt: jest.fn(), sql: jest.fn() }));
 
 import { SchedulerService } from '../scheduler/scheduler.service';
