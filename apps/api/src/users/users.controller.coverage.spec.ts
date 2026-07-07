@@ -25,12 +25,12 @@ describe('UsersController coverage', () => {
 
   it('findAll delegates to service', () => {
     ctrl.findAll(req, 'search-term');
-    expect(usersService.findAll).toHaveBeenCalledWith('t1', 'search-term');
+    expect(usersService.findAll).toHaveBeenCalledWith('t1', 'search-term', undefined, undefined);
   });
 
   it('findAll without search delegates to service', () => {
     ctrl.findAll(req, undefined);
-    expect(usersService.findAll).toHaveBeenCalledWith('t1', undefined);
+    expect(usersService.findAll).toHaveBeenCalledWith('t1', undefined, undefined, undefined);
   });
 
   it('getMe delegates to service', () => {

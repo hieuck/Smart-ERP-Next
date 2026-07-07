@@ -63,7 +63,14 @@ export class UsersService {
       );
     }
 
-    const data = await db
+    const whereClause = and(...conditions);
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(whereClause);
+
+    const items = await db
       .select({
         id: users.id,
         email: users.email,
@@ -75,19 +82,18 @@ export class UsersService {
         // Never return passwordHash
       })
       .from(users)
-      .where(and(...conditions))
+      .where(whereClause)
       .orderBy(users.createdAt)
       .limit(limit)
       .offset((page - 1) * limit);
 
+    const total = Number(count);
     return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total: data.length,
-        totalPages: Math.ceil(data.length / limit),
-      },
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 

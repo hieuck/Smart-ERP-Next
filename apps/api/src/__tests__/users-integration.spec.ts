@@ -6,6 +6,8 @@ jest.mock('@smart-erp/database', () => {
   db.from = chainFn;
   db.where = chainFn;
   db.orderBy = chainFn;
+  db.limit = chainFn;
+  db.offset = chainFn;
   db.insert = chainFn;
   db.values = chainFn;
   db.update = chainFn;
@@ -68,23 +70,39 @@ describe('UsersService (direct instantiation)', () => {
 
   describe('findAll', () => {
     it('returns users scoped to tenantId', async () => {
-      const users = [
+      const userRows = [
         { id: '1', email: 'a@t.com', name: 'A', role: 'user', tenantId: 't1', createdAt: new Date(), updatedAt: new Date() },
       ];
-      (db as any).then.mockImplementation((resolve: any) => resolve(users));
+      (db as any).then
+        .mockImplementationOnce((resolve: any) => resolve([{ count: userRows.length }]))
+        .mockImplementationOnce((resolve: any) => resolve(userRows));
 
       const result = await service.findAll('t1');
-      expect(result).toEqual(users);
+      expect(result).toEqual({
+        items: userRows,
+        total: userRows.length,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+      });
     });
 
     it('filters by search term', async () => {
-      const users = [
+      const userRows = [
         { id: '1', email: 'match@t.com', name: 'Matching', role: 'user', tenantId: 't1', createdAt: new Date(), updatedAt: new Date() },
       ];
-      (db as any).then.mockImplementation((resolve: any) => resolve(users));
+      (db as any).then
+        .mockImplementationOnce((resolve: any) => resolve([{ count: userRows.length }]))
+        .mockImplementationOnce((resolve: any) => resolve(userRows));
 
       const result = await service.findAll('t1', 'match');
-      expect(result).toEqual(users);
+      expect(result).toEqual({
+        items: userRows,
+        total: userRows.length,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+      });
     });
   });
 
