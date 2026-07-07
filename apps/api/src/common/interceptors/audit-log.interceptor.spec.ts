@@ -1,4 +1,5 @@
 import { AuditLogInterceptor, AUDIT_LOG_KEY } from './audit-log.interceptor';
+import { Logger } from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 
 describe('AuditLogInterceptor', () => {
@@ -19,9 +20,19 @@ describe('AuditLogInterceptor', () => {
     } as any;
   };
 
+  let warnSpy: jest.SpyInstance;
+  let errorSpy: jest.SpyInstance;
+
   beforeEach(() => {
     mockActivityService = { log: jest.fn().mockResolvedValue(undefined) };
     interceptor = new AuditLogInterceptor(mockActivityService as any);
+    warnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {});
+    errorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 
   it('logs the request with proper parameters', (done) => {
@@ -78,6 +89,40 @@ describe('AuditLogInterceptor', () => {
       error: (err) => {
         expect(mockActivityService.log).toHaveBeenCalled();
         expect(err.message).toBe('fail');
+        done();
+      },
+    });
+  });
+
+  it('logs a warning when activityService.log fails on success path', (done) => {
+    mockActivityService.log.mockRejectedValue(new Error('audit down'));
+    interceptor.intercept(
+      makeContext('POST', '/api/test'),
+      { handle: () => of({ id: 'entity-1' }) },
+    ).subscribe({
+      next: (data) => {
+        expect(data).toEqual({ id: 'entity-1' });
+        expect(warnSpy).toHaveBeenCalledWith(
+          expect.stringContaining('audit-log'),
+          expect.anything(),
+        );
+        done();
+      },
+    });
+  });
+
+  it('logs an error when activityService.log fails on error path', (done) => {
+    mockActivityService.log.mockRejectedValue(new Error('audit down'));
+    interceptor.intercept(
+      makeContext('POST', '/api/test'),
+      { handle: () => throwError(() => new Error('fail')) },
+    ).subscribe({
+      error: (err) => {
+        expect(err.message).toBe('fail');
+        expect(errorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('audit-log'),
+          expect.anything(),
+        );
         done();
       },
     });
