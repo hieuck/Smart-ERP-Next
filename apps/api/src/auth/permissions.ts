@@ -16,7 +16,9 @@ export const PERMISSIONS = {
 export type Permission = `${string}:${string}`;
 
 export const DEFAULT_ROLES: Record<string, readonly string[]> = {
-  admin: Object.values(PERMISSIONS).flat(),
+  admin: Object.entries(PERMISSIONS).flatMap(([module, actions]) =>
+    actions.map((action) => `${module}:${action}`),
+  ),
   manager: [
     'products:view', 'products:create', 'products:edit',
     'orders:view', 'orders:create', 'orders:cancel',
