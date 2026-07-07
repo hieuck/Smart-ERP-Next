@@ -127,6 +127,13 @@
       "when": 1783451833618,
       "tag": "0017_short_redwing",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1783452627502,
+      "tag": "0018_overrated_inhumans",
+      "breakpoints": true
     }
   ]
 }
