@@ -23,14 +23,31 @@ describe('UsersController coverage', () => {
     expect(usersService.create).toHaveBeenCalledWith({ ...dto, tenantId: 't1' });
   });
 
-  it('findAll delegates to service', () => {
+  it('findAll delegates to service with search only', () => {
     ctrl.findAll(req, 'search-term');
-    expect(usersService.findAll).toHaveBeenCalledWith('t1', 'search-term', undefined, undefined);
+    expect(usersService.findAll).toHaveBeenCalledWith('t1', {
+      search: 'search-term',
+      page: undefined,
+      limit: undefined,
+    });
+  });
+
+  it('findAll delegates to service with pagination', () => {
+    ctrl.findAll(req, 'search-term', '2', '10');
+    expect(usersService.findAll).toHaveBeenCalledWith('t1', {
+      search: 'search-term',
+      page: 2,
+      limit: 10,
+    });
   });
 
   it('findAll without search delegates to service', () => {
     ctrl.findAll(req, undefined);
-    expect(usersService.findAll).toHaveBeenCalledWith('t1', undefined, undefined, undefined);
+    expect(usersService.findAll).toHaveBeenCalledWith('t1', {
+      search: undefined,
+      page: undefined,
+      limit: undefined,
+    });
   });
 
   it('getMe delegates to service', () => {
