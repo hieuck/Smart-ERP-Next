@@ -31,16 +31,22 @@ jest.mock('@smart-erp/database/drizzle', () => ({
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 
-const selectQueue: any[][] = [];
+const selectQueue: any[] = [];
 const returningQueue: any[][] = [];
 
-const makeSelectChain = (rows: any[]) => {
+const makeSelectChain = (rowsOrCount: any[] | { count: number }) => {
+  const isCount = !Array.isArray(rowsOrCount);
+  const rows = isCount ? [rowsOrCount] : rowsOrCount;
   const chain: any = {
     from: jest.fn(() => chain),
     where: jest.fn(() => chain),
-    orderBy: jest.fn(() => Promise.resolve(rows)),
     then: jest.fn((onFulfilled, onRejected) => Promise.resolve(rows).then(onFulfilled, onRejected)),
   };
+  if (!isCount) {
+    chain.orderBy = jest.fn(() => chain);
+    chain.limit = jest.fn(() => chain);
+    chain.offset = jest.fn(() => chain);
+  }
   return chain;
 };
 
@@ -123,12 +129,49 @@ describe('UsersService coverage', () => {
   });
 
   it('finds users by tenant, id, and email with not-found handling', async () => {
-    selectQueue.push([{ id: 'user-1' }], [], [{ id: 'user-1' }], [{ id: 'user-email' }]);
+    selectQueue.push([], [{ id: 'user-1' }], [{ id: 'user-email' }]);
 
-    await expect(service.findAll('tenant-1', 'lan')).resolves.toEqual([{ id: 'user-1' }]);
     await expect(service.findOne('tenant-1', 'missing')).rejects.toBeInstanceOf(NotFoundException);
     await expect(service.findOne('tenant-1', 'user-1')).resolves.toEqual({ id: 'user-1' });
     await expect(service.findByEmail('a@test.com')).resolves.toEqual({ id: 'user-email' });
+  });
+
+  it('returns paginated results with default page and limit', async () => {
+    selectQueue.push({ count: 2 }, [{ id: 'user-1' }, { id: 'user-2' }]);
+
+    const result = await service.findAll('tenant-1');
+
+    expect(result).toEqual({
+      items: [{ id: 'user-1' }, { id: 'user-2' }],
+      total: 2,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+    });
+  });
+
+  it('applies page and limit options', async () => {
+    selectQueue.push({ count: 1 }, [{ id: 'user-3' }]);
+
+    const result = await service.findAll('tenant-1', { page: 2, limit: 5 });
+
+    expect(result).toEqual({
+      items: [{ id: 'user-3' }],
+      total: 1,
+      page: 2,
+      limit: 5,
+      totalPages: 1,
+    });
+  });
+
+  it('caps limit at a maximum value', async () => {
+    selectQueue.push({ count: 1 }, [{ id: 'user-1' }]);
+
+    await service.findAll('tenant-1', { limit: 500 });
+
+    // The items query is the second db.select() call.
+    const itemsSelectChain = mockDb.select.mock.results[1].value;
+    expect(itemsSelectChain.limit).toHaveBeenCalledWith(100);
   });
 
   it('updates, updates profile, removes users, and summarizes role stats', async () => {

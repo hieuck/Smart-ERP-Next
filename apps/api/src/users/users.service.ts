@@ -44,7 +44,14 @@ export class UsersService {
   }
 
   /** Always scoped to tenantId — never returns cross-tenant data */
-  async findAll(tenantId: string, search?: string) {
+  async findAll(
+    tenantId: string,
+    options: { search?: string; page?: number; limit?: number } = {},
+  ) {
+    const { search } = options;
+    const page = Math.max(1, Number(options.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(options.limit) || 20));
+
     const conditions = [eq(users.tenantId, tenantId)];
 
     if (search) {
@@ -56,7 +63,14 @@ export class UsersService {
       );
     }
 
-    return db
+    const whereClause = and(...conditions);
+
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(whereClause);
+
+    const items = await db
       .select({
         id: users.id,
         email: users.email,
@@ -68,8 +82,19 @@ export class UsersService {
         // Never return passwordHash
       })
       .from(users)
-      .where(and(...conditions))
-      .orderBy(users.createdAt);
+      .where(whereClause)
+      .orderBy(users.createdAt)
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    const total = Number(count);
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(tenantId: string, id: string) {
