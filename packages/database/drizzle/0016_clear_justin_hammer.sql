@@ -1,0 +1,4 @@
+ALTER TABLE "e_invoices" ADD CONSTRAINT "e_invoices_replaces_invoice_id_fk" FOREIGN KEY ("replaces_invoice_id") REFERENCES "public"."e_invoices"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "e_invoices" ADD CONSTRAINT "e_invoices_adjusts_invoice_id_fk" FOREIGN KEY ("adjusts_invoice_id") REFERENCES "public"."e_invoices"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "einv_replaces_invoice_idx" ON "e_invoices" USING btree ("tenant_id","replaces_invoice_id");--> statement-breakpoint
+CREATE INDEX "einv_adjusts_invoice_idx" ON "e_invoices" USING btree ("tenant_id","adjusts_invoice_id");

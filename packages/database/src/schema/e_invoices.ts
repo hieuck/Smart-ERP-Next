@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, numeric, timestamp, integer, boolean, index, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, numeric, timestamp, integer, boolean, index, jsonb, foreignKey } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { customers } from './customers';
 import { orders } from './orders';
@@ -99,6 +99,18 @@ export const eInvoices = pgTable(
     customerIdx: index('einv_customer_idx').on(table.customerId),
     invoiceNumberIdx: index('einv_number_idx').on(table.tenantId, table.invoiceNumber),
     issuedAtIdx: index('einv_issued_at_idx').on(table.tenantId, table.issuedAt),
+    replacesInvoiceIdx: index('einv_replaces_invoice_idx').on(table.tenantId, table.replacesInvoiceId),
+    adjustsInvoiceIdx: index('einv_adjusts_invoice_idx').on(table.tenantId, table.adjustsInvoiceId),
+    replacesInvoiceFk: foreignKey({
+      columns: [table.replacesInvoiceId],
+      foreignColumns: [table.id],
+      name: 'e_invoices_replaces_invoice_id_fk',
+    }).onDelete('set null'),
+    adjustsInvoiceFk: foreignKey({
+      columns: [table.adjustsInvoiceId],
+      foreignColumns: [table.id],
+      name: 'e_invoices_adjusts_invoice_id_fk',
+    }).onDelete('set null'),
   })
 );
 
