@@ -1,13 +1,16 @@
 import {
   Controller, Get, Post, Patch, Delete,
-  Body, Param, Query, UseGuards, Request, ParseUUIDPipe,
+  Body, Param, Query, UseGuards, UsePipes, Request, ParseUUIDPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
+import { PaginationParamsDto } from '../common/dto/pagination-params.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: false }))
 @Controller('suppliers')
 export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) {}
@@ -20,14 +23,13 @@ export class SuppliersController {
   @Get()
   findAll(
     @Request() req: any,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query() pagination: PaginationParamsDto,
     @Query('search') search?: string,
     @Query('isActive') isActive?: string,
   ) {
     return this.suppliersService.findAll(req.user.tenantId, {
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
+      page: pagination.page,
+      limit: pagination.limit,
       search,
       isActive: isActive !== undefined ? isActive === 'true' : undefined,
     });
