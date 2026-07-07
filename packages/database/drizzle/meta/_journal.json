@@ -57,6 +57,13 @@
       "when": 1783426919385,
       "tag": "0007_sudden_bucky",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783439023782,
+      "tag": "0008_mighty_puppet_master",
+      "breakpoints": true
     }
   ]
 }
