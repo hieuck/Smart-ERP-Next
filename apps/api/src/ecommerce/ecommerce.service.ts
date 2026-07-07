@@ -69,7 +69,7 @@ export class EcommerceService {
 
     // 1. Sync products
     try {
-      const productRes = await this.syncStoreProducts(store.id);
+      const productRes = await this.syncStoreProducts(store.id, store.tenantId);
       itemsProcessed.products = productRes || 0;
     } catch (err: any) {
       errors.push(`[Products] ${err.message ?? String(err)}`);
@@ -77,7 +77,7 @@ export class EcommerceService {
 
     // 2. Sync inventory
     try {
-      const inventoryRes = await this.syncStoreInventory(store.id);
+      const inventoryRes = await this.syncStoreInventory(store.id, store.tenantId);
       itemsProcessed.inventory = inventoryRes || 0;
     } catch (err: any) {
       errors.push(`[Inventory] ${err.message ?? String(err)}`);
@@ -85,7 +85,7 @@ export class EcommerceService {
 
     // 3. Sync orders
     try {
-      const orderRes = await this.syncStoreOrders(store.id);
+      const orderRes = await this.syncStoreOrders(store.id, store.tenantId);
       itemsProcessed.orders = orderRes || 0;
     } catch (err: any) {
       errors.push(`[Orders] ${err.message ?? String(err)}`);
@@ -117,8 +117,8 @@ export class EcommerceService {
 
   // ---------- TikTok Shop ----------
 
-  async syncTikTokShopProducts(storeId: string) {
-    const store = await this.getStore(storeId);
+  async syncTikTokShopProducts(storeId: string, tenantId: string) {
+    const store = await this.getStore(storeId, tenantId);
     const config: TikTokShopConfig = JSON.parse(store.configJson || '{}');
     const client = new TikTokShopClient(config);
     let page = 1;
@@ -136,8 +136,8 @@ export class EcommerceService {
     return total;
   }
 
-  async syncTikTokShopOrders(storeId: string, since?: string) {
-    const store = await this.getStore(storeId);
+  async syncTikTokShopOrders(storeId: string, tenantId: string, since?: string) {
+    const store = await this.getStore(storeId, tenantId);
     const config: TikTokShopConfig = JSON.parse(store.configJson || '{}');
     const client = new TikTokShopClient(config);
     let page = 1;
@@ -157,8 +157,8 @@ export class EcommerceService {
 
   // ---------- Amazon ----------
 
-  async syncAmazonProducts(storeId: string) {
-    const store = await this.getStore(storeId);
+  async syncAmazonProducts(storeId: string, tenantId: string) {
+    const store = await this.getStore(storeId, tenantId);
     const config: AmazonConfig = JSON.parse(store.configJson || '{}');
     const client = new AmazonClient(config);
     const products = await client.getProducts();
@@ -170,8 +170,8 @@ export class EcommerceService {
     return total;
   }
 
-  async syncAmazonOrders(storeId: string) {
-    const store = await this.getStore(storeId);
+  async syncAmazonOrders(storeId: string, tenantId: string) {
+    const store = await this.getStore(storeId, tenantId);
     const config: AmazonConfig = JSON.parse(store.configJson || '{}');
     const client = new AmazonClient(config);
     const orders = await client.getOrders();
@@ -187,8 +187,8 @@ export class EcommerceService {
 
   // ---------- Shopee ----------
 
-  async syncShopeeProducts(storeId: string) {
-    const store = await this.getStore(storeId);
+  async syncShopeeProducts(storeId: string, tenantId: string) {
+    const store = await this.getStore(storeId, tenantId);
     const config: ShopeeConfig = JSON.parse(store.configJson || '{}');
     const client = new ShopeeClient(config);
     let page = 1;
@@ -206,8 +206,8 @@ export class EcommerceService {
     return total;
   }
 
-  async syncShopeeOrders(storeId: string, since?: string) {
-    const store = await this.getStore(storeId);
+  async syncShopeeOrders(storeId: string, tenantId: string, since?: string) {
+    const store = await this.getStore(storeId, tenantId);
     const config: ShopeeConfig = JSON.parse(store.configJson || '{}');
     const client = new ShopeeClient(config);
     let page = 1;
@@ -266,8 +266,8 @@ export class EcommerceService {
 
   // ---------- eBay ----------
 
-  async syncEbayProducts(storeId: string) {
-    const store = await this.getStore(storeId);
+  async syncEbayProducts(storeId: string, tenantId: string) {
+    const store = await this.getStore(storeId, tenantId);
     const config: EbayConfig = JSON.parse(store.configJson || '{}');
     const client = new EbayClient(config);
     const products = await client.getProducts();
@@ -279,8 +279,8 @@ export class EcommerceService {
     return total;
   }
 
-  async syncEbayOrders(storeId: string) {
-    const store = await this.getStore(storeId);
+  async syncEbayOrders(storeId: string, tenantId: string) {
+    const store = await this.getStore(storeId, tenantId);
     const config: EbayConfig = JSON.parse(store.configJson || '{}');
     const client = new EbayClient(config);
     const orders = await client.getOrders();
@@ -294,44 +294,44 @@ export class EcommerceService {
 
   // --------------- Private helpers --------------
 
-  private async getStore(storeId: string) {
+  private async getStore(storeId: string, tenantId: string) {
     const store = await db
       .select()
       .from(ecommerceStores)
-      .where(eq(ecommerceStores.id, storeId))
+      .where(and(eq(ecommerceStores.id, storeId), eq(ecommerceStores.tenantId, tenantId)))
       .then((r) => r[0]);
     if (!store) throw new HttpException('Store not found', HttpStatus.NOT_FOUND);
     return store;
   }
 
-  private async syncStoreProducts(storeId: string): Promise<number> {
-    const store = await this.getStore(storeId);
+  private async syncStoreProducts(storeId: string, tenantId: string): Promise<number> {
+    const store = await this.getStore(storeId, tenantId);
     let total = 0;
     switch (store.platform) {
-      case 'tiktokshop': total = await this.syncTikTokShopProducts(storeId); break;
-      case 'amazon': total = await this.syncAmazonProducts(storeId); break;
-      case 'ebay': total = await this.syncEbayProducts(storeId); break;
-      case 'shopee': total = await this.syncShopeeProducts(storeId); break;
+      case 'tiktokshop': total = await this.syncTikTokShopProducts(storeId, tenantId); break;
+      case 'amazon': total = await this.syncAmazonProducts(storeId, tenantId); break;
+      case 'ebay': total = await this.syncEbayProducts(storeId, tenantId); break;
+      case 'shopee': total = await this.syncShopeeProducts(storeId, tenantId); break;
       default: throw new HttpException(`Unsupported platform for products: ${store.platform}`, HttpStatus.BAD_REQUEST);
     }
     return total;
   }
 
-  private async syncStoreOrders(storeId: string): Promise<number> {
-    const store = await this.getStore(storeId);
+  private async syncStoreOrders(storeId: string, tenantId: string): Promise<number> {
+    const store = await this.getStore(storeId, tenantId);
     let total = 0;
     switch (store.platform) {
-      case 'tiktokshop': total = await this.syncTikTokShopOrders(storeId); break;
-      case 'amazon': total = await this.syncAmazonOrders(storeId); break;
-      case 'ebay': total = await this.syncEbayOrders(storeId); break;
-      case 'shopee': total = await this.syncShopeeOrders(storeId); break;
+      case 'tiktokshop': total = await this.syncTikTokShopOrders(storeId, tenantId); break;
+      case 'amazon': total = await this.syncAmazonOrders(storeId, tenantId); break;
+      case 'ebay': total = await this.syncEbayOrders(storeId, tenantId); break;
+      case 'shopee': total = await this.syncShopeeOrders(storeId, tenantId); break;
       default: throw new HttpException(`Unsupported platform for orders: ${store.platform}`, HttpStatus.BAD_REQUEST);
     }
     return total;
   }
 
-  private async syncStoreInventory(storeId: string): Promise<number> {
-    const store = await this.getStore(storeId);
+  private async syncStoreInventory(storeId: string, tenantId: string): Promise<number> {
+    const store = await this.getStore(storeId, tenantId);
     const channelInventory = await db
       .select()
       .from(ecommerceChannelInventory)
