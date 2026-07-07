@@ -1,0 +1,1 @@
+ALTER TABLE "finance_budgets" ADD CONSTRAINT "fin_bud_name_fiscal_year_unique" UNIQUE("tenant_id","name","fiscal_year");
