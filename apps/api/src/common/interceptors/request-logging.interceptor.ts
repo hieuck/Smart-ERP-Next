@@ -1,5 +1,5 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 import { StructuredLogger } from '../logger/logger.service';
 import { LokiLoggerService } from '../logger/loki-logger.service';
 
@@ -28,6 +28,18 @@ export class RequestLoggingInterceptor implements NestInterceptor {
         const duration = Date.now() - now;
         this.logger.log(`← ${method} ${url} ${statusCode} ${duration}ms`);
         this.loki.log('info', service, `← ${method} ${url} ${statusCode} ${duration}ms`, { requestId, statusCode, duration });
+      }),
+      catchError((err) => {
+        const statusCode = err?.status ?? err?.statusCode ?? 500;
+        const duration = Date.now() - now;
+        this.logger.error(`← ${method} ${url} ${statusCode} ${duration}ms`);
+        this.loki.error(service, `← ${method} ${url} ${statusCode} ${duration}ms`, {
+          requestId,
+          statusCode,
+          duration,
+          error: err?.message ?? String(err),
+        });
+        return throwError(() => err);
       }),
     );
   }
