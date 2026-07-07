@@ -1,4 +1,5 @@
-import { pgTable, uuid, text, timestamp, boolean, numeric, index } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { pgTable, uuid, text, timestamp, boolean, numeric, index, unique, uniqueIndex } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
 export const customers = pgTable(
@@ -34,6 +35,13 @@ export const customers = pgTable(
     tenantIdx: index('customers_tenant_idx').on(table.tenantId),
     codeIdx: index('customers_code_idx').on(table.code),
     phoneIdx: index('customers_phone_idx').on(table.phone),
+    codeUnique: unique('customers_code_tenant_unique').on(table.tenantId, table.code),
+    emailUnique: uniqueIndex('customers_email_tenant_unique')
+      .on(table.tenantId, table.email)
+      .where(sql`${table.email} IS NOT NULL`),
+    externalUnique: uniqueIndex('customers_external_id_tenant_unique')
+      .on(table.tenantId, table.externalId, table.externalPlatform)
+      .where(sql`${table.externalId} IS NOT NULL`),
   })
 );
 
