@@ -1,4 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { db } from '@smart-erp/database';
+import { orders, orderItems } from '@smart-erp/database/schema';
+import { sql } from 'drizzle-orm';
 import { ForecastService } from '../forecast/forecast.service';
 import { ActivityService } from '../modules/activity/activity.service';
 import axios from 'axios';
@@ -73,7 +76,7 @@ export class InventoryRecommendationService {
     currentStock: number,
   ): Promise<ReorderResult> {
     try {
-      const salesHistory = this.generateSalesHistory();
+      const salesHistory = await this.generateSalesHistory(tenantId, productId);
 
       const response = await axios.post(
         `${this.aiServiceUrl}/reorder-suggestion`,
@@ -121,16 +124,37 @@ export class InventoryRecommendationService {
     }
   }
 
-  private generateSalesHistory(): { date: string; quantity: number }[] {
+  private async generateSalesHistory(tenantId: string, productId: string): Promise<{ date: string; quantity: number }[]> {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 60);
+    cutoff.setHours(0, 0, 0, 0);
+
+    const result = await db.execute<{ date: string; quantity: number }>(
+      sql`
+        SELECT DATE(o.created_at) AS date, COALESCE(SUM(oi.quantity), 0)::int AS quantity
+        FROM ${sql.raw((orders as any).name)} o
+        JOIN ${sql.raw((orderItems as any).name)} oi ON oi.order_id = o.id
+        WHERE o.tenant_id = ${tenantId}
+          AND oi.product_id = ${productId}
+          AND o.created_at >= ${cutoff.toISOString()}
+          AND o.status NOT IN ('draft', 'cancelled', 'returned')
+        GROUP BY DATE(o.created_at)
+        ORDER BY date ASC
+      `
+    );
+
+    const salesByDate = new Map<string, number>();
+    for (const row of result.rows ?? []) {
+      salesByDate.set(row.date, Number(row.quantity));
+    }
+
     const history: { date: string; quantity: number }[] = [];
     const today = new Date();
     for (let i = 60; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      history.push({
-        date: date.toISOString().split('T')[0],
-        quantity: Math.floor(10 + Math.random() * 20),
-      });
+      const dateStr = date.toISOString().split('T')[0];
+      history.push({ date: dateStr, quantity: salesByDate.get(dateStr) ?? 0 });
     }
     return history;
   }
