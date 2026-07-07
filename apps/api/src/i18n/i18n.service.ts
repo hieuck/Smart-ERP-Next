@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -10,6 +10,7 @@ interface Translations {
 export class I18nService {
   private translations: Map<string, Translations> = new Map();
   private defaultLocale = 'vi';
+  private readonly logger = new Logger(I18nService.name);
 
   constructor() {
     this.loadTranslations();
@@ -43,8 +44,13 @@ export class I18nService {
       const filePath = path.join(localesPath, locale, 'common.json');
       if (fs.existsSync(filePath)) {
         const content = fs.readFileSync(filePath, 'utf-8');
-        const data = JSON.parse(content);
-        this.translations.set(locale, data);
+        try {
+          const data = JSON.parse(content);
+          this.translations.set(locale, data);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          this.logger.warn(`Failed to parse locale file ${filePath}: ${message}`);
+        }
       }
     }
   }
