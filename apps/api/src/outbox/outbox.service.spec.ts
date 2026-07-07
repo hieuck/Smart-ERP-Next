@@ -82,11 +82,16 @@ describe('OutboxService', () => {
 
   describe('cleanup', () => {
     it('deletes processed events older than the specified age', async () => {
-      const oldEvents = [{ id: 'old-1' }];
+      db.delete.mockReturnValue({ where: jest.fn().mockResolvedValue(undefined) });
+      await service.cleanup(7);
+      expect(db.delete).toHaveBeenCalled();
+    });
+
+    it('uses a single delete query for many old events instead of N+1 deletes', async () => {
+      const oldEvents = [{ id: 'old-1' }, { id: 'old-2' }, { id: 'old-3' }];
       db.select.mockReturnValue({ from: jest.fn().mockReturnValue({ where: jest.fn().mockReturnValue(queryResult(oldEvents)) }) });
       await service.cleanup(7);
-      expect(db.select).toHaveBeenCalled();
-      expect(db.delete).toHaveBeenCalled();
+      expect(db.delete).toHaveBeenCalledTimes(1);
     });
   });
 });
