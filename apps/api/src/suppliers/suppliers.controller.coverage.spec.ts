@@ -1,4 +1,5 @@
 import { SuppliersController } from './suppliers.controller';
+import { PaginationParamsDto } from '../common/dto/pagination-params.dto';
 
 describe('SuppliersController', () => {
   let svc: any;
@@ -21,7 +22,8 @@ describe('SuppliersController', () => {
 
   it('findAll delegates to service', async () => {
     svc.findAll.mockResolvedValue({ items: [], total: 0 });
-    await ctrl.findAll(req, '1', '20', 'search', 'true');
+    const pagination: PaginationParamsDto = { page: 1, limit: 20 };
+    await ctrl.findAll(req, pagination, 'search', 'true');
     expect(svc.findAll).toHaveBeenCalledWith('t1', { page: 1, limit: 20, search: 'search', isActive: true });
   });
 
