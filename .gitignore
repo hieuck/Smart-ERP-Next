@@ -72,3 +72,5 @@ type_check_result*.txt
 release-notes.md
 
 /.kimchi
+/.claude/worktrees
+/.worktrees
