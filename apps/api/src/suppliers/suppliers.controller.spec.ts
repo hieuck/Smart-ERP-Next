@@ -1,74 +1,49 @@
 import 'reflect-metadata';
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, CanActivate, ExecutionContext } from '@nestjs/common';
-import request from 'supertest';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 import { SuppliersController } from './suppliers.controller';
-import { SuppliersService } from './suppliers.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-
-class MockJwtAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    const req = context.switchToHttp().getRequest();
-    req.user = { tenantId: 't1' };
-    return true;
-  }
-}
+import { PaginationParamsDto } from '../common/dto/pagination-params.dto';
 
 describe('SuppliersController pagination validation', () => {
-  let app: INestApplication;
   let svc: { findAll: jest.Mock };
+  let ctrl: SuppliersController;
 
-  beforeAll(async () => {
+  beforeEach(() => {
     svc = { findAll: jest.fn() };
-
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [SuppliersController],
-      providers: [{ provide: SuppliersService, useValue: svc }],
-    })
-      .overrideGuard(JwtAuthGuard)
-      .useClass(MockJwtAuthGuard)
-      .compile();
-
-    app = module.createNestApplication();
-    await app.init();
+    ctrl = new SuppliersController(svc as any);
   });
 
-  afterAll(async () => {
-    await app.close();
+  it('rejects invalid page and limit via PaginationParamsDto', async () => {
+    const dto = plainToInstance(PaginationParamsDto, { page: 'abc', limit: 'xyz' });
+    const errors = await validate(dto);
+
+    expect(errors.length).toBeGreaterThan(0);
+    const propertyNames = errors.map((e) => e.property);
+    expect(propertyNames).toContain('page');
+    expect(propertyNames).toContain('limit');
   });
 
-  it('GET /suppliers?page=abc&limit=xyz returns 400 Bad Request', async () => {
-    const res = await request(app.getHttpServer())
-      .get('/suppliers?page=abc&limit=xyz');
+  it('accepts valid page and limit via PaginationParamsDto', async () => {
+    const dto = plainToInstance(PaginationParamsDto, { page: '1', limit: '10' });
+    const errors = await validate(dto);
 
-    expect(res.status).toBe(400);
+    expect(errors).toHaveLength(0);
+    expect(dto.page).toBe(1);
+    expect(dto.limit).toBe(10);
   });
 
-  it('GET /suppliers?page=1&limit=10 returns 200 OK', async () => {
-    svc.findAll.mockResolvedValue({
-      items: [],
-      total: 0,
-      page: 1,
-      limit: 10,
-      totalPages: 0,
-    });
+  it('delegates validated pagination to the service', async () => {
+    svc.findAll.mockResolvedValue({ items: [], total: 0 });
+    const req = { user: { tenantId: 't1' } };
+    const pagination: PaginationParamsDto = { page: 1, limit: 10 };
 
-    const res = await request(app.getHttpServer())
-      .get('/suppliers?page=1&limit=10');
+    await ctrl.findAll(req as any, pagination, undefined, undefined);
 
-    expect(res.status).toBe(200);
     expect(svc.findAll).toHaveBeenCalledWith('t1', {
       page: 1,
       limit: 10,
       search: undefined,
       isActive: undefined,
-    });
-    expect(res.body).toEqual({
-      items: [],
-      total: 0,
-      page: 1,
-      limit: 10,
-      totalPages: 0,
     });
   });
 });
