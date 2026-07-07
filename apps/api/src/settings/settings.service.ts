@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { tenants } from '@smart-erp/database/schema';
 import { eq } from 'drizzle-orm';
+import { SUPPORTED_CURRENCIES } from './supported-currencies';
 
 @Injectable()
 export class SettingsService {
@@ -17,6 +18,11 @@ export class SettingsService {
   }
 
   async setDefaultCurrency(tenantId: string, currency: string): Promise<{ currency: string }> {
+    const normalizedCurrency = currency?.toUpperCase();
+    if (!SUPPORTED_CURRENCIES.includes(normalizedCurrency as any)) {
+      throw new BadRequestException(`Unsupported currency code: ${currency}`);
+    }
+
     const [tenant] = await db
       .select()
       .from(tenants)
@@ -27,11 +33,11 @@ export class SettingsService {
 
     const [updated] = await db
       .update(tenants)
-      .set({ defaultCurrency: currency } as any)
+      .set({ defaultCurrency: normalizedCurrency })
       .where(eq(tenants.id, tenantId))
       .returning();
 
-    return { currency: updated.defaultCurrency ?? currency };
+    return { currency: updated.defaultCurrency ?? normalizedCurrency };
   }
 
   getRegisterSettings(tenantId?: string) {
