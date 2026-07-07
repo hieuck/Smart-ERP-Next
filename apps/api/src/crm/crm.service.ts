@@ -88,7 +88,7 @@ export class CrmService {
     const [updated] = await this.drizzle.db
       .update(leads)
       .set({ status: status as any, updatedAt: new Date() })
-      .where(eq(leads.id, leadId))
+      .where(and(eq(leads.id, leadId), eq(leads.tenantId, tenantId)))
       .returning();
       
     if (!updated) {
