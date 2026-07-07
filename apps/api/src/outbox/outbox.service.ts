@@ -37,10 +37,7 @@ export class OutboxService {
 
   async cleanup(daysOld: number) {
     const cutoff = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000);
-    const oldEvents = await db.select().from(outboxEvents)
+    await db.delete(outboxEvents)
       .where(and(eq(outboxEvents.status, 'completed'), lte(outboxEvents.createdAt, cutoff)));
-    for (const e of oldEvents) {
-      await db.delete(outboxEvents).where(eq(outboxEvents.id, e.id));
-    }
   }
 }
