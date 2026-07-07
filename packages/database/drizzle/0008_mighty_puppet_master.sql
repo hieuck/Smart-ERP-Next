@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "scm_reorder_active_unique" ON "inventory_reorder_suggestions" USING btree ("tenant_id","product_id") WHERE "inventory_reorder_suggestions"."status" IN ('pending', 'approved');

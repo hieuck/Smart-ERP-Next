@@ -1,4 +1,5 @@
-import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { pgTable, uuid, text, timestamp, decimal, integer, index, uniqueIndex, boolean } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { products } from './products';
 import { suppliers } from './suppliers';
@@ -63,6 +64,9 @@ export const inventoryReorderSuggestions = pgTable(
     tenantIdx: index('scm_reorder_tenant_idx').on(t.tenantId),
     productIdx: index('scm_reorder_product_idx').on(t.productId),
     statusIdx: index('scm_reorder_status_idx').on(t.status),
+    activeUnique: uniqueIndex('scm_reorder_active_unique')
+      .on(t.tenantId, t.productId)
+      .where(sql`${t.status} IN ('pending', 'approved')`),
   })
 );
 
