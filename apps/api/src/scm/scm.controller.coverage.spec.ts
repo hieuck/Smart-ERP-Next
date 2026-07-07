@@ -1,3 +1,4 @@
+import { BadRequestException, ParseUUIDPipe } from '@nestjs/common';
 import { ScmController } from './scm.controller';
 
 describe('ScmController coverage', () => {
@@ -34,5 +35,12 @@ describe('ScmController coverage', () => {
     const r = await ctrl.approve(req, 's1');
     expect(svc.approveSuggestion).toHaveBeenCalledWith('t1', 's1');
     expect(r).toEqual({ id: 's1', status: 'approved' });
+  });
+
+  it('rejects invalid suggestion id via ParseUUIDPipe', async () => {
+    const pipe = new ParseUUIDPipe();
+    await expect(pipe.transform('not-a-uuid', { type: 'param', metatype: String } as any))
+      .rejects
+      .toBeInstanceOf(BadRequestException);
   });
 });
