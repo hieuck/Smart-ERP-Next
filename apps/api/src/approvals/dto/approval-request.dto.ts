@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsArray, ArrayMinSize, Min } from 'class-validator';
+import { IsString, IsNumber, IsArray, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ApprovalRequestDto {
@@ -18,6 +18,5 @@ export class ApprovalRequestDto {
   @ApiProperty({ type: [String] })
   @IsArray()
   @IsString({ each: true })
-  @ArrayMinSize(1)
   approverIds: string[];
 }
