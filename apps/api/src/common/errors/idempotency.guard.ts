@@ -24,8 +24,16 @@ export class IdempotencyGuard implements CanActivate {
   private readonly now: () => number;
 
   constructor(@Optional() options: IdempotencyGuardOptions = {}) {
-    this.ttlMs = options.ttlMs ?? Number(process.env.IDEMPOTENCY_TTL_MS || DEFAULT_TTL_MS);
-    this.maxRecords = options.maxRecords ?? Number(process.env.IDEMPOTENCY_MAX_RECORDS || DEFAULT_MAX_RECORDS);
+    this.ttlMs = options.ttlMs ?? IdempotencyGuard.parsePositiveInt(
+      process.env.IDEMPOTENCY_TTL_MS,
+      DEFAULT_TTL_MS,
+      'IDEMPOTENCY_TTL_MS',
+    );
+    this.maxRecords = options.maxRecords ?? IdempotencyGuard.parsePositiveInt(
+      process.env.IDEMPOTENCY_MAX_RECORDS,
+      DEFAULT_MAX_RECORDS,
+      'IDEMPOTENCY_MAX_RECORDS',
+    );
     this.now = options.now ?? Date.now;
   }
 
@@ -88,5 +96,19 @@ export class IdempotencyGuard implements CanActivate {
     if (oldestScope) {
       this.store.delete(oldestScope);
     }
+  }
+
+  private static parsePositiveInt(
+    value: string | undefined,
+    defaultValue: number,
+    name: string,
+  ): number {
+    if (!value) return defaultValue;
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0 || !Number.isInteger(parsed)) {
+      console.warn(`Invalid ${name} "${value}", using default ${defaultValue}`);
+      return defaultValue;
+    }
+    return parsed;
   }
 }

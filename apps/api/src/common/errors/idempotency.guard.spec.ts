@@ -1,6 +1,9 @@
 import { ExecutionContext, HttpException } from '@nestjs/common';
 import { IdempotencyGuard } from './idempotency.guard';
 
+const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_MAX_RECORDS = 10_000;
+
 function createContext(
   method: string,
   url: string,
@@ -30,6 +33,24 @@ function createContext(
 }
 
 describe('IdempotencyGuard', () => {
+  const originalTtlEnv = process.env.IDEMPOTENCY_TTL_MS;
+  const originalMaxEnv = process.env.IDEMPOTENCY_MAX_RECORDS;
+
+  beforeEach(() => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    delete process.env.IDEMPOTENCY_TTL_MS;
+    delete process.env.IDEMPOTENCY_MAX_RECORDS;
+  });
+
+  afterEach(() => {
+    (console.warn as jest.Mock).mockRestore();
+  });
+
+  afterAll(() => {
+    process.env.IDEMPOTENCY_TTL_MS = originalTtlEnv;
+    process.env.IDEMPOTENCY_MAX_RECORDS = originalMaxEnv;
+  });
+
   it('allows non-mutating requests without an idempotency key', () => {
     const guard = new IdempotencyGuard();
 
@@ -96,5 +117,48 @@ describe('IdempotencyGuard', () => {
     const replayResponse = replayContext.switchToHttp().getResponse() as any;
     expect(replayResponse.status).toHaveBeenCalledWith(201);
     expect(replayResponse.json).toHaveBeenCalledWith({ id: 'order-1' });
+  });
+
+  it('falls back to default TTL when IDEMPOTENCY_TTL_MS is non-numeric', () => {
+    process.env.IDEMPOTENCY_TTL_MS = 'abc';
+    let now = 1_000;
+    const guard = new IdempotencyGuard({ now: () => now });
+
+    expect(guard.canActivate(createContext('POST', '/orders', 'bad-ttl-key'))).toBe(true);
+    now += DEFAULT_TTL_MS + 1;
+
+    expect(guard.canActivate(createContext('POST', '/orders', 'bad-ttl-key'))).toBe(true);
+    expect(console.warn).toHaveBeenCalledWith(
+      `Invalid IDEMPOTENCY_TTL_MS "abc", using default ${DEFAULT_TTL_MS}`,
+    );
+  });
+
+  it('falls back to default max records when IDEMPOTENCY_MAX_RECORDS is negative', () => {
+    process.env.IDEMPOTENCY_MAX_RECORDS = '-5';
+    const guard = new IdempotencyGuard({ ttlMs: 60_000, now: () => 1_000 });
+
+    expect(guard.canActivate(createContext('POST', '/orders', 'first-key'))).toBe(true);
+    expect(guard.canActivate(createContext('POST', '/orders', 'second-key'))).toBe(true);
+
+    expect(() => guard.canActivate(createContext('POST', '/orders', 'first-key'))).toThrow(
+      HttpException,
+    );
+    expect(console.warn).toHaveBeenCalledWith(
+      `Invalid IDEMPOTENCY_MAX_RECORDS "-5", using default ${DEFAULT_MAX_RECORDS}`,
+    );
+  });
+
+  it('falls back to default max records when IDEMPOTENCY_MAX_RECORDS is NaN', () => {
+    process.env.IDEMPOTENCY_MAX_RECORDS = 'NaN';
+    const guard = new IdempotencyGuard({ ttlMs: 60_000, now: () => 1_000 });
+
+    expect(guard.canActivate(createContext('POST', '/orders', 'nan-key'))).toBe(true);
+
+    expect(() => guard.canActivate(createContext('POST', '/orders', 'nan-key'))).toThrow(
+      HttpException,
+    );
+    expect(console.warn).toHaveBeenCalledWith(
+      `Invalid IDEMPOTENCY_MAX_RECORDS "NaN", using default ${DEFAULT_MAX_RECORDS}`,
+    );
   });
 });
