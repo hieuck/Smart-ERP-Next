@@ -7,6 +7,7 @@ jest.mock('drizzle-orm', () => ({
 
 jest.mock('@smart-erp/database', () => ({
   notifications: {},
+  users: {},
   NewNotification: {},
   Notification: {},
 }));
@@ -27,6 +28,13 @@ describe('NotificationsService (integration)', () => {
     it('should create and return a notification', async () => {
       const data = { userId: 'u1', type: 'approval', title: 'Test Title', message: 'Test message' };
       const expected = { id: 'n1', tenantId: 't1', ...data, isRead: false, createdAt: new Date() };
+      (mockDb.select as jest.Mock).mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([{ id: data.userId }]),
+          }),
+        }),
+      });
       (mockDb.insert as jest.Mock).mockReturnValue({
         values: jest.fn().mockReturnValue({
           returning: jest.fn().mockResolvedValue([expected]),
@@ -35,8 +43,24 @@ describe('NotificationsService (integration)', () => {
 
       const result = await service.create('t1', data);
 
+      expect(mockDb.select).toHaveBeenCalled();
       expect(mockDb.insert).toHaveBeenCalled();
       expect(result).toEqual(expected);
+    });
+
+    it('should reject creation when user belongs to a different tenant', async () => {
+      const data = { userId: 'u-other', type: 'approval', title: 'Test Title', message: 'Test message' };
+      (mockDb.select as jest.Mock).mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([]),
+          }),
+        }),
+      });
+
+      await expect(service.create('t1', data)).rejects.toThrow('User does not belong to this tenant');
+      expect(mockDb.select).toHaveBeenCalled();
+      expect(mockDb.insert).not.toHaveBeenCalled();
     });
   });
 

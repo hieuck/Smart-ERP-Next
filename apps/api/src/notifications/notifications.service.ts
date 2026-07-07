@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
-import { notifications, NewNotification, Notification } from '@smart-erp/database';
+import { notifications, users, NewNotification, Notification } from '@smart-erp/database';
 import { eq, and, desc, sql } from 'drizzle-orm';
 
 @Injectable()
@@ -8,6 +8,15 @@ export class NotificationsService {
   constructor(private drizzle: DrizzleService) {}
 
   async create(tenantId: string, data: Omit<NewNotification, 'tenantId' | 'id'>): Promise<Notification> {
+    const user = await this.drizzle.db
+      .select({ id: users.id })
+      .from(users)
+      .where(and(eq(users.id, data.userId), eq(users.tenantId, tenantId)))
+      .limit(1);
+    if (user.length === 0) {
+      throw new BadRequestException('User does not belong to this tenant');
+    }
+
     const [notification] = await this.drizzle.db
       .insert(notifications)
       .values({ ...data, tenantId })

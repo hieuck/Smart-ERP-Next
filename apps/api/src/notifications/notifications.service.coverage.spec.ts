@@ -40,9 +40,10 @@ describe('NotificationsService coverage', () => {
 
   it('creates notifications and reads them by user', async () => {
     const insertChain = makeWriteChain([{ id: 'notification-1' }]);
+    const userChain = makeSelectChain('limit', [{ id: 'user-1' }]);
     const selectChain = makeSelectChain('limit', [{ id: 'notification-1' }]);
     db.insert.mockReturnValueOnce(insertChain);
-    db.select.mockReturnValueOnce(selectChain);
+    db.select.mockReturnValueOnce(userChain).mockReturnValueOnce(selectChain);
 
     await expect(service.create('tenant-1', { title: 'Hi', userId: 'user-1' } as any)).resolves.toEqual({
       id: 'notification-1',
