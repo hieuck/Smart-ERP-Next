@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { users } from './users';
 
@@ -25,6 +25,7 @@ export const financeBudgets = pgTable(
   },
   (t) => ({
     tenantIdx: index('fin_bud_tenant_idx').on(t.tenantId),
+    nameFiscalYearUnique: unique('fin_bud_name_fiscal_year_unique').on(t.tenantId, t.name, t.fiscalYear),
   })
 );
 
