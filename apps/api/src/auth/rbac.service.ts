@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { Permission, PERMISSIONS, DEFAULT_ROLES } from './permissions';
+import { users } from '@smart-erp/database/schema';
+import { eq, and } from 'drizzle-orm';
 
 export type { Permission } from './permissions';
 
@@ -182,7 +184,12 @@ export class RbacService {
   }
 
   private async getUserRole(tenantId: string, userId: string): Promise<string> {
-    // Simplified: in production, query user_roles table
-    return 'staff';
+    const [user] = await this.drizzle.db
+      .select({ role: users.role })
+      .from(users)
+      .where(and(eq(users.tenantId, tenantId), eq(users.id, userId)))
+      .limit(1);
+
+    return user?.role || 'staff';
   }
 }
