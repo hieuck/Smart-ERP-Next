@@ -29,6 +29,7 @@ module.exports = {
     '!**/node_modules/**',
     '!apps/**/test-results/**',
     '!apps/**/e2e/**',
+    '!packages/test-utils/**',
     '!apps/api/src/scratch_debug.ts',
     '!apps/api/src/test-bcrypt.ts',
   ],
