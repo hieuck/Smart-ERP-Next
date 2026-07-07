@@ -214,7 +214,7 @@ export class AttendanceService {
         ws.start_time as shift_start,
         ws.end_time as shift_end
       FROM attendance_records a
-      LEFT JOIN users u ON u.id = a.employee_id
+      LEFT JOIN users u ON u.id = a.employee_id AND u.tenant_id = ${tenantId}
       LEFT JOIN work_shifts ws ON ws.id = a.shift_id
       WHERE a.tenant_id = ${tenantId}
     `;
@@ -298,7 +298,7 @@ export class AttendanceService {
     let query = sql`
       SELECT lr.*, u.name as employee_name
       FROM leave_requests lr
-      LEFT JOIN users u ON u.id = lr.employee_id
+      LEFT JOIN users u ON u.id = lr.employee_id AND u.tenant_id = ${tenantId}
       WHERE lr.tenant_id = ${tenantId}
     `;
     if (status)     query = sql`${query} AND lr.status = ${status}`;
