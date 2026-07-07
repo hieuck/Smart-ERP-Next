@@ -60,4 +60,44 @@ describe('I18nService', () => {
     expect(() => new MockedI18nService()).toThrow('Could not locate locales directory');
     jest.dontMock('fs');
   });
+
+  it('skips malformed locale files and logs a warning without crashing', async () => {
+    jest.resetModules();
+    jest.doMock('fs', () => ({
+      existsSync: jest.fn((filePath: string) =>
+        filePath.endsWith('common.json') || filePath.endsWith('locales'),
+      ),
+      readdirSync: jest.fn(() => ['vi', 'en']),
+      readFileSync: jest.fn((filePath: string) => {
+        if (filePath.includes('\\en\\') || filePath.includes('/en/')) {
+          return '{ invalid json }';
+        }
+        return JSON.stringify({ actions: { save: 'Luu' } });
+      }),
+    }));
+    const warnMock = jest.fn();
+    jest.doMock('@nestjs/common', () => {
+      class MockedLogger {
+        constructor(private readonly context?: string) {}
+        warn(message: string) {
+          warnMock(message);
+        }
+      }
+      return {
+        Injectable: () => () => undefined,
+        Logger: MockedLogger,
+      };
+    });
+    const { I18nService: MockedI18nService } = await import('./i18n.service');
+
+    const mockedService = new MockedI18nService();
+
+    expect(mockedService.getAvailableLocales()).toEqual(['vi']);
+    expect(mockedService.t('actions.save', 'en')).toBe('Luu');
+    expect(warnMock).toHaveBeenCalledTimes(1);
+    expect(warnMock).toHaveBeenCalledWith(expect.stringContaining('common.json'));
+    expect(warnMock).toHaveBeenCalledWith(expect.stringContaining('Failed to parse locale file'));
+    jest.dontMock('@nestjs/common');
+    jest.dontMock('fs');
+  });
 });

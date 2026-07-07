@@ -22,6 +22,7 @@
   "scripts": {
     "audit:test-layout": "node scripts/audit-test-layout.js",
     "audit:i18n": "node scripts/audit-i18n-runtime-keys.js",
+    "validate:i18n": "node scripts/validate-i18n.js",
     "build": "node scripts/run-turbo.js build",
     "audit:e2e-assertions": "node scripts/audit-e2e-assertions.js",
     "clean": "node scripts/run-turbo.js clean && remove-items /all node_modules",
