@@ -51,11 +51,8 @@
     "audit:pwa-conflict-matrix": "node scripts/audit-pwa-conflict-matrix.js",
     "audit:bug-report-capture": "node scripts/audit-bug-report-capture.js",
     "audit:data-contracts": "node scripts/audit-data-contracts.js",
-    "audit:github-actions": "node scripts/audit-github-actions.js",
     "audit:gaps": "node scripts/audit-gaps.js"
   },
-  "version": "1.0.0",
-  "description": "**H\u1ec7 th\u1ed1ng qu\u1ea3n tr\u1ecb doanh nghi\u1ec7p th\u1ebf h\u1ec7 m\u1edbi** \u2014 v\u01b0\u1ee3t tr\u1ed9i ERPNext, Odoo, KiotViet, Nhanhvn, MISA v\u1ec1 t\u1ed1c \u0111\u1ed9, tr\u1ea3i nghi\u1ec7m v\u00e0 kh\u1ea3 n\u0103ng m\u1edf r\u1ed9ng.",
   "main": "jest.config.js",
   "directories": {
     "doc": "docs",
@@ -98,8 +95,6 @@
     "url": "git+https://github.com/hieuck/Smart-ERP-Next.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/hieuck/Smart-ERP-Next/issues"
