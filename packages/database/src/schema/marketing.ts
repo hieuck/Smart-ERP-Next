@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
 export const marketingCampaigns = pgTable(
@@ -32,6 +32,7 @@ export const marketingCampaigns = pgTable(
   },
   (t) => ({
     tenantIdx: index('mkt_camp_tenant_idx').on(t.tenantId),
+    nameUnique: unique('mkt_camp_tenant_name_unique').on(t.tenantId, t.name),
   })
 );
 
@@ -56,6 +57,7 @@ export const marketingSegments = pgTable(
   },
   (t) => ({
     tenantIdx: index('mkt_seg_tenant_idx').on(t.tenantId),
+    nameUnique: unique('mkt_seg_tenant_name_unique').on(t.tenantId, t.name),
   })
 );
 
@@ -76,6 +78,7 @@ export const leadScoringRules = pgTable(
   },
   (t) => ({
     tenantIdx: index('mkt_score_tenant_idx').on(t.tenantId),
+    eventUnique: unique('mkt_score_tenant_event_unique').on(t.tenantId, t.event),
   })
 );
 
