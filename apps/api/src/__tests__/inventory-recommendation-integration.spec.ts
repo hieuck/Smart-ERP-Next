@@ -1,8 +1,12 @@
 const mockAxiosPost = jest.fn();
+const mockDbExecute = jest.fn().mockResolvedValue({ rows: [] });
 
 jest.mock('axios', () => ({
   __esModule: true,
   default: { post: mockAxiosPost },
+}));
+jest.mock('@smart-erp/database', () => ({
+  db: { execute: mockDbExecute },
 }));
 
 import { InventoryRecommendationService } from '../inventory-recommendation/inventory-recommendation.service';

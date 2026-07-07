@@ -1,9 +1,12 @@
 jest.mock('axios', () => ({ post: jest.fn() }));
+jest.mock('@smart-erp/database', () => ({ db: { execute: jest.fn() } }));
 
 import axios from 'axios';
+import { db } from '@smart-erp/database';
 import { InventoryRecommendationService } from './inventory-recommendation.service';
 
 const mockedAxios = axios as unknown as { post: jest.Mock };
+const mockedDb = db as unknown as { execute: jest.Mock };
 
 describe('InventoryRecommendationService coverage', () => {
   const forecastService = { getMonthlyDemand: jest.fn() };
@@ -16,6 +19,7 @@ describe('InventoryRecommendationService coverage', () => {
     jest.spyOn(Math, 'random').mockReturnValue(0.5);
     forecastService.getMonthlyDemand.mockResolvedValue([]);
     activityService.log.mockResolvedValue(undefined);
+    mockedDb.execute.mockResolvedValue({ rows: [] });
     service = new InventoryRecommendationService(forecastService as any, activityService as any);
   });
 
@@ -115,6 +119,7 @@ describe('InventoryRecommendationService coverage', () => {
       daysUntilStockout: 2,
       reasons: ['Low stock'],
     });
+    expect(mockedDb.execute).toHaveBeenCalled();
     expect(mockedAxios.post.mock.calls[0][1].sales_history).toHaveLength(61);
     expect(activityService.log).toHaveBeenCalledWith(
       'tenant-1',
@@ -124,6 +129,36 @@ describe('InventoryRecommendationService coverage', () => {
       'product-1',
       expect.objectContaining({ type: 'ai_reorder_suggestion', suggestedQuantity: 36 }),
     );
+  });
+
+  it('uses real sales history from order data in AI payload', async () => {
+    mockedDb.execute.mockResolvedValueOnce({
+      rows: [
+        { date: '2026-05-19', quantity: 7 },
+        { date: '2026-05-20', quantity: 3 },
+      ],
+    });
+    mockedAxios.post.mockResolvedValueOnce({
+      data: {
+        should_reorder: false,
+        current_stock: 10,
+        predicted_demand_next_7d: 0,
+        predicted_demand_next_30d: 0,
+        suggested_order_quantity: 0,
+        safety_stock: 0,
+        reorder_point: 0,
+        days_until_stockout: 30,
+        reasons: ['Stock OK'],
+      },
+    });
+
+    await service.getReorderSuggestion('tenant-1', 'user-1', 'product-1', 10);
+
+    const salesHistory = mockedAxios.post.mock.calls[0][1].sales_history as { date: string; quantity: number }[];
+    const may20 = salesHistory.find((h) => h.date === '2026-05-20');
+    const may19 = salesHistory.find((h) => h.date === '2026-05-19');
+    expect(may20?.quantity).toBe(3);
+    expect(may19?.quantity).toBe(7);
   });
 
   it('falls back to local demand calculations when AI service fails', async () => {
