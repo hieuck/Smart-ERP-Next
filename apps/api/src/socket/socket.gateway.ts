@@ -11,6 +11,37 @@ import { Server, Socket } from 'socket.io';
 import { UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+
+/**
+ * Validate the Origin header for WebSocket CORS.
+ * - Non-production environments allow all origins.
+ * - Production requires the origin to be present in CORS_ORIGINS (comma-separated).
+ * - Requests without an origin header (same-origin/server-side) are allowed.
+ */
+export function validateSocketOrigin(
+  origin: string | undefined,
+  callback: (err: Error | null, allow: boolean) => void,
+): void {
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  if (nodeEnv !== 'production') {
+    return callback(null, true);
+  }
+
+  if (!origin) {
+    return callback(null, true);
+  }
+
+  const allowedOrigins = (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  if (allowedOrigins.includes(origin)) {
+    return callback(null, true);
+  }
+
+  return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+}
 interface ActivityPayload {
   id: string;
   tenantId: string;
@@ -27,10 +58,7 @@ const SOCKET_NAMESPACE = '/activities';
 @WebSocketGateway({
   namespace: SOCKET_NAMESPACE,
   cors: {
-    origin: (origin, callback) => {
-      // Allow all origins in development, configure in production
-      callback(null, true);
-    },
+    origin: validateSocketOrigin,
     credentials: true,
   },
 })

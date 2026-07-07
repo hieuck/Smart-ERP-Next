@@ -83,4 +83,47 @@ describe('SocketGateway coverage', () => {
 
     expect(callback).toHaveBeenCalledWith(null, true);
   });
+
+  describe('production CORS origin validation', () => {
+    const ORIGIN_NODE_ENV = process.env.NODE_ENV;
+    const ORIGIN_CORS_ORIGINS = process.env.CORS_ORIGINS;
+
+    afterEach(() => {
+      process.env.NODE_ENV = ORIGIN_NODE_ENV;
+      process.env.CORS_ORIGINS = ORIGIN_CORS_ORIGINS;
+    });
+
+    it('rejects unknown origins in production', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.CORS_ORIGINS = 'https://app.example.com';
+      const options = Reflect.getMetadata(GATEWAY_OPTIONS, SocketGateway);
+      const callback = jest.fn();
+
+      options.cors.origin('https://evil.example.com', callback);
+
+      expect(callback).toHaveBeenCalledWith(expect.any(Error), false);
+    });
+
+    it('allows configured origins in production', () => {
+      process.env.NODE_ENV = 'production';
+      process.env.CORS_ORIGINS = 'https://app.example.com,https://admin.example.com';
+      const options = Reflect.getMetadata(GATEWAY_OPTIONS, SocketGateway);
+      const callback = jest.fn();
+
+      options.cors.origin('https://admin.example.com', callback);
+
+      expect(callback).toHaveBeenCalledWith(null, true);
+    });
+
+    it('allows any origin in non-production environments', () => {
+      process.env.NODE_ENV = 'development';
+      process.env.CORS_ORIGINS = '';
+      const options = Reflect.getMetadata(GATEWAY_OPTIONS, SocketGateway);
+      const callback = jest.fn();
+
+      options.cors.origin('https://anything.test', callback);
+
+      expect(callback).toHaveBeenCalledWith(null, true);
+    });
+  });
 });
