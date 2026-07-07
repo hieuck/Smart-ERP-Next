@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, jsonb, decimal, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, jsonb, decimal, index, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { customers } from './customers';
 import { users } from './users';
@@ -45,6 +45,7 @@ export const serviceTickets = pgTable(
     customerIdx: index('service_tickets_customer_idx').on(t.customerId),
     technicianIdx: index('service_tickets_technician_idx').on(t.assignedTechnicianId),
     statusIdx: index('service_tickets_status_idx').on(t.status),
+    ticketNumberUnique: unique('service_tickets_tenant_ticket_number_unique').on(t.tenantId, t.ticketNumber),
   })
 );
 
