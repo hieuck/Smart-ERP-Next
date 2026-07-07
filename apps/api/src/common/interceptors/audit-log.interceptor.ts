@@ -1,4 +1,4 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Observable, from, switchMap, catchError } from 'rxjs';
 import { ActivityService } from '../../modules/activity/activity.service';
 
@@ -6,6 +6,8 @@ export const AUDIT_LOG_KEY = 'audit_log';
 
 @Injectable()
 export class AuditLogInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(AuditLogInterceptor.name);
+
   constructor(private readonly activityService: ActivityService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -24,15 +26,22 @@ export class AuditLogInterceptor implements NestInterceptor {
           method: request.method,
           url: request.url,
           body: request.body,
-        }).then(() => response).catch(() => response));
+        }).then(() => response).catch((err) => {
+          this.logger.warn('audit-log write failed (success path)', err);
+          return response;
+        }));
       }),
-      catchError((err) => {
-        this.activityService.log(tenantId, userId, action, resource, '', {
-          method: request.method,
-          url: request.url,
-          body: request.body,
-          error: true,
-        }).catch(() => {});
+      catchError(async (err) => {
+        try {
+          await this.activityService.log(tenantId, userId, action, resource, '', {
+            method: request.method,
+            url: request.url,
+            body: request.body,
+            error: true,
+          });
+        } catch (logErr) {
+          this.logger.error('audit-log write failed (error path)', logErr);
+        }
         throw err;
       }),
     );
