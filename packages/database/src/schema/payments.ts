@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, numeric, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, numeric, index, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { users } from './users';
 
@@ -35,7 +35,7 @@ export const payments = pgTable(
   },
   (table) => ({
     tenantIdx: index('payments_tenant_idx').on(table.tenantId),
-    codeIdx: index('payments_code_idx').on(table.code),
+    codeUnique: unique('payments_tenant_code_unique').on(table.tenantId, table.code),
     referenceIdx: index('payments_reference_idx').on(table.referenceId),
     paidAtIdx: index('payments_paid_at_idx').on(table.paidAt),
     // Composite index for tenant+status (common in payment filtering)
