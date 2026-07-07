@@ -107,4 +107,21 @@ describe('CrmService coverage', () => {
 
     await expect(service.convertToOrder('tenant-1', 'missing')).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it('updateLeadStatus filters by tenantId', async () => {
+    returningQueue.push([{ id: 'lead-1', status: 'qualified' }]);
+
+    await service.updateLeadStatus('tenant-1', 'lead-1', 'qualified');
+
+    const updateCall = drizzle.db.update.mock.results[0].value;
+    expect(updateCall.where).toHaveBeenCalledWith(
+      expect.objectContaining({
+        op: 'and',
+        conditions: expect.arrayContaining([
+          expect.objectContaining({ op: 'eq', field: 'leads.id', value: 'lead-1' }),
+          expect.objectContaining({ op: 'eq', field: 'leads.tenantId', value: 'tenant-1' }),
+        ]),
+      }),
+    );
+  });
 });
