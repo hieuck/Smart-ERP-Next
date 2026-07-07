@@ -14,6 +14,34 @@ async function readJson(response, label) {
   return text ? JSON.parse(text) : {};
 }
 
+async function cleanupSmokeArtifacts(apiUrl, authorization, userId, productId, imageUrl) {
+  try {
+    if (productId) {
+      await fetch(`${apiUrl}/products/${productId}`, {
+        method: 'DELETE',
+        headers: { authorization },
+      });
+    }
+  } catch (err) {
+    console.warn(`Failed to delete smoke product ${productId}:`, err.message);
+  }
+
+  try {
+    if (userId) {
+      await fetch(`${apiUrl}/users/${userId}`, {
+        method: 'DELETE',
+        headers: { authorization },
+      });
+    }
+  } catch (err) {
+    console.warn(`Failed to delete smoke user ${userId}:`, err.message);
+  }
+
+  if (imageUrl) {
+    console.warn('Smoke uploaded image was not removed (no delete API):', imageUrl);
+  }
+}
+
 async function runReleaseRuntimeSmoke(apiUrl = API_URL) {
   const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const email = `release-smoke-${stamp}@example.test`;
@@ -84,6 +112,8 @@ async function runReleaseRuntimeSmoke(apiUrl = API_URL) {
     throw new Error(`Uploaded image did not serve successfully: ${imageResponse.status}`);
   }
 
+  await cleanupSmokeArtifacts(apiUrl, authorization, profile.sub, product.id, upload.imageUrl);
+
   return {
     email,
     imageUrl: upload.imageUrl,
@@ -108,4 +138,5 @@ if (require.main === module) {
 module.exports = {
   readJson,
   runReleaseRuntimeSmoke,
+  cleanupSmokeArtifacts,
 };
