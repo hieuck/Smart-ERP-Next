@@ -1,0 +1,1 @@
+ALTER TABLE "tms_trips" ADD CONSTRAINT "tms_trips_tenant_trip_number_unique" UNIQUE("tenant_id","trip_number");

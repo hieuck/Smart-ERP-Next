@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { users } from './users';
 import { orders } from './orders';
@@ -50,6 +50,7 @@ export const tmsTrips = pgTable(
   (t) => ({
     tenantIdx: index('tms_trip_tenant_idx').on(t.tenantId),
     statusIdx: index('tms_trip_status_idx').on(t.status),
+    tripNumberUnique: unique('tms_trips_tenant_trip_number_unique').on(t.tenantId, t.tripNumber),
   })
 );
 
