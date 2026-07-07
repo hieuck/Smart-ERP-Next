@@ -1,0 +1,1 @@
+ALTER TABLE "service_tickets" ADD CONSTRAINT "service_tickets_tenant_ticket_number_unique" UNIQUE("tenant_id","ticket_number");

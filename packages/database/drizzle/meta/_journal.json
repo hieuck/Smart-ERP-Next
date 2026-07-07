@@ -120,6 +120,13 @@
       "when": 1783450864483,
       "tag": "0016_clear_justin_hammer",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1783451833618,
+      "tag": "0017_short_redwing",
+      "breakpoints": true
     }
   ]
 }
