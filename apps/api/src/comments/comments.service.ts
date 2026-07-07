@@ -12,10 +12,10 @@ export class CommentsService {
     const rows = await db
       .select()
       .from(comments)
+      .leftJoin(users, eq(comments.userId, users.id))
       .where(and(eq(comments.tenantId, tenantId), eq(comments.orderId, orderId)))
       .orderBy(desc(comments.createdAt))
-      .limit(50)
-      .leftJoin(users, eq(comments.userId, users.id));
+      .limit(50);
     return rows.map((row: any) => {
       const comment = row.comments ?? row;
       const user = row.users ?? row.user ?? null;
