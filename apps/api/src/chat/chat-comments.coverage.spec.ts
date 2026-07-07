@@ -46,10 +46,10 @@ const updateReturningQueue: any[][] = [];
 const makeSelectChain = (rows: any[]) => {
   const chain: any = {
     from: jest.fn(() => chain),
+    leftJoin: jest.fn(() => chain),
     where: jest.fn(() => chain),
     orderBy: jest.fn(() => chain),
-    limit: jest.fn(() => chain),
-    leftJoin: jest.fn(() => Promise.resolve(rows)),
+    limit: jest.fn(() => Promise.resolve(rows)),
     then: jest.fn((onFulfilled, onRejected) => Promise.resolve(rows).then(onFulfilled, onRejected)),
   };
   return chain;

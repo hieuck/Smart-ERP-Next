@@ -33,11 +33,11 @@ describe('CommentsService (integration)', () => {
         { comments: { id: 'c2', content: 'World', createdAt: now, tenantId: TENANT_ID, orderId: ORDER_ID, userId: 'u2' }, users: { id: 'u2', name: 'Bob' } },
       ];
 
-      const leftJoinMock = jest.fn().mockResolvedValue(rows);
-      const limitMock = jest.fn().mockReturnValue({ leftJoin: leftJoinMock });
+      const limitMock = jest.fn().mockResolvedValue(rows);
       const orderByMock = jest.fn().mockReturnValue({ limit: limitMock });
       const whereMock = jest.fn().mockReturnValue({ orderBy: orderByMock });
-      const fromMock = jest.fn().mockReturnValue({ where: whereMock });
+      const leftJoinMock = jest.fn().mockReturnValue({ where: whereMock });
+      const fromMock = jest.fn().mockReturnValue({ leftJoin: leftJoinMock });
       (db.select as jest.Mock).mockReturnValue({ from: fromMock });
 
       const result = await service.getByOrder(TENANT_ID, ORDER_ID);
@@ -53,11 +53,11 @@ describe('CommentsService (integration)', () => {
         { id: 'c1', content: 'System comment', tenantId: TENANT_ID, orderId: ORDER_ID, userId: null },
       ];
 
-      const leftJoinMock = jest.fn().mockResolvedValue(rows);
-      const limitMock = jest.fn().mockReturnValue({ leftJoin: leftJoinMock });
+      const limitMock = jest.fn().mockResolvedValue(rows);
       const orderByMock = jest.fn().mockReturnValue({ limit: limitMock });
       const whereMock = jest.fn().mockReturnValue({ orderBy: orderByMock });
-      const fromMock = jest.fn().mockReturnValue({ where: whereMock });
+      const leftJoinMock = jest.fn().mockReturnValue({ where: whereMock });
+      const fromMock = jest.fn().mockReturnValue({ leftJoin: leftJoinMock });
       (db.select as jest.Mock).mockReturnValue({ from: fromMock });
 
       const result = await service.getByOrder(TENANT_ID, ORDER_ID);
@@ -66,11 +66,11 @@ describe('CommentsService (integration)', () => {
     });
 
     it('returns empty array when no comments exist', async () => {
-      const leftJoinMock = jest.fn().mockResolvedValue([]);
-      const limitMock = jest.fn().mockReturnValue({ leftJoin: leftJoinMock });
+      const limitMock = jest.fn().mockResolvedValue([]);
       const orderByMock = jest.fn().mockReturnValue({ limit: limitMock });
       const whereMock = jest.fn().mockReturnValue({ orderBy: orderByMock });
-      const fromMock = jest.fn().mockReturnValue({ where: whereMock });
+      const leftJoinMock = jest.fn().mockReturnValue({ where: whereMock });
+      const fromMock = jest.fn().mockReturnValue({ leftJoin: leftJoinMock });
       (db.select as jest.Mock).mockReturnValue({ from: fromMock });
 
       const result = await service.getByOrder(TENANT_ID, ORDER_ID);
