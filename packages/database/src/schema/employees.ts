@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, numeric, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, numeric, index, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 
 export const employees = pgTable(
@@ -21,7 +21,7 @@ export const employees = pgTable(
   },
   (t) => ({
     tenantIdx: index('employees_tenant_idx').on(t.tenantId),
-    codeIdx: index('employees_code_idx').on(t.code),
+    codeUnique: unique('employees_tenant_code_unique').on(t.tenantId, t.code),
     emailIdx: index('employees_email_idx').on(t.email),
   })
 );
