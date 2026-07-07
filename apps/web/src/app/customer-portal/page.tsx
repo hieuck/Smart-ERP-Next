@@ -28,8 +28,8 @@ export default function CustomerPortalPage() {
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await portalApi.getOrders();
-      setOrders(res.data ?? []);
+      const orders = await portalApi.getOrders();
+      setOrders(orders ?? []);
     } catch (err) {
       console.error('Failed to fetch portal orders:', err);
     } finally {

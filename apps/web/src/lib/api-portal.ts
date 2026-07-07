@@ -1,5 +1,13 @@
 import { apiClient } from './api-client';
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateUUID(id: string): void {
+  if (!UUID_REGEX.test(id)) {
+    throw new Error(`Invalid UUID: ${id}`);
+  }
+}
+
 export interface PortalOrder {
   id: string;
   code: string;
@@ -31,10 +39,40 @@ export interface OrderTracking {
 }
 
 export const portalApi = {
-  getOrders: () => apiClient.get<PortalOrder[]>('/portal/orders'),
-  getOrderTracking: (id: string) => apiClient.get<OrderTracking>(`/portal/orders/${id}/track`),
-  getTickets: () => apiClient.get<PortalTicket[]>('/portal/tickets'),
-  createTicket: (data: { subject: string; message: string }) =>
-    apiClient.post<PortalTicket>('/portal/tickets', data),
-  getInvoices: () => apiClient.get<PortalInvoice[]>('/portal/invoices'),
+  getOrders: async () => {
+    try {
+      return (await apiClient.get<PortalOrder[]>('/portal/orders')).data;
+    } catch (error) {
+      throw new Error(`Failed to fetch orders: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  },
+  getOrderTracking: async (id: string) => {
+    validateUUID(id);
+    try {
+      return (await apiClient.get<OrderTracking>(`/portal/orders/${id}/track`)).data;
+    } catch (error) {
+      throw new Error(`Failed to fetch order tracking: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  },
+  getTickets: async () => {
+    try {
+      return (await apiClient.get<PortalTicket[]>('/portal/tickets')).data;
+    } catch (error) {
+      throw new Error(`Failed to fetch tickets: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  },
+  createTicket: async (data: { subject: string; message: string }) => {
+    try {
+      return (await apiClient.post<PortalTicket>('/portal/tickets', data)).data;
+    } catch (error) {
+      throw new Error(`Failed to create ticket: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  },
+  getInvoices: async () => {
+    try {
+      return (await apiClient.get<PortalInvoice[]>('/portal/invoices')).data;
+    } catch (error) {
+      throw new Error(`Failed to fetch invoices: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  },
 };
