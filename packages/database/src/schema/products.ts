@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, numeric, integer, timestamp, boolean, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, numeric, integer, timestamp, boolean, index, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { productCategories } from './product_categories';
 
@@ -10,7 +10,7 @@ export const products = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
-    sku: text('sku').notNull().unique(),
+    sku: text('sku').notNull(),
     externalId: text('external_id'),
     externalPlatform: text('external_platform'),
     description: text('description'),
@@ -31,7 +31,8 @@ export const products = pgTable(
   },
   (table) => ({
     tenantIdx: index('products_tenant_idx').on(table.tenantId),
-    skuIdx: index('products_sku_idx').on(table.sku),
+    skuUnique: unique('products_sku_tenant_unique').on(table.tenantId, table.sku),
+    skuIdx: index('products_sku_idx').on(table.tenantId, table.sku),
     categoryIdIdx: index('products_category_id_idx').on(table.categoryId),
     categoryIdx: index('products_category_idx').on(table.category),
     activeIdx: index('products_active_idx').on(table.isActive),
