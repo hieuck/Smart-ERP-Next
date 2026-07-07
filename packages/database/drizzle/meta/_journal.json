@@ -50,6 +50,13 @@
       "when": 1819728000000,
       "tag": "0006_add_attendance_checkout_coords",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783426919385,
+      "tag": "0007_sudden_bucky",
+      "breakpoints": true
     }
   ]
 }
