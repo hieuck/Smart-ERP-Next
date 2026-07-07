@@ -5,11 +5,11 @@ import {
   Param,
   UseGuards,
 } from "@nestjs/common";
-import { validateDataContract } from "../../../../packages/shared/src/data-contracts";
+import { validateDataContract } from "@smart-erp/shared/data-contracts";
 import {
   SMART_ERP_DATA_CONTRACTS,
   findDataContract,
-} from "../../../../packages/shared/src/data-contract-registry";
+} from "@smart-erp/shared/data-contract-registry";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 
 @Controller("analytics/data-contracts")

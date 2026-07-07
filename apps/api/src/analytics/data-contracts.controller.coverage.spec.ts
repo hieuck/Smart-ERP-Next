@@ -1,4 +1,6 @@
 import { NotFoundException } from "@nestjs/common";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import { DataContractsController } from "./data-contracts.controller";
 
 describe("DataContractsController", () => {
@@ -30,5 +32,14 @@ describe("DataContractsController", () => {
     expect(() => controller.getContract("DATA-missing-dataset-v1")).toThrow(
       NotFoundException,
     );
+  });
+
+  it("does not import shared modules via cross-package relative paths", () => {
+    const source = readFileSync(
+      resolve(__dirname, "./data-contracts.controller.ts"),
+      "utf-8",
+    );
+    expect(source).not.toMatch(/\.\.\/\.\.\/\.\.\/\.\.\/packages\/shared\/src/);
+    expect(source).toMatch(/from "@smart-erp\/shared/);
   });
 });

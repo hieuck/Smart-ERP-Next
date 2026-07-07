@@ -74,6 +74,8 @@ module.exports = {
           '@smart-erp/database/schema': ['packages/database/src/schema/index.ts'],
           '@smart-erp/database/drizzle': ['packages/database/src/drizzle.ts'],
           '@smart-erp/database': ['packages/database/src/index.ts'],
+          '@smart-erp/shared/data-contracts': ['packages/shared/src/data-contracts.ts'],
+          '@smart-erp/shared/data-contract-registry': ['packages/shared/src/data-contract-registry.ts'],
           '@smart-erp/*': ['packages/*/src/index.ts'],
         },
       },
@@ -93,6 +95,8 @@ module.exports = {
     '^@smart-erp/database/schema$': '<rootDir>/packages/database/src/schema/index.ts',
     '^@smart-erp/database/drizzle$': '<rootDir>/packages/database/src/drizzle.ts',
     '^@smart-erp/database$': '<rootDir>/packages/database/src/index.ts',
+    '^@smart-erp/shared/data-contracts$': '<rootDir>/packages/shared/src/data-contracts.ts',
+    '^@smart-erp/shared/data-contract-registry$': '<rootDir>/packages/shared/src/data-contract-registry.ts',
     '^@smart-erp/(.*)$': '<rootDir>/packages/$1/src/index.ts',
   },
 };

@@ -10,6 +10,8 @@
     "^uuid$": "<rootDir>/test/uuid.mock.ts",
     "^@smart-erp/database(.*)$": "<rootDir>/../../packages/database/src$1",
     "^@smart-erp/i18n(.*)$": "<rootDir>/../../packages/i18n/src$1",
+    "^@smart-erp/shared/data-contracts$": "<rootDir>/../../packages/shared/src/data-contracts.ts",
+    "^@smart-erp/shared/data-contract-registry$": "<rootDir>/../../packages/shared/src/data-contract-registry.ts",
     "^@smart-erp/(.*)$": "<rootDir>/../../packages/$1/src/index.ts"
   }
 }
