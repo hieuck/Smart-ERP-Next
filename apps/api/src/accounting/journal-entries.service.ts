@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { journalEntries, journalEntryLines, chartOfAccounts } from '@smart-erp/database/schema';
-import { eq, and, gte, lte, desc } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, inArray } from 'drizzle-orm';
 import { CreateJournalEntryDto } from './dto';
 import { v4 as uuid } from 'uuid';
 
@@ -202,10 +202,7 @@ export class JournalEntriesService {
       })
       .from(journalEntryLines)
       .leftJoin(chartOfAccounts, eq(journalEntryLines.accountId, chartOfAccounts.id))
-      .where(
-        // This is simplified - in production use inArray
-        eq(journalEntryLines.journalEntryId, entryIds[0])
-      );
+      .where(inArray(journalEntryLines.journalEntryId, entryIds));
 
     // Group by account
     const accountBalances = new Map<string, any>();
