@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { eq, and, sql, or, desc, ilike } from 'drizzle-orm';
 
+/** Escape ILIKE wildcard characters so they are treated literally. */
+export function escapeLikePattern(term: string): string {
+  return term.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
+}
+
 export interface SearchResult {
   id: string;
   type: string;
@@ -24,16 +29,18 @@ export class SearchService {
     const searchTerm = query.trim();
     if (!searchTerm) return [];
 
+    const likePattern = '%' + escapeLikePattern(searchTerm) + '%';
+
     const results: SearchResult[] = [];
 
     // Search customers
     const customerResults = await this.drizzle.db.execute(
       sql`SELECT id, name, code, phone, email FROM customers
           WHERE tenant_id = ${tenantId}
-          AND (name ILIKE ${'%' + searchTerm + '%'}
-            OR code ILIKE ${'%' + searchTerm + '%'}
-            OR phone ILIKE ${'%' + searchTerm + '%'}
-            OR email ILIKE ${'%' + searchTerm + '%'})
+          AND (name ILIKE ${likePattern} ESCAPE '\\'
+            OR code ILIKE ${likePattern} ESCAPE '\\'
+            OR phone ILIKE ${likePattern} ESCAPE '\\'
+            OR email ILIKE ${likePattern} ESCAPE '\\')
           LIMIT ${limit}`
     );
 
@@ -53,8 +60,8 @@ export class SearchService {
     const productResults = await this.drizzle.db.execute(
       sql`SELECT id, name, sku FROM products
           WHERE tenant_id = ${tenantId}
-          AND (name ILIKE ${'%' + searchTerm + '%'}
-            OR sku ILIKE ${'%' + searchTerm + '%'})
+          AND (name ILIKE ${likePattern} ESCAPE '\\'
+            OR sku ILIKE ${likePattern} ESCAPE '\\')
           LIMIT ${limit}`
     );
 
@@ -74,7 +81,7 @@ export class SearchService {
     const orderResults = await this.drizzle.db.execute(
       sql`SELECT id, code, status, total FROM orders
           WHERE tenant_id = ${tenantId}
-          AND code ILIKE ${'%' + searchTerm + '%'}
+          AND code ILIKE ${likePattern} ESCAPE '\\'
           LIMIT ${limit}`
     );
 
@@ -94,8 +101,8 @@ export class SearchService {
     const supplierResults = await this.drizzle.db.execute(
       sql`SELECT id, name, code FROM suppliers
           WHERE tenant_id = ${tenantId}
-          AND (name ILIKE ${'%' + searchTerm + '%'}
-            OR code ILIKE ${'%' + searchTerm + '%'})
+          AND (name ILIKE ${likePattern} ESCAPE '\\'
+            OR code ILIKE ${likePattern} ESCAPE '\\')
           LIMIT ${limit}`
     );
 
@@ -115,7 +122,7 @@ export class SearchService {
     const paymentResults = await this.drizzle.db.execute(
       sql`SELECT id, code, amount FROM payments
           WHERE tenant_id = ${tenantId}
-          AND code ILIKE ${'%' + searchTerm + '%'}
+          AND code ILIKE ${likePattern} ESCAPE '\\'
           LIMIT ${limit}`
     );
 
