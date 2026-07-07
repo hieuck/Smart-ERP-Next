@@ -40,12 +40,14 @@ jest.mock('drizzle-orm', () => ({
   gte: jest.fn((field, value) => ({ op: 'gte', field, value })),
   lte: jest.fn((field, value) => ({ op: 'lte', field, value })),
   desc: jest.fn((field) => ({ op: 'desc', field })),
+  inArray: jest.fn((field, values) => ({ op: 'inArray', field, values })),
 }));
 
 jest.mock('uuid', () => ({ v4: jest.fn() }));
 
 import { BadRequestException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
+import { inArray, eq } from 'drizzle-orm';
 import { JournalEntriesService } from './journal-entries.service';
 
 const selectQueue: any[][] = [];
@@ -278,5 +280,33 @@ describe('JournalEntriesService coverage', () => {
       totalCredit: 1500,
       isBalanced: true,
     });
+  });
+
+  it('aggregates trial balance across multiple posted journal entries', async () => {
+    selectQueue.push(
+      [{ id: 'entry-1' }, { id: 'entry-2' }],
+      [
+        { accountId: 'cash', accountCode: '111', accountName: 'Tien mat', accountType: 'asset', debit: '1000', credit: '0' },
+        { accountId: 'revenue', accountCode: '511', accountName: 'Doanh thu', accountType: 'income', debit: '0', credit: '1000' },
+        { accountId: 'cash', accountCode: '111', accountName: 'Tien mat', accountType: 'asset', debit: '2000', credit: '0' },
+        { accountId: 'revenue', accountCode: '511', accountName: 'Doanh thu', accountType: 'income', debit: '0', credit: '2000' },
+      ],
+    );
+
+    await expect(service.getTrialBalance('tenant-1', new Date('2026-05-01'), new Date('2026-05-31'))).resolves.toEqual({
+      items: [
+        { accountId: 'cash', accountCode: '111', accountName: 'Tien mat', accountType: 'asset', debit: 3000, credit: 0 },
+        { accountId: 'revenue', accountCode: '511', accountName: 'Doanh thu', accountType: 'income', debit: 0, credit: 3000 },
+      ],
+      totalDebit: 3000,
+      totalCredit: 3000,
+      isBalanced: true,
+    });
+
+    expect(inArray).toHaveBeenCalledWith('journalEntryLines.journalEntryId', ['entry-1', 'entry-2']);
+    const eqCallsForFirstEntryId = (eq as jest.Mock).mock.calls.filter(
+      ([field, value]) => field === 'journalEntryLines.journalEntryId' && value === 'entry-1',
+    );
+    expect(eqCallsForFirstEntryId).toHaveLength(0);
   });
 });
