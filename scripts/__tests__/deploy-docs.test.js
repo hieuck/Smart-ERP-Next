@@ -36,6 +36,6 @@ describe('Deployment Documentation', () => {
     const content = fs.readFileSync(f, 'utf8');
     expect(content).toContain('type-check');
     expect(content).toContain('pnpm test');
-    expect(content).toContain('1,890');
+    expect(content).toContain('ALL TESTS PASSED');
   });
 });
