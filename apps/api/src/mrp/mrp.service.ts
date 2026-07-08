@@ -104,20 +104,20 @@ export class MRPService {
 
     // Save MRP forecast
     await this.drizzle.db.insert(mrpForecasts).values({
-      tenant_id: tenantId,
-      product_id: productId,
-      forecast_date: today.toISOString().split('T')[0],
-      forecasted_demand: forecastDemand,
-      sales_order_demand: salesOrderDemand,
-      net_requirement: netRequirement,
-      suggested_production: suggestedProduction,
-      raw_material_gap: rawMaterialGap,
-    }).onConflictDoUpdate({ target: [mrpForecasts.tenant_id, mrpForecasts.product_id, mrpForecasts.forecast_date], set: {
-      forecasted_demand: forecastDemand,
-      sales_order_demand: salesOrderDemand,
-      net_requirement: netRequirement,
-      suggested_production: suggestedProduction,
-      raw_material_gap: rawMaterialGap,
+      tenantId,
+      productId,
+      forecastDate: today.toISOString().split('T')[0],
+      forecastedDemand: forecastDemand,
+      salesOrderDemand,
+      netRequirement,
+      suggestedProduction,
+      rawMaterialGap,
+    }).onConflictDoUpdate({ target: [mrpForecasts.tenantId, mrpForecasts.productId, mrpForecasts.forecastDate], set: {
+      forecastedDemand: forecastDemand,
+      salesOrderDemand,
+      netRequirement,
+      suggestedProduction,
+      rawMaterialGap,
     }});
 
     return {

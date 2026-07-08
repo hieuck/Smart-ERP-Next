@@ -5,9 +5,9 @@ jest.mock('@smart-erp/database', () => ({
   billsOfMaterials: {},
   inventoryTransactions: {},
   mrpForecasts: {
-    tenant_id: 'mrpForecasts.tenant_id',
-    product_id: 'mrpForecasts.product_id',
-    forecast_date: 'mrpForecasts.forecast_date',
+    tenantId: 'mrpForecasts.tenant_id',
+    productId: 'mrpForecasts.product_id',
+    forecastDate: 'mrpForecasts.forecast_date',
   },
 }));
 
@@ -74,14 +74,14 @@ describe('MRPService coverage', () => {
     });
 
     expect(insertChain.values).toHaveBeenCalledWith(expect.objectContaining({
-      tenant_id: 'tenant-1',
-      product_id: 'product-1',
-      forecast_date: '2026-05-21',
-      forecasted_demand: 10,
-      sales_order_demand: 7,
-      net_requirement: 14,
-      suggested_production: 14,
-      raw_material_gap: 26,
+      tenantId: 'tenant-1',
+      productId: 'product-1',
+      forecastDate: '2026-05-21',
+      forecastedDemand: 10,
+      salesOrderDemand: 7,
+      netRequirement: 14,
+      suggestedProduction: 14,
+      rawMaterialGap: 26,
     }));
     expect(insertChain.onConflictDoUpdate).toHaveBeenCalled();
   });

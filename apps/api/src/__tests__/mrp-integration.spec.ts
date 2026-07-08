@@ -5,9 +5,9 @@ jest.mock('@smart-erp/database', () => ({
   billsOfMaterials: {},
   inventoryTransactions: {},
   mrpForecasts: {
-    tenant_id: 'mrpForecasts.tenant_id',
-    product_id: 'mrpForecasts.product_id',
-    forecast_date: 'mrpForecasts.forecast_date',
+    tenantId: 'mrpForecasts.tenant_id',
+    productId: 'mrpForecasts.product_id',
+    forecastDate: 'mrpForecasts.forecast_date',
   },
 }));
 
@@ -145,23 +145,23 @@ describe('MRPService Integration', () => {
       await service.calculateMRP('t1', 'p6');
 
       expect(insertChain.values).toHaveBeenCalledWith({
-        tenant_id: 't1',
-        product_id: 'p6',
-        forecast_date: '2026-05-21',
-        forecasted_demand: 30,
-        sales_order_demand: 10,
-        net_requirement: 23,
-        suggested_production: 23,
-        raw_material_gap: 0,
+        tenantId: 't1',
+        productId: 'p6',
+        forecastDate: '2026-05-21',
+        forecastedDemand: 30,
+        salesOrderDemand: 10,
+        netRequirement: 23,
+        suggestedProduction: 23,
+        rawMaterialGap: 0,
       });
       expect(insertChain.onConflictDoUpdate).toHaveBeenCalledWith({
         target: ['mrpForecasts.tenant_id', 'mrpForecasts.product_id', 'mrpForecasts.forecast_date'],
         set: {
-          forecasted_demand: 30,
-          sales_order_demand: 10,
-          net_requirement: 23,
-          suggested_production: 23,
-          raw_material_gap: 0,
+          forecastedDemand: 30,
+          salesOrderDemand: 10,
+          netRequirement: 23,
+          suggestedProduction: 23,
+          rawMaterialGap: 0,
         },
       });
     });
