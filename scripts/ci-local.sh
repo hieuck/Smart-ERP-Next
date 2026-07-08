@@ -1,15 +1,20 @@
 #!/bin/bash
 # CI-equivalent local test using Docker for PostgreSQL
 # Usage: ./scripts/ci-local.sh
+#
+# Test credentials are read from environment variables. When not provided,
+# the script generates random values per run so secrets are never committed
+# or reused across runs. Add a .env.test file (ignored by git) to pin values
+# for reproducible local debugging.
 set -e
 
-DB_NAME="smart_erp_ci_test"
-DB_USER="postgres"
-DB_PASS="postgres"
-PORT=5433
-CONTAINER="smart-erp-ci-pg"
+DB_NAME="${DB_NAME:-smart_erp_ci_test}"
+DB_USER="${DB_USER:-postgres}"
+DB_PASS="${DB_PASS:-$(openssl rand -base64 32 2>/dev/null || tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32)}"
+PORT="${PORT:-5433}"
+CONTAINER="${CONTAINER:-smart-erp-ci-pg}"
 DATABASE_URL="postgresql://${DB_USER}:${DB_PASS}@localhost:${PORT}/${DB_NAME}"
-JWT_SECRET="ci-local-secret"
+JWT_SECRET="${JWT_SECRET:-$(openssl rand -base64 48 2>/dev/null || tr -dc 'A-Za-z0-9' </dev/urandom | head -c 48)}"
 
 cleanup() {
   echo "=== Cleaning up ==="
@@ -52,4 +57,4 @@ echo "=== 8. Build ==="
 pnpm build
 
 echo ""
-echo "=== ALL 1,890 TESTS PASSED ==="
+echo "=== ALL TESTS PASSED ==="
