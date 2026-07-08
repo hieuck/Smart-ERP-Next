@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request, ParseUUIDPipe, ValidationPipe } from '@nestjs/common';
 import { FixedAssetsService } from '../services/fixed-assets.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { FindFixedAssetsQueryDto } from '../dto/find-fixed-assets-query.dto';
+import { CreateFixedAssetDto } from '../dto/create-fixed-asset.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('fixed-assets')
@@ -8,28 +10,20 @@ export class FixedAssetsController {
   constructor(private readonly fixedAssetsService: FixedAssetsService) {}
 
   @Post()
-  create(@Request() req: any, @Body() dto: any) {
+  create(@Request() req: any, @Body(new ValidationPipe()) dto: CreateFixedAssetDto) {
     return this.fixedAssetsService.create(req.user.tenantId, dto);
   }
 
   @Get()
   findAll(
     @Request() req: any,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-    @Query('category') category?: string,
-    @Query('status') status?: string,
+    @Query(new ValidationPipe({ transform: true })) query: FindFixedAssetsQueryDto,
   ) {
-    return this.fixedAssetsService.findAll(req.user.tenantId, {
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
-      category,
-      status,
-    });
+    return this.fixedAssetsService.findAll(req.user.tenantId, query);
   }
 
   @Get(':id')
-  findOne(@Request() req: any, @Param('id') id: string) {
+  findOne(@Request() req: any, @Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.fixedAssetsService.findOne(req.user.tenantId, id);
   }
 
@@ -39,7 +33,7 @@ export class FixedAssetsController {
   }
 
   @Post(':id/dispose')
-  dispose(@Request() req: any, @Param('id') id: string) {
+  dispose(@Request() req: any, @Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.fixedAssetsService.dispose(req.user.tenantId, id);
   }
 }
