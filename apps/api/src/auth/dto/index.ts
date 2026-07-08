@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsStrongPassword,
   IsUUID,
   MaxLength,
   MinLength,
@@ -15,6 +16,13 @@ export class RegisterDto {
 
   @MinLength(8)
   @MaxLength(100)
+  @IsStrongPassword({
+    minLength: 8,
+    minLowercase: 1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSymbols: 1,
+  }, { message: 'password must contain uppercase, lowercase, number, and special character' })
   password!: string;
 
   @IsString()
