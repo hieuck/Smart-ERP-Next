@@ -16,7 +16,6 @@ import * as scm from './scm';
 import * as tms from './tms';
 import * as warehouseTasks from './warehouse_tasks';
 import * as warehouseTransfers from './warehouse_transfers';
-import * as warehouseWms from './warehouse_wms';
 import * as wms from './wms';
 import * as schemaIndex from './index';
 import { getTableConfig } from 'drizzle-orm/pg-core';
@@ -35,8 +34,8 @@ describe('database schema import coverage', () => {
     expect(projects.projectTaskDependencies).toBeDefined();
     expect(projects.projectMembers).toBeDefined();
     expect(warehouseTasks.warehouseTasks).toBeDefined();
-    expect(warehouseWms.warehouseLocations).toBeDefined();
-    expect(warehouseWms.warehouseTaskItems).toBeDefined();
+    expect(wms.warehouseLocations).toBeDefined();
+    expect(wms.warehouseTaskItems).toBeDefined();
     expect(crm.leads).toBeDefined();
     expect(crm.crmPipelines).toBeDefined();
     expect(crm.crmStages).toBeDefined();
@@ -99,8 +98,6 @@ describe('database schema import coverage', () => {
       tms.tmsTripStops,
       warehouseTasks.warehouseTasks,
       warehouseTransfers.warehouseTransfers,
-      warehouseWms.warehouseLocations,
-      warehouseWms.warehouseTaskItems,
       wms.warehouseLocations,
       wms.warehouseTasks,
       wms.warehouseTaskItems,
