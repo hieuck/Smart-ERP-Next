@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { isEmail } from 'class-validator';
 
 export interface SendMailResult {
   messageId?: string;
@@ -25,8 +26,17 @@ export class EmailService {
   }
 
   async sendMail(to: string, subject: string, html: string): Promise<SendMailResult> {
-    if (!to || !to.includes('@')) {
+    if (!to || to.includes(',') || to.includes(';') || !isEmail(to, { require_tld: true })) {
       return { success: false, error: 'Invalid email address' };
+    }
+
+    const MAX_SUBJECT_LENGTH = 998;
+    const MAX_HTML_LENGTH = 5 * 1024 * 1024; // 5 MB
+    if (subject.length > MAX_SUBJECT_LENGTH) {
+      return { success: false, error: 'Subject too long' };
+    }
+    if (html.length > MAX_HTML_LENGTH) {
+      return { success: false, error: 'HTML body too large' };
     }
 
     try {
