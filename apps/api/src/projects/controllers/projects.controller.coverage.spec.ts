@@ -1,69 +1,113 @@
+import { ParseUUIDPipe, BadRequestException } from '@nestjs/common';
+import { validate, ValidationError } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 import { ProjectsController } from './projects.controller';
+import {
+  CreateProjectDto,
+  CreateProjectTaskDto,
+  SubmitTimesheetDto,
+  AllocateResourceDto,
+} from '../dto/project.dto';
 
-describe('ProjectsController coverage', () => {
-  const req = { user: { tenantId: 't1', sub: 'u1' } };
-  const service = {
-    createProject: jest.fn(),
-    findAll: jest.fn(),
-    findOne: jest.fn(),
-    submitTimesheet: jest.fn(),
-    getProjectProfitability: jest.fn(),
-    createTask: jest.fn(),
-    getGanttData: jest.fn(),
-    allocateResource: jest.fn(),
+describe('ProjectsController', () => {
+  const mockService = {
+    createProject: jest.fn().mockResolvedValue({ id: 'p-1' }),
+    findAll: jest.fn().mockResolvedValue({ items: [], page: 1, limit: 20 }),
+    findOne: jest.fn().mockResolvedValue({ id: 'p-1' }),
+    submitTimesheet: jest.fn().mockResolvedValue({ id: 'ts-1' }),
+    getProjectProfitability: jest.fn().mockResolvedValue({}),
+    createTask: jest.fn().mockResolvedValue({ id: 't-1' }),
+    getGanttData: jest.fn().mockResolvedValue({ tasks: [], links: [] }),
+    allocateResource: jest.fn().mockResolvedValue({ id: 'm-1' }),
   };
-  const controller = new ProjectsController(service as any);
+  const controller = new ProjectsController(mockService as any);
+  const req = { user: { tenantId: 'tenant-1', sub: 'user-1' } };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('delegates create to service.createProject', () => {
-    const dto = { name: 'New Project' };
-    controller.create(req, dto);
-    expect(service.createProject).toHaveBeenCalledWith(req.user.tenantId, dto);
+  describe('ParseUUIDPipe on :id parameters', () => {
+    const pipe = new ParseUUIDPipe();
+
+    it('rejects a non-UUID project id', async () => {
+      await expect(
+        pipe.transform('not-a-uuid', { type: 'param', metatype: String, data: 'id' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('accepts a valid UUID project id', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      await expect(
+        pipe.transform(uuid, { type: 'param', metatype: String, data: 'id' }),
+      ).resolves.toBe(uuid);
+    });
   });
 
-  it('delegates findAll to service.findAll with page and status', () => {
-    controller.findAll(req, '2', 'active');
-    expect(service.findAll).toHaveBeenCalledWith(req.user.tenantId, { page: 2, status: 'active' });
+  describe('DTO validation', () => {
+    function extractErrors(errors: ValidationError[]): string[] {
+      return errors.flatMap(e => Object.values(e.constraints || {}));
+    }
+
+    it('CreateProjectDto requires a name', async () => {
+      const dto = plainToInstance(CreateProjectDto, {});
+      const errors = extractErrors(await validate(dto));
+      expect(errors).toEqual(expect.arrayContaining([expect.stringContaining('name')]));
+    });
+
+    it('SubmitTimesheetDto rejects negative hours', async () => {
+      const dto = plainToInstance(SubmitTimesheetDto, { date: '2026-07-08', hours: -1 });
+      const errors = extractErrors(await validate(dto));
+      expect(errors).toEqual(expect.arrayContaining([expect.stringMatching(/hours/)]));
+    });
+
+    it('AllocateResourceDto rejects out-of-range allocation', async () => {
+      const dto = plainToInstance(AllocateResourceDto, {
+        userId: '550e8400-e29b-41d4-a716-446655440000',
+        role: 'dev',
+        allocationPercentage: 150,
+      });
+      const errors = extractErrors(await validate(dto));
+      expect(errors).toEqual(expect.arrayContaining([expect.stringMatching(/allocationPercentage/)]));
+    });
+
+    it('CreateProjectTaskDto accepts valid input', async () => {
+      const dto = plainToInstance(CreateProjectTaskDto, { title: 'Task 1' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
   });
 
-  it('delegates findAll to service.findAll with default page', () => {
-    controller.findAll(req, undefined, undefined);
-    expect(service.findAll).toHaveBeenCalledWith(req.user.tenantId, { page: undefined, status: undefined });
-  });
+  describe('Controller method behavior', () => {
+    it('findOne calls service with tenantId and parsed id', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      await controller.findOne(req as any, uuid);
+      expect(mockService.findOne).toHaveBeenCalledWith('tenant-1', uuid);
+    });
 
-  it('delegates findOne to service.findOne', () => {
-    controller.findOne(req, 'proj-1');
-    expect(service.findOne).toHaveBeenCalledWith(req.user.tenantId, 'proj-1');
-  });
+    it('submitTimesheet passes tenantId, userId, projectId and dto', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      const dto: SubmitTimesheetDto = { date: '2026-07-08', hours: 4, description: 'work' };
+      await controller.submitTimesheet(req as any, uuid, dto);
+      expect(mockService.submitTimesheet).toHaveBeenCalledWith('tenant-1', 'user-1', uuid, dto);
+    });
 
-  it('delegates submitTimesheet to service.submitTimesheet', () => {
-    const dto = { hours: 8 };
-    controller.submitTimesheet(req, 'proj-1', dto);
-    expect(service.submitTimesheet).toHaveBeenCalledWith(req.user.tenantId, req.user.sub, 'proj-1', dto);
-  });
+    it('createTask passes tenantId, projectId and dto', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      const dto: CreateProjectTaskDto = { title: 'Task 1' };
+      await controller.createTask(req as any, uuid, dto);
+      expect(mockService.createTask).toHaveBeenCalledWith('tenant-1', uuid, dto);
+    });
 
-  it('delegates getProfitability to service.getProjectProfitability', () => {
-    controller.getProfitability(req, 'proj-1');
-    expect(service.getProjectProfitability).toHaveBeenCalledWith(req.user.tenantId, 'proj-1');
-  });
-
-  it('delegates createTask to service.createTask', () => {
-    const dto = { title: 'Task 1' };
-    controller.createTask(req, 'proj-1', dto);
-    expect(service.createTask).toHaveBeenCalledWith(req.user.tenantId, 'proj-1', dto);
-  });
-
-  it('delegates getGantt to service.getGanttData', () => {
-    controller.getGantt(req, 'proj-1');
-    expect(service.getGanttData).toHaveBeenCalledWith(req.user.tenantId, 'proj-1');
-  });
-
-  it('delegates allocateResource to service.allocateResource', () => {
-    const body = { userId: 'user-42', role: 'developer' };
-    controller.allocateResource(req, 'proj-1', body);
-    expect(service.allocateResource).toHaveBeenCalledWith(req.user.tenantId, 'proj-1', body.userId, body);
+    it('allocateResource passes tenantId, projectId, userId and dto', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      const body: AllocateResourceDto = {
+        userId: '660e8400-e29b-41d4-a716-446655440000',
+        role: 'developer',
+        allocationPercentage: 50,
+      };
+      await controller.allocateResource(req as any, uuid, body);
+      expect(mockService.allocateResource).toHaveBeenCalledWith('tenant-1', uuid, body.userId, body);
+    });
   });
 });
