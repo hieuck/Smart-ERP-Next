@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
 
 export const tenants = pgTable('tenants', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -10,6 +10,7 @@ export const tenants = pgTable('tenants', {
   phone: text('phone'),
   industry: text('industry'),
   onboardingStatus: text('onboarding_status').notNull().default('pending'),
+  settings: jsonb('settings').$type<Record<string, any>>(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

@@ -2,6 +2,7 @@ import { Controller, Get, Patch, Body, UseGuards, Request, ForbiddenException } 
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { SetDefaultCurrencyDto } from './dto/set-default-currency.dto';
+import { UpdateTenantSettingsDto } from './dto/tenant-settings.dto';
 
 function requireTenantId(req: any): string {
   const tenantId = req.user?.tenantId;
@@ -29,5 +30,15 @@ export class SettingsController {
   @Patch('currency')
   async setDefaultCurrency(@Request() req: any, @Body() dto: SetDefaultCurrencyDto) {
     return this.service.setDefaultCurrency(requireTenantId(req), dto.currency);
+  }
+
+  @Get('tenant')
+  async getTenantSettings(@Request() req: any) {
+    return this.service.getTenantSettings(requireTenantId(req));
+  }
+
+  @Patch('tenant')
+  async updateTenantSettings(@Request() req: any, @Body() dto: UpdateTenantSettingsDto) {
+    return this.service.updateTenantSettings(requireTenantId(req), dto);
   }
 }

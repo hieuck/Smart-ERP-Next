@@ -7,6 +7,8 @@ const makeService = () => ({
   getRegisterSettings: jest.fn().mockReturnValue({ tenantId: TENANT_ID }),
   getDefaultCurrency: jest.fn().mockResolvedValue({ currency: 'VND' }),
   setDefaultCurrency: jest.fn().mockResolvedValue({ currency: 'USD' }),
+  getTenantSettings: jest.fn().mockResolvedValue({ company: {}, general: {} }),
+  updateTenantSettings: jest.fn().mockResolvedValue({ company: {}, general: {} }),
 });
 
 describe('SettingsController coverage', () => {
@@ -37,9 +39,22 @@ describe('SettingsController coverage', () => {
     expect(service.setDefaultCurrency).toHaveBeenCalledWith(TENANT_ID, 'USD');
   });
 
+  it('getTenantSettings uses req.user.tenantId and ignores req.tenantId', async () => {
+    await controller.getTenantSettings(reqWithTenantHeader());
+    expect(service.getTenantSettings).toHaveBeenCalledWith(TENANT_ID);
+  });
+
+  it('updateTenantSettings uses req.user.tenantId and ignores req.tenantId', async () => {
+    const dto = { company: { name: 'Acme' } };
+    await controller.updateTenantSettings(reqWithTenantHeader(), dto);
+    expect(service.updateTenantSettings).toHaveBeenCalledWith(TENANT_ID, dto);
+  });
+
   it('throws ForbiddenException when tenant context is missing', async () => {
     await expect(controller.getRegisterSettings(reqWithoutTenant())).rejects.toBeInstanceOf(ForbiddenException);
     await expect(controller.getDefaultCurrency(reqWithoutTenant())).rejects.toBeInstanceOf(ForbiddenException);
     await expect(controller.setDefaultCurrency(reqWithoutTenant(), { currency: 'USD' })).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(controller.getTenantSettings(reqWithoutTenant())).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(controller.updateTenantSettings(reqWithoutTenant(), { company: {} })).rejects.toBeInstanceOf(ForbiddenException);
   });
 });

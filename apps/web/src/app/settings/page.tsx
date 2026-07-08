@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 import AuthGuard from "@/components/layout/AuthGuard";
 import { useToast } from "@/components/providers/ToastProvider";
+import { settingsApi, TenantSettings } from "@/lib/api-settings";
 import {
   Settings,
   Building2,
@@ -14,7 +15,6 @@ import {
   Palette,
   ChevronRight,
   Save,
-  Check,
   Sun,
   Moon,
 } from "lucide-react";
@@ -51,34 +51,45 @@ const TABS: { key: SettingsTab; label: string; icon: React.ReactNode }[] = [
 const inputClass =
   "w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white";
 
-export default function SettingsPage() {
-  const { t } = useTranslation("common");
-  const { success } = useToast();
-  const [activeTab, setActiveTab] = useState<SettingsTab>("company");
-
-  const [company, setCompany] = useState({
+const defaultSettings: TenantSettings = {
+  company: {
     name: "Công ty TNHH Smart ERP",
     address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
     phone: "028 1234 5678",
     email: "info@smarterp.vn",
     taxCode: "0123456789",
     website: "https://smarterp.vn",
-  });
-
-  const [general, setGeneral] = useState({
+  },
+  general: {
     language: i18n.language ?? "vi",
     currency: "VND",
     timezone: "Asia/Ho_Chi_Minh",
     dateFormat: "DD/MM/YYYY",
-  });
-
-  const [notifications, setNotifications] = useState({
+  },
+  notifications: {
     lowStockAlert: true,
     newOrderAlert: true,
     paymentAlert: true,
     emailNotifications: false,
     browserNotifications: true,
-  });
+  },
+  appearance: {
+    theme: "system",
+    primaryColor: "#3b82f6",
+  },
+};
+
+export default function SettingsPage() {
+  const { t } = useTranslation("common");
+  const { success, error } = useToast();
+  const [activeTab, setActiveTab] = useState<SettingsTab>("company");
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const [company, setCompany] = useState(defaultSettings.company);
+  const [general, setGeneral] = useState(defaultSettings.general);
+  const [notifications, setNotifications] = useState(defaultSettings.notifications);
+  const [appearance, setAppearance] = useState(defaultSettings.appearance);
 
   const [passwords, setPasswords] = useState({
     current: "",
@@ -86,14 +97,95 @@ export default function SettingsPage() {
     confirm: "",
   });
 
-  const handleSave = () => {
-    // Apply language change immediately
-    if (general.language !== i18n.language) {
-      i18n.changeLanguage(general.language);
-      localStorage.setItem("language", general.language);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    settingsApi
+      .getTenantSettings()
+      .then((data) => {
+        if (cancelled) return;
+        setCompany({ ...defaultSettings.company, ...data.company });
+        setGeneral({ ...defaultSettings.general, ...data.general });
+        setNotifications({ ...defaultSettings.notifications, ...data.notifications });
+        setAppearance({ ...defaultSettings.appearance, ...data.appearance });
+      })
+      .catch(() => {
+        // Keep defaults on error
+      })
+      .finally(() => setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const applyTheme = (theme: string) => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else if (theme === "light") {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    } else {
+      localStorage.removeItem("theme");
+      const d = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.classList.toggle("dark", d);
     }
-    success(t("common.success"));
   };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await settingsApi.updateTenantSettings({
+        company,
+        general,
+        notifications,
+        appearance,
+      });
+
+      if (general.language !== i18n.language) {
+        i18n.changeLanguage(general.language);
+        localStorage.setItem("language", general.language);
+      }
+      applyTheme(appearance.theme);
+      success(t("common.success"));
+    } catch (e) {
+      error(t("common.error"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const validatePassword = (value: string) => {
+    if (value.length < 8) return "Mật khẩu phải có ít nhất 8 ký tự";
+    if (!/[A-Z]/.test(value)) return "Mật khẩu phải có ít nhất 1 chữ hoa";
+    if (!/[a-z]/.test(value)) return "Mật khẩu phải có ít nhất 1 chữ thường";
+    if (!/[0-9]/.test(value)) return "Mật khẩu phải có ít nhất 1 chữ số";
+    return "";
+  };
+
+  const handleChangePassword = () => {
+    const validation = validatePassword(passwords.next);
+    if (validation) {
+      error(validation);
+      return;
+    }
+    if (passwords.next !== passwords.confirm) {
+      error("Mật khẩu không khớp");
+      return;
+    }
+    success("Đã đổi mật khẩu");
+    setPasswords({ current: "", next: "", confirm: "" });
+  };
+
+  if (loading) {
+    return (
+      <AuthGuard>
+        <div className="p-6 flex items-center justify-center min-h-[50vh]">
+          <div className="text-gray-500">{t("common.loading")}</div>
+        </div>
+      </AuthGuard>
+    );
+  }
 
   return (
     <AuthGuard>
@@ -106,10 +198,11 @@ export default function SettingsPage() {
           actions={
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg text-sm font-medium transition"
             >
               <Save className="w-4 h-4" />
-              {t("actions.save")}
+              {saving ? t("common.loading") : t("actions.save")}
             </button>
           }
         />
@@ -148,26 +241,10 @@ export default function SettingsPage() {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
-                    {
-                      key: "name",
-                      label: t("settings.companyName"),
-                      type: "text",
-                    },
-                    {
-                      key: "taxCode",
-                      label: t("settings.companyTaxCode"),
-                      type: "text",
-                    },
-                    {
-                      key: "phone",
-                      label: t("settings.companyPhone"),
-                      type: "tel",
-                    },
-                    {
-                      key: "email",
-                      label: t("settings.companyEmail"),
-                      type: "email",
-                    },
+                    { key: "name", label: t("settings.companyName"), type: "text" },
+                    { key: "taxCode", label: t("settings.companyTaxCode"), type: "text" },
+                    { key: "phone", label: t("settings.companyPhone"), type: "tel" },
+                    { key: "email", label: t("settings.companyEmail"), type: "email" },
                     { key: "website", label: "Website", type: "url" },
                   ].map((field) => (
                     <div key={field.key}>
@@ -178,10 +255,7 @@ export default function SettingsPage() {
                         type={field.type}
                         value={(company as any)[field.key]}
                         onChange={(e) =>
-                          setCompany((c) => ({
-                            ...c,
-                            [field.key]: e.target.value,
-                          }))
+                          setCompany((c) => ({ ...c, [field.key]: e.target.value }))
                         }
                         className={inputClass}
                       />
@@ -265,10 +339,7 @@ export default function SettingsPage() {
                     <select
                       value={general.dateFormat}
                       onChange={(e) =>
-                        setGeneral((g) => ({
-                          ...g,
-                          dateFormat: e.target.value,
-                        }))
+                        setGeneral((g) => ({ ...g, dateFormat: e.target.value }))
                       }
                       className={inputClass}
                     >
@@ -289,31 +360,11 @@ export default function SettingsPage() {
                 </h2>
                 <div className="space-y-4">
                   {[
-                    {
-                      key: "lowStockAlert",
-                      label: "Cảnh báo sắp hết hàng",
-                      desc: "Thông báo khi tồn kho dưới mức tối thiểu",
-                    },
-                    {
-                      key: "newOrderAlert",
-                      label: "Đơn hàng mới",
-                      desc: "Thông báo khi có đơn hàng mới",
-                    },
-                    {
-                      key: "paymentAlert",
-                      label: "Thanh toán",
-                      desc: "Thông báo khi nhận được thanh toán",
-                    },
-                    {
-                      key: "emailNotifications",
-                      label: "Thông báo qua email",
-                      desc: "Gửi email cho các sự kiện quan trọng",
-                    },
-                    {
-                      key: "browserNotifications",
-                      label: "Thông báo trình duyệt",
-                      desc: "Hiển thị thông báo trên trình duyệt",
-                    },
+                    { key: "lowStockAlert", label: "Cảnh báo sắp hết hàng", desc: "Thông báo khi tồn kho dưới mức tối thiểu" },
+                    { key: "newOrderAlert", label: "Đơn hàng mới", desc: "Thông báo khi có đơn hàng mới" },
+                    { key: "paymentAlert", label: "Thanh toán", desc: "Thông báo khi nhận được thanh toán" },
+                    { key: "emailNotifications", label: "Thông báo qua email", desc: "Gửi email cho các sự kiện quan trọng" },
+                    { key: "browserNotifications", label: "Thông báo trình duyệt", desc: "Hiển thị thông báo trên trình duyệt" },
                   ].map((item) => (
                     <div
                       key={item.key}
@@ -384,14 +435,7 @@ export default function SettingsPage() {
                     </div>
                   ))}
                   <button
-                    onClick={() => {
-                      if (passwords.next !== passwords.confirm) {
-                        alert("Mật khẩu không khớp");
-                        return;
-                      }
-                      success("Đã đổi mật khẩu");
-                      setPasswords({ current: "", next: "", confirm: "" });
-                    }}
+                    onClick={handleChangePassword}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition"
                   >
                     Đổi mật khẩu
@@ -412,41 +456,18 @@ export default function SettingsPage() {
                   </p>
                   <div className="flex gap-3">
                     {[
-                      {
-                        key: "light",
-                        label: "Sáng",
-                        icon: <Sun className="w-4 h-4" />,
-                        action: () => {
-                          document.documentElement.classList.remove("dark");
-                          localStorage.setItem("theme", "light");
-                        },
-                      },
-                      {
-                        key: "dark",
-                        label: "Tối",
-                        icon: <Moon className="w-4 h-4" />,
-                        action: () => {
-                          document.documentElement.classList.add("dark");
-                          localStorage.setItem("theme", "dark");
-                        },
-                      },
-                      {
-                        key: "system",
-                        label: "Hệ thống",
-                        icon: null,
-                        action: () => {
-                          localStorage.removeItem("theme");
-                          const d = window.matchMedia(
-                            "(prefers-color-scheme: dark)",
-                          ).matches;
-                          document.documentElement.classList.toggle("dark", d);
-                        },
-                      },
+                      { key: "light", label: "Sáng", icon: <Sun className="w-4 h-4" /> },
+                      { key: "dark", label: "Tối", icon: <Moon className="w-4 h-4" /> },
+                      { key: "system", label: "Hệ thống", icon: null },
                     ].map((theme) => (
                       <button
                         key={theme.key}
-                        onClick={theme.action}
-                        className="flex flex-col items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition"
+                        onClick={() => setAppearance((a) => ({ ...a, theme: theme.key }))}
+                        className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border transition ${
+                          appearance.theme === theme.key
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                            : "border-gray-200 dark:border-gray-600 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        }`}
                       >
                         {theme.icon}
                         <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -471,8 +492,11 @@ export default function SettingsPage() {
                     ].map((color) => (
                       <button
                         key={color}
+                        onClick={() => setAppearance((a) => ({ ...a, primaryColor: color }))}
                         style={{ backgroundColor: color }}
-                        className="w-8 h-8 rounded-full hover:ring-2 hover:ring-offset-2 hover:ring-gray-400 transition"
+                        className={`w-8 h-8 rounded-full hover:ring-2 hover:ring-offset-2 hover:ring-gray-400 transition ${
+                          appearance.primaryColor === color ? "ring-2 ring-offset-2 ring-gray-800 dark:ring-white" : ""
+                        }`}
                         title={color}
                       />
                     ))}
@@ -486,5 +510,3 @@ export default function SettingsPage() {
     </AuthGuard>
   );
 }
-
-
