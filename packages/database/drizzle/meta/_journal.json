@@ -176,6 +176,13 @@
       "when": 1783533417655,
       "tag": "0024_rare_toro",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1783542410153,
+      "tag": "0025_curly_invaders",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,4 @@
+ALTER TABLE "ecommerce_channel_inventory" ALTER COLUMN "platform_stock" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "ecommerce_channel_inventory" ALTER COLUMN "local_stock" SET DATA TYPE integer;--> statement-breakpoint
+ALTER TABLE "ecommerce_channel_inventory" ADD CONSTRAINT "ecommerce_channel_inventory_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "ecommerce_channel_inventory" ADD CONSTRAINT "ecom_inv_tenant_store_product_ext_unique" UNIQUE("tenant_id","store_id","product_id","external_product_id");
