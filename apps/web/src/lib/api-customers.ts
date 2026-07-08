@@ -33,25 +33,33 @@ export interface CustomerListResponse {
 }
 
 export const customersApi = {
-  getAll: (params?: {
+  getAll: async (params?: {
     page?: number;
     limit?: number;
     search?: string;
     group?: string;
     isActive?: boolean;
-  }): Promise<{ data: CustomerListResponse }> =>
-    apiClient.get('/customers', { params }),
+  }): Promise<CustomerListResponse> => {
+    const res = await apiClient.get<CustomerListResponse>('/customers', { params });
+    return res.data;
+  },
 
-  getOne: (id: string): Promise<{ data: Customer }> =>
-    apiClient.get(`/customers/${id}`),
+  getOne: async (id: string): Promise<Customer> => {
+    const res = await apiClient.get<Customer>(`/customers/${id}`);
+    return res.data;
+  },
 
-  create: (data: Partial<Customer>): Promise<{ data: Customer }> =>
-    apiClient.post('/customers', data),
+  create: async (data: Partial<Customer>): Promise<Customer> => {
+    const res = await apiClient.post<Customer>('/customers', data);
+    return res.data;
+  },
 
-  update: (id: string, data: Partial<Customer>): Promise<{ data: Customer }> =>
-    apiClient.patch(`/customers/${id}`, data),
+  update: async (id: string, data: Partial<Customer>): Promise<Customer> => {
+    const res = await apiClient.patch<Customer>(`/customers/${id}`, data);
+    return res.data;
+  },
 
-  delete: (id: string): Promise<{ data: Customer }> =>
-    apiClient.delete(`/customers/${id}`),
+  delete: async (id: string): Promise<void> => {
+    await apiClient.delete(`/customers/${id}`);
+  },
 };
-

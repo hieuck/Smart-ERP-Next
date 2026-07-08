@@ -90,6 +90,41 @@ describe('web api wrapper coverage', () => {
   });
 
   it('maps lead, customer, and order wrapper methods', async () => {
+    mockApiClient.get.mockImplementation((url: string) => {
+      if (url === '/customers') {
+        return Promise.resolve({ data: { items: [{ id: 'customer-1' }], total: 1, page: 2, limit: 20, totalPages: 1 } });
+      }
+      if (url === '/customers/customer-1') {
+        return Promise.resolve({ data: { id: 'customer-1', name: 'Retail buyer' } });
+      }
+      if (url === '/orders') {
+        return Promise.resolve({ data: { items: [{ id: 'order-1' }], total: 1, page: 1, limit: 20, totalPages: 1 } });
+      }
+      if (url === '/orders/order-1') {
+        return Promise.resolve({ data: { id: 'order-1' } });
+      }
+      return Promise.resolve({ data: { ok: true } });
+    });
+    mockApiClient.post.mockImplementation((url: string, data?: unknown) => {
+      if (url === '/customers') {
+        return Promise.resolve({ data: { id: 'customer-new', name: 'Retail buyer' } });
+      }
+      if (url === '/orders') {
+        return Promise.resolve({ data: { id: 'order-new', total: '1000' } });
+      }
+      return Promise.resolve({ data: { id: 'created' } });
+    });
+    mockApiClient.patch.mockImplementation((url: string) => {
+      if (url === '/customers/customer-1') {
+        return Promise.resolve({ data: { id: 'customer-1', phone: '090' } });
+      }
+      if (url === '/orders/order-1/status') {
+        return Promise.resolve({ data: { id: 'order-1', status: 'cancelled' } });
+      }
+      return Promise.resolve({ data: { id: 'updated' } });
+    });
+    mockApiClient.delete.mockResolvedValue({ data: undefined });
+
     await leadsApi.getAll({ page: 1, status: 'new' });
     await leadsApi.getOne('lead-1');
     await leadsApi.create({ firstName: 'An', lastName: 'Nguyen' });
@@ -99,16 +134,28 @@ describe('web api wrapper coverage', () => {
     await leadsApi.getNextBestAction('lead-1');
     await leadsApi.convertToCustomer('lead-1', { company: 'ABC' });
 
-    await customersApi.getAll({ group: 'vip', page: 2 });
-    await customersApi.getOne('customer-1');
-    await customersApi.create({ name: 'Retail buyer' } as any);
-    await customersApi.update('customer-1', { phone: '090' } as any);
-    await customersApi.delete('customer-1');
+    await expect(customersApi.getAll({ group: 'vip', page: 2 })).resolves.toEqual({
+      items: [{ id: 'customer-1' }],
+      total: 1,
+      page: 2,
+      limit: 20,
+      totalPages: 1,
+    });
+    await expect(customersApi.getOne('customer-1')).resolves.toEqual({ id: 'customer-1', name: 'Retail buyer' });
+    await expect(customersApi.create({ name: 'Retail buyer' } as any)).resolves.toEqual({ id: 'customer-new', name: 'Retail buyer' });
+    await expect(customersApi.update('customer-1', { phone: '090' } as any)).resolves.toEqual({ id: 'customer-1', phone: '090' });
+    await expect(customersApi.delete('customer-1')).resolves.toBeUndefined();
 
-    await ordersApi.getAll({ status: 'paid' });
-    await ordersApi.getOne('order-1');
-    await ordersApi.create({ total: 1000 });
-    await ordersApi.updateStatus('order-1', 'cancelled', 'duplicate');
+    await expect(ordersApi.getAll({ status: 'paid' })).resolves.toEqual({
+      items: [{ id: 'order-1' }],
+      total: 1,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+    });
+    await expect(ordersApi.getOne('order-1')).resolves.toEqual({ id: 'order-1' });
+    await expect(ordersApi.create({ total: 1000 })).resolves.toEqual({ id: 'order-new', total: '1000' });
+    await expect(ordersApi.updateStatus('order-1', 'cancelled', 'duplicate')).resolves.toEqual({ id: 'order-1', status: 'cancelled' });
 
     expect(mockApiClient.get).toHaveBeenCalledWith('/crm/leads', { params: { page: 1, status: 'new' } });
     expect(mockApiClient.get).toHaveBeenCalledWith('/crm/leads/lead-1');

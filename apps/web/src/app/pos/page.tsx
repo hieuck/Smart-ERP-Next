@@ -119,7 +119,7 @@ export default function POSPage() {
       try {
         const res = await customersApi.getAll({ search: term, limit: 6 });
         if (term !== customerSearch) return;
-        setCustomers(res.data.items);
+        setCustomers(res.items ?? []);
         setShowCustomerDropdown(true);
       } catch {
         if (term === customerSearch) setCustomers([]);
@@ -232,7 +232,7 @@ export default function POSPage() {
           discountAmount: i.discount,
         })),
       });
-      setLastOrder(res.data);
+      setLastOrder(res);
       setShowPaymentModal(false);
       setShowSuccessModal(true);
       // Reset

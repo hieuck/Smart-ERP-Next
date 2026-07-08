@@ -17,7 +17,7 @@ export default function EditCustomerPage() {
 
   useEffect(() => {
     customersApi.getOne(id)
-      .then((res) => setCustomer(res.data))
+      .then((customer) => setCustomer(customer))
       .catch(() => router.push('/customers'))
       .finally(() => setLoading(false));
   }, [id, router]);

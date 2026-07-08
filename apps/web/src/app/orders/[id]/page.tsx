@@ -57,7 +57,7 @@ export default function OrderDetailPage() {
 
   useEffect(() => {
     ordersApi.getOne(id)
-      .then((res) => setOrder(res.data))
+      .then((order) => setOrder(order))
       .catch(() => router.push('/orders'))
       .finally(() => setLoading(false));
   }, [id, router]);
@@ -69,8 +69,8 @@ export default function OrderDetailPage() {
       : undefined;
     setUpdating(true);
     try {
-      const res = await ordersApi.updateStatus(id, status, cancelReason);
-      setOrder((prev) => prev ? { ...prev, ...res.data } : null);
+      const updated = await ordersApi.updateStatus(id, status, cancelReason);
+      setOrder((prev) => prev ? { ...prev, ...updated } : null);
     } catch (err: any) {
       alert(err.response?.data?.message ?? t('orders.updateFailed'));
     } finally {

@@ -90,9 +90,9 @@ export default function OrdersPage() {
         status: statusFilter || undefined,
         paymentStatus: paymentFilter || undefined,
       });
-      setOrders(res.data.items);
-      setTotalPages(res.data.totalPages);
-      setTotal(res.data.total);
+      setOrders(res.items);
+      setTotalPages(res.totalPages);
+      setTotal(res.total);
     } catch (err) {
       console.error('Failed to fetch orders:', err);
     } finally {

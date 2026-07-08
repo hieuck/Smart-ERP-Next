@@ -51,23 +51,30 @@ export interface OrderListResponse {
 }
 
 export const ordersApi = {
-  getAll: (params?: {
+  getAll: async (params?: {
     page?: number;
     limit?: number;
     search?: string;
     status?: string;
     paymentStatus?: string;
     channel?: string;
-  }): Promise<{ data: OrderListResponse }> =>
-    apiClient.get('/orders', { params }),
+  }): Promise<OrderListResponse> => {
+    const res = await apiClient.get<OrderListResponse>('/orders', { params });
+    return res.data;
+  },
 
-  getOne: (id: string): Promise<{ data: Order }> =>
-    apiClient.get(`/orders/${id}`),
+  getOne: async (id: string): Promise<Order> => {
+    const res = await apiClient.get<Order>(`/orders/${id}`);
+    return res.data;
+  },
 
-  create: (data: any): Promise<{ data: Order }> =>
-    apiClient.post('/orders', data),
+  create: async (data: any): Promise<Order> => {
+    const res = await apiClient.post<Order>('/orders', data);
+    return res.data;
+  },
 
-  updateStatus: (id: string, status: string, cancelReason?: string): Promise<{ data: Order }> =>
-    apiClient.patch(`/orders/${id}/status`, { status, cancelReason }),
+  updateStatus: async (id: string, status: string, cancelReason?: string): Promise<Order> => {
+    const res = await apiClient.patch<Order>(`/orders/${id}/status`, { status, cancelReason });
+    return res.data;
+  },
 };
-

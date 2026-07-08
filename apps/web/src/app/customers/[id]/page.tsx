@@ -32,7 +32,7 @@ export default function CustomerDetailPage() {
 
   useEffect(() => {
     Promise.all([
-      customersApi.getOne(id).then((r) => r.data),
+      customersApi.getOne(id),
       apiClient.get('/orders', { params: { limit: 5 } }).then((r) => r.data.items ?? []).catch(() => []),
     ])
       .then(([c, orders]) => {
