@@ -50,6 +50,7 @@ export const financeBudgetLines = pgTable(
   },
   (t) => ({
     budgetIdx: index('fin_bud_line_budget_idx').on(t.budgetId),
+    budgetCategoryUnique: unique('fin_bud_line_budget_category_unique').on(t.budgetId, t.category),
   })
 );
 

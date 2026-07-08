@@ -1,0 +1,1 @@
+ALTER TABLE "finance_budget_lines" ADD CONSTRAINT "fin_bud_line_budget_category_unique" UNIQUE("budget_id","category");
