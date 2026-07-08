@@ -1,37 +1,37 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import * as schema from '@smart-erp/database/schema';
-
-interface OnboardingState {
-  companyInfo?: {
-    name: string;
-    address?: string;
-    taxCode?: string;
-    phone?: string;
-    industry: string;
-  };
-  status: 'pending' | 'complete';
-}
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class OnboardingService {
-  readonly onboardingState = new Map<string, OnboardingState>();
-
   constructor(private readonly drizzle: DrizzleService) {}
 
   async getStatus(tenantId: string): Promise<{ status: string }> {
-    const state = this.onboardingState.get(tenantId);
-    return { status: state?.status || 'pending' };
+    const rows = await this.drizzle.db
+      .select({ onboardingStatus: schema.tenants.onboardingStatus })
+      .from(schema.tenants)
+      .where(eq(schema.tenants.id, tenantId))
+      .limit(1);
+    return { status: rows[0]?.onboardingStatus || 'pending' };
   }
 
   async setupCompany(
     tenantId: string,
     dto: { name: string; address?: string; taxCode?: string; phone?: string; industry: string },
   ): Promise<{ status: string; companyInfo: typeof dto }> {
-    this.onboardingState.set(tenantId, {
-      companyInfo: dto,
-      status: 'pending',
-    });
+    await this.drizzle.db
+      .update(schema.tenants)
+      .set({
+        name: dto.name,
+        address: dto.address,
+        taxCode: dto.taxCode,
+        phone: dto.phone,
+        industry: dto.industry,
+        onboardingStatus: 'pending',
+      })
+      .where(eq(schema.tenants.id, tenantId))
+      .returning();
     return { status: 'pending', companyInfo: dto };
   }
 
@@ -41,6 +41,15 @@ export class OnboardingService {
   ): Promise<Record<string, any>> {
     if (!['retail', 'fnb', 'service'].includes(industry)) {
       throw new BadRequestException(`Invalid industry: ${industry}`);
+    }
+
+    const rows = await this.drizzle.db
+      .select({ onboardingStatus: schema.tenants.onboardingStatus })
+      .from(schema.tenants)
+      .where(eq(schema.tenants.id, tenantId))
+      .limit(1);
+    if (rows[0]?.onboardingStatus === 'complete') {
+      return { seeded: false, reason: 'onboarding-already-complete' };
     }
 
     switch (industry) {
@@ -54,11 +63,25 @@ export class OnboardingService {
   }
 
   async complete(tenantId: string): Promise<{ status: string }> {
-    const state = this.onboardingState.get(tenantId);
-    if (!state?.companyInfo) {
+    const rows = await this.drizzle.db
+      .select({
+        id: schema.tenants.id,
+        name: schema.tenants.name,
+        industry: schema.tenants.industry,
+      })
+      .from(schema.tenants)
+      .where(eq(schema.tenants.id, tenantId))
+      .limit(1);
+    const tenant = rows[0];
+    if (!tenant?.name || !tenant?.industry) {
       throw new BadRequestException('Must complete company setup first');
     }
-    state.status = 'complete';
+
+    await this.drizzle.db
+      .update(schema.tenants)
+      .set({ onboardingStatus: 'complete' })
+      .where(eq(schema.tenants.id, tenantId))
+      .returning();
     return { status: 'complete' };
   }
 

@@ -8,6 +8,7 @@ const mockDb = createMockDb();
 
 jest.mock('@smart-erp/database', () => ({ db: mockDb }));
 jest.mock('@smart-erp/database/schema', () => ({
+  tenants: {},
   products: {},
   productCategories: {},
   warehouses: {},
@@ -29,19 +30,25 @@ describe('OnboardingService (integration)', () => {
     service = new OnboardingService(mockDrizzleService as any);
   });
 
-  afterEach(() => {
-    (service as any).onboardingState.clear();
-  });
+
 
   describe('getStatus', () => {
     it('returns pending for new tenant', async () => {
       const result = await service.getStatus(TENANT_ID);
       expect(result.status).toBe('pending');
     });
+
+    it('returns persisted status', async () => {
+      mockDb._resolveWith([{ onboardingStatus: 'complete' }]);
+      const result = await service.getStatus(TENANT_ID);
+      expect(result.status).toBe('complete');
+    });
   });
 
   describe('setupCompany', () => {
     it('saves company info and returns status', async () => {
+      mockDb._resolveWith([{ id: TENANT_ID, onboardingStatus: 'pending' }]);
+
       const dto = {
         name: 'Test Corp',
         address: '123 Main St',
@@ -60,6 +67,7 @@ describe('OnboardingService (integration)', () => {
   describe('seedIndustryData', () => {
     it('seeds 20 products for retail industry', async () => {
       mockDb._queueSequence([
+        [{ onboardingStatus: 'pending' }],
         [{ id: 'cat-1' }, { id: 'cat-2' }, { id: 'cat-3' }, { id: 'cat-4' }, { id: 'cat-5' }],
         Array.from({ length: 20 }, (_, i) => ({ id: `prod-${i + 1}` })),
         [{ id: 'wh-1' }],
@@ -77,6 +85,7 @@ describe('OnboardingService (integration)', () => {
 
     it('seeds 10 items for fnb industry', async () => {
       mockDb._queueSequence([
+        [{ onboardingStatus: 'pending' }],
         [{ id: 'cat-1' }],
         Array.from({ length: 10 }, (_, i) => ({ id: `item-${i + 1}` })),
         [{ id: 'wh-1' }],
@@ -90,6 +99,7 @@ describe('OnboardingService (integration)', () => {
 
     it('seeds 5 services for service industry', async () => {
       mockDb._queueSequence([
+        [{ onboardingStatus: 'pending' }],
         Array.from({ length: 5 }, (_, i) => ({ id: `svc-${i + 1}` })),
         [{ id: 'emp-1' }],
         [{ id: 'proj-1' }],
@@ -111,7 +121,10 @@ describe('OnboardingService (integration)', () => {
 
   describe('complete', () => {
     it('marks onboarding as complete', async () => {
-      await service.setupCompany(TENANT_ID, { name: 'Test Corp', industry: 'retail' });
+      mockDb._queueSequence([
+        [{ id: TENANT_ID, name: 'Test Corp', industry: 'retail' }],
+        [{ onboardingStatus: 'complete' }],
+      ]);
 
       const result = await service.complete(TENANT_ID);
 
@@ -119,18 +132,25 @@ describe('OnboardingService (integration)', () => {
     });
 
     it('throws BadRequestException if company not set up first', async () => {
+      mockDb._resolveWith([]);
       await expect(service.complete(TENANT_ID)).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('full flow', () => {
     it('setup -> seed -> complete -> status = complete', async () => {
+      // getStatus returns pending
+      mockDb._resolveWith([]);
       const initialStatus = await service.getStatus(TENANT_ID);
       expect(initialStatus.status).toBe('pending');
 
+      // setupCompany returns updated tenant
+      mockDb._resolveWith([{ id: TENANT_ID, onboardingStatus: 'pending' }]);
       await service.setupCompany(TENANT_ID, { name: 'Full Corp', industry: 'retail' });
 
+      // seed: status check + seed inserts
       mockDb._queueSequence([
+        [{ onboardingStatus: 'pending' }],
         [{ id: 'cat-1' }, { id: 'cat-2' }, { id: 'cat-3' }, { id: 'cat-4' }, { id: 'cat-5' }],
         Array.from({ length: 20 }, (_, i) => ({ id: `prod-${i + 1}` })),
         [{ id: 'wh-1' }],
@@ -138,9 +158,16 @@ describe('OnboardingService (integration)', () => {
       ]);
       await service.seedIndustryData(TENANT_ID, 'retail');
 
+      // complete: select tenant + update returning
+      mockDb._queueSequence([
+        [{ id: TENANT_ID, name: 'Full Corp', industry: 'retail' }],
+        [{ onboardingStatus: 'complete' }],
+      ]);
       const completeResult = await service.complete(TENANT_ID);
       expect(completeResult.status).toBe('complete');
 
+      // final status
+      mockDb._resolveWith([{ onboardingStatus: 'complete' }]);
       const finalStatus = await service.getStatus(TENANT_ID);
       expect(finalStatus.status).toBe('complete');
     });

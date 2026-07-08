@@ -5,6 +5,11 @@ export const tenants = pgTable('tenants', {
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   defaultCurrency: text('default_currency').notNull().default('VND'),
+  address: text('address'),
+  taxCode: text('tax_code'),
+  phone: text('phone'),
+  industry: text('industry'),
+  onboardingStatus: text('onboarding_status').notNull().default('pending'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

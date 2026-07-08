@@ -141,6 +141,13 @@
       "when": 1783472451205,
       "tag": "0019_complete_bucky",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1783477017843,
+      "tag": "0020_famous_pyro",
+      "breakpoints": true
     }
   ]
 }
