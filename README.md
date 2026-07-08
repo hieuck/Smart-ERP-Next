@@ -5,7 +5,7 @@
 [![CI](https://github.com/hieuck/Smart-ERP-Next/actions/workflows/ci.yml/badge.svg)](https://github.com/hieuck/Smart-ERP-Next/actions/workflows/ci.yml)
 [![Release](https://github.com/hieuck/Smart-ERP-Next/actions/workflows/release.yml/badge.svg)](https://github.com/hieuck/Smart-ERP-Next/actions/releases/latest)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://github.com/hieuck/Smart-ERP-Next/pkgs/container/smart-erp-next)
-[![Tests](https://img.shields.io/badge/Tests-2,059-green)](https://github.com/hieuck/Smart-ERP-Next/actions)
+[![Tests](https://img.shields.io/badge/Tests-2,300+-green)](https://github.com/hieuck/Smart-ERP-Next/actions)
 [![Version](https://img.shields.io/badge/Version-0.3.0-blue)](https://github.com/hieuck/Smart-ERP-Next/releases)
 
 ---
@@ -74,13 +74,15 @@ packages/
 
 | Metric | Value |
 |--------|-------|
-| Tests | 1,887 (unit + integration + E2E) |
-| Suites | 282 |
-| Coverage | 93% stmts / 97% branches / 98% funcs / 94% lines |
+| Tests | 2,323 (unit + integration + E2E) |
+| Suites | 384 |
+| Coverage | 0.23% stmts / 0.18% branches / 0.26% funcs / 0.22% lines |
 | TypeScript | 0 errors (12/12 packages) |
 | Lint | 0 errors |
 | CI/CD | 8-step pipeline (type-check → test → lint → i18n → Playwright → migrate → E2E) |
 | Docker | Multi-stage build, layer-cached, 3 service compose |
+
+> ⚠️ Coverage is currently low because many legacy modules are still awaiting dedicated tests. Metrics above are sourced from the latest `coverage/coverage-summary.json` and CI output. |
 
 ---
 

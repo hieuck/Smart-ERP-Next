@@ -48,4 +48,15 @@ describe('Deployment Documentation', () => {
     expect(content).toContain('COMPOSE_FILE=');
     expect(content).toContain('if [ ! -f "${COMPOSE_FILE}" ]; then');
   });
+
+  test('README.md no longer reports the old inflated metrics', () => {
+    const readmePath = path.join(repoRoot, 'README.md');
+    expect(fs.existsSync(readmePath)).toBe(true);
+    const readme = fs.readFileSync(readmePath, 'utf8');
+
+    expect(readme).not.toContain('1,887 (unit + integration + E2E)');
+    expect(readme).not.toContain('93% stmts / 97% branches / 98% funcs / 94% lines');
+    expect(readme).toContain('coverage/coverage-summary.json');
+    expect(readme).toContain('Coverage is currently low');
+  });
 });
