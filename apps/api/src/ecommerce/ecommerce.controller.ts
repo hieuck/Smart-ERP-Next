@@ -2,6 +2,7 @@ import { Controller, Post, Get, Body, Query, Param, UseGuards } from '@nestjs/co
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { EcommerceService } from './ecommerce.service';
+import { CreateStoreDto } from './dto/create-store.dto';
 
 @Controller('ecommerce')
 @UseGuards(JwtAuthGuard)
@@ -16,7 +17,7 @@ export class EcommerceController {
   }
 
   @Post('stores')
-  async createStore(@CurrentUser() user: any, @Body() dto: any) {
+  async createStore(@CurrentUser() user: any, @Body() dto: CreateStoreDto) {
     return this.ecommerceService.createStore(user.tenantId, dto);
   }
 

@@ -12,6 +12,8 @@ import { TikTokShopClient, TikTokShopConfig } from './tiktokshop.client';
 import { AmazonClient, AmazonConfig } from './amazon.client';
 import { EbayClient, EbayConfig } from './ebay.client';
 import { ShopeeClient, ShopeeConfig } from './shopee.client';
+import { encryptConfig, decryptConfig } from './config-encryption';
+import { CreateStoreDto } from './dto/create-store.dto';
 
 export interface SyncResult {
   storeId: string;
@@ -295,13 +297,18 @@ export class EcommerceService {
   // --------------- Private helpers --------------
 
   private async getStore(storeId: string, tenantId: string) {
-    const store = await db
+    const row = await db
       .select()
       .from(ecommerceStores)
       .where(and(eq(ecommerceStores.id, storeId), eq(ecommerceStores.tenantId, tenantId)))
       .then((r) => r[0]);
-    if (!store) throw new HttpException('Store not found', HttpStatus.NOT_FOUND);
-    return store;
+    if (!row) throw new HttpException('Store not found', HttpStatus.NOT_FOUND);
+    try {
+      const configJson = decryptConfig(row.configJson);
+      return { ...row, configJson };
+    } catch {
+      throw new HttpException('Unable to read store configuration', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   private async syncStoreProducts(storeId: string, tenantId: string): Promise<number> {
@@ -513,25 +520,28 @@ export class EcommerceService {
   }
 
   async getStores(tenantId: string) {
-    return db
+    const stores = await db
       .select()
       .from(ecommerceStores)
       .where(eq(ecommerceStores.tenantId, tenantId))
       .orderBy(desc(ecommerceStores.createdAt));
+    // Never expose encrypted credentials in list endpoints.
+    return stores.map(({ configJson, ...store }) => store);
   }
 
-  async createStore(tenantId: string, dto: any) {
+  async createStore(tenantId: string, dto: CreateStoreDto) {
+    const encryptedConfig = encryptConfig(JSON.stringify(dto.configJson));
     const [store] = await db
       .insert(ecommerceStores)
       .values({
         tenantId,
         platform: dto.platform,
         name: dto.name,
-        configJson: dto.configJson,
-        isActive: true,
+        configJson: encryptedConfig,
+        isActive: dto.isActive ?? true,
       })
       .returning();
-    return store;
+    return { ...store, configJson: dto.configJson };
   }
 
   async getSyncLogs(tenantId: string, storeId?: string) {

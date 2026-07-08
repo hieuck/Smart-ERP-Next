@@ -1,5 +1,6 @@
 import { EcommerceService } from './ecommerce.service';
 import { db } from '@smart-erp/database';
+import { encryptConfig } from './config-encryption';
 
 jest.mock('@smart-erp/database', () => ({
   db: {
@@ -57,19 +58,20 @@ describe('EcommerceService tenant isolation', () => {
     service = new EcommerceService();
   });
 
-  it('getStore applies tenantId filter in where clause', async () => {
+  it('getStore decrypts configJson before returning', async () => {
+    const config = JSON.stringify({ apiKey: 'secret' });
     const storeRow = {
       id: 'store-1',
       tenantId: 'tenant-a',
       platform: 'shopee',
-      configJson: '{}',
+      configJson: encryptConfig(config),
       isActive: true,
     };
     mockDb.then.mockImplementation((resolve: any) => resolve([storeRow]));
 
     const result = await (service as any).getStore('store-1', 'tenant-a');
 
-    expect(result).toEqual(storeRow);
+    expect(result.configJson).toEqual(config);
     expect(mockDb.where).toHaveBeenCalledWith(expect.any(Array));
   });
 
@@ -77,6 +79,18 @@ describe('EcommerceService tenant isolation', () => {
     mockDb.then.mockImplementation((resolve: any) => resolve([]));
 
     await expect((service as any).getStore('store-1', 'tenant-a')).rejects.toThrow('Store not found');
+  });
+
+  it('createStore encrypts configJson before insert', async () => {
+    const config = { apiKey: 'secret-key' };
+    mockDb.returning.mockResolvedValueOnce([{ id: 'store-1', platform: 'shopee', name: 'Test', configJson: '', isActive: true }]);
+
+    const result = await service.createStore('t1', { platform: 'shopee', name: 'Test', configJson: config } as any);
+
+    expect(result.configJson).toEqual(config);
+    const inserted = mockDb.values.mock.calls[mockDb.values.mock.calls.length - 1][0];
+    expect(inserted.configJson).not.toEqual(JSON.stringify(config));
+    expect(inserted.configJson.length).toBeGreaterThan(JSON.stringify(config).length);
   });
 
   it('syncStoreProducts throws for unsupported platform', async () => {
