@@ -60,6 +60,9 @@ jest.mock('../ecommerce/shopee.client', () => ({
 }));
 
 import { EcommerceService } from '../ecommerce/ecommerce.service';
+import { encryptConfig } from '../ecommerce/config-encryption';
+
+const encryptedEmptyConfig = encryptConfig('{}');
 
 const selectQueue: any[][] = [];
 const insertReturningQueue: any[][] = [];
@@ -110,7 +113,7 @@ describe('ECommerceService integration', () => {
       selectQueue.push(stores);
 
       const result = await service.getStores('tenant-1');
-      expect(result).toBe(stores);
+      expect(result).toEqual(stores);
     });
 
     it('returns empty array when tenant has no stores', async () => {
@@ -123,17 +126,17 @@ describe('ECommerceService integration', () => {
       const newStore = { id: 'new-1', tenantId: 'tenant-1', platform: 'shopee', name: 'My Shop', isActive: true };
       insertReturningQueue.push([newStore]);
 
-      const result = await service.createStore('tenant-1', { platform: 'shopee', name: 'My Shop', configJson: '{}' });
+      const result = await service.createStore('tenant-1', { platform: 'shopee', name: 'My Shop', configJson: {} });
       expect(result).toMatchObject({ id: 'new-1', platform: 'shopee' });
     });
 
-    it('createStore inserts with isActive=true and provided configJson', async () => {
+    it('createStore inserts with isActive=true and encrypted configJson', async () => {
       insertReturningQueue.push([{ id: 's-1' }]);
-      await service.createStore('tenant-1', { platform: 'amazon', name: 'Amazon Store', configJson: '{"key":"val"}' });
+      await service.createStore('tenant-1', { platform: 'amazon', name: 'Amazon Store', configJson: { key: 'val' } });
 
-      expect(mockDb.insert.mock.results[0].value.values).toHaveBeenCalledWith(
-        expect.objectContaining({ tenantId: 'tenant-1', platform: 'amazon', name: 'Amazon Store', configJson: '{"key":"val"}', isActive: true }),
-      );
+      const inserted = mockDb.insert.mock.results[0].value.values.mock.calls[0][0];
+      expect(inserted).toMatchObject({ tenantId: 'tenant-1', platform: 'amazon', name: 'Amazon Store', isActive: true });
+      expect(inserted.configJson).not.toEqual('{"key":"val"}');
     });
   });
 
@@ -250,7 +253,7 @@ describe('ECommerceService integration', () => {
     });
 
     it('syncs TikTok products with pagination', async () => {
-      selectQueue.push([{ id: 'tt-store', tenantId: 't1', configJson: '{}' }]);
+      selectQueue.push([{ id: 'tt-store', tenantId: 't1', configJson: encryptedEmptyConfig }]);
       mockTikTokClient.getProducts
         .mockResolvedValueOnce({ products: [{ id: 'p1' }, { id: 'p2' }], pagination: { has_more: true } })
         .mockResolvedValueOnce({ products: [{ id: 'p3' }], pagination: { has_more: false } });
@@ -261,7 +264,7 @@ describe('ECommerceService integration', () => {
     });
 
     it('syncs TikTok orders with since parameter', async () => {
-      selectQueue.push([{ id: 'tt-store', tenantId: 't1', configJson: '{}' }]);
+      selectQueue.push([{ id: 'tt-store', tenantId: 't1', configJson: encryptedEmptyConfig }]);
       mockTikTokClient.getOrders.mockResolvedValue({
         orders: [{ order_id: 'o1' }], pagination: { has_more: false },
       });
@@ -273,8 +276,8 @@ describe('ECommerceService integration', () => {
 
     it('syncs Amazon products and orders', async () => {
       selectQueue.push(
-        [{ id: 'am-store', tenantId: 't1', configJson: '{}' }],
-        [{ id: 'am-store', tenantId: 't1', configJson: '{}' }],
+        [{ id: 'am-store', tenantId: 't1', configJson: encryptedEmptyConfig }],
+        [{ id: 'am-store', tenantId: 't1', configJson: encryptedEmptyConfig }],
       );
       mockAmazonClient.getProducts.mockResolvedValue([{ asin: 'a1' }, { asin: 'a2' }]);
       mockAmazonClient.getOrders.mockResolvedValue([{ AmazonOrderId: 'ao1' }]);
@@ -287,7 +290,7 @@ describe('ECommerceService integration', () => {
     });
 
     it('syncs Shopee products with pagination (hasNext)', async () => {
-      selectQueue.push([{ id: 'sp-store', tenantId: 't1', configJson: '{}' }]);
+      selectQueue.push([{ id: 'sp-store', tenantId: 't1', configJson: encryptedEmptyConfig }]);
       mockShopeeClient.getProducts
         .mockResolvedValueOnce({ products: [{ id: 'sp1' }], pagination: { hasNext: true } })
         .mockResolvedValueOnce({ products: [{ id: 'sp2' }, { id: 'sp3' }], pagination: { hasNext: false } });
@@ -298,7 +301,7 @@ describe('ECommerceService integration', () => {
     });
 
     it('syncs Shopee orders with since parameter', async () => {
-      selectQueue.push([{ id: 'sp-store', tenantId: 't1', configJson: '{}' }]);
+      selectQueue.push([{ id: 'sp-store', tenantId: 't1', configJson: encryptedEmptyConfig }]);
       mockShopeeClient.getOrders.mockResolvedValue({
         orders: [{ orderSn: 'so1' }], pagination: { hasMore: false },
       });
@@ -310,8 +313,8 @@ describe('ECommerceService integration', () => {
 
     it('syncs eBay products and orders', async () => {
       selectQueue.push(
-        [{ id: 'eb-store', tenantId: 't1', configJson: '{}' }],
-        [{ id: 'eb-store', tenantId: 't1', configJson: '{}' }],
+        [{ id: 'eb-store', tenantId: 't1', configJson: encryptedEmptyConfig }],
+        [{ id: 'eb-store', tenantId: 't1', configJson: encryptedEmptyConfig }],
       );
       mockEbayClient.getProducts.mockResolvedValue([{ itemId: 'eb1' }]);
       mockEbayClient.getOrders.mockResolvedValue([{ orderId: 'eo1' }]);
