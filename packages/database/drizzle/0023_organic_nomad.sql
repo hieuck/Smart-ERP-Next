@@ -1,0 +1,2 @@
+ALTER TABLE "maintenance_orders" DROP CONSTRAINT "maintenance_orders_order_number_unique";--> statement-breakpoint
+ALTER TABLE "maintenance_orders" ADD CONSTRAINT "maintenance_orders_tenant_order_number_unique" UNIQUE("tenant_id","order_number");

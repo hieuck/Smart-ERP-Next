@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, decimal, integer, index, boolean, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { fixedAssets } from './fixed_assets';
 import { users } from './users';
@@ -15,7 +15,7 @@ export const maintenanceOrders = pgTable(
       .notNull()
       .references(() => fixedAssets.id, { onDelete: 'cascade' }),
       
-    orderNumber: text('order_number').notNull().unique(),
+    orderNumber: text('order_number').notNull(),
     title: text('title').notNull(),
     description: text('description'),
     
@@ -41,6 +41,7 @@ export const maintenanceOrders = pgTable(
     tenantIdx: index('maint_order_tenant_idx').on(t.tenantId),
     assetIdx: index('maint_order_asset_idx').on(t.assetId),
     statusIdx: index('maint_order_status_idx').on(t.status),
+    orderNumberUnique: unique('maintenance_orders_tenant_order_number_unique').on(t.tenantId, t.orderNumber),
   })
 );
 
