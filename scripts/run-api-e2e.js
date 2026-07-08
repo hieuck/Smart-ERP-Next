@@ -1,4 +1,4 @@
-const { spawnSync } = require('node:child_process');
+const childProcess = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const { buildGateEnv } = require('./quality-gate');
@@ -38,14 +38,27 @@ function buildApiE2EEnv(cwd = process.cwd()) {
   };
 }
 
+function resolveCommand(cmd) {
+  if (process.platform !== 'win32') return cmd;
+
+  // On Windows, spawnSync without a shell may not resolve .cmd/.bat wrappers.
+  // Explicitly use pnpm.cmd so the binary path is not interpreted by a shell.
+  return `${cmd}.cmd`;
+}
+
 function runApiE2E(cwd = process.cwd()) {
-  const result = spawnSync(
-    'pnpm',
+  if (typeof cwd !== 'string' || cwd.length === 0) {
+    throw new TypeError('cwd must be a non-empty string');
+  }
+  const safeCwd = path.resolve(cwd);
+
+  const result = childProcess.spawnSync(
+    resolveCommand('pnpm'),
     ['--filter', '@smart-erp/api', 'exec', 'jest', '--config', 'jest-e2e.json', '--runInBand', '--detectOpenHandles'],
     {
-      cwd,
-      env: buildApiE2EEnv(cwd),
-      shell: process.platform === 'win32',
+      cwd: safeCwd,
+      env: buildApiE2EEnv(safeCwd),
+      shell: false,
       stdio: 'inherit',
     },
   );

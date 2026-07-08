@@ -1,7 +1,8 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { buildApiE2EEnv, parseEnvFile } = require('../run-api-e2e');
+const childProcess = require('node:child_process');
+const { buildApiE2EEnv, parseEnvFile, runApiE2E } = require('../run-api-e2e');
 
 describe('run-api-e2e wrapper', () => {
   it('parses simple env files', () => {
@@ -35,6 +36,46 @@ describe('run-api-e2e wrapper', () => {
           process.env[key] = originals[key];
         }
       }
+    }
+  });
+
+  it('rejects non-string cwd', () => {
+    expect(() => runApiE2E(123)).toThrow('cwd must be a non-empty string');
+  });
+
+  it('does not pass shell: true to spawnSync', () => {
+    let capturedOptions;
+    jest.spyOn(childProcess, 'spawnSync').mockImplementation((cmd, args, options) => {
+      capturedOptions = options;
+      return { status: 0 };
+    });
+
+    try {
+      runApiE2E(process.cwd());
+      expect(capturedOptions.shell).toBe(false);
+      expect(capturedOptions.env).toBeDefined();
+      expect(typeof capturedOptions.cwd).toBe('string');
+    } finally {
+      childProcess.spawnSync.mockRestore();
+    }
+  });
+
+  it('uses pnpm.cmd on Windows and pnpm elsewhere', () => {
+    let capturedCmd;
+    jest.spyOn(childProcess, 'spawnSync').mockImplementation((cmd) => {
+      capturedCmd = cmd;
+      return { status: 0 };
+    });
+
+    try {
+      runApiE2E(process.cwd());
+      if (process.platform === 'win32') {
+        expect(capturedCmd).toMatch(/pnpm\.cmd$/);
+      } else {
+        expect(capturedCmd).toBe('pnpm');
+      }
+    } finally {
+      childProcess.spawnSync.mockRestore();
     }
   });
 });
