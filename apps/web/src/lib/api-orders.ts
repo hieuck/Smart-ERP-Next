@@ -50,6 +50,30 @@ export interface OrderListResponse {
   totalPages: number;
 }
 
+export interface CreateOrderItemPayload {
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  discountAmount?: number;
+  discountPercent?: number;
+  taxRate?: number;
+  notes?: string;
+  batchNumber?: string;
+}
+
+export interface CreateOrderPayload {
+  customerId?: string;
+  warehouseId?: string;
+  channel?: 'pos' | 'online' | 'phone' | 'wholesale';
+  discountAmount?: number;
+  discountPercent?: number;
+  shippingFee?: number;
+  paymentMethod?: 'cash' | 'bank_transfer' | 'card' | 'momo' | 'vnpay' | 'zalopay' | 'credit';
+  shippingAddress?: string;
+  notes?: string;
+  items: CreateOrderItemPayload[];
+}
+
 export const ordersApi = {
   getAll: async (params?: {
     page?: number;
@@ -68,7 +92,7 @@ export const ordersApi = {
     return res.data;
   },
 
-  create: async (data: any): Promise<Order> => {
+  create: async (data: CreateOrderPayload): Promise<Order> => {
     const res = await apiClient.post<Order>('/orders', data);
     return res.data;
   },

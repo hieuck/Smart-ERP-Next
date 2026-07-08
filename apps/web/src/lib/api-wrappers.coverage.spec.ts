@@ -154,7 +154,14 @@ describe('web api wrapper coverage', () => {
       totalPages: 1,
     });
     await expect(ordersApi.getOne('order-1')).resolves.toEqual({ id: 'order-1' });
-    await expect(ordersApi.create({ total: 1000 })).resolves.toEqual({ id: 'order-new', total: '1000' });
+    await expect(
+      ordersApi.create({
+        customerId: 'customer-1',
+        channel: 'pos',
+        paymentMethod: 'cash',
+        items: [{ productId: 'product-1', quantity: 2, unitPrice: 500 }],
+      }),
+    ).resolves.toEqual({ id: 'order-new', total: '1000' });
     await expect(ordersApi.updateStatus('order-1', 'cancelled', 'duplicate')).resolves.toEqual({ id: 'order-1', status: 'cancelled' });
 
     expect(mockApiClient.get).toHaveBeenCalledWith('/crm/leads', { params: { page: 1, status: 'new' } });
@@ -174,7 +181,12 @@ describe('web api wrapper coverage', () => {
     expect(mockApiClient.delete).toHaveBeenCalledWith('/customers/customer-1');
     expect(mockApiClient.get).toHaveBeenCalledWith('/orders', { params: { status: 'paid' } });
     expect(mockApiClient.get).toHaveBeenCalledWith('/orders/order-1');
-    expect(mockApiClient.post).toHaveBeenCalledWith('/orders', { total: 1000 });
+    expect(mockApiClient.post).toHaveBeenCalledWith('/orders', {
+      customerId: 'customer-1',
+      channel: 'pos',
+      paymentMethod: 'cash',
+      items: [{ productId: 'product-1', quantity: 2, unitPrice: 500 }],
+    });
     expect(mockApiClient.patch).toHaveBeenCalledWith('/orders/order-1/status', {
       cancelReason: 'duplicate',
       status: 'cancelled',
