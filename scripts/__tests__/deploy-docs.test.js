@@ -126,4 +126,12 @@ describe('Deployment Documentation', () => {
     expect(result.status).toBe(0);
     expect(result.stderr).toContain('Desktop release bundle directory not found');
   });
+
+  test('turbo.json does not reference a non-existent dev:desktop task', () => {
+    const turboPath = path.join(repoRoot, 'turbo.json');
+    expect(fs.existsSync(turboPath)).toBe(true);
+    const content = fs.readFileSync(turboPath, 'utf8');
+
+    expect(content).not.toContain('"dev:desktop"');
+  });
 });
