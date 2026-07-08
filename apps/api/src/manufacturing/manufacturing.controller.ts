@@ -1,8 +1,15 @@
-import { Controller, Get, Post, Patch, Delete, UseGuards, Request, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, UseGuards, Request, Body, Param, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
 import { ManufacturingService } from './manufacturing.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { CreateBomItemDto, CreateProductionOrderDto, UpdateQCCheckpointDto, CalculateCostDto } from './dto';
+import {
+  CreateBomItemDto,
+  CreateProductionOrderDto,
+  UpdateQCCheckpointDto,
+  CalculateCostDto,
+  ReportProgressDto,
+  AddRoutingStepDto,
+} from './dto';
 
 @ApiTags('Manufacturing')
 @Controller('manufacturing')
@@ -12,7 +19,7 @@ export class ManufacturingController {
 
   @ApiOperation({ summary: 'Get BOM for a product' })
   @Get('bom/:productId')
-  async getBOM(@Request() req: any, @Param('productId') productId: string) {
+  async getBOM(@Request() req: any, @Param('productId', ParseUUIDPipe) productId: string) {
     return this.service.getBOM(productId, req.user.tenantId);
   }
 
@@ -38,49 +45,58 @@ export class ManufacturingController {
 
   @ApiOperation({ summary: 'Start production' })
   @Patch('orders/:id/start')
-  async startOrder(@Request() req: any, @Param('id') id: string) {
+  async startOrder(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.startProduction(req.user.tenantId, id, req.user.sub);
   }
 
   @ApiOperation({ summary: 'Complete production' })
   @Patch('orders/:id/complete')
-  async completeOrder(@Request() req: any, @Param('id') id: string) {
+  async completeOrder(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.completeProduction(req.user.tenantId, id, req.user.sub);
   }
 
   @ApiOperation({ summary: 'Report production progress' })
   @Patch('orders/:id/progress')
-  async reportProgress(@Request() req: any, @Param('id') id: string, @Body() body: any) {
+  async reportProgress(
+    @Request() req: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: ReportProgressDto,
+  ) {
     return this.service.reportProductionProgress(req.user.tenantId, id, body);
   }
 
   @ApiOperation({ summary: 'Get production order details' })
   @Get('orders/:id')
-  async getOrder(@Request() req: any, @Param('id') id: string) {
+  async getOrder(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.getProductionOrderById(req.user.tenantId, id);
   }
 
   @ApiOperation({ summary: 'Get QC checkpoints for an order' })
   @Get('orders/:id/qc')
-  async getQCCheckpoints(@Request() req: any, @Param('id') id: string) {
+  async getQCCheckpoints(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.getQCCheckpoints(id, req.user.tenantId);
   }
 
   @ApiOperation({ summary: 'Update QC checkpoint' })
   @Patch('orders/:id/qc/:checkpointId')
-  async updateQCCheckpoint(@Request() req: any, @Param('id') orderId: string, @Param('checkpointId') checkpointId: string, @Body() body: UpdateQCCheckpointDto) {
-    return this.service.updateQCCheckpoint(orderId, checkpointId, body.status, body.notes);
+  async updateQCCheckpoint(
+    @Request() req: any,
+    @Param('id', ParseUUIDPipe) orderId: string,
+    @Param('checkpointId', ParseUUIDPipe) checkpointId: string,
+    @Body() body: UpdateQCCheckpointDto,
+  ) {
+    return this.service.updateQCCheckpoint(orderId, checkpointId, body.status, body.notes, req.user.tenantId);
   }
 
   @ApiOperation({ summary: 'Calculate production cost' })
   @Get('cost/:productId')
-  async calculateCost(@Request() req: any, @Param('productId') productId: string, @Query('quantity') quantity: string) {
+  async calculateCost(@Request() req: any, @Param('productId', ParseUUIDPipe) productId: string, @Query('quantity') quantity: string) {
     return this.service.calculateProductionCost(req.user.tenantId, productId, Number(quantity));
   }
 
   @ApiOperation({ summary: 'Calculate variance analysis for a production order' })
   @Get('orders/:id/variance')
-  async calculateVariance(@Request() req: any, @Param('id') id: string) {
+  async calculateVariance(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.calculateVarianceAnalysis(req.user.tenantId, id);
   }
 
@@ -88,30 +104,19 @@ export class ManufacturingController {
 
   @ApiOperation({ summary: 'Get routing steps for a product' })
   @Get('routing/:productId')
-  async getRouting(@Request() req: any, @Param('productId') productId: string) {
+  async getRouting(@Request() req: any, @Param('productId', ParseUUIDPipe) productId: string) {
     return this.service.getRoutingSteps(productId, req.user.tenantId);
   }
 
   @ApiOperation({ summary: 'Add routing step' })
   @Post('routing')
-  async addRoutingStep(@Request() req: any, @Body() body: {
-    productId: string;
-    operationName: string;
-    description?: string;
-    sequenceOrder: number;
-    workCenter?: string;
-    setupTimeMinutes?: number;
-    cycleTimeMinutes: number;
-    laborCostPerHour?: number;
-    overheadCostPerHour?: number;
-    requiresQC?: boolean;
-  }) {
+  async addRoutingStep(@Request() req: any, @Body() body: AddRoutingStepDto) {
     return this.service.addRoutingStep(req.user.tenantId, body);
   }
 
   @ApiOperation({ summary: 'Delete routing step' })
   @Delete('routing/:id')
-  async removeRoutingStep(@Request() req: any, @Param('id') id: string) {
+  async removeRoutingStep(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.removeRoutingStep(req.user.tenantId, id);
   }
 }

@@ -326,9 +326,15 @@ export class ManufacturingService {
   }
 
   /** Update QC checkpoint */
-  async updateQCCheckpoint(orderId: string, checkpointId: string, status: 'pending' | 'passed' | 'failed', notes?: string) {
-    // Simplified: would update qc_checkpoints table
-    return { id: checkpointId, status, notes, checkedAt: new Date().toISOString() };
+  async updateQCCheckpoint(
+    orderId: string,
+    checkpointId: string,
+    status: 'pending' | 'passed' | 'failed',
+    notes: string | undefined,
+    tenantId: string,
+  ) {
+    // Simplified: would update qc_checkpoints table scoped by tenantId
+    return { id: checkpointId, status, notes, checkedAt: new Date().toISOString(), tenantId };
   }
 
   /** Calculate standard production cost (material + labor + overhead) */
