@@ -1,145 +1,124 @@
+import { ParseUUIDPipe, BadRequestException } from '@nestjs/common';
+import { validate, ValidationError } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 import { ManufacturingController } from './manufacturing.controller';
+import { AddRoutingStepDto, ReportProgressDto, UpdateQCCheckpointDto } from './dto';
 
 describe('ManufacturingController', () => {
-  let controller: ManufacturingController;
-  let mockService: Record<string, jest.Mock>;
-
-  const req = { user: { tenantId: 't1', sub: 'u1' } };
+  const mockService = {
+    getBOM: jest.fn().mockResolvedValue([]),
+    addBOMItem: jest.fn().mockResolvedValue({ id: 'bom-1' }),
+    listProductionOrders: jest.fn().mockResolvedValue({ items: [], total: 0 }),
+    createProductionOrder: jest.fn().mockResolvedValue({ id: 'po-1' }),
+    startProduction: jest.fn().mockResolvedValue({ id: 'po-1' }),
+    completeProduction: jest.fn().mockResolvedValue({ id: 'po-1' }),
+    reportProductionProgress: jest.fn().mockResolvedValue({ id: 'po-1' }),
+    getProductionOrderById: jest.fn().mockResolvedValue({ id: 'po-1' }),
+    getQCCheckpoints: jest.fn().mockResolvedValue([]),
+    updateQCCheckpoint: jest.fn().mockResolvedValue({ id: 'cp-1' }),
+    calculateProductionCost: jest.fn().mockResolvedValue({ totalCost: 0 }),
+    calculateVarianceAnalysis: jest.fn().mockResolvedValue({}),
+    getRoutingSteps: jest.fn().mockResolvedValue([]),
+    addRoutingStep: jest.fn().mockResolvedValue({ id: 'rs-1' }),
+    removeRoutingStep: jest.fn().mockResolvedValue({ id: 'rs-1' }),
+  };
+  const controller = new ManufacturingController(mockService as any);
+  const req = { user: { tenantId: 'tenant-1', sub: 'user-1' } };
 
   beforeEach(() => {
-    mockService = {
-      getBOM: jest.fn(),
-      addBOMItem: jest.fn(),
-      listProductionOrders: jest.fn(),
-      createProductionOrder: jest.fn(),
-      startProduction: jest.fn(),
-      completeProduction: jest.fn(),
-      reportProductionProgress: jest.fn(),
-      getProductionOrderById: jest.fn(),
-      getQCCheckpoints: jest.fn(),
-      updateQCCheckpoint: jest.fn(),
-      calculateProductionCost: jest.fn(),
-      calculateVarianceAnalysis: jest.fn(),
-      getRoutingSteps: jest.fn(),
-      addRoutingStep: jest.fn(),
-      removeRoutingStep: jest.fn(),
-    };
-    controller = new ManufacturingController(mockService as any);
+    jest.clearAllMocks();
   });
 
-  it('getBOM delegates to service.getBOM', async () => {
-    mockService.getBOM.mockResolvedValue('bom-result');
-    const result = await controller.getBOM(req, 'pid-1');
-    expect(mockService.getBOM).toHaveBeenCalledWith('pid-1', 't1');
-    expect(result).toBe('bom-result');
+  describe('ParseUUIDPipe usage on path parameters', () => {
+    const pipe = new ParseUUIDPipe();
+
+    it('throws BadRequestException for non-UUID productId', async () => {
+      await expect(pipe.transform('not-a-uuid', { type: 'param', metatype: String, data: 'productId' })).rejects.toThrow(BadRequestException);
+    });
+
+    it('accepts a valid UUID productId', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      await expect(pipe.transform(uuid, { type: 'param', metatype: String, data: 'productId' })).resolves.toBe(uuid);
+    });
   });
 
-  it('addBOMItem delegates to service.addBOMItem', async () => {
-    mockService.addBOMItem.mockResolvedValue('bom-item');
-    const body = { productId: 'pid-1', componentProductId: 'cid-1', quantity: 5 };
-    const result = await controller.addBOMItem(req, body);
-    expect(mockService.addBOMItem).toHaveBeenCalledWith('t1', 'pid-1', body);
-    expect(result).toBe('bom-item');
+  describe('DTO validation', () => {
+    function extractErrors(errors: ValidationError[]): string[] {
+      return errors.flatMap(e => Object.values(e.constraints || {}));
+    }
+
+    it('ReportProgressDto rejects negative quantities', async () => {
+      const dto = plainToInstance(ReportProgressDto, { quantityProduced: -1, quantityScrap: -1, notes: 'ok' });
+      const errors = extractErrors(await validate(dto));
+      expect(errors).toEqual(expect.arrayContaining([expect.stringMatching(/quantityProduced|quantityScrap/)]));
+    });
+
+    it('ReportProgressDto accepts valid input', async () => {
+      const dto = plainToInstance(ReportProgressDto, { quantityProduced: 5, quantityScrap: 1, notes: 'halfway' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('AddRoutingStepDto rejects invalid values', async () => {
+      const dto = plainToInstance(AddRoutingStepDto, {
+        productId: '',
+        operationName: '',
+        sequenceOrder: -1,
+        cycleTimeMinutes: -5,
+      });
+      const errors = extractErrors(await validate(dto));
+      expect(errors.length).toBeGreaterThan(0);
+    });
+
+    it('AddRoutingStepDto accepts valid input', async () => {
+      const dto = plainToInstance(AddRoutingStepDto, {
+        productId: '550e8400-e29b-41d4-a716-446655440000',
+        operationName: 'Cutting',
+        sequenceOrder: 1,
+        cycleTimeMinutes: 10,
+      });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
   });
 
-  it('listOrders delegates to service.listProductionOrders', async () => {
-    mockService.listProductionOrders.mockResolvedValue(['order1']);
-    const result = await controller.listOrders(req, 'draft', 2);
-    expect(mockService.listProductionOrders).toHaveBeenCalledWith('t1', 'draft', 20, 2);
-    expect(result).toEqual(['order1']);
-  });
+  describe('Controller method behavior', () => {
+    it('getBOM calls service with productId and tenantId', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      await controller.getBOM(req as any, uuid);
+      expect(mockService.getBOM).toHaveBeenCalledWith(uuid, 'tenant-1');
+    });
 
-  it('listOrders defaults page to 1 when not provided', async () => {
-    mockService.listProductionOrders.mockResolvedValue([]);
-    await controller.listOrders(req);
-    expect(mockService.listProductionOrders).toHaveBeenCalledWith('t1', undefined, 20, 1);
-  });
+    it('startOrder calls service with tenantId and order id', async () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      await controller.startOrder(req as any, uuid);
+      expect(mockService.startProduction).toHaveBeenCalledWith('tenant-1', uuid, 'user-1');
+    });
 
-  it('createOrder delegates to service.createProductionOrder', async () => {
-    mockService.createProductionOrder.mockResolvedValue('order');
-    const body = { productId: 'pid-1', quantity: 10 };
-    const result = await controller.createOrder(req, body);
-    expect(mockService.createProductionOrder).toHaveBeenCalledWith('t1', 'u1', body);
-    expect(result).toBe('order');
-  });
+    it('updateQCCheckpoint passes tenantId to service', async () => {
+      const orderId = '550e8400-e29b-41d4-a716-446655440000';
+      const checkpointId = '660e8400-e29b-41d4-a716-446655440000';
+      const body: UpdateQCCheckpointDto = { status: 'passed', notes: 'ok' };
+      await controller.updateQCCheckpoint(req as any, orderId, checkpointId, body);
+      expect(mockService.updateQCCheckpoint).toHaveBeenCalledWith(orderId, checkpointId, 'passed', 'ok', 'tenant-1');
+    });
 
-  it('startOrder delegates to service.startProduction', async () => {
-    mockService.startProduction.mockResolvedValue('started');
-    const result = await controller.startOrder(req, 'oid-1');
-    expect(mockService.startProduction).toHaveBeenCalledWith('t1', 'oid-1', 'u1');
-    expect(result).toBe('started');
-  });
+    it('reportProgress passes DTO to service', async () => {
+      const orderId = '550e8400-e29b-41d4-a716-446655440000';
+      const body: ReportProgressDto = { quantityProduced: 5, quantityScrap: 1, notes: 'ok' };
+      await controller.reportProgress(req as any, orderId, body);
+      expect(mockService.reportProductionProgress).toHaveBeenCalledWith('tenant-1', orderId, body);
+    });
 
-  it('completeOrder delegates to service.completeProduction', async () => {
-    mockService.completeProduction.mockResolvedValue('completed');
-    const result = await controller.completeOrder(req, 'oid-1');
-    expect(mockService.completeProduction).toHaveBeenCalledWith('t1', 'oid-1', 'u1');
-    expect(result).toBe('completed');
-  });
-
-  it('reportProgress delegates to service.reportProductionProgress', async () => {
-    mockService.reportProductionProgress.mockResolvedValue('progress');
-    const body = { progress: 50 };
-    const result = await controller.reportProgress(req, 'oid-1', body);
-    expect(mockService.reportProductionProgress).toHaveBeenCalledWith('t1', 'oid-1', body);
-    expect(result).toBe('progress');
-  });
-
-  it('getOrder delegates to service.getProductionOrderById', async () => {
-    mockService.getProductionOrderById.mockResolvedValue('order-detail');
-    const result = await controller.getOrder(req, 'oid-1');
-    expect(mockService.getProductionOrderById).toHaveBeenCalledWith('t1', 'oid-1');
-    expect(result).toBe('order-detail');
-  });
-
-  it('getQCCheckpoints delegates to service.getQCCheckpoints', async () => {
-    mockService.getQCCheckpoints.mockResolvedValue(['checkpoint']);
-    const result = await controller.getQCCheckpoints(req, 'oid-1');
-    expect(mockService.getQCCheckpoints).toHaveBeenCalledWith('oid-1', 't1');
-    expect(result).toEqual(['checkpoint']);
-  });
-
-  it('updateQCCheckpoint delegates to service.updateQCCheckpoint', async () => {
-    mockService.updateQCCheckpoint.mockResolvedValue('updated');
-    const body = { status: 'passed' as const, notes: 'all good' };
-    const result = await controller.updateQCCheckpoint(req, 'oid-1', 'cp-1', body);
-    expect(mockService.updateQCCheckpoint).toHaveBeenCalledWith('oid-1', 'cp-1', 'passed', 'all good');
-    expect(result).toBe('updated');
-  });
-
-  it('calculateCost delegates to service.calculateProductionCost', async () => {
-    mockService.calculateProductionCost.mockResolvedValue('cost');
-    const result = await controller.calculateCost(req, 'pid-1', '5');
-    expect(mockService.calculateProductionCost).toHaveBeenCalledWith('t1', 'pid-1', 5);
-    expect(result).toBe('cost');
-  });
-
-  it('calculateVariance delegates to service.calculateVarianceAnalysis', async () => {
-    mockService.calculateVarianceAnalysis.mockResolvedValue('variance');
-    const result = await controller.calculateVariance(req, 'oid-1');
-    expect(mockService.calculateVarianceAnalysis).toHaveBeenCalledWith('t1', 'oid-1');
-    expect(result).toBe('variance');
-  });
-
-  it('getRouting delegates to service.getRoutingSteps', async () => {
-    mockService.getRoutingSteps.mockResolvedValue(['step']);
-    const result = await controller.getRouting(req, 'pid-1');
-    expect(mockService.getRoutingSteps).toHaveBeenCalledWith('pid-1', 't1');
-    expect(result).toEqual(['step']);
-  });
-
-  it('addRoutingStep delegates to service.addRoutingStep', async () => {
-    mockService.addRoutingStep.mockResolvedValue('step');
-    const body = { productId: 'pid-1', operationName: 'op1', sequenceOrder: 1, cycleTimeMinutes: 10 };
-    const result = await controller.addRoutingStep(req, body);
-    expect(mockService.addRoutingStep).toHaveBeenCalledWith('t1', body);
-    expect(result).toBe('step');
-  });
-
-  it('removeRoutingStep delegates to service.removeRoutingStep', async () => {
-    mockService.removeRoutingStep.mockResolvedValue('removed');
-    const result = await controller.removeRoutingStep(req, 'sid-1');
-    expect(mockService.removeRoutingStep).toHaveBeenCalledWith('t1', 'sid-1');
-    expect(result).toBe('removed');
+    it('addRoutingStep passes DTO to service', async () => {
+      const body: AddRoutingStepDto = {
+        productId: '550e8400-e29b-41d4-a716-446655440000',
+        operationName: 'Cutting',
+        sequenceOrder: 1,
+        cycleTimeMinutes: 10,
+      };
+      await controller.addRoutingStep(req as any, body);
+      expect(mockService.addRoutingStep).toHaveBeenCalledWith('tenant-1', body);
+    });
   });
 });

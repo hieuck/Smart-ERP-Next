@@ -191,7 +191,7 @@ describe('analytics and quality controller delegation coverage', () => {
     expect(service.addBOMItem).toHaveBeenCalledWith('tenant-1', 'product-1', { productId: 'product-1', quantity: 2 });
     expect(service.listProductionOrders).toHaveBeenNthCalledWith(1, 'tenant-1', 'draft', 20, 3);
     expect(service.listProductionOrders).toHaveBeenNthCalledWith(2, 'tenant-1', undefined, 20, 1);
-    expect(service.updateQCCheckpoint).toHaveBeenCalledWith('order-1', 'checkpoint-1', 'passed', 'ok');
+    expect(service.updateQCCheckpoint).toHaveBeenCalledWith('order-1', 'checkpoint-1', 'passed', 'ok', 'tenant-1');
     expect(service.calculateProductionCost).toHaveBeenCalledWith('tenant-1', 'product-1', 4);
     expect(service.addRoutingStep).toHaveBeenCalledWith('tenant-1', {
       cycleTimeMinutes: 5,

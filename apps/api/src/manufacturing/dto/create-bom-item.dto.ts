@@ -76,3 +76,76 @@ export class CalculateCostDto {
   @Min(1)
   quantity: number;
 }
+
+export class ReportProgressDto {
+  @ApiProperty({ description: 'Quantity produced so far' })
+  @IsInt()
+  @Min(0)
+  quantityProduced: number;
+
+  @ApiPropertyOptional({ description: 'Quantity scrapped' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  quantityScrap?: number;
+
+  @ApiPropertyOptional({ description: 'Notes about progress' })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+export class AddRoutingStepDto {
+  @ApiProperty({ description: 'Product ID this routing step belongs to' })
+  @IsString()
+  @IsNotEmpty()
+  productId: string;
+
+  @ApiProperty({ description: 'Name of the operation' })
+  @IsString()
+  @IsNotEmpty()
+  operationName: string;
+
+  @ApiPropertyOptional({ description: 'Description of the operation' })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ description: 'Sequence order of the operation' })
+  @IsInt()
+  @Min(0)
+  sequenceOrder: number;
+
+  @ApiPropertyOptional({ description: 'Work center name' })
+  @IsOptional()
+  @IsString()
+  workCenter?: string;
+
+  @ApiPropertyOptional({ description: 'Setup time in minutes' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  setupTimeMinutes?: number;
+
+  @ApiProperty({ description: 'Cycle time in minutes' })
+  @IsInt()
+  @Min(0)
+  cycleTimeMinutes: number;
+
+  @ApiPropertyOptional({ description: 'Labor cost per hour' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  laborCostPerHour?: number;
+
+  @ApiPropertyOptional({ description: 'Overhead cost per hour' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  overheadCostPerHour?: number;
+
+  @ApiPropertyOptional({ description: 'Whether this step requires QC' })
+  @IsOptional()
+  @IsBoolean()
+  requiresQC?: boolean;
+}
