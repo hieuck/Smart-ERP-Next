@@ -5,9 +5,11 @@ interface ReactMock {
   states: unknown[];
   setters: jest.Mock[];
   effects: EffectCleanup[];
+  refs: { current: unknown }[];
   useState: jest.Mock;
   useEffect: jest.Mock;
   useCallback: jest.Mock;
+  useRef: jest.Mock;
 }
 
 function createReactMock(): ReactMock {
@@ -18,9 +20,11 @@ function createReactMock(): ReactMock {
     states: [],
     setters: [],
     effects: [],
+    refs: [],
     useState: jest.fn(),
     useEffect: jest.fn(),
     useCallback: jest.fn((callback: unknown) => callback),
+    useRef: jest.fn(),
   };
   let index = 0;
 
@@ -38,6 +42,14 @@ function createReactMock(): ReactMock {
   });
   mock.useEffect.mockImplementation((effect: () => EffectCleanup) => {
     mock.effects.push(effect());
+  });
+
+  mock.useRef.mockImplementation((initial: unknown) => {
+    const current = index++;
+    if (!(current in mock.refs)) {
+      mock.refs[current] = { current: typeof initial === 'function' ? (initial as () => unknown)() : initial };
+    }
+    return mock.refs[current];
   });
 
   return mock;
