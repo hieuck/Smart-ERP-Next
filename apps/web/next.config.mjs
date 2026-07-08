@@ -21,8 +21,6 @@ const nextConfig = {
     '@smart-erp/utils',
     '@smart-erp/sync',
   ],
-  eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
   images: { remotePatterns: [] },
   reactStrictMode: true,
   ...(process.env.ANALYZE === 'true' ? { outputFileTracing: true } : {}),

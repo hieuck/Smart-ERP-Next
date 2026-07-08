@@ -16,4 +16,16 @@ describe('next.config.mjs', () => {
 
     expect(packages).not.toContain("'@smart-erp/ui'");
   });
+
+  it('does not ignore ESLint errors during builds', () => {
+    const configPath = path.join(__dirname, 'next.config.mjs');
+    const contents = readFileSync(configPath, 'utf-8');
+    expect(contents).not.toMatch(/ignoreDuringBuilds\s*:\s*true/);
+  });
+
+  it('does not ignore TypeScript build errors', () => {
+    const configPath = path.join(__dirname, 'next.config.mjs');
+    const contents = readFileSync(configPath, 'utf-8');
+    expect(contents).not.toMatch(/ignoreBuildErrors\s*:\s*true/);
+  });
 });
