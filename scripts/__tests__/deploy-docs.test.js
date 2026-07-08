@@ -98,4 +98,18 @@ describe('Deployment Documentation', () => {
     const matches = content.match(/testEnvironment:/g) ?? [];
     expect(matches.length).toBe(1);
   });
+
+  test('workflow files do not use non-existent action major versions', () => {
+    const workflowsDir = path.join(repoRoot, '.github', 'workflows');
+    expect(fs.existsSync(workflowsDir)).toBe(true);
+
+    const files = fs.readdirSync(workflowsDir).filter((f) => f.endsWith('.yml'));
+    expect(files.length).toBeGreaterThan(0);
+
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(workflowsDir, file), 'utf8');
+      const invalidVersions = content.match(/uses:\s+[^@\s]+@v6\b/g) ?? [];
+      expect(invalidVersions).toEqual([]);
+    }
+  });
 });
