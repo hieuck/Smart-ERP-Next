@@ -3,6 +3,9 @@ import Database from '@tauri-apps/plugin-sql';
 
 let db: any = null;
 
+/** True when the offline Tauri database was initialized successfully. */
+export let isReady = false;
+
 export async function initOfflineDb(): Promise<void> {
   if (typeof window === 'undefined' || !(window as any).__TAURI__) return;
   try {
@@ -14,13 +17,16 @@ export async function initOfflineDb(): Promise<void> {
         updated_at INTEGER NOT NULL
       )
     `);
-  } catch {
-    // Tauri not available
+    isReady = true;
+  } catch (err) {
+    isReady = false;
+    // eslint-disable-next-line no-console
+    console.error('[desktop-sync] Failed to initialize offline database:', err);
   }
 }
 
 export async function cacheOrder(id: string, data: string): Promise<void> {
-  if (!db) return;
+  if (!db || !isReady) return;
   await db.execute(
     'INSERT OR REPLACE INTO cached_orders (id, data, updated_at) VALUES (?, ?, ?)',
     [id, data, Date.now()]
@@ -28,8 +34,7 @@ export async function cacheOrder(id: string, data: string): Promise<void> {
 }
 
 export async function getCachedOrder(id: string): Promise<string | null> {
-  if (!db) return null;
+  if (!db || !isReady) return null;
   const rows = await db.select('SELECT data FROM cached_orders WHERE id = ?', [id]);
   return rows?.[0]?.data ?? null;
 }
-
