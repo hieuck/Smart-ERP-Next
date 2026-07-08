@@ -23,7 +23,8 @@ export const tmsVehicles = pgTable(
   },
   (t) => ({
     tenantIdx: index('tms_veh_tenant_idx').on(t.tenantId),
-    plateIdx: index('tms_veh_plate_idx').on(t.plateNumber),
+    plateIdx: index('tms_veh_plate_idx').on(t.tenantId, t.plateNumber),
+    plateNumberUnique: unique('tms_vehicles_tenant_plate_unique').on(t.tenantId, t.plateNumber),
   })
 );
 
