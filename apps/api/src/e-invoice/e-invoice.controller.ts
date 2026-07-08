@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Request, ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { EInvoiceService, CreateEInvoiceDto } from './e-invoice.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -48,12 +48,6 @@ export class EInvoiceController {
     });
   }
 
-  @ApiOperation({ summary: 'Chi tiet hoa don' })
-  @Get(':id')
-  findById(@Request() req: any, @Param('id') id: string) {
-    return this.service.findById(req.user.tenantId, id);
-  }
-
   @ApiOperation({ summary: 'Thong ke hoa don theo thang' })
   @Get('stats/monthly')
   getStats(
@@ -67,5 +61,11 @@ export class EInvoiceController {
       year ? Number(year) : now.getFullYear(),
       month ? Number(month) : now.getMonth() + 1,
     );
+  }
+
+  @ApiOperation({ summary: 'Chi tiet hoa don' })
+  @Get(':id')
+  findById(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
+    return this.service.findById(req.user.tenantId, id);
   }
 }
