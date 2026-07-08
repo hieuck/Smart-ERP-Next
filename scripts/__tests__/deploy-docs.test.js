@@ -89,4 +89,13 @@ describe('Deployment Documentation', () => {
     expect(config).toContain('ci:');
     expect(config).toContain('tests:');
   });
+
+  test('root jest config has a single testEnvironment key', () => {
+    const jestConfigPath = path.join(repoRoot, 'jest.config.js');
+    expect(fs.existsSync(jestConfigPath)).toBe(true);
+    const content = fs.readFileSync(jestConfigPath, 'utf8');
+
+    const matches = content.match(/testEnvironment:/g) ?? [];
+    expect(matches.length).toBe(1);
+  });
 });

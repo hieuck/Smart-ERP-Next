@@ -43,7 +43,6 @@ module.exports = {
       lines: 89,
     },
   },
-  testEnvironment: 'node',
   testPathIgnorePatterns: [
     '/node_modules/',
     '/dist/',
