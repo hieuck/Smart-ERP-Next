@@ -38,4 +38,14 @@ describe('Deployment Documentation', () => {
     expect(content).toContain('pnpm test');
     expect(content).toContain('ALL TESTS PASSED');
   });
+
+  test('deploy-production.sh references the correct compose file and has a pre-flight check', () => {
+    const f = path.join(repoRoot, 'scripts', 'deploy-production.sh');
+    expect(fs.existsSync(f)).toBe(true);
+    const content = fs.readFileSync(f, 'utf8');
+    expect(content).toContain('docker-compose.prod.yml');
+    expect(content).not.toContain('docker compose.production.yml');
+    expect(content).toContain('COMPOSE_FILE=');
+    expect(content).toContain('if [ ! -f "${COMPOSE_FILE}" ]; then');
+  });
 });
