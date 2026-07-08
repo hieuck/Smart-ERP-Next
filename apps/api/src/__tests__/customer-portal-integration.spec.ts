@@ -1,7 +1,7 @@
 import { CustomerPortalController } from '../customers/customer-portal.controller';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('CustomerPortalController', () => {
-  const EMPTY_CUSTOMER_ID = '00000000-0000-0000-0000-000000000000';
   const mockService = {
     getOrders: jest.fn(),
     getOrderTracking: jest.fn(),
@@ -22,10 +22,9 @@ describe('CustomerPortalController', () => {
     expect(mockService.getOrders).toHaveBeenCalledWith('t1', 'c1');
   });
 
-  it('getOrders falls back to empty customerId when missing', () => {
+  it('getOrders rejects when customerId is missing', () => {
     const req = { user: { tenantId: 't1' } };
-    controller.getOrders(req);
-    expect(mockService.getOrders).toHaveBeenCalledWith('t1', EMPTY_CUSTOMER_ID);
+    expect(() => controller.getOrders(req)).toThrow(ForbiddenException);
   });
 
   it('trackOrder delegates to service with tenantId and orderId', () => {
@@ -40,10 +39,9 @@ describe('CustomerPortalController', () => {
     expect(mockService.getTickets).toHaveBeenCalledWith('t1', 'c1');
   });
 
-  it('getTickets falls back to empty customerId when missing', () => {
+  it('getTickets rejects when customerId is missing', () => {
     const req = { user: { tenantId: 't1' } };
-    controller.getTickets(req);
-    expect(mockService.getTickets).toHaveBeenCalledWith('t1', EMPTY_CUSTOMER_ID);
+    expect(() => controller.getTickets(req)).toThrow(ForbiddenException);
   });
 
   it('createTicket delegates to service with tenantId, customerId and body', () => {
@@ -53,11 +51,10 @@ describe('CustomerPortalController', () => {
     expect(mockService.createTicket).toHaveBeenCalledWith('t1', 'c1', body);
   });
 
-  it('createTicket falls back to empty customerId when missing', () => {
+  it('createTicket rejects when customerId is missing', () => {
     const req = { user: { tenantId: 't1' } };
-    const body = { subject: 'Issue' };
-    controller.createTicket(req, body);
-    expect(mockService.createTicket).toHaveBeenCalledWith('t1', EMPTY_CUSTOMER_ID, body);
+    const body = { subject: 'Issue', message: 'Help!' };
+    expect(() => controller.createTicket(req, body)).toThrow(ForbiddenException);
   });
 
   it('getInvoices delegates to service with tenantId and customerId', () => {
@@ -66,9 +63,8 @@ describe('CustomerPortalController', () => {
     expect(mockService.getInvoices).toHaveBeenCalledWith('t1', 'c1');
   });
 
-  it('getInvoices falls back to empty customerId when missing', () => {
+  it('getInvoices rejects when customerId is missing', () => {
     const req = { user: { tenantId: 't1' } };
-    controller.getInvoices(req);
-    expect(mockService.getInvoices).toHaveBeenCalledWith('t1', EMPTY_CUSTOMER_ID);
+    expect(() => controller.getInvoices(req)).toThrow(ForbiddenException);
   });
 });
