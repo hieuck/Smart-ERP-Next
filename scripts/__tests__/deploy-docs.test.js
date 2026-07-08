@@ -74,4 +74,19 @@ describe('Deployment Documentation', () => {
     expect(content).toContain('days-before-close: -1');
     expect(content).toContain('remove-stale-when-updated: true');
   });
+
+  test('labeler workflow has a configuration file', () => {
+    const workflowPath = path.join(repoRoot, '.github', 'workflows', 'label.yml');
+    const configPath = path.join(repoRoot, '.github', 'labeler.yml');
+    expect(fs.existsSync(workflowPath)).toBe(true);
+    expect(fs.existsSync(configPath)).toBe(true);
+
+    const config = fs.readFileSync(configPath, 'utf8');
+    expect(config).toContain('api:');
+    expect(config).toContain('web:');
+    expect(config).toContain('database:');
+    expect(config).toContain('schema:');
+    expect(config).toContain('ci:');
+    expect(config).toContain('tests:');
+  });
 });

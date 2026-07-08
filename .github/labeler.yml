@@ -1,25 +1,47 @@
+api:
+  - changed-files:
+      - any-glob-to-any-file:
+          - apps/api/**
+
+web:
+  - changed-files:
+      - any-glob-to-any-file:
+          - apps/web/**
+
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - packages/database/**
+          - packages/database/drizzle/**
+
+schema:
+  - changed-files:
+      - any-glob-to-any-file:
+          - packages/database/src/schema/**
+          - packages/database/drizzle/**
+
 documentation:
-  - docs/**/*
-  - '**/*.md'
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - docs/**
 
-frontend:
-  - apps/web/**/*
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/workflows/**
+          - scripts/**
 
-backend:
-  - apps/api/**/*
-
-devops:
-  - .github/workflows/**/*
-  - Dockerfile
-  - docker-compose*
-
-security:
-  - docs/security/**/*
-  - scripts/audit-secrets.js
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.spec.ts"
+          - "**/*.test.ts"
+          - "**/__tests__/**"
 
 dependencies:
-  - package.json
-  - pnpm-lock.yaml
-  - pnpm-workspace.yaml
-  - apps/*/package.json
-  - packages/*/package.json
+  - changed-files:
+      - any-glob-to-any-file:
+          - package.json
+          - pnpm-lock.yaml
+          - "**/package.json"
