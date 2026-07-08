@@ -1,44 +1,46 @@
 import { MRPController } from './mrp.controller';
+import { MRPService } from './mrp.service';
 
 describe('MRPController', () => {
+  let service: MRPService;
   let controller: MRPController;
-  let mockService: Record<string, jest.Mock>;
-
-  const req = { user: { tenantId: 't1', sub: 'u1' } };
 
   beforeEach(() => {
-    mockService = {
+    service = {
       calculateMRP: jest.fn(),
       calculateMRPBatch: jest.fn(),
-    };
-    controller = new MRPController(mockService as any);
+    } as unknown as MRPService;
+    controller = new MRPController(service);
   });
 
-  it('calculateMRP delegates to service.calculateMRP with default daysAhead', async () => {
-    mockService.calculateMRP.mockResolvedValue('mrp-result');
-    const result = await controller.calculateMRP(req, 'pid-1');
-    expect(mockService.calculateMRP).toHaveBeenCalledWith('t1', 'pid-1', 30);
-    expect(result).toBe('mrp-result');
+  it('calculateMRP passes valid UUID and daysAhead to service', async () => {
+    const req = { user: { tenantId: 't1' } };
+    const productId = '00000000-0000-0000-0000-000000000001';
+    (service.calculateMRP as jest.Mock).mockResolvedValue({ productId } as any);
+
+    const result = await controller.calculateMRP(req, productId, { daysAhead: 60 } as any);
+
+    expect(service.calculateMRP).toHaveBeenCalledWith('t1', productId, 60);
+    expect(result).toEqual({ productId });
   });
 
-  it('calculateMRP passes provided daysAhead', async () => {
-    mockService.calculateMRP.mockResolvedValue('mrp-result');
-    const result = await controller.calculateMRP(req, 'pid-1', 60);
-    expect(mockService.calculateMRP).toHaveBeenCalledWith('t1', 'pid-1', 60);
-    expect(result).toBe('mrp-result');
+  it('calculateMRP defaults daysAhead to 30 when omitted', async () => {
+    const req = { user: { tenantId: 't1' } };
+    const productId = '00000000-0000-0000-0000-000000000001';
+    (service.calculateMRP as jest.Mock).mockResolvedValue({ productId } as any);
+
+    await controller.calculateMRP(req, productId, {} as any);
+
+    expect(service.calculateMRP).toHaveBeenCalledWith('t1', productId, 30);
   });
 
-  it('calculateMRPBatch delegates to service.calculateMRPBatch with default daysAhead', async () => {
-    mockService.calculateMRPBatch.mockResolvedValue('batch-result');
-    const result = await controller.calculateMRPBatch(req);
-    expect(mockService.calculateMRPBatch).toHaveBeenCalledWith('t1', undefined, 30);
-    expect(result).toBe('batch-result');
-  });
+  it('calculateMRPBatch passes tenant and daysAhead to service', async () => {
+    const req = { user: { tenantId: 't1' } };
+    (service.calculateMRPBatch as jest.Mock).mockResolvedValue({ processed: 5 } as any);
 
-  it('calculateMRPBatch passes provided daysAhead', async () => {
-    mockService.calculateMRPBatch.mockResolvedValue('batch-result');
-    const result = await controller.calculateMRPBatch(req, 45);
-    expect(mockService.calculateMRPBatch).toHaveBeenCalledWith('t1', undefined, 45);
-    expect(result).toBe('batch-result');
+    const result = await controller.calculateMRPBatch(req, { daysAhead: 90 } as any);
+
+    expect(service.calculateMRPBatch).toHaveBeenCalledWith('t1', undefined, 90);
+    expect(result).toEqual({ processed: 5 });
   });
 });
