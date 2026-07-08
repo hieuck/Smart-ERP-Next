@@ -46,9 +46,9 @@ export default function CustomersPage() {
     setLoading(true);
     try {
       const res = await customersApi.getAll({ page, limit, search: search || undefined });
-      setCustomers(res.data.items);
-      setTotalPages(res.data.totalPages);
-      setTotal(res.data.total);
+      setCustomers(res.items);
+      setTotalPages(res.totalPages);
+      setTotal(res.total);
     } catch (err) {
       console.error('Failed to fetch customers:', err);
     } finally {

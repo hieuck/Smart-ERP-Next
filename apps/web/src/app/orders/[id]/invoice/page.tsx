@@ -18,7 +18,7 @@ export default function OrderInvoicePage() {
 
   useEffect(() => {
     ordersApi.getOne(id)
-      .then(res => setOrder(res.data as Order & { customerName: string }))
+      .then(order => setOrder(order as Order & { customerName: string }))
       .catch(() => router.push('/orders'))
       .finally(() => setLoading(false));
   }, [id, router]);
