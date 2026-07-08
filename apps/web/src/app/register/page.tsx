@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Building2, Eye, EyeOff, Lock, Mail, UserPlus, Users } from 'lucide-react';
 import { authApi } from '@/lib/api-client';
+import { validatePassword } from './password-validation';
 
 export default function RegisterPage() {
   const { t } = useTranslation('common');
@@ -19,12 +20,23 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const { valid: passwordIsValid, strength: passwordStrength, checks: passwordChecks } = validatePassword(password);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
 
     if (password !== confirmPassword) {
       setError(t('auth.confirmPasswordMismatch'));
+      return;
+    }
+
+    if (!passwordChecks.length) {
+      setError(t('auth.passwordTooShort', { defaultValue: 'Password must be at least 8 characters' }));
+      return;
+    }
+    if (!passwordIsValid) {
+      setError(t('auth.passwordComplexity'));
       return;
     }
 
@@ -149,6 +161,45 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {password.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((level) => (
+                      <div
+                        key={level}
+                        className={`h-1 flex-1 rounded-full ${
+                          level <= passwordStrength
+                            ? passwordStrength <= 2
+                              ? 'bg-red-500'
+                              : passwordStrength <= 3
+                                ? 'bg-yellow-500'
+                                : passwordStrength <= 4
+                                  ? 'bg-blue-500'
+                                  : 'bg-green-500'
+                            : 'bg-gray-200 dark:bg-gray-700'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+                    <li className={passwordChecks.length ? 'text-green-600 dark:text-green-400' : ''}>
+                      {t('auth.passwordRequirementLength', { defaultValue: 'At least 8 characters' })}
+                    </li>
+                    <li className={passwordChecks.uppercase ? 'text-green-600 dark:text-green-400' : ''}>
+                      {t('auth.passwordRequirementUppercase', { defaultValue: 'One uppercase letter' })}
+                    </li>
+                    <li className={passwordChecks.lowercase ? 'text-green-600 dark:text-green-400' : ''}>
+                      {t('auth.passwordRequirementLowercase', { defaultValue: 'One lowercase letter' })}
+                    </li>
+                    <li className={passwordChecks.digit ? 'text-green-600 dark:text-green-400' : ''}>
+                      {t('auth.passwordRequirementDigit', { defaultValue: 'One digit' })}
+                    </li>
+                    <li className={passwordChecks.special ? 'text-green-600 dark:text-green-400' : ''}>
+                      {t('auth.passwordRequirementSpecial', { defaultValue: 'One special character' })}
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div>
