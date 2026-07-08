@@ -1,4 +1,5 @@
-# This workflow warns and then closes issues and PRs that have had no activity for a specified amount of time.
+# This workflow warns issues and PRs that have had no activity for a specified amount of time.
+# It only labels them as stale; it does not auto-close them.
 #
 # You can adjust the behavior by modifying this file.
 # For more information, see:
@@ -21,7 +22,22 @@ jobs:
     - uses: actions/stale@v9
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'Stale issue message'
-        stale-pr-message: 'Stale pull request message'
+        days-before-stale: 60
+        days-before-close: -1
+        stale-issue-message: >
+          This issue has been automatically marked as stale because it has not had
+          recent activity. It will not be auto-closed. If this issue is still
+          relevant, please leave a comment or remove the `no-issue-activity` label.
+          If it is no longer relevant, you can close it manually. Thank you for
+          your contributions!
+        stale-pr-message: >
+          This pull request has been automatically marked as stale because it has
+          not had recent activity. It will not be auto-closed. If you are still
+          working on this PR, please leave a comment or remove the `no-pr-activity`
+          label. Thank you for your contributions!
         stale-issue-label: 'no-issue-activity'
         stale-pr-label: 'no-pr-activity'
+        exempt-issue-labels: 'security,priority/high,pinned,roadmap,good first issue'
+        exempt-pr-labels: 'security,priority/high,pinned,work-in-progress'
+        exempt-all-milestones: true
+        remove-stale-when-updated: true

@@ -59,4 +59,19 @@ describe('Deployment Documentation', () => {
     expect(readme).toContain('coverage/coverage-summary.json');
     expect(readme).toContain('Coverage is currently low');
   });
+
+  test('stale workflow has meaningful messages, exempt labels, and does not auto-close', () => {
+    const f = path.join(repoRoot, '.github', 'workflows', 'stale.yml');
+    expect(fs.existsSync(f)).toBe(true);
+    const content = fs.readFileSync(f, 'utf8');
+
+    expect(content).not.toContain("stale-issue-message: 'Stale issue message'");
+    expect(content).not.toContain("stale-pr-message: 'Stale pull request message'");
+    expect(content).toContain('exempt-issue-labels:');
+    expect(content).toContain('exempt-pr-labels:');
+    expect(content).toContain('security');
+    expect(content).toContain('priority/high');
+    expect(content).toContain('days-before-close: -1');
+    expect(content).toContain('remove-stale-when-updated: true');
+  });
 });
