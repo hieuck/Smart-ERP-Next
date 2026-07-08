@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { messages } from '@smart-erp/database/schema';
 import { eq, and, or, desc, sql } from '@smart-erp/database/drizzle';
@@ -63,7 +64,7 @@ export class ChatService {
       .set({ isRead: 'true' })
       .where(and(eq(messages.id, messageId), eq(messages.toUserId, userId), eq(messages.tenantId, tenantId)))
       .returning();
-    if (!msg) throw new NotFoundException('Message not found');
+    if (!msg) throw new NotFoundException({ message: 'Message not found', errorCode: ErrorCode.MESSAGE_NOT_FOUND });
     return msg;
   }
 

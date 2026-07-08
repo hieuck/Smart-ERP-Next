@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ErrorCode } from '../../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { projects, projectTasks, projectTimesheets, projectTaskDependencies, projectMembers } from '@smart-erp/database/schema';
 import { eq, and, sql, desc } from '@smart-erp/database/drizzle';
@@ -40,7 +41,7 @@ export class ProjectsService {
       .from(projects)
       .where(and(eq(projects.tenantId, tenantId), eq(projects.id, id)));
 
-    if (!project) throw new NotFoundException('Project not found');
+    if (!project) throw new NotFoundException({ message: 'Project not found', errorCode: ErrorCode.PROJECT_NOT_FOUND });
     return project;
   }
 

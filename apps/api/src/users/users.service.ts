@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { ErrorCode } from "../common/errors/error-codes";
 import { db } from "@smart-erp/database";
 import { users } from "@smart-erp/database/schema";
 import { eq, and, ilike, or, sql } from "@smart-erp/database/drizzle";
@@ -111,7 +112,7 @@ export class UsersService {
       .from(users)
       .where(and(eq(users.tenantId, tenantId), eq(users.id, id)));
 
-    if (!user) throw new NotFoundException("User not found");
+    if (!user) throw new NotFoundException({ message: "User not found", errorCode: ErrorCode.USER_NOT_FOUND });
     return user;
   }
 
@@ -148,7 +149,7 @@ export class UsersService {
       .where(and(eq(users.tenantId, tenantId), eq(users.id, id)))
       .returning();
 
-    if (!user) throw new NotFoundException("User not found");
+    if (!user) throw new NotFoundException({ message: "User not found", errorCode: ErrorCode.USER_NOT_FOUND });
     return user;
   }
 
@@ -161,7 +162,7 @@ export class UsersService {
       .where(and(eq(users.tenantId, tenantId), eq(users.id, userId)))
       .returning();
 
-    if (!user) throw new NotFoundException("User not found");
+    if (!user) throw new NotFoundException({ message: "User not found", errorCode: ErrorCode.USER_NOT_FOUND });
     return user;
   }
 
@@ -189,7 +190,7 @@ export class UsersService {
       .where(and(eq(users.tenantId, tenantId), eq(users.id, id)))
       .returning();
 
-    if (!user) throw new NotFoundException("User not found");
+    if (!user) throw new NotFoundException({ message: "User not found", errorCode: ErrorCode.USER_NOT_FOUND });
     return user;
   }
 

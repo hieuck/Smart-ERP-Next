@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { tenants } from '@smart-erp/database/schema';
 import { eq } from '@smart-erp/database/drizzle';
@@ -22,7 +23,7 @@ export class TenantsService {
 
   async findOne(id: string) {
     const [tenant] = await db.select().from(tenants).where(eq(tenants.id, id));
-    if (!tenant) throw new NotFoundException('Tenant not found');
+    if (!tenant) throw new NotFoundException({ message: 'Tenant not found', errorCode: ErrorCode.TENANT_NOT_FOUND });
     return tenant;
   }
 
@@ -36,13 +37,13 @@ export class TenantsService {
       .set({ ...updateTenantDto, updatedAt: new Date() })
       .where(eq(tenants.id, id))
       .returning();
-    if (!tenant) throw new NotFoundException('Tenant not found');
+    if (!tenant) throw new NotFoundException({ message: 'Tenant not found', errorCode: ErrorCode.TENANT_NOT_FOUND });
     return tenant;
   }
 
   async remove(id: string) {
     const [tenant] = await db.delete(tenants).where(eq(tenants.id, id)).returning();
-    if (!tenant) throw new NotFoundException('Tenant not found');
+    if (!tenant) throw new NotFoundException({ message: 'Tenant not found', errorCode: ErrorCode.TENANT_NOT_FOUND });
     return tenant;
   }
 }

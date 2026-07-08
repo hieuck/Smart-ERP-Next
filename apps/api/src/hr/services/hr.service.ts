@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ErrorCode } from '../../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { employees, salaryBoards } from '@smart-erp/database/schema';
 import { eq, and, ilike, or, sql } from '@smart-erp/database/drizzle';
@@ -77,7 +78,7 @@ export class HrService {
       .select()
       .from(employees)
       .where(and(eq(employees.tenantId, tenantId), eq(employees.id, id)));
-    if (!employee) throw new NotFoundException('Employee not found');
+    if (!employee) throw new NotFoundException({ message: 'Employee not found', errorCode: ErrorCode.EMPLOYEE_NOT_FOUND });
     return employee;
   }
 
@@ -87,7 +88,7 @@ export class HrService {
       .set({ ...dto, updatedAt: new Date() } as any)
       .where(and(eq(employees.tenantId, tenantId), eq(employees.id, id)))
       .returning();
-    if (!employee) throw new NotFoundException('Employee not found');
+    if (!employee) throw new NotFoundException({ message: 'Employee not found', errorCode: ErrorCode.EMPLOYEE_NOT_FOUND });
     return employee;
   }
 
@@ -96,7 +97,7 @@ export class HrService {
       .delete(employees)
       .where(and(eq(employees.tenantId, tenantId), eq(employees.id, id)))
       .returning();
-    if (!employee) throw new NotFoundException('Employee not found');
+    if (!employee) throw new NotFoundException({ message: 'Employee not found', errorCode: ErrorCode.EMPLOYEE_NOT_FOUND });
     return employee;
   }
 
