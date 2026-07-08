@@ -1,4 +1,5 @@
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { productLots } from '@smart-erp/database/schema';
 import { eq, and, sql } from 'drizzle-orm';
@@ -73,7 +74,7 @@ export class LotsService {
           eq(productLots.id, id),
         ),
       );
-    if (!lot) throw new NotFoundException('Lot not found');
+    if (!lot) throw new NotFoundException({ message: 'Lot not found', errorCode: ErrorCode.LOT_NOT_FOUND });
     return lot;
   }
 
@@ -92,7 +93,7 @@ export class LotsService {
         ),
       )
       .returning();
-    if (!lot) throw new NotFoundException('Lot not found');
+    if (!lot) throw new NotFoundException({ message: 'Lot not found', errorCode: ErrorCode.LOT_NOT_FOUND });
 
     await this.activityService.log(tenantId, userId, 'updated', 'lot', lot.id, {
         lotNumber: lot.lotNumber,
@@ -112,7 +113,7 @@ export class LotsService {
         ),
       )
       .returning();
-    if (!lot) throw new NotFoundException('Lot not found');
+    if (!lot) throw new NotFoundException({ message: 'Lot not found', errorCode: ErrorCode.LOT_NOT_FOUND });
 
     await this.activityService.log(tenantId, userId, 'deleted', 'lot', lot.id, {
         lotNumber: lot.lotNumber,

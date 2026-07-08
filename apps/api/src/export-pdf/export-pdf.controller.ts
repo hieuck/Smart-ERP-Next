@@ -1,4 +1,5 @@
 import { Controller, Get, Param, UseGuards, Request, Res, NotFoundException, ParseUUIDPipe } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ExportPdfService } from './export-pdf.service';
@@ -17,7 +18,7 @@ export class ExportPdfController {
       res.send(pdf);
     } catch (error: any) {
       if (error?.message === 'Invoice not found') {
-        throw new NotFoundException('Invoice not found');
+        throw new NotFoundException({ message: 'Invoice not found', errorCode: ErrorCode.INVOICE_NOT_FOUND });
       }
       throw error;
     }
@@ -32,7 +33,7 @@ export class ExportPdfController {
       res.send(pdf);
     } catch (error: any) {
       if (error?.message === 'Purchase order not found') {
-        throw new NotFoundException('Purchase order not found');
+        throw new NotFoundException({ message: 'Purchase order not found', errorCode: ErrorCode.PURCHASE_ORDER_NOT_FOUND });
       }
       throw error;
     }

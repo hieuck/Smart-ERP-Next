@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { warehouses } from '@smart-erp/database/schema';
 import { eq, and, sql } from '@smart-erp/database/drizzle';
@@ -47,7 +48,7 @@ export class WarehousesService {
       .select()
       .from(warehouses)
       .where(and(eq(warehouses.tenantId, tenantId), eq(warehouses.id, id)));
-    if (!warehouse) throw new NotFoundException('Warehouse not found');
+    if (!warehouse) throw new NotFoundException({ message: 'Warehouse not found', errorCode: ErrorCode.WAREHOUSE_NOT_FOUND });
     return warehouse;
   }
 
@@ -71,7 +72,7 @@ export class WarehousesService {
       .set({ ...dto, updatedAt: new Date() })
       .where(and(eq(warehouses.tenantId, tenantId), eq(warehouses.id, id)))
       .returning();
-    if (!warehouse) throw new NotFoundException('Warehouse not found');
+    if (!warehouse) throw new NotFoundException({ message: 'Warehouse not found', errorCode: ErrorCode.WAREHOUSE_NOT_FOUND });
     return warehouse;
   }
 
@@ -80,7 +81,7 @@ export class WarehousesService {
       .delete(warehouses)
       .where(and(eq(warehouses.tenantId, tenantId), eq(warehouses.id, id)))
       .returning();
-    if (!warehouse) throw new NotFoundException('Warehouse not found');
+    if (!warehouse) throw new NotFoundException({ message: 'Warehouse not found', errorCode: ErrorCode.WAREHOUSE_NOT_FOUND });
     return warehouse;
   }
 }

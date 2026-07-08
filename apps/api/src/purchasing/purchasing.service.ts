@@ -1,6 +1,7 @@
 import {
   Injectable, NotFoundException, BadRequestException, ConflictException,
 } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import {
   purchaseOrders, purchaseOrderItems, products, inventoryTransactions,
@@ -157,7 +158,7 @@ export class PurchasingService {
       .select()
       .from(purchaseOrders)
       .where(and(eq(purchaseOrders.tenantId, tenantId), eq(purchaseOrders.id, id)));
-    if (!po) throw new NotFoundException('Purchase order not found');
+    if (!po) throw new NotFoundException({ message: 'Purchase order not found', errorCode: ErrorCode.PURCHASE_ORDER_NOT_FOUND });
 
     const items = await db
       .select()
@@ -256,7 +257,7 @@ export class PurchasingService {
       .select()
       .from(purchaseOrders)
       .where(and(eq(purchaseOrders.tenantId, tenantId), eq(purchaseOrders.id, id)));
-    if (!po) throw new NotFoundException('Purchase order not found');
+    if (!po) throw new NotFoundException({ message: 'Purchase order not found', errorCode: ErrorCode.PURCHASE_ORDER_NOT_FOUND });
     if (po.status === 'received') {
       throw new BadRequestException('Cannot cancel a received purchase order');
     }
@@ -269,7 +270,7 @@ export class PurchasingService {
       .set({ status, updatedAt: new Date() })
       .where(and(eq(purchaseOrders.tenantId, tenantId), eq(purchaseOrders.id, id)))
       .returning();
-    if (!updated) throw new NotFoundException('Purchase order not found');
+    if (!updated) throw new NotFoundException({ message: 'Purchase order not found', errorCode: ErrorCode.PURCHASE_ORDER_NOT_FOUND });
     return updated;
   }
 }

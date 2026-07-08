@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { comments, users } from '@smart-erp/database/schema';
 import { eq, and, desc } from '@smart-erp/database/drizzle';
@@ -56,7 +57,7 @@ export class CommentsService {
       .select()
       .from(comments)
       .where(and(eq(comments.id, commentId), eq(comments.tenantId, tenantId)));
-    if (!existing) throw new NotFoundException('Comment not found');
+    if (!existing) throw new NotFoundException({ message: 'Comment not found', errorCode: ErrorCode.COMMENT_NOT_FOUND });
     if (existing.userId !== userId) throw new NotFoundException('Not authorized');
     await db.delete(comments).where(eq(comments.id, commentId));
   }

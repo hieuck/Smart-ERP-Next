@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ErrorCode } from '../../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { fixedAssets, fixedAssetDepreciationLogs } from '@smart-erp/database/schema';
 import { eq, and, sql, desc, lt, or, isNull } from '@smart-erp/database/drizzle';
@@ -41,7 +42,7 @@ export class FixedAssetsService {
       .from(fixedAssets)
       .where(and(eq(fixedAssets.tenantId, tenantId), eq(fixedAssets.id, id)));
 
-    if (!asset) throw new NotFoundException('Fixed asset not found');
+    if (!asset) throw new NotFoundException({ message: 'Fixed asset not found', errorCode: ErrorCode.FIXED_ASSET_NOT_FOUND });
     return asset;
   }
 
@@ -112,7 +113,7 @@ export class FixedAssetsService {
       .where(and(eq(fixedAssets.tenantId, tenantId), eq(fixedAssets.id, id)))
       .returning();
 
-    if (!asset) throw new NotFoundException('Fixed asset not found');
+    if (!asset) throw new NotFoundException({ message: 'Fixed asset not found', errorCode: ErrorCode.FIXED_ASSET_NOT_FOUND });
     return asset;
   }
 }

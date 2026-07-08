@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { currencies as currenciesTable, exchangeRates } from '@smart-erp/database/schema';
 import { eq, and, desc, gte, lte } from 'drizzle-orm';
@@ -52,7 +53,7 @@ export class CurrenciesService {
       .from(currenciesTable)
       .where(and(eq(currenciesTable.tenantId, tenantId), eq(currenciesTable.id, id)))
       .limit(1);
-    if (!currency) throw new NotFoundException('Currency not found');
+    if (!currency) throw new NotFoundException({ message: 'Currency not found', errorCode: ErrorCode.CURRENCY_NOT_FOUND });
     return currency;
   }
 
@@ -134,7 +135,7 @@ export class CurrenciesService {
     const toRes = await db.select().from(currenciesTable).where(eq(currenciesTable.code, toCurrency)).limit(1);
 
     if (!fromRes[0] || !toRes[0]) {
-      throw new NotFoundException('Currency not found');
+      throw new NotFoundException({ message: 'Currency not found', errorCode: ErrorCode.CURRENCY_NOT_FOUND });
     }
 
     const fromId = fromRes[0].id;
@@ -160,7 +161,7 @@ export class CurrenciesService {
       .limit(1);
 
     if (!rate.length) {
-      throw new NotFoundException('Exchange rate not found');
+      throw new NotFoundException({ message: 'Exchange rate not found', errorCode: ErrorCode.EXCHANGE_RATE_NOT_FOUND });
     }
 
     return rate[0];
@@ -204,7 +205,7 @@ export class CurrenciesService {
       .limit(1);
 
     if (!existing.length) {
-      throw new NotFoundException('Exchange rate not found');
+      throw new NotFoundException({ message: 'Exchange rate not found', errorCode: ErrorCode.EXCHANGE_RATE_NOT_FOUND });
     }
 
     const updates: any = {};
@@ -228,7 +229,7 @@ export class CurrenciesService {
       .limit(1);
 
     if (!existing.length) {
-      throw new NotFoundException('Exchange rate not found');
+      throw new NotFoundException({ message: 'Exchange rate not found', errorCode: ErrorCode.EXCHANGE_RATE_NOT_FOUND });
     }
 
     await db

@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { Permission, PERMISSIONS, DEFAULT_ROLES } from './permissions';
 import { users } from '@smart-erp/database/schema';
@@ -46,7 +47,7 @@ export class RbacService {
   async updateRole(tenantId: string, roleId: string, data: { name?: string; permissions?: string[]; description?: string }): Promise<Role> {
     const roles = this.tenantRoles.get(tenantId) || await this.seedDefaultRoles(tenantId);
     const index = roles.findIndex((r) => r.id === roleId);
-    if (index === -1) throw new NotFoundException('Role not found');
+    if (index === -1) throw new NotFoundException({ message: 'Role not found', errorCode: ErrorCode.ROLE_NOT_FOUND });
     if (roles[index].isSystem) throw new ForbiddenException('Cannot modify system roles');
     roles[index] = {
       ...roles[index],
@@ -61,7 +62,7 @@ export class RbacService {
   async deleteRole(tenantId: string, roleId: string): Promise<void> {
     const roles = this.tenantRoles.get(tenantId) || await this.seedDefaultRoles(tenantId);
     const role = roles.find((r) => r.id === roleId);
-    if (!role) throw new NotFoundException('Role not found');
+    if (!role) throw new NotFoundException({ message: 'Role not found', errorCode: ErrorCode.ROLE_NOT_FOUND });
     if (role.isSystem) throw new ForbiddenException('Cannot delete system roles');
     this.tenantRoles.set(tenantId, roles.filter((r) => r.id !== roleId));
   }

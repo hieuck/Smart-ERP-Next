@@ -1,4 +1,5 @@
 import { Controller, Get, Param, UseGuards, Request, Res, NotFoundException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { PrintService } from './print.service';
@@ -15,7 +16,7 @@ export class PrintController {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.send(html);
     } catch {
-      throw new NotFoundException('Invoice not found');
+      throw new NotFoundException({ message: 'Invoice not found', errorCode: ErrorCode.INVOICE_NOT_FOUND });
     }
   }
 
@@ -26,7 +27,7 @@ export class PrintController {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.send(html);
     } catch {
-      throw new NotFoundException('Purchase order not found');
+      throw new NotFoundException({ message: 'Purchase order not found', errorCode: ErrorCode.PURCHASE_ORDER_NOT_FOUND });
     }
   }
 }

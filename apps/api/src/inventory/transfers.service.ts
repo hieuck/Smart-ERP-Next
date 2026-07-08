@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
 import { warehouseTransfers, warehouseTransferItems } from '@smart-erp/database/schema';
 import { eq, and, desc } from '@smart-erp/database/drizzle';
@@ -81,7 +82,7 @@ export class TransfersService {
       .select()
       .from(warehouseTransfers)
       .where(and(eq(warehouseTransfers.tenantId, tenantId), eq(warehouseTransfers.id, id)));
-    if (!transfer) throw new NotFoundException('Transfer not found');
+    if (!transfer) throw new NotFoundException({ message: 'Transfer not found', errorCode: ErrorCode.TRANSFER_NOT_FOUND });
 
     const items = await db
       .select()

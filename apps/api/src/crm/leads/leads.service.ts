@@ -3,6 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from "@nestjs/common";
+import { ErrorCode } from "../../common/errors/error-codes";
 import { db } from "@smart-erp/database";
 import { crmLeads } from "@smart-erp/database/schema";
 import { eq, and, ilike, or, sql, desc } from "@smart-erp/database/drizzle";
@@ -121,7 +122,7 @@ export class LeadsService {
       .where(and(eq(crmLeads.tenantId, tenantId), eq(crmLeads.id, id)));
 
     if (!lead) {
-      throw new NotFoundException("Lead not found");
+      throw new NotFoundException({ message: 'Lead not found', errorCode: ErrorCode.LEAD_NOT_FOUND });
     }
     return lead;
   }

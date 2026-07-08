@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ErrorCode } from '../common/errors/error-codes';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { eInvoices, eInvoiceItems } from '@smart-erp/database';
 import { eq, and, desc, sql } from 'drizzle-orm';
@@ -109,7 +110,7 @@ export class EInvoiceService {
       .where(and(eq(eInvoices.tenantId, tenantId), eq(eInvoices.id, invoiceId)))
       .limit(1);
 
-    if (!invoice) throw new NotFoundException('E-Invoice not found');
+    if (!invoice) throw new NotFoundException({ message: 'E-Invoice not found', errorCode: ErrorCode.E_INVOICE_NOT_FOUND });
     if (invoice.status !== 'draft' && invoice.status !== 'signed') {
       throw new BadRequestException(`Cannot issue invoice in status: ${invoice.status}`);
     }
@@ -145,7 +146,7 @@ export class EInvoiceService {
       .where(and(eq(eInvoices.tenantId, tenantId), eq(eInvoices.id, invoiceId)))
       .limit(1);
 
-    if (!invoice) throw new NotFoundException('E-Invoice not found');
+    if (!invoice) throw new NotFoundException({ message: 'E-Invoice not found', errorCode: ErrorCode.E_INVOICE_NOT_FOUND });
     if (!['issued'].includes(invoice.status)) {
       throw new BadRequestException('Only issued invoices can be cancelled');
     }
@@ -170,7 +171,7 @@ export class EInvoiceService {
       .where(and(eq(eInvoices.tenantId, tenantId), eq(eInvoices.id, originalInvoiceId)))
       .limit(1);
 
-    if (!original) throw new NotFoundException('Original invoice not found');
+    if (!original) throw new NotFoundException({ message: 'Original invoice not found', errorCode: ErrorCode.E_INVOICE_NOT_FOUND });
     if (!['issued', 'adjusted'].includes(original.status)) {
       throw new BadRequestException('Only issued invoices can be replaced');
     }
@@ -225,7 +226,7 @@ export class EInvoiceService {
       .where(and(eq(eInvoices.tenantId, tenantId), eq(eInvoices.id, invoiceId)))
       .limit(1);
 
-    if (!invoice) throw new NotFoundException('E-Invoice not found');
+    if (!invoice) throw new NotFoundException({ message: 'E-Invoice not found', errorCode: ErrorCode.E_INVOICE_NOT_FOUND });
 
     const items = await this.drizzle.db
       .select()
