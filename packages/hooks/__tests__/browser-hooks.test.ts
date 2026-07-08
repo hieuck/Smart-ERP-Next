@@ -92,7 +92,7 @@ describe('browser hooks', () => {
   });
 
   it('persists, updates, and removes local storage values', () => {
-    const storage = new Map<string, string>([['cart', JSON.stringify({ count: 2 })]]);
+    const storage = new Map<string, string>([['smart-erp:cart', JSON.stringify({ count: 2 })]]);
     (global as any).window = {
       localStorage: {
         getItem: jest.fn((key: string) => storage.get(key) ?? null),
@@ -108,14 +108,14 @@ describe('browser hooks', () => {
     expect(value).toEqual({ count: 2 });
 
     setValue((previous) => ({ count: previous.count + 1 }));
-    expect(JSON.parse(storage.get('cart') ?? '{}')).toEqual({ count: 3 });
+    expect(JSON.parse(storage.get('smart-erp:cart') ?? '{}')).toEqual({ count: 3 });
     expect(react.states[0]).toEqual({ count: 3 });
 
     setValue({ count: 5 });
-    expect(JSON.parse(storage.get('cart') ?? '{}')).toEqual({ count: 5 });
+    expect(JSON.parse(storage.get('smart-erp:cart') ?? '{}')).toEqual({ count: 5 });
 
     removeValue();
-    expect(storage.has('cart')).toBe(false);
+    expect(storage.has('smart-erp:cart')).toBe(false);
     expect(react.states[0]).toEqual({ count: 0 });
   });
 
@@ -162,6 +162,59 @@ describe('browser hooks', () => {
     setValue('next');
     removeValue();
     expect(consoleSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('falls back to initial value when stored data fails validation', () => {
+    const storage = new Map<string, string>([['smart-erp:theme', JSON.stringify({ theme: 123 })]]);
+    (global as any).window = {
+      localStorage: {
+        getItem: jest.fn((key: string) => storage.get(key) ?? null),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      },
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    };
+    const { loaded } = loadWithReactMock(
+      () => require('../src/useLocalStorage') as typeof import('../src/useLocalStorage'),
+    );
+
+    const validator = (value: unknown): value is { theme: string } =>
+      typeof value === 'object' && value !== null && typeof (value as { theme: unknown }).theme === 'string';
+
+    const [value] = loaded.useLocalStorage('theme', { theme: 'light' }, { validator });
+    expect(value).toEqual({ theme: 'light' });
+  });
+
+  it('syncs value across tabs via storage events', () => {
+    const listeners = new Set<(event: StorageEvent) => void>();
+    (global as any).window = {
+      localStorage: {
+        getItem: jest.fn(() => null),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      },
+      addEventListener: jest.fn((_event: string, listener: (event: StorageEvent) => void) => {
+        listeners.add(listener);
+      }),
+      removeEventListener: jest.fn((_event: string, listener: (event: StorageEvent) => void) => {
+        listeners.delete(listener);
+      }),
+    };
+    const { react, loaded } = loadWithReactMock(
+      () => require('../src/useLocalStorage') as typeof import('../src/useLocalStorage'),
+    );
+
+    loaded.useLocalStorage('sync', { count: 0 });
+
+    const storageEvent = {
+      key: 'smart-erp:sync',
+      newValue: JSON.stringify({ count: 9 }),
+      storageArea: (global as any).window.localStorage,
+    } as unknown as StorageEvent;
+    listeners.forEach((listener) => listener(storageEvent));
+
+    expect(react.states[0]).toEqual({ count: 9 });
   });
 
   it('tracks online status and unregisters event listeners', () => {
