@@ -1,5 +1,6 @@
-import { pgTable, uuid, text, timestamp, boolean, jsonb, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, jsonb, index, integer, unique } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
+import { products } from './products';
 
 // E-commerce store integrations (Shopee, Lazada, TikTok Shop, Amazon, eBay, etc.)
 export const ecommerceStores = pgTable(
@@ -66,10 +67,12 @@ export const ecommerceChannelInventory = pgTable(
     storeId: uuid('store_id')
       .notNull()
       .references(() => ecommerceStores.id, { onDelete: 'cascade' }),
-    productId: uuid('product_id').notNull(), // Reference to products table
+    productId: uuid('product_id')
+      .notNull()
+      .references(() => products.id, { onDelete: 'cascade' }),
     externalProductId: text('external_product_id').notNull(), // Platform's product ID
-    platformStock: text('platform_stock').notNull().default('0'), // Current stock on platform
-    localStock: text('local_stock').notNull().default('0'), // Current stock in local warehouse
+    platformStock: integer('platform_stock').notNull().default(0), // Current stock on platform
+    localStock: integer('local_stock').notNull().default(0), // Current stock in local warehouse
     lastSyncedAt: timestamp('last_synced_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -79,6 +82,12 @@ export const ecommerceChannelInventory = pgTable(
     storeIdx: index('ecommerce_channel_inventory_store_idx').on(table.storeId),
     productIdx: index('ecommerce_channel_inventory_product_idx').on(table.productId),
     externalProductIdx: index('ecommerce_channel_inventory_external_product_idx').on(table.externalProductId),
+    tenantStoreProductExternalUnique: unique('ecom_inv_tenant_store_product_ext_unique').on(
+      table.tenantId,
+      table.storeId,
+      table.productId,
+      table.externalProductId,
+    ),
   })
 );
 
