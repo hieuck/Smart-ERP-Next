@@ -112,4 +112,18 @@ describe('Deployment Documentation', () => {
       expect(invalidVersions).toEqual([]);
     }
   });
+
+  test('desktop release artifact script exists and exits 0 when bundle dir is missing', () => {
+    const scriptPath = path.join(repoRoot, 'scripts', 'ensure-desktop-release-artifact.js');
+    expect(fs.existsSync(scriptPath)).toBe(true);
+
+    const result = require('node:child_process').spawnSync(
+      process.execPath,
+      [scriptPath],
+      { cwd: repoRoot, encoding: 'utf8' },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain('Desktop release bundle directory not found');
+  });
 });
