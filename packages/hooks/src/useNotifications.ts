@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export type NotificationVariant = 'success' | 'error' | 'warning' | 'info';
 
@@ -15,6 +15,14 @@ export interface ToastNotification {
  */
 export function useNotifications() {
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
+  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+      timeoutsRef.current = [];
+    };
+  }, []);
 
   const push = useCallback(
     (message: string, variant: NotificationVariant = 'info', duration = 4000) => {
@@ -22,9 +30,10 @@ export function useNotifications() {
       setToasts((prev) => [...prev, { id, message, variant, duration }]);
 
       if (duration > 0) {
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
           setToasts((prev) => prev.filter((t) => t.id !== id));
         }, duration);
+        timeoutsRef.current.push(timeoutId);
       }
 
       return id;
