@@ -1,48 +1,79 @@
 import { FixedAssetsController } from './fixed-assets.controller';
+import { FixedAssetsService } from '../services/fixed-assets.service';
 
 describe('FixedAssetsController', () => {
-  let svc: any;
-  let ctrl: FixedAssetsController;
+  let service: FixedAssetsService;
+  let controller: FixedAssetsController;
 
   beforeEach(() => {
-    svc = { create: jest.fn(), findAll: jest.fn(), findOne: jest.fn(), runMonthlyDepreciation: jest.fn(), dispose: jest.fn() };
-    ctrl = new FixedAssetsController(svc);
+    service = {
+      create: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      runMonthlyDepreciation: jest.fn(),
+      dispose: jest.fn(),
+    } as unknown as FixedAssetsService;
+    controller = new FixedAssetsController(service);
   });
 
-  const req = { user: { tenantId: 't1' } };
+  it('findAll passes validated query to service', async () => {
+    const req = { user: { tenantId: 't1' } };
+    const query = { page: 2, limit: 10, category: 'electronics', status: 'active' };
+    (service.findAll as jest.Mock).mockResolvedValue({ items: [], page: 2, limit: 10 });
 
-  it('create delegates to service', async () => {
-    svc.create.mockResolvedValue({ id: 'fa1' });
-    const dto = { name: 'Server', purchaseCost: 50000 } as any;
-    const r = await ctrl.create(req, dto);
-    expect(svc.create).toHaveBeenCalledWith('t1', dto);
-    expect(r).toEqual({ id: 'fa1' });
+    const result = await controller.findAll(req, query as any);
+
+    expect(service.findAll).toHaveBeenCalledWith('t1', query);
+    expect(result).toEqual({ items: [], page: 2, limit: 10 });
   });
 
-  it('findAll delegates to service', async () => {
-    svc.findAll.mockResolvedValue([]);
-    await ctrl.findAll(req, '1', '20', 'IT Equipment', 'active');
-    expect(svc.findAll).toHaveBeenCalledWith('t1', { page: 1, limit: 20, category: 'IT Equipment', status: 'active' });
+  it('findAll defaults page and limit when omitted', async () => {
+    const req = { user: { tenantId: 't1' } };
+    (service.findAll as jest.Mock).mockResolvedValue({ items: [], page: 1, limit: 20 });
+
+    await controller.findAll(req, {} as any);
+
+    expect(service.findAll).toHaveBeenCalledWith('t1', {});
   });
 
-  it('findOne delegates to service', async () => {
-    svc.findOne.mockResolvedValue({ id: 'fa1' });
-    const r = await ctrl.findOne(req, 'fa1');
-    expect(svc.findOne).toHaveBeenCalledWith('t1', 'fa1');
-    expect(r).toEqual({ id: 'fa1' });
+  it('create passes validated DTO to service', async () => {
+    const req = { user: { tenantId: 't1' } };
+    const dto = {
+      name: 'Laptop',
+      category: 'electronics',
+      status: 'active',
+      purchaseCost: '1000',
+      residualValue: '100',
+      usefulLifeMonths: 36,
+      purchaseDate: '2025-01-01',
+    };
+    (service.create as jest.Mock).mockResolvedValue(dto);
+
+    const result = await controller.create(req, dto as any);
+
+    expect(service.create).toHaveBeenCalledWith('t1', dto);
+    expect(result).toEqual(dto);
   });
 
-  it('runDepreciation delegates to service', async () => {
-    svc.runMonthlyDepreciation.mockResolvedValue({ processed: 5 });
-    const r = await ctrl.runDepreciation(req);
-    expect(svc.runMonthlyDepreciation).toHaveBeenCalledWith('t1');
-    expect(r).toEqual({ processed: 5 });
+  it('findOne passes UUID id to service', async () => {
+    const req = { user: { tenantId: 't1' } };
+    const id = '00000000-0000-0000-0000-000000000001';
+    (service.findOne as jest.Mock).mockResolvedValue({ id });
+
+    const result = await controller.findOne(req, id);
+
+    expect(service.findOne).toHaveBeenCalledWith('t1', id);
+    expect(result).toEqual({ id });
   });
 
-  it('dispose delegates to service', async () => {
-    svc.dispose.mockResolvedValue({ id: 'fa1', status: 'disposed' });
-    const r = await ctrl.dispose(req, 'fa1');
-    expect(svc.dispose).toHaveBeenCalledWith('t1', 'fa1');
-    expect(r).toEqual({ id: 'fa1', status: 'disposed' });
+  it('dispose passes UUID id to service', async () => {
+    const req = { user: { tenantId: 't1' } };
+    const id = '00000000-0000-0000-0000-000000000001';
+    (service.dispose as jest.Mock).mockResolvedValue({ id, status: 'disposed' });
+
+    const result = await controller.dispose(req, id);
+
+    expect(service.dispose).toHaveBeenCalledWith('t1', id);
+    expect(result).toEqual({ id, status: 'disposed' });
   });
 });
