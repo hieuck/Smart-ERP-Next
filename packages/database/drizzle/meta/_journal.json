@@ -169,6 +169,13 @@
       "when": 1783528904805,
       "tag": "0023_organic_nomad",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1783533417655,
+      "tag": "0024_rare_toro",
+      "breakpoints": true
     }
   ]
 }
