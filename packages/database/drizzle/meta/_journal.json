@@ -134,6 +134,13 @@
       "when": 1783452627502,
       "tag": "0018_overrated_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1783472451205,
+      "tag": "0019_complete_bucky",
+      "breakpoints": true
     }
   ]
 }
