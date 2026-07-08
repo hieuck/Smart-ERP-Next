@@ -32,15 +32,35 @@ describe('SettingsService', () => {
     expect(result.tenantId).toBeUndefined();
   });
 
+  const mockTenantRow = (overrides: any = {}) => ({
+    id: 'tenant-1',
+    name: 'Smart ERP',
+    slug: 'smart-erp',
+    defaultCurrency: 'VND',
+    address: null,
+    taxCode: null,
+    phone: null,
+    industry: null,
+    onboardingStatus: 'pending',
+    settings: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  });
+
+  const mockSelectReturns = (rows: any[]) => {
+    db.select.mockReturnValue({
+      from: jest.fn().mockReturnValue({
+        where: jest.fn().mockReturnValue({
+          limit: jest.fn().mockResolvedValue(rows),
+        }),
+      }),
+    });
+  };
+
   describe('setDefaultCurrency', () => {
     beforeEach(() => {
-      db.select.mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([{ id: 'tenant-1', defaultCurrency: 'VND' }]),
-          }),
-        }),
-      });
+      mockSelectReturns([{ id: 'tenant-1', defaultCurrency: 'VND' }]);
       db.update.mockReturnValue({
         set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
@@ -62,14 +82,67 @@ describe('SettingsService', () => {
     });
 
     it('throws NotFoundException when tenant does not exist', async () => {
-      db.select.mockReturnValue({
-        from: jest.fn().mockReturnValue({
+      mockSelectReturns([]);
+      await expect(service.setDefaultCurrency('missing-tenant', 'USD')).rejects.toBeInstanceOf(NotFoundException);
+      expect(db.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getTenantSettings', () => {
+    it('returns merged tenant settings', async () => {
+      mockSelectReturns([
+        mockTenantRow({
+          name: 'Acme',
+          defaultCurrency: 'USD',
+          settings: { general: { language: 'en' }, notifications: { lowStockAlert: false } },
+        }),
+      ]);
+
+      const result = await service.getTenantSettings('tenant-1');
+
+      expect(result.company.name).toBe('Acme');
+      expect(result.general.currency).toBe('USD');
+      expect(result.general.language).toBe('en');
+      expect(result.notifications.lowStockAlert).toBe(false);
+    });
+
+    it('throws NotFoundException when tenant does not exist', async () => {
+      mockSelectReturns([]);
+      await expect(service.getTenantSettings('missing-tenant')).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
+  describe('updateTenantSettings', () => {
+    beforeEach(() => {
+      mockSelectReturns([
+        mockTenantRow({
+          name: 'Acme Corp',
+          defaultCurrency: 'USD',
+          settings: { general: { language: 'en' } },
+        }),
+      ]);
+      db.update.mockReturnValue({
+        set: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
-            limit: jest.fn().mockResolvedValue([]),
+            returning: jest.fn().mockResolvedValue([{}]),
           }),
         }),
       });
-      await expect(service.setDefaultCurrency('missing-tenant', 'USD')).rejects.toBeInstanceOf(NotFoundException);
+    });
+
+    it('merges and persists company and general settings', async () => {
+      const dto = { company: { name: 'Acme Corp' }, general: { language: 'en', currency: 'USD' } };
+      const result = await service.updateTenantSettings('tenant-1', dto);
+
+      expect(result.company.name).toBe('Acme Corp');
+      expect(result.general.language).toBe('en');
+      expect(result.general.currency).toBe('USD');
+      expect(db.update).toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when tenant does not exist', async () => {
+      mockSelectReturns([]);
+      await expect(service.updateTenantSettings('missing-tenant', {})).rejects.toBeInstanceOf(NotFoundException);
       expect(db.update).not.toHaveBeenCalled();
     });
   });
