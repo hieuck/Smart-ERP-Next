@@ -157,8 +157,8 @@ describe('controller delegation', () => {
       service.generateEInvoiceXml.mockResolvedValueOnce('<invoice />');
 
       controller.create(req, { customerId: 'customer-1' } as any);
-      controller.findAll(req, '2', '25', 'SO-1', 'confirmed', 'paid', 'web');
-      controller.findAll(req);
+      controller.findAll(req, { page: 2, limit: 25, search: 'SO-1', status: 'confirmed', paymentStatus: 'paid', channel: 'web' } as any);
+      controller.findAll(req, {} as any);
       controller.findOne(req, 'order-1');
       await controller.generateEInvoice(req, 'order-1', res as any);
       controller.updateStatus(req, 'order-1', { cancelReason: 'duplicate', status: 'cancelled' });

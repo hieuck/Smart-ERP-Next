@@ -7,13 +7,16 @@ import {
   Param,
   Query,
   UseGuards,
+  UsePipes,
   Request,
   ParseUUIDPipe,
   Res,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { FindOrdersQueryDto } from './dto/find-orders-query.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { IdempotencyGuard } from '../common/errors/idempotency.guard';
 import { AuditLog } from '../common/decorators/audit-log.decorator';
@@ -22,6 +25,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 @ApiTags('Orders')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
+@UsePipes(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: false }))
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
@@ -38,22 +42,14 @@ export class OrdersController {
   @Get()
   @ApiOperation({ summary: 'List orders', description: 'Paginated list with search/filter by status, channel, payment status' })
   @ApiResponse({ status: 200, description: 'Returns orders list with pagination metadata' })
-  findAll(
-    @Request() req: any,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-    @Query('search') search?: string,
-    @Query('status') status?: string,
-    @Query('paymentStatus') paymentStatus?: string,
-    @Query('channel') channel?: string,
-  ) {
+  findAll(@Request() req: any, @Query() query: FindOrdersQueryDto) {
     return this.ordersService.findAll(req.user.tenantId, {
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
-      search,
-      status,
-      paymentStatus,
-      channel,
+      page: query.page,
+      limit: query.limit,
+      search: query.search,
+      status: query.status,
+      paymentStatus: query.paymentStatus,
+      channel: query.channel,
     });
   }
 
