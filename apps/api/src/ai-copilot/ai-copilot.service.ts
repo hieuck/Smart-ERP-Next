@@ -4,9 +4,21 @@ import { crmLeads } from '@smart-erp/database';
 import { orders, e_contracts } from '@smart-erp/database';
 import { eq, sql, gte, and } from 'drizzle-orm';
 
+const DEFAULT_REVENUE_TARGET = 100_000_000;
+
 @Injectable()
 export class AiCopilotService {
   constructor(private readonly drizzle: DrizzleService) {}
+
+  private getRevenueTarget(): number {
+    const envTarget = process.env.REVENUE_TARGET;
+    if (!envTarget) return DEFAULT_REVENUE_TARGET;
+
+    const parsed = Number(envTarget);
+    if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_REVENUE_TARGET;
+
+    return parsed;
+  }
 
   async getExecutiveInsights(tenantId: string) {
     const now = new Date();
@@ -47,12 +59,14 @@ export class AiCopilotService {
       healthStatus = 'needs attention';
       recommendations.push('High number of new leads. Review sales pipeline.');
     }
-    if (revenue < 100000000) {
+    const revenueTarget = this.getRevenueTarget();
+    if (revenue < revenueTarget) {
       recommendations.push('Revenue below target. Push CRM leads conversion.');
     }
 
     return {
       revenue,
+      revenueTarget,
       leadsCount,
       highPriority,
       signedCount,
