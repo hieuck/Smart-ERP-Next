@@ -1,16 +1,107 @@
+const createMockSocket = () => {
+  const handlers: Record<string, ((...args: any[]) => void)[]> = {};
+  const socket = {
+    on: jest.fn((event: string, handler: (...args: any[]) => void) => {
+      handlers[event] = handlers[event] ?? [];
+      handlers[event].push(handler);
+      return socket;
+    }),
+    connect: jest.fn(function (this: any) {
+      return socket;
+    }),
+    destroy: jest.fn(),
+    emit: jest.fn((event: string, ...args: any[]) => {
+      (handlers[event] ?? []).forEach((h) => h(...args));
+      return true;
+    }),
+  };
+  return { socket, handlers };
+};
+
+let mockSocketInstance = createMockSocket().socket;
+
+jest.mock('net', () => ({
+  Socket: jest.fn().mockImplementation(() => mockSocketInstance),
+}));
+
 jest.mock('drizzle-orm', () => ({
   sql: jest.fn((strings, ...values) => ({ strings, values })),
 }));
 
 import { HealthMonitorService } from './health-monitor.service';
 
-describe('HealthMonitorService coverage', () => {
+describe('HealthMonitorService cache check', () => {
+  const createService = () =>
+    new HealthMonitorService(
+      { get: jest.fn() } as any,
+      { db: { execute: jest.fn() } } as any,
+    );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockSocketInstance = createMockSocket().socket;
+    delete process.env.CACHE_URL;
+    delete process.env.REDIS_URL;
+  });
+
+  it('returns up when no cache is configured', async () => {
+    const service = createService();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (service as any).checkCache();
+    expect(result.status).toBe('up');
+    expect(result.latencyMs).toBe(0);
+  });
+
+  it('returns up when cache TCP connection succeeds', async () => {
+    process.env.CACHE_URL = 'redis://localhost:6379';
+    mockSocketInstance.connect.mockImplementation(function (this: any) {
+      setImmediate(() => this.emit('connect'));
+      return this;
+    });
+
+    const service = createService();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (service as any).checkCache();
+    expect(result.status).toBe('up');
+    expect(result.latencyMs).toBeGreaterThanOrEqual(0);
+    expect(mockSocketInstance.destroy).toHaveBeenCalled();
+  });
+
+  it('returns down when cache TCP connection fails', async () => {
+    process.env.CACHE_URL = 'redis://localhost:6379';
+    mockSocketInstance.connect.mockImplementation(function (this: any) {
+      setImmediate(() => this.emit('error', new Error('Connection refused')));
+      return this;
+    });
+
+    const service = createService();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (service as any).checkCache();
+    expect(result.status).toBe('down');
+    expect(result.error).toContain('Connection refused');
+    expect(mockSocketInstance.destroy).toHaveBeenCalled();
+  });
+
+  it('returns down for invalid cache URL', async () => {
+    process.env.CACHE_URL = 'not-a-valid-url';
+
+    const service = createService();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (service as any).checkCache();
+    expect(result.status).toBe('down');
+    expect(result.error).toContain('Invalid');
+  });
+});
+
+describe('HealthMonitorService overall health', () => {
   const db = { execute: jest.fn() };
   let service: HealthMonitorService;
 
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers().setSystemTime(new Date('2026-05-21T00:00:00.000Z'));
+    delete process.env.CACHE_URL;
+    delete process.env.REDIS_URL;
     db.execute.mockResolvedValue([]);
     service = new HealthMonitorService({} as any, { db } as any);
   });
@@ -30,7 +121,7 @@ describe('HealthMonitorService coverage', () => {
       services: {
         api: { status: 'up' },
         database: { status: 'up' },
-        cache: { status: 'up', latencyMs: 1 },
+        cache: { status: 'up', latencyMs: 0 },
       },
       metrics: {
         requestsPerMinute: 2,
