@@ -107,7 +107,7 @@ export class HrService {
       .from(employees)
       .where(eq(employees.tenantId, tenantId));
 
-    const currentMonth = (new Date().getMonth() + 1).toString();
+    const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
 
     const existing = await db
@@ -117,7 +117,7 @@ export class HrService {
         and(
           eq(salaryBoards.tenantId, tenantId),
           eq(salaryBoards.month, currentMonth),
-          eq(salaryBoards.year, String(currentYear)),
+          eq(salaryBoards.year, currentYear),
         ),
       );
 
@@ -127,7 +127,7 @@ export class HrService {
         tenantId,
         name: `Bang luong thang ${currentMonth}/${currentYear}`,
         month: currentMonth,
-        year: String(currentYear),
+        year: currentYear,
         totalEmployees: String(employeesList.length),
         totalNetSalary: String(totalNetSalary),
       } as any);
