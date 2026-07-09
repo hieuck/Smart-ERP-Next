@@ -8,35 +8,59 @@
  *   packages/database/drizzle/rollback-<name>.sql
  */
 
-const { execSync } = require('child_process');
-const { existsSync, readFileSync } = require('fs');
+const { execFileSync } = require('child_process');
+const { existsSync } = require('fs');
 const { join } = require('path');
 
-const migrationName = process.argv[2];
-if (!migrationName) {
-  console.error('Usage: node scripts/db-rollback.js <migration-name>');
-  process.exit(1);
+const MIGRATION_NAME_RE = /^[A-Za-z0-9_-]+$/;
+
+function validateMigrationName(migrationName) {
+  if (!migrationName || !MIGRATION_NAME_RE.test(migrationName)) {
+    throw new Error(
+      'Invalid migration name. Use only alphanumeric characters, hyphens, and underscores.',
+    );
+  }
 }
 
-const rollbackPath = join(__dirname, '..', 'packages', 'database', 'drizzle', `rollback-${migrationName}.sql`);
+function runRollback(migrationName, databaseUrl) {
+  validateMigrationName(migrationName);
 
-if (!existsSync(rollbackPath)) {
-  console.error(`Rollback script not found: ${rollbackPath}`);
-  console.error('Create a rollback SQL file first.');
-  process.exit(1);
-}
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL environment variable is required');
+  }
 
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  console.error('DATABASE_URL environment variable is required');
-  process.exit(1);
-}
+  const rollbackPath = join(
+    __dirname,
+    '..',
+    'packages',
+    'database',
+    'drizzle',
+    `rollback-${migrationName}.sql`,
+  );
 
-console.log(`Applying rollback: ${migrationName}`);
-try {
-  execSync(`psql "${databaseUrl}" -f "${rollbackPath}"`, { stdio: 'inherit' });
+  if (!existsSync(rollbackPath)) {
+    throw new Error(`Rollback script not found: ${rollbackPath}\nCreate a rollback SQL file first.`);
+  }
+
+  console.log(`Applying rollback: ${migrationName}`);
+  execFileSync('psql', [databaseUrl, '-f', rollbackPath], { stdio: 'inherit' });
   console.log('Rollback applied successfully');
-} catch (error) {
-  console.error('Rollback failed:', error.message);
-  process.exit(1);
 }
+
+function main() {
+  const migrationName = process.argv[2];
+  const databaseUrl = process.env.DATABASE_URL;
+
+  try {
+    runRollback(migrationName, databaseUrl);
+  } catch (error) {
+    console.error('Rollback failed:', error.message);
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = { runRollback, validateMigrationName };
