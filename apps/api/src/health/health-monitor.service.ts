@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Socket } from 'net';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { sql } from 'drizzle-orm';
 
@@ -82,8 +83,64 @@ export class HealthMonitorService {
   }
 
   private async checkCache(): Promise<ServiceHealth> {
-    // Cache check is optional — always considered up if CacheModule is configured
-    return { status: 'up', latencyMs: 1 };
+    const cacheUrl = process.env.CACHE_URL ?? process.env.REDIS_URL;
+    if (!cacheUrl) {
+      // No external cache configured — considered healthy by default.
+      return { status: 'up', latencyMs: 0 };
+    }
+
+    const parsed = this.parseCacheUrl(cacheUrl);
+    if (!parsed) {
+      return { status: 'down', error: 'Invalid CACHE_URL/REDIS_URL format' };
+    }
+
+    return this.pingCacheTcp(parsed.host, parsed.port);
+  }
+
+  private parseCacheUrl(url: string): { host: string; port: number } | null {
+    try {
+      // redis://host:port or rediss://host:port
+      const match = url.match(/^rediss?:\/\/([^:@]+)(?::(\d+))?(?:\/\d+)?$/);
+      if (!match) return null;
+      const host = match[1];
+      const port = match[2] ? parseInt(match[2], 10) : 6379;
+      if (!host || !Number.isFinite(port)) return null;
+      return { host, port };
+    } catch {
+      return null;
+    }
+  }
+
+  private pingCacheTcp(host: string, port: number): Promise<ServiceHealth> {
+    return new Promise((resolve) => {
+      const start = Date.now();
+      const socket = new Socket();
+      const timeoutMs = 2000;
+
+      const timer = setTimeout(() => {
+        socket.destroy();
+        resolve({ status: 'down', error: 'Cache connection timed out' });
+      }, timeoutMs);
+
+      socket.on('connect', () => {
+        clearTimeout(timer);
+        socket.destroy();
+        resolve({ status: 'up', latencyMs: Date.now() - start });
+      });
+
+      socket.on('ready', () => {
+        clearTimeout(timer);
+        socket.destroy();
+      });
+
+      socket.on('error', (err) => {
+        clearTimeout(timer);
+        socket.destroy();
+        resolve({ status: 'down', error: err.message });
+      });
+
+      socket.connect(port, host);
+    });
   }
 
   private calculateOverallStatus(db: ServiceHealth, cache: ServiceHealth): 'healthy' | 'degraded' | 'down' {
