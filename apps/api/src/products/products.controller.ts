@@ -143,11 +143,22 @@ export class ProductsController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        const isCsv = file.mimetype === 'text/csv' || file.originalname?.toLowerCase().endsWith('.csv');
+        cb(null, isCsv);
+      },
+    }),
+  )
   async importProducts(
     @Request() req: any,
     @UploadedFile() file: any,
   ) {
+    if (!file) {
+      throw new BadRequestException('A valid CSV file up to 5 MB is required');
+    }
     return this.productsService.importFromCsv(req.user.tenantId, file.buffer);
   }
 
