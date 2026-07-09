@@ -147,4 +147,13 @@ describe('Deployment Documentation', () => {
     const gitignore = fs.readFileSync(gitignorePath, 'utf8');
     expect(gitignore).toContain('.env.production');
   });
+
+  test('Dockerfile uses a valid PostgreSQL base image', () => {
+    const dockerfilePath = path.join(repoRoot, 'Dockerfile');
+    expect(fs.existsSync(dockerfilePath)).toBe(true);
+    const content = fs.readFileSync(dockerfilePath, 'utf8');
+
+    expect(content).not.toContain('postgres:18-alpine');
+    expect(content).toMatch(/FROM\s+postgres:\d+-alpine/);
+  });
 });
