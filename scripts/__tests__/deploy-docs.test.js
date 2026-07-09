@@ -165,4 +165,15 @@ describe('Deployment Documentation', () => {
     const matches = content.match(/export \* from '\.\/accounting';/g) ?? [];
     expect(matches.length).toBe(1);
   });
+
+  test('products import endpoint enforces a CSV file size limit', () => {
+    const controllerPath = path.join(repoRoot, 'apps', 'api', 'src', 'products', 'products.controller.ts');
+    expect(fs.existsSync(controllerPath)).toBe(true);
+    const content = fs.readFileSync(controllerPath, 'utf8');
+
+    const importBlock = content.match(/@Post\('import'\)[\s\S]*?async importProducts/)?.[0] ?? '';
+    expect(importBlock).toContain('fileSize');
+    expect(importBlock).toContain('5 * 1024 * 1024');
+    expect(importBlock).toContain('text/csv');
+  });
 });
