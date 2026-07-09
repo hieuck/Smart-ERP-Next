@@ -156,4 +156,13 @@ describe('Deployment Documentation', () => {
     expect(content).not.toContain('postgres:18-alpine');
     expect(content).toMatch(/FROM\s+postgres:\d+-alpine/);
   });
+
+  test('types index does not export accounting module more than once', () => {
+    const indexPath = path.join(repoRoot, 'packages', 'types', 'src', 'index.ts');
+    expect(fs.existsSync(indexPath)).toBe(true);
+    const content = fs.readFileSync(indexPath, 'utf8');
+
+    const matches = content.match(/export \* from '\.\/accounting';/g) ?? [];
+    expect(matches.length).toBe(1);
+  });
 });
