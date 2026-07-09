@@ -1,96 +1,220 @@
+import 'reflect-metadata';
+import { ParseUUIDPipe } from '@nestjs/common';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 import { InventoryController } from './inventory.controller';
+import { AdjustInventoryDto } from './dto/adjust-inventory.dto';
+import { CreateReservationDto } from './dto/create-reservation.dto';
+import { ReservationActionDto } from './dto/reservation-action.dto';
 
-describe('InventoryController', () => {
-  let svc: any;
-  let ctrl: InventoryController;
+describe('InventoryController coverage', () => {
+  const inventoryService = {
+    adjust: jest.fn().mockResolvedValue({}),
+    createReservation: jest.fn().mockResolvedValue({}),
+    releaseReservation: jest.fn().mockResolvedValue({}),
+    consumeReservation: jest.fn().mockResolvedValue({}),
+    getAvailableStock: jest.fn().mockResolvedValue(0),
+    pushStockToMarketplace: jest.fn().mockResolvedValue({}),
+    getTransactions: jest.fn().mockResolvedValue({}),
+    getLowStock: jest.fn().mockResolvedValue([]),
+    getSummary: jest.fn().mockResolvedValue({}),
+    getReorderSuggestions: jest.fn().mockResolvedValue([]),
+    syncAllStoresStock: jest.fn().mockResolvedValue([]),
+  };
+
+  const controller = new InventoryController(inventoryService as any);
+  const req = { user: { tenantId: 'tenant-1', sub: 'user-1' } };
 
   beforeEach(() => {
-    svc = {
-      getTransactions: jest.fn(),
-      adjust: jest.fn(),
-      getLowStock: jest.fn(),
-      getSummary: jest.fn(),
-      getReorderSuggestions: jest.fn(),
-      getAvailableStock: jest.fn(),
-      createReservation: jest.fn(),
-      releaseReservation: jest.fn(),
-      consumeReservation: jest.fn(),
-      pushStockToMarketplace: jest.fn(),
-      syncAllStoresStock: jest.fn(),
-    };
-    ctrl = new InventoryController(svc);
+    jest.clearAllMocks();
   });
 
-  const req = { user: { tenantId: 't1', sub: 'u1' } };
+  describe('AdjustInventoryDto', () => {
+    it('rejects negative quantity', async () => {
+      const dto = plainToInstance(AdjustInventoryDto, {
+        productId: '550e8400-e29b-41d4-a716-446655440000',
+        quantity: -1000,
+        type: 'IN',
+      });
+      const errors = await validate(dto);
+      expect(errors.some((e) => e.property === 'quantity')).toBe(true);
+    });
 
-  it('getTransactions delegates to service', async () => {
-    svc.getTransactions.mockResolvedValue({ items: [], total: 0 });
-    await ctrl.getTransactions(req, '1', '20', 'p1', 'IN');
-    expect(svc.getTransactions).toHaveBeenCalledWith('t1', { page: 1, limit: 20, productId: 'p1', type: 'IN' });
+    it('rejects invalid product id', async () => {
+      const dto = plainToInstance(AdjustInventoryDto, {
+        productId: 'not-a-uuid',
+        quantity: 10,
+        type: 'IN',
+      });
+      const errors = await validate(dto);
+      expect(errors.some((e) => e.property === 'productId')).toBe(true);
+    });
+
+    it('accepts valid payload', async () => {
+      const dto = plainToInstance(AdjustInventoryDto, {
+        productId: '550e8400-e29b-41d4-a716-446655440000',
+        quantity: 10,
+        type: 'IN',
+      });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
+
+    it('rejects invalid type', async () => {
+      const dto = plainToInstance(AdjustInventoryDto, {
+        productId: '550e8400-e29b-41d4-a716-446655440000',
+        quantity: 10,
+        type: 'INVALID',
+      });
+      const errors = await validate(dto);
+      expect(errors.some((e) => e.property === 'type')).toBe(true);
+    });
   });
 
-  it('adjust delegates to service', async () => {
-    svc.adjust.mockResolvedValue({ id: 'tx1' });
-    const body = { productId: 'p1', quantity: 10, type: 'IN' as const, notes: 'add stock' };
-    const r = await ctrl.adjust(req, body);
-    expect(svc.adjust).toHaveBeenCalledWith('t1', 'u1', 'p1', 10, 'IN', 'add stock', undefined);
-    expect(r).toEqual({ id: 'tx1' });
+  describe('CreateReservationDto', () => {
+    it('rejects invalid storeId', async () => {
+      const dto = plainToInstance(CreateReservationDto, {
+        storeId: 'bad',
+        externalOrderId: 'order-1',
+        productId: '550e8400-e29b-41d4-a716-446655440000',
+        quantity: 1,
+      });
+      const errors = await validate(dto);
+      expect(errors.some((e) => e.property === 'storeId')).toBe(true);
+    });
+
+    it('rejects quantity less than 1', async () => {
+      const dto = plainToInstance(CreateReservationDto, {
+        storeId: '550e8400-e29b-41d4-a716-446655440000',
+        externalOrderId: 'order-1',
+        productId: '550e8400-e29b-41d4-a716-446655440001',
+        quantity: 0,
+      });
+      const errors = await validate(dto);
+      expect(errors.some((e) => e.property === 'quantity')).toBe(true);
+    });
+
+    it('accepts valid reservation payload', async () => {
+      const dto = plainToInstance(CreateReservationDto, {
+        storeId: '550e8400-e29b-41d4-a716-446655440000',
+        externalOrderId: 'order-1',
+        productId: '550e8400-e29b-41d4-a716-446655440001',
+        quantity: 1,
+      });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
   });
 
-  it('getLowStock delegates to service', async () => {
-    svc.getLowStock.mockResolvedValue([]);
-    await ctrl.getLowStock(req);
-    expect(svc.getLowStock).toHaveBeenCalledWith('t1');
+  describe('ReservationActionDto', () => {
+    it('rejects missing externalOrderId', async () => {
+      const dto = plainToInstance(ReservationActionDto, {});
+      const errors = await validate(dto);
+      expect(errors.some((e) => e.property === 'externalOrderId')).toBe(true);
+    });
+
+    it('accepts valid release payload', async () => {
+      const dto = plainToInstance(ReservationActionDto, { externalOrderId: 'order-1' });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
+    });
   });
 
-  it('getSummary delegates to service', async () => {
-    svc.getSummary.mockResolvedValue({ totalProducts: 10, lowStock: 2 });
-    await ctrl.getSummary(req);
-    expect(svc.getSummary).toHaveBeenCalledWith('t1');
+  describe('ParseUUIDPipe on path parameters', () => {
+    it('rejects invalid productId parameter', async () => {
+      const pipe = new ParseUUIDPipe();
+      await expect(pipe.transform('not-a-uuid', { type: 'param', metatype: String } as any)).rejects.toBeDefined();
+    });
+
+    it('accepts valid productId parameter', async () => {
+      const pipe = new ParseUUIDPipe();
+      const id = '550e8400-e29b-41d4-a716-446655440000';
+      await expect(pipe.transform(id, { type: 'param', metatype: String } as any)).resolves.toBe(id);
+    });
   });
 
-  it('getReorderSuggestions delegates to service', async () => {
-    svc.getReorderSuggestions.mockResolvedValue([]);
-    await ctrl.getReorderSuggestions(req);
-    expect(svc.getReorderSuggestions).toHaveBeenCalledWith('t1');
-  });
+  describe('controller delegation', () => {
+    it('getTransactions delegates to service', async () => {
+      await controller.getTransactions(req, '2', '50', 'p1', 'IN');
+      expect(inventoryService.getTransactions).toHaveBeenCalledWith('tenant-1', {
+        page: 2,
+        limit: 50,
+        productId: 'p1',
+        type: 'IN',
+      });
+    });
 
-  it('getAvailableStock delegates to service', async () => {
-    svc.getAvailableStock.mockResolvedValue({ available: 5 });
-    await ctrl.getAvailableStock(req, 'p1', 'store-1');
-    expect(svc.getAvailableStock).toHaveBeenCalledWith('t1', 'p1', 'store-1');
-  });
+    it('getLowStock delegates to service', async () => {
+      await controller.getLowStock(req);
+      expect(inventoryService.getLowStock).toHaveBeenCalledWith('tenant-1');
+    });
 
-  it('createReservation delegates to service', async () => {
-    svc.createReservation.mockResolvedValue({ id: 'r1' });
-    const body = { storeId: 's1', externalOrderId: 'order-1', productId: 'p1', quantity: 2 };
-    const r = await ctrl.createReservation(req, body);
-    expect(svc.createReservation).toHaveBeenCalledWith('t1', 's1', 'order-1', 'p1', 2);
-    expect(r).toEqual({ id: 'r1' });
-  });
+    it('getSummary delegates to service', async () => {
+      await controller.getSummary(req);
+      expect(inventoryService.getSummary).toHaveBeenCalledWith('tenant-1');
+    });
 
-  it('releaseReservation delegates to service', async () => {
-    svc.releaseReservation.mockResolvedValue({ success: true });
-    const r = await ctrl.releaseReservation(req, { externalOrderId: 'order-1' });
-    expect(svc.releaseReservation).toHaveBeenCalledWith('t1', 'order-1');
-    expect(r).toEqual({ success: true });
-  });
+    it('getReorderSuggestions delegates to service', async () => {
+      await controller.getReorderSuggestions(req);
+      expect(inventoryService.getReorderSuggestions).toHaveBeenCalledWith('tenant-1');
+    });
 
-  it('consumeReservation delegates to service', async () => {
-    svc.consumeReservation.mockResolvedValue({ success: true });
-    await ctrl.consumeReservation(req, { externalOrderId: 'order-1' });
-    expect(svc.consumeReservation).toHaveBeenCalledWith('t1', 'order-1');
-  });
+    it('adjust delegates to service', async () => {
+      await controller.adjust(req, {
+        productId: '550e8400-e29b-41d4-a716-446655440000',
+        quantity: 10,
+        type: 'IN',
+      });
+      expect(inventoryService.adjust).toHaveBeenCalledWith(
+        'tenant-1',
+        'user-1',
+        '550e8400-e29b-41d4-a716-446655440000',
+        10,
+        'IN',
+        undefined,
+        undefined,
+      );
+    });
 
-  it('pushStockToMarketplace delegates to service', async () => {
-    svc.pushStockToMarketplace.mockResolvedValue({ pushed: 5 });
-    await ctrl.pushStockToMarketplace(req, 'store-1');
-    expect(svc.pushStockToMarketplace).toHaveBeenCalledWith('t1', 'store-1');
-  });
+    it('createReservation delegates to service', async () => {
+      await controller.createReservation(req, {
+        storeId: '550e8400-e29b-41d4-a716-446655440000',
+        externalOrderId: 'order-1',
+        productId: '550e8400-e29b-41d4-a716-446655440001',
+        quantity: 5,
+      });
+      expect(inventoryService.createReservation).toHaveBeenCalledWith(
+        'tenant-1',
+        '550e8400-e29b-41d4-a716-446655440000',
+        'order-1',
+        '550e8400-e29b-41d4-a716-446655440001',
+        5,
+      );
+    });
 
-  it('syncAllStoresStock delegates to service', async () => {
-    svc.syncAllStoresStock.mockResolvedValue({ synced: true });
-    await ctrl.syncAllStoresStock(req);
-    expect(svc.syncAllStoresStock).toHaveBeenCalledWith('t1');
+    it('releaseReservation delegates to service', async () => {
+      await controller.releaseReservation(req, { externalOrderId: 'order-1' });
+      expect(inventoryService.releaseReservation).toHaveBeenCalledWith('tenant-1', 'order-1');
+    });
+
+    it('consumeReservation delegates to service', async () => {
+      await controller.consumeReservation(req, { externalOrderId: 'order-1' });
+      expect(inventoryService.consumeReservation).toHaveBeenCalledWith('tenant-1', 'order-1');
+    });
+
+    it('getAvailableStock delegates with parsed productId', async () => {
+      await controller.getAvailableStock(req, '550e8400-e29b-41d4-a716-446655440000', 'store-1');
+      expect(inventoryService.getAvailableStock).toHaveBeenCalledWith('tenant-1', '550e8400-e29b-41d4-a716-446655440000', 'store-1');
+    });
+
+    it('pushStockToMarketplace delegates with parsed storeId', async () => {
+      await controller.pushStockToMarketplace(req, '550e8400-e29b-41d4-a716-446655440000');
+      expect(inventoryService.pushStockToMarketplace).toHaveBeenCalledWith('tenant-1', '550e8400-e29b-41d4-a716-446655440000');
+    });
+
+    it('syncAllStoresStock delegates to service', async () => {
+      await controller.syncAllStoresStock(req);
+      expect(inventoryService.syncAllStoresStock).toHaveBeenCalledWith('tenant-1');
+    });
   });
 });
