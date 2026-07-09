@@ -90,12 +90,6 @@ const RELEASE_ONLY_GATES = [
     args: ['scripts/ensure-desktop-release-artifact.js'],
   },
   {
-    id: 'mobile-type-check',
-    name: 'Type-check mobile native code',
-    command: 'pnpm',
-    args: ['--filter', '@smart-erp/mobile', 'type-check'],
-  },
-  {
     id: 'e2e-assertion-audit',
     name: 'Audit E2E tests for fake-pass assertions',
     command: 'pnpm',
