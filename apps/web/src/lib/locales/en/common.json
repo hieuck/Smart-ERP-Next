@@ -359,7 +359,9 @@
     "pendingApprovals": "Pending approvals",
     "quickActions": "Quick actions",
     "revenueTrend": "Revenue trend",
-    "apiFailed": "Could not load live data. Showing cached values."
+    "apiFailed": "Could not load live data. Showing cached values.",
+    "aiLoading": "Loading AI insights...",
+    "aiUnavailable": "AI insights unavailable."
   },
   "products": {
     "title": "Products",

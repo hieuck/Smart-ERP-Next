@@ -17,6 +17,10 @@ jest.mock('@smart-erp/database/schema', () => ({
   customers: {
     tenantId: 'customers.tenantId',
   },
+  orderItems: {
+    orderId: 'orderItems.orderId',
+    quantity: 'orderItems.quantity',
+  },
 }));
 
 jest.mock('@smart-erp/database/drizzle', () => ({
@@ -64,6 +68,8 @@ describe('InsightsService coverage', () => {
     lowStockCount: number,
     weeklyOrders: any[],
     historicalOrders: any[],
+    pendingApprovals = 3,
+    demandForecast = 180,
   ) => {
     selectQueue.push(
       todayOrders,
@@ -74,6 +80,12 @@ describe('InsightsService coverage', () => {
       [{ id: 'order-1', code: 'SO-001', total: '150000', status: 'paid', createdAt: new Date('2026-05-21T02:00:00.000Z') }],
       historicalOrders,
     );
+    mockDb.execute
+      .mockResolvedValueOnce({ rows: [{ demand_forecast: demandForecast }] })
+      .mockResolvedValueOnce({ rows: [{ pending_approvals: pendingApprovals }] })
+      .mockResolvedValueOnce({
+        rows: [{ product_id: 'p1', product_name: 'Ao thun', product_sku: 'SKU-1', sold: 4, revenue: '600000' }],
+      });
   };
 
   it('returns dashboard metrics with growth and low-stock insights', async () => {
@@ -90,10 +102,9 @@ describe('InsightsService coverage', () => {
         { total: '200000', createdAt: new Date('2026-04-10T00:00:00.000Z') },
         { total: '300000', createdAt: new Date('2026-05-10T00:00:00.000Z') },
       ],
+      3,
+      180,
     );
-    mockDb.execute.mockResolvedValueOnce({
-      rows: [{ product_id: 'p1', product_name: 'Ao thun', product_sku: 'SKU-1', sold: 4, revenue: '600000' }],
-    });
 
     const result = await service.getDashboardInsights('tenant-1');
 
@@ -112,6 +123,11 @@ describe('InsightsService coverage', () => {
       revenueTrend: 50,
       predictedNextMonth: 400000,
     });
+    expect(result.aiInsights).toMatchObject({
+      demandForecast: 180,
+      suggestedReorder: 2,
+      pendingApprovals: 3,
+    });
   });
 
   it('returns warning and stable insights, and predicts zero with insufficient history', async () => {
@@ -127,6 +143,7 @@ describe('InsightsService coverage', () => {
       todayRevenue: 50000,
       metrics: { yesterdayRevenue: 100000, revenueTrend: -50, predictedNextMonth: 0 },
       insights: [expect.objectContaining({ type: 'warning', severity: 'medium' })],
+      aiInsights: { suggestedReorder: 0 },
     });
 
     queueDashboardSelects(
