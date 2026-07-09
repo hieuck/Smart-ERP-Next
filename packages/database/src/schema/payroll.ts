@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, numeric, timestamp, index, date, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, numeric, timestamp, index, date, boolean, integer } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
 import { users } from './users';
 
@@ -16,8 +16,8 @@ export const salaryBoards = pgTable(
     
     /** Tên bảng lương (VD: Bảng lương tháng 05/2026) */
     name: text('name').notNull(),
-    month: numeric('month', { precision: 2, scale: 0 }).notNull(),
-    year: numeric('year', { precision: 4, scale: 0 }).notNull(),
+    month: integer('month').notNull(),
+    year: integer('year').notNull(),
     
     /** Trạng thái: draft | approved | paid */
     status: text('status', {

@@ -3,16 +3,20 @@ import { ecommerceChannelInventory } from './ecommerce_stores';
 import fs from 'node:fs';
 import path from 'node:path';
 
-function latestMigrationSql() {
+function findMigrationSqlContaining(text: string) {
   const drizzleDir = path.join(__dirname, '..', '..', 'drizzle');
   const files = fs.readdirSync(drizzleDir).filter((f) => f.endsWith('.sql'));
   files.sort();
-  return fs.readFileSync(path.join(drizzleDir, files[files.length - 1]), 'utf8');
+  for (let i = files.length - 1; i >= 0; i--) {
+    const sql = fs.readFileSync(path.join(drizzleDir, files[i]), 'utf8');
+    if (sql.includes(text)) return sql;
+  }
+  return '';
 }
 
 describe('ecommerce channel inventory schema', () => {
   it('has a foreign key from productId to products.id', () => {
-    const sql = latestMigrationSql();
+    const sql = findMigrationSqlContaining('ecommerce_channel_inventory_product_id_products_id_fk');
     expect(sql).toContain('ecommerce_channel_inventory_product_id_products_id_fk');
     expect(sql).toContain('FOREIGN KEY ("product_id") REFERENCES "public"."products"("id")');
   });

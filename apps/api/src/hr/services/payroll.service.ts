@@ -31,8 +31,8 @@ export class PayrollService {
       .values({
         tenantId,
         name: boardName,
-        month: String(month),
-        year: String(year),
+        month,
+        year,
         status: 'draft',
         createdBy: authorId,
       })

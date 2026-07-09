@@ -183,6 +183,13 @@
       "when": 1783542410153,
       "tag": "0025_curly_invaders",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1783563828124,
+      "tag": "0026_motionless_moon_knight",
+      "breakpoints": true
     }
   ]
 }
