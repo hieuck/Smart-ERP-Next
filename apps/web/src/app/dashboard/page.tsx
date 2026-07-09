@@ -31,6 +31,11 @@ interface DashboardStats {
   totalCustomers: number;
   lowStockCount: number;
   revenueChart: { date: string; revenue: number }[];
+  aiInsights?: {
+    demandForecast: number;
+    suggestedReorder: number;
+    pendingApprovals: number;
+  };
   recentOrders: {
     id: string;
     code: string;
@@ -66,6 +71,11 @@ const emptyStats: DashboardStats = {
   totalCustomers: 0,
   lowStockCount: 0,
   revenueChart: [],
+  aiInsights: {
+    demandForecast: 0,
+    suggestedReorder: 0,
+    pendingApprovals: 0,
+  },
   recentOrders: [],
   topProducts: [],
 };
@@ -74,11 +84,13 @@ export default function DashboardPage() {
   const { t } = useTranslation('common');
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [loading, setLoading] = useState(true);
+  const [aiLoading, setAiLoading] = useState(true);
   const [apiFailed, setApiFailed] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
+      setAiLoading(true);
       setApiFailed(false);
       try {
         const res = await apiClient.get('/insights/dashboard');
@@ -87,6 +99,7 @@ export default function DashboardPage() {
         setApiFailed(true);
       } finally {
         setLoading(false);
+        setAiLoading(false);
       }
     };
     fetchStats();
@@ -182,27 +195,39 @@ export default function DashboardPage() {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <AIInsightWidget
-              title={t('forecast.demand')}
-              value="180"
-              subtitle={t('inventory.avgDailyDemand')}
-              trend="up"
-              color="blue"
-            />
-            <AIInsightWidget
-              title={t('inventory.suggestedReorder')}
-              value="45"
-              subtitle={t('inventory.demandForecast')}
-              trend="up"
-              color="yellow"
-            />
-            <AIInsightWidget
-              title={t('approvals.pending')}
-              value="3"
-              subtitle={t('approvals.status.pending')}
-              trend="neutral"
-              color="green"
-            />
+            {aiLoading ? (
+              <div className="sm:col-span-3 bg-white/60 dark:bg-gray-800/60 rounded-xl p-4 text-sm text-gray-500 animate-pulse">
+                {t('dashboard.aiLoading', 'Loading AI insights...')}
+              </div>
+            ) : apiFailed ? (
+              <div className="sm:col-span-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 text-sm text-red-700 dark:text-red-400">
+                {t('dashboard.aiUnavailable', 'AI insights unavailable.')}
+              </div>
+            ) : (
+              <>
+                <AIInsightWidget
+                  title={t('forecast.demand')}
+                  value={String(stats.aiInsights?.demandForecast ?? 0)}
+                  subtitle={t('inventory.avgDailyDemand')}
+                  trend="up"
+                  color="blue"
+                />
+                <AIInsightWidget
+                  title={t('inventory.suggestedReorder')}
+                  value={String(stats.aiInsights?.suggestedReorder ?? 0)}
+                  subtitle={t('inventory.demandForecast')}
+                  trend="up"
+                  color="yellow"
+                />
+                <AIInsightWidget
+                  title={t('approvals.pending')}
+                  value={String(stats.aiInsights?.pendingApprovals ?? 0)}
+                  subtitle={t('approvals.status.pending')}
+                  trend="neutral"
+                  color="green"
+                />
+              </>
+            )}
           </div>
         </div>
 

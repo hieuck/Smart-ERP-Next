@@ -38,7 +38,9 @@
     "pendingApprovals": "Phê duyệt đang chờ",
     "quickActions": "Thao tác nhanh",
     "revenueTrend": "Xu hướng doanh thu",
-    "apiFailed": "Không thể tải dữ liệu trực tiếp. Đang hiển thị dữ liệu cũ."
+    "apiFailed": "Không thể tải dữ liệu trực tiếp. Đang hiển thị dữ liệu cũ.",
+    "aiLoading": "Đang tải thông tin AI...",
+    "aiUnavailable": "Thông tin AI không khả dụng."
   },
   "forecast": {
     "demand": "Nhu cầu dự báo",

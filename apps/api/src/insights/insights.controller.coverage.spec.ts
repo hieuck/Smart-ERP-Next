@@ -20,6 +20,26 @@ describe('InsightsController coverage', () => {
     expect(insightsService.getDashboardInsights).toHaveBeenCalledWith(req.user.tenantId);
   });
 
+  it('returns aiInsights from getDashboardInsights', async () => {
+    insightsService.getDashboardInsights.mockResolvedValue({
+      aiInsights: {
+        demandForecast: 180,
+        suggestedReorder: 45,
+        pendingApprovals: 3,
+      },
+    });
+
+    const result = await controller.getDashboardInsights(req);
+
+    expect(result).toMatchObject({
+      aiInsights: {
+        demandForecast: 180,
+        suggestedReorder: 45,
+        pendingApprovals: 3,
+      },
+    });
+  });
+
   it('delegates getForecast to insightsService.getForecast with default days', () => {
     controller.getForecast(req, undefined);
     expect(insightsService.getForecast).toHaveBeenCalledWith(req.user.tenantId, 30);

@@ -57,6 +57,30 @@ export class InsightsService {
         )
       );
 
+    // AI-driven insight metrics
+    const last30Days = new Date(todayStart.getTime() - 30 * 86_400_000);
+
+    const demandForecastRes = await db.execute(
+      sql`
+        SELECT COALESCE(SUM(oi.quantity)::int, 0) AS demand_forecast
+        FROM order_items oi
+        JOIN orders o ON o.id = oi.order_id
+        WHERE o.tenant_id = ${tenantId}
+          AND o.created_at >= ${last30Days}
+      `
+    );
+    const demandForecast = (demandForecastRes.rows[0]?.demand_forecast as number) ?? 0;
+
+    const pendingApprovalsRes = await db.execute(
+      sql`
+        SELECT count(*)::int AS pending_approvals
+        FROM e_contracts
+        WHERE tenant_id = ${tenantId}
+          AND status = 'pending'
+      `
+    );
+    const pendingApprovals = (pendingApprovalsRes.rows[0]?.pending_approvals as number) ?? 0;
+
     // Weekly revenue chart (last 7 days)
     const weeklyOrders = await db
       .select()
@@ -163,6 +187,11 @@ export class InsightsService {
         sold: r.sold,
         revenue: parseFloat(r.revenue),
       })),
+      aiInsights: {
+        demandForecast: Number(demandForecast ?? 0),
+        suggestedReorder: lowStockCount,
+        pendingApprovals: Number(pendingApprovals ?? 0),
+      },
       insights,
       metrics: {
         todayRevenue,
