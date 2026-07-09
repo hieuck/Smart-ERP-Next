@@ -134,4 +134,17 @@ describe('Deployment Documentation', () => {
 
     expect(content).not.toContain('"dev:desktop"');
   });
+
+  test('.env.production is not committed to source control', () => {
+    const trackedEnvPath = path.join(repoRoot, '.env.production');
+    expect(fs.existsSync(trackedEnvPath)).toBe(false);
+
+    const examplePath = path.join(repoRoot, '.env.production.example');
+    expect(fs.existsSync(examplePath)).toBe(true);
+
+    const gitignorePath = path.join(repoRoot, '.gitignore');
+    expect(fs.existsSync(gitignorePath)).toBe(true);
+    const gitignore = fs.readFileSync(gitignorePath, 'utf8');
+    expect(gitignore).toContain('.env.production');
+  });
 });
