@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '@/lib/api-client';
+import { buildCsvRow } from '@/lib/csv-escape';
 import AuthGuard from '@/components/layout/AuthGuard';
 import {
   BarChart3,
@@ -112,7 +113,7 @@ export default function ReportsPage() {
     topProducts.forEach((p) =>
       rows.push([p.name, p.sku, p.sold, formatVND(p.revenue), formatVND(p.profit)])
     );
-    const csv = rows.map((r) => r.join(',')).join('\n');
+    const csv = rows.map(buildCsvRow).join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
