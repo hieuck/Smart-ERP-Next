@@ -43,6 +43,10 @@ function isTruthyEnv(value) {
 }
 
 function getRequiredArtifacts(env = process.env) {
+  if (isTruthyEnv(env.SKIP_NATIVE_ARTIFACTS)) {
+    return [];
+  }
+
   const skipIos = isTruthyEnv(env.SKIP_IOS_ARTIFACT);
   const skipAndroid = isTruthyEnv(env.SKIP_ANDROID_ARTIFACT);
   const skipWindows = isTruthyEnv(env.SKIP_WINDOWS_ARTIFACT);
@@ -121,6 +125,11 @@ function findNativeArtifacts(env = process.env) {
 }
 
 function main() {
+  if (isTruthyEnv(process.env.SKIP_NATIVE_ARTIFACTS)) {
+    console.log('Native artifact gate skipped by SKIP_NATIVE_ARTIFACTS.');
+    return 0;
+  }
+
   const artifacts = findNativeArtifacts();
   const missing = artifacts.filter((artifact) => artifact.matches.length === 0);
   const skipIos = isTruthyEnv(process.env.SKIP_IOS_ARTIFACT);
