@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ReportsModule } from '../reports/reports.module';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
-import { AnomalyService } from './anomaly.service';
 import { CashflowForecastService } from './cashflow-forecast.service';
 import { CashflowController } from './cashflow.controller';
 import { ClvService } from './clv.service';
@@ -18,7 +17,6 @@ import { DataContractsController } from './data-contracts.controller';
   imports: [ReportsModule],
   providers: [
     AnalyticsService,
-    AnomalyService,
     CashflowForecastService,
     ClvService,
     ChurnPredictionService,

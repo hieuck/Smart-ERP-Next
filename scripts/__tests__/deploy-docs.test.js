@@ -176,4 +176,14 @@ describe('Deployment Documentation', () => {
     expect(importBlock).toContain('5 * 1024 * 1024');
     expect(importBlock).toContain('text/csv');
   });
+
+  test('empty AnomalyService placeholder is removed', () => {
+    const servicePath = path.join(repoRoot, 'apps', 'api', 'src', 'analytics', 'anomaly.service.ts');
+    expect(fs.existsSync(servicePath)).toBe(false);
+
+    const modulePath = path.join(repoRoot, 'apps', 'api', 'src', 'analytics', 'analytics.module.ts');
+    expect(fs.existsSync(modulePath)).toBe(true);
+    const moduleContent = fs.readFileSync(modulePath, 'utf8');
+    expect(moduleContent).not.toContain('AnomalyService');
+  });
 });
