@@ -18,13 +18,13 @@ describe('workspace package manifests', () => {
     const jestConfig = require(path.join(repoRoot, 'jest.config.js'));
     const transform = jestConfig.transform['^.+\\.(ts|tsx|js|jsx)$'];
 
-    expect(transform[1].tsconfig.ignoreDeprecations).toBe('5.0');
+    expect(transform[1].tsconfig.ignoreDeprecations).toBe('6.0');
   });
 
   it('declares a root TypeScript version for Jest transforms', () => {
     const manifest = readJson('package.json');
 
-    expect(manifest.devDependencies).toHaveProperty('typescript', '5.9.3');
+    expect(manifest.devDependencies).toHaveProperty('typescript', '6.0.3');
   });
 
   it('maps workspace packages in API e2e Jest config before build artifacts exist', () => {

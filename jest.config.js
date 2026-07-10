@@ -66,7 +66,7 @@ module.exports = {
         baseUrl: '.',
         emitDecoratorMetadata: false,
         experimentalDecorators: true,
-        ignoreDeprecations: '5.0',
+        ignoreDeprecations: '6.0',
         jsx: 'react-jsx',
         resolveJsonModule: true,
         paths: {

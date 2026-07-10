@@ -1,2 +1,2 @@
-{"extends":"../config-typescript/base.json","compilerOptions":{"lib":["ES2022"],"outDir":"./dist","rootDir":"."},"include":["src","__tests__"],"exclude":["node_modules","dist"]}
+{"extends":"../config-typescript/base.json","compilerOptions":{"lib":["ES2022"],"outDir":"./dist","rootDir":"."},"include":["src","__tests__"],"exclude":["node_modules","dist","__tests__","**/*.spec.ts","**/*.test.ts"]}
 
