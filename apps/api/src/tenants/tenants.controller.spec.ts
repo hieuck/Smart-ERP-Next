@@ -44,10 +44,10 @@ describe('TenantsController authorization', () => {
     expect(service.findOneForTenant).toHaveBeenCalledWith(tenantA, tenantB);
   });
 
-  it('update rejects non-admin callers', async () => {
-    await expect(
+  it('update rejects non-admin callers', () => {
+    expect(() =>
       controller.update(req(tenantA, 'staff') as any, tenantA, { name: 'New' }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).toThrow(ForbiddenException);
     expect(service.updateForTenant).not.toHaveBeenCalled();
   });
 
@@ -62,20 +62,20 @@ describe('TenantsController authorization', () => {
     });
   });
 
-  it('remove rejects non-admin callers', async () => {
-    await expect(
+  it('remove rejects non-admin callers', () => {
+    expect(() =>
       controller.remove(req(tenantA, 'staff') as any, tenantA),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).toThrow(ForbiddenException);
     expect(service.removeForTenant).not.toHaveBeenCalled();
   });
 
-  it('create rejects non-admin callers', async () => {
-    await expect(
+  it('create rejects non-admin callers', () => {
+    expect(() =>
       controller.create(req(tenantA, 'staff') as any, {
         name: 'X',
         slug: 'x',
       }),
-    ).rejects.toBeInstanceOf(ForbiddenException);
+    ).toThrow(ForbiddenException);
     expect(service.create).not.toHaveBeenCalled();
   });
 
