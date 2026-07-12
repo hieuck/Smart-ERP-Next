@@ -120,7 +120,7 @@ describe('QmsController', () => {
 
   it('getQualityReport delegates to service.getQualityReport', async () => {
     mockService.getQualityReport.mockResolvedValue('report');
-    const result = await controller.getQualityReport(req, '2024-01-01', '2024-01-31');
+    const result = await controller.getQualityReport(req, { startDate: '2024-01-01', endDate: '2024-01-31' } as any);
     expect(mockService.getQualityReport).toHaveBeenCalledWith('t1', new Date('2024-01-01'), new Date('2024-01-31'));
     expect(result).toBe('report');
   });
