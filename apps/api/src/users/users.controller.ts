@@ -47,6 +47,15 @@ export class UsersController {
     return this.usersService.findOne(req.user.tenantId, id);
   }
 
+  // NOTE: @Patch('profile') must be declared before @Patch(':id'). NestJS
+  // (Express) matches routes in declaration order, so if ':id' comes first a
+  // request to PATCH /users/profile matches the :id param as the literal
+  // string "profile" and is rejected by ParseUUIDPipe (issue #257).
+  @Patch('profile')
+  async updateProfile(@Request() req: any, @Body() dto: UpdateUserDto) {
+    return this.usersService.updateProfile(req.user.tenantId, req.user.sub, dto);
+  }
+
   @Patch(':id')
   update(
     @Request() req: any,
@@ -59,10 +68,5 @@ export class UsersController {
   @Delete(':id')
   remove(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.remove(req.user.tenantId, id);
-  }
-
-  @Patch('profile')
-  async updateProfile(@Request() req: any, @Body() dto: UpdateUserDto) {
-    return this.usersService.updateProfile(req.user.tenantId, req.user.sub, dto);
   }
 }
