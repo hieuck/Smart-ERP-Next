@@ -1,8 +1,8 @@
-import { Controller, Post, Get, Patch, Body, Query, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Query, Param, UseGuards, Request, ValidationPipe, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { QmsService } from './qms.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { CreateInspectionPlanDto, CreateNCRDto, CreateCAPADto } from './dto';
+import { CreateInspectionPlanDto, CreateNCRDto, CreateCAPADto, GetQualityReportQueryDto } from './dto';
 
 @ApiTags('QMS')
 @Controller('qms')
@@ -85,8 +85,16 @@ export class QmsController {
   // ── Quality Report ──
   @ApiOperation({ summary: 'Get quality report' })
   @Get('report')
-  async getQualityReport(@Request() req: any, @Query('startDate') startDate: string, @Query('endDate') endDate: string) {
-    return this.qmsService.getQualityReport(req.user.tenantId, new Date(startDate), new Date(endDate));
+  async getQualityReport(
+    @Request() req: any,
+    @Query(new ValidationPipe({ transform: true })) query: GetQualityReportQueryDto,
+  ) {
+    const startDate = new Date(query.startDate);
+    const endDate = new Date(query.endDate);
+    if (startDate > endDate) {
+      throw new BadRequestException('startDate must be before or equal to endDate');
+    }
+    return this.qmsService.getQualityReport(req.user.tenantId, startDate, endDate);
   }
 
   // ── Supplier Quality ──

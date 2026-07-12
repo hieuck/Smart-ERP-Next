@@ -136,7 +136,7 @@ describe('analytics and quality controller delegation coverage', () => {
     await controller.completeCAPA(req, 'capa-1');
     await controller.createDefectCode(req, { code: 'SCRATCH' });
     await controller.getDefectCodes(req);
-    await controller.getQualityReport(req, '2026-05-01', '2026-05-21');
+    await controller.getQualityReport(req, { startDate: '2026-05-01', endDate: '2026-05-21' } as any);
     await controller.getSupplierScore(req, 'supplier-1');
     await controller.getSupplierReport(req);
 
