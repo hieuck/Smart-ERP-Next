@@ -1,66 +1,127 @@
-import { HttpStatus } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+import request from 'supertest';
+import { db, tenants, users } from '@smart-erp/database';
+import { AppModule } from '../src/app.module';
 
-const BASE_URL = process.env.API_URL || 'http://localhost:3456';
+const { sign } = require('jsonwebtoken');
 
-describe('API Contracts — Health', () => {
-  it('GET /health returns 200 with ok status', async () => {
-    const res = await fetch(`${BASE_URL}/health`);
-    expect(res.status).toBe(HttpStatus.OK);
-    const body = await res.json();
-    expect(body).toMatchObject({ status: 'ok' });
-  });
+const TEST_JWT_SECRET = 'api-contracts-e2e-secret';
 
-  it('GET /status returns 200 with version and uptime', async () => {
-    const res = await fetch(`${BASE_URL}/status`);
-    expect(res.status).toBe(HttpStatus.OK);
-    const body = await res.json();
-    expect(body).toHaveProperty('version');
-    expect(body).toHaveProperty('uptime');
-  });
-});
+describe('API Contracts', () => {
+  let app: INestApplication;
+  let authToken: string;
 
-describe('API Contracts — Auth', () => {
-  it('POST /auth/login with bad credentials returns 401', async () => {
-    const res = await fetch(`${BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'none@test.com', password: 'wrong' }),
+  beforeAll(async () => {
+    process.env.JWT_SECRET = TEST_JWT_SECRET;
+
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    await app.init();
+
+    const runCode = randomUUID().slice(0, 8);
+    const tenantId = randomUUID();
+    const userId = randomUUID();
+
+    await db.insert(tenants).values({
+      id: tenantId,
+      name: `API Contracts E2E ${runCode}`,
+      slug: `api-contracts-e2e-${runCode}`,
     });
-    expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
-  });
-});
-
-describe('API Contracts — Products', () => {
-  it('GET /products without auth returns 401', async () => {
-    const res = await fetch(`${BASE_URL}/products`);
-    expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
-  });
-});
-
-describe('API Contracts — Orders', () => {
-  it('GET /orders without auth returns 401', async () => {
-    const res = await fetch(`${BASE_URL}/orders`);
-    expect(res.status).toBe(HttpStatus.UNAUTHORIZED);
-  });
-
-  it('GET /orders/:id with invalid UUID returns 400', async () => {
-    const res = await fetch(`${BASE_URL}/orders/not-a-uuid`, {
-      headers: { Authorization: 'Bearer test-token' },
+    await db.insert(users).values({
+      id: userId,
+      email: `api-contracts-e2e-${runCode}@smarterp.vn`,
+      name: 'API Contracts E2E Admin',
+      tenantId,
+      role: 'admin',
     });
-    expect(res.status).toBe(HttpStatus.BAD_REQUEST);
-  });
-});
 
-describe('API Contracts — Response format', () => {
-  it('returns consistent error envelope on 404', async () => {
-    const res = await fetch(`${BASE_URL}/api/nonexistent-route`);
-    expect(res.status).toBe(HttpStatus.NOT_FOUND);
-    const body = await res.json();
-    expect(body).toMatchObject({
-      success: false,
-      data: null,
+    authToken = sign(
+      {
+        sub: userId,
+        email: `api-contracts-e2e-${runCode}@smarterp.vn`,
+        tenantId,
+        role: 'admin',
+      },
+      TEST_JWT_SECRET,
+      { expiresIn: '1h' },
+    );
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  describe('Health', () => {
+    it('GET /health returns 200 with ok status', async () => {
+      const res = await request(app.getHttpServer()).get('/health');
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({ status: 'ok' });
     });
-    expect(body).toHaveProperty('error');
-    expect(body).toHaveProperty('requestId');
+  });
+
+  describe('Status', () => {
+    it('GET /status returns 200 with version and uptime', async () => {
+      const res = await request(app.getHttpServer()).get('/status');
+
+      expect(res.status).toBe(200);
+      expect(typeof res.body.version).toBe('string');
+      expect(typeof res.body.uptime).toBe('number');
+      expect(res.body.dbStatus).toMatch(/healthy|unhealthy/);
+    });
+  });
+
+  describe('Auth', () => {
+    it('POST /auth/login with bad credentials returns 401', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ email: 'none@test.com', password: 'wrong' });
+
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe('Products', () => {
+    it('GET /products without auth returns 401', async () => {
+      const res = await request(app.getHttpServer()).get('/products');
+
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe('Orders', () => {
+    it('GET /orders without auth returns 401', async () => {
+      const res = await request(app.getHttpServer()).get('/orders');
+
+      expect(res.status).toBe(401);
+    });
+
+    it('GET /orders/:id with invalid UUID returns 400', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/orders/not-a-uuid')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe('Response format', () => {
+    it('returns consistent error envelope on 404', async () => {
+      const res = await request(app.getHttpServer()).get('/api/nonexistent-route');
+
+      expect(res.status).toBe(404);
+      expect(res.body).toMatchObject({
+        success: false,
+        data: null,
+      });
+      expect(typeof res.body.error).toBe('string');
+      expect(typeof res.body.requestId).toBe('string');
+    });
   });
 });
