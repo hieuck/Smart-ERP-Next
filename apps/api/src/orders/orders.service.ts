@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ErrorCode } from '../common/errors/error-codes';
 import { db } from '@smart-erp/database';
-import { customers, orders, orderItems, products } from '@smart-erp/database/schema';
+import { customers, orders, orderItems, products, warehouses } from '@smart-erp/database/schema';
 import { eq, and, ilike, sql, desc, inArray } from '@smart-erp/database/drizzle';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
@@ -84,6 +84,24 @@ export class OrdersService {
         serialNumbers: null,
       };
     });
+
+    // Verify referenced entities belong to this tenant (issue #551).
+    // Without these checks, a caller can reference another tenant's customer
+    // or warehouse via customerId/warehouseId and leak data through left joins.
+    if (dto.customerId) {
+      const [customer] = await db
+        .select({ id: customers.id })
+        .from(customers)
+        .where(and(eq(customers.id, dto.customerId), eq(customers.tenantId, tenantId)));
+      if (!customer) throw new BadRequestException({ message: 'Customer does not belong to this tenant', errorCode: ErrorCode.VALIDATION_ERROR });
+    }
+    if (dto.warehouseId) {
+      const [warehouse] = await db
+        .select({ id: warehouses.id })
+        .from(warehouses)
+        .where(and(eq(warehouses.id, dto.warehouseId), eq(warehouses.tenantId, tenantId)));
+      if (!warehouse) throw new BadRequestException({ message: 'Warehouse does not belong to this tenant', errorCode: ErrorCode.VALIDATION_ERROR });
+    }
 
     const discountAmount = dto.discountAmount ?? 0;
     const shippingFee = dto.shippingFee ?? 0;
@@ -189,7 +207,7 @@ export class OrdersService {
     const [orderRow] = await db
       .select({ order: orders, customerName: customers.name })
       .from(orders)
-      .leftJoin(customers, eq(orders.customerId, customers.id))
+      .leftJoin(customers, and(eq(orders.customerId, customers.id), eq(customers.tenantId, tenantId)))
       .where(and(eq(orders.tenantId, tenantId), eq(orders.id, id)));
     const order = orderRow ? { ...orderRow.order, customerName: orderRow.customerName } : null;
     if (!order) throw new NotFoundException({ message: 'Order not found', errorCode: ErrorCode.ORDER_NOT_FOUND });
