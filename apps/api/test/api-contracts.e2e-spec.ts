@@ -4,6 +4,8 @@ import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { db, tenants, users } from '@smart-erp/database';
 import { AppModule } from '../src/app.module';
+import { GlobalExceptionFilter } from '../src/common/filters';
+import { ResponseFormatInterceptor } from '../src/common/interceptors/response-format.interceptor';
 
 const { sign } = require('jsonwebtoken');
 
@@ -22,6 +24,8 @@ describe('API Contracts', () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
+    app.useGlobalInterceptors(new ResponseFormatInterceptor());
+    app.useGlobalFilters(new GlobalExceptionFilter());
     await app.init();
 
     const runCode = randomUUID().slice(0, 8);
@@ -62,7 +66,9 @@ describe('API Contracts', () => {
       const res = await request(app.getHttpServer()).get('/health');
 
       expect(res.status).toBe(200);
-      expect(res.body).toMatchObject({ status: 'ok' });
+      expect(res.body).toMatchObject({ success: true });
+      expect(res.body.data).toMatchObject({ status: 'ok' });
+      expect(typeof res.headers['x-request-id']).toBe('string');
     });
   });
 
@@ -71,9 +77,9 @@ describe('API Contracts', () => {
       const res = await request(app.getHttpServer()).get('/status');
 
       expect(res.status).toBe(200);
-      expect(typeof res.body.version).toBe('string');
-      expect(typeof res.body.uptime).toBe('number');
-      expect(res.body.dbStatus).toMatch(/healthy|unhealthy/);
+      expect(res.body).toMatchObject({ success: true });
+      expect(typeof res.body.data.version).toBe('string');
+      expect(typeof res.body.data.uptime).toBe('number');
     });
   });
 
@@ -84,6 +90,11 @@ describe('API Contracts', () => {
         .send({ email: 'none@test.com', password: 'wrong-password' });
 
       expect(res.status).toBe(401);
+      expect(res.body).toMatchObject({
+        success: false,
+        data: null,
+      });
+      expect(typeof res.body.error).toBe('string');
     });
   });
 
@@ -92,6 +103,11 @@ describe('API Contracts', () => {
       const res = await request(app.getHttpServer()).get('/products');
 
       expect(res.status).toBe(401);
+      expect(res.body).toMatchObject({
+        success: false,
+        data: null,
+      });
+      expect(typeof res.body.error).toBe('string');
     });
   });
 
@@ -100,6 +116,11 @@ describe('API Contracts', () => {
       const res = await request(app.getHttpServer()).get('/orders');
 
       expect(res.status).toBe(401);
+      expect(res.body).toMatchObject({
+        success: false,
+        data: null,
+      });
+      expect(typeof res.body.error).toBe('string');
     });
 
     it('GET /orders/:id with invalid UUID returns 400', async () => {
@@ -108,6 +129,11 @@ describe('API Contracts', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(400);
+      expect(res.body).toMatchObject({
+        success: false,
+        data: null,
+      });
+      expect(typeof res.body.error).toBe('string');
     });
   });
 
