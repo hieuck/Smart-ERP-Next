@@ -48,7 +48,7 @@ RUN node node_modules/.bin/tsc -p packages/database/tsconfig.json && \
 RUN echo "Cache bust: ${CACHEBUST:-none}" && cd apps/web && rm -rf .next/cache .next/server && node ../../node_modules/.bin/next build
 
 # Runtime stage — based on postgres for embedded database
-FROM postgres:16-alpine
+FROM postgres:18-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production
