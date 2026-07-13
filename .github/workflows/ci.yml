@@ -76,6 +76,9 @@ jobs:
       - name: Run commit quality gate
         run: pnpm qa:commit
 
+      - name: Audit test directory layout
+        run: pnpm audit:test-layout
+
   encoding-audit:
     name: File encoding, BOM and mojibake check
     runs-on: ubuntu-latest
