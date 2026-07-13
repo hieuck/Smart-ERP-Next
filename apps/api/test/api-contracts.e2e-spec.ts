@@ -81,7 +81,7 @@ describe('API Contracts', () => {
     it('POST /auth/login with bad credentials returns 401', async () => {
       const res = await request(app.getHttpServer())
         .post('/auth/login')
-        .send({ email: 'none@test.com', password: 'wrong' });
+        .send({ email: 'none@test.com', password: 'wrong-password' });
 
       expect(res.status).toBe(401);
     });
@@ -121,6 +121,7 @@ describe('API Contracts', () => {
         data: null,
       });
       expect(typeof res.body.error).toBe('string');
+      expect(typeof res.body.errorCode).toBe('string');
       expect(typeof res.body.requestId).toBe('string');
     });
   });
