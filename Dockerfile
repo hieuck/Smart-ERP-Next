@@ -5,7 +5,7 @@
 
 # Build stage — optimized for Docker layer caching
 ARG CACHEBUST
-FROM node:26-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apk add --no-cache curl && npm install -g pnpm@10.33.0
@@ -56,8 +56,10 @@ ENV PORT=3456
 ENV WEB_PORT=3457
 ENV NEXT_PUBLIC_API_URL=http://localhost:3456
 
-# Install Node.js + curl (no pnpm — use node_modules from build stage)
-RUN apk upgrade --no-cache && apk add --no-cache nodejs curl
+# Install curl; copy Node.js 22 binary from the build stage so the runtime uses the same pinned major version
+RUN apk upgrade --no-cache && apk add --no-cache curl
+COPY --from=build /usr/local/bin/node /usr/local/bin/node
+COPY --from=build /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # Copy complete node_modules (hoisted, no symlinks) and built artifacts
 COPY --from=build /app/node_modules /app/node_modules
