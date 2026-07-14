@@ -53,7 +53,15 @@ DATABASE_URL=$DATABASE_URL npx tsx apps/api/src/common/seeds/main.seed.ts
 echo "=== 7. Quality gate ==="
 pnpm qa:commit
 
-echo "=== 8. Build ==="
+if [ -z "${SKIP_E2E:-}" ] && [ -z "${QUICK:-}" ]; then
+  echo "=== 8. E2E tests ==="
+  DATABASE_URL=$DATABASE_URL pnpm test:api:e2e
+  DATABASE_URL=$DATABASE_URL pnpm test:e2e
+else
+  echo "=== 8. Skipping E2E tests (set SKIP_E2E=1 or QUICK=1 to keep this fast) ==="
+fi
+
+echo "=== 9. Build ==="
 pnpm build
 
 echo ""
