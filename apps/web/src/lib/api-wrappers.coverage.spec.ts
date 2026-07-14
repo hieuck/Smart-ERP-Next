@@ -57,7 +57,7 @@ describe('web api wrapper coverage', () => {
     expect(mockApiClient.post).toHaveBeenCalledWith(
       '/products/upload-image',
       expect.any(FormData),
-      { headers: { 'Content-Type': 'multipart/form-data' } },
+      { headers: { 'Content-Type': undefined } },
     );
     expect(mockApiClient.patch).toHaveBeenCalledWith('/products/product-1', { name: 'Tea' });
     expect(mockApiClient.delete).toHaveBeenCalledWith('/products/product-1');

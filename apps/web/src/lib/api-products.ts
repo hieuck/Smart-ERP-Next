@@ -86,8 +86,10 @@ export const productsApi = {
   uploadImage: async (file: File): Promise<ProductImageUploadResponse> => {
     const formData = new FormData();
     formData.append('file', file);
+    // Do not set Content-Type explicitly: axios (and the browser FormData implementation)
+    // must be allowed to append the multipart boundary automatically (#557).
     const res = await apiClient.post<ProductImageUploadResponse>('/products/upload-image', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { 'Content-Type': undefined },
     });
     // The API returns a relative path (e.g. /uploads/products/...); keep it
     // relative so the browser loads it through the web app's same-origin rewrite.
