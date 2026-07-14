@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-test.skip('offline product creation syncs after going online', async ({ page }) => {
+test('offline product creation syncs after going online', async ({ page }) => {
+  test.skip(true, 'prerequisite: offline sync feature requires dedicated service-worker and local cache setup before enabling in CI (#552)');
+
   // 1. Login
   await page.goto('/login');
   await page.fill('input[name="email"]', 'admin@demo.vn');
@@ -35,4 +37,4 @@ test.skip('offline product creation syncs after going online', async ({ page }) 
   // 8. Reload page to ensure persistence
   await page.reload();
   await expect(page.locator('text=Offline Test Product')).toBeVisible();
-}, 'prerequisite: offline sync feature requires dedicated service-worker and local cache setup before enabling in CI.');
+});
