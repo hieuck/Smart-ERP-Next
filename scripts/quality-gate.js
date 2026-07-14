@@ -57,6 +57,12 @@ const COMMON_GATES = [
     args: ['audit:github-actions'],
   },
   {
+    id: 'test-layout',
+    name: 'Audit test directory layout ownership',
+    command: 'pnpm',
+    args: ['audit:test-layout'],
+  },
+  {
     id: 'gaps-roadmap',
     name: 'Audit gaps roadmap summary and blocked items',
     command: 'pnpm',
