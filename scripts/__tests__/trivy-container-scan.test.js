@@ -43,4 +43,13 @@ describe('Trivy container image scan policy', () => {
     expect(enforceStep).toBeDefined();
     expect(enforceStep.run).toContain('exit 1');
   });
+
+  test('documented container allowlist exists for inherited vulnerabilities', () => {
+    const ignorePath = path.resolve(__dirname, '../../.trivyignore');
+    expect(fs.existsSync(ignorePath)).toBe(true);
+    const content = fs.readFileSync(ignorePath, 'utf8');
+    expect(content).toMatch(/^# Trivy container-image allowlist/m);
+    expect(content).toMatch(/https:\/\/github\.com\/hieuck\/Smart-ERP-Next\/issues\/554/);
+    expect(content).toMatch(/^CVE-/m);
+  });
 });

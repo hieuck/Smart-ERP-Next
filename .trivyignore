@@ -1,0 +1,47 @@
+# Trivy container-image allowlist
+#
+# This file documents HIGH/CRITICAL vulnerabilities detected in the
+# smart-erp-next runtime image that are inherited from the upstream
+# postgres:18-alpine base image or from build-time dependencies copied into
+# the production image. They are tracked and should be removed by updating the
+# base image / dependencies, not by expanding this list.
+#
+# See: https://github.com/hieuck/Smart-ERP-Next/issues/554
+
+# Go stdlib CVEs in postgres:18-alpine base-image binaries (gosu, initdb helpers,
+# docker-entrypoint scripts). The custom entrypoint uses `su`, so gosu was removed
+# in the Dockerfile, but other Postgres utilities still bundle an older Go runtime.
+CVE-2023-39325
+CVE-2023-45283
+CVE-2023-45288
+CVE-2024-24790
+CVE-2024-34156
+CVE-2025-61726
+CVE-2025-61729
+CVE-2025-68121
+CVE-2026-25679
+CVE-2026-27145
+CVE-2026-32280
+CVE-2026-32281
+CVE-2026-32283
+CVE-2026-33811
+CVE-2026-33814
+CVE-2026-39820
+CVE-2026-39822
+CVE-2026-39836
+CVE-2026-42499
+CVE-2026-42504
+
+# Node.js / pnpm / picomatch / sigstore CVEs detected in bundled build-time
+# tooling. These packages are copied as part of node_modules and should be
+# eliminated by pruning dev dependencies from the runtime image.
+CVE-2026-33671
+CVE-2026-48815
+CVE-2026-50015
+CVE-2026-50016
+CVE-2026-55487
+CVE-2026-55697
+CVE-2026-55698
+GHSA-72r4-9c5j-mj57
+GHSA-fr4h-3cph-29xv
+GHSA-qrv3-253h-g69c
