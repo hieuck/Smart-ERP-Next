@@ -153,8 +153,8 @@ describe('Deployment Documentation', () => {
     expect(fs.existsSync(dockerfilePath)).toBe(true);
     const content = fs.readFileSync(dockerfilePath, 'utf8');
 
-    expect(content).not.toContain('postgres:18-alpine');
-    expect(content).toMatch(/FROM\s+postgres:\d+-alpine/);
+    expect(content).not.toContain('postgres:15-alpine');
+    expect(content).toMatch(/FROM\s+postgres:(?:16|17|18)-alpine/);
   });
 
   test('types index does not export accounting module more than once', () => {
