@@ -67,9 +67,10 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 Before committing any change to seed, migrations, or CI/CD workflows:
 
 1. **Create fresh DB**: `scripts/ci-local.sh` (Linux/Mac) or `scripts/ci-local.ps1` (Windows)
-2. This creates a clean database, runs migrations + seed, quality gate, e2e tests, build
-3. If ANY step fails, fix root cause — not the symptom
-4. Only push to `dev` after local CI passes
+2. Both scripts run the same logical gates in CI order: fresh DB → type-check → lint → unit tests → migrations → seed → quality gate → E2E tests → build
+3. **Skip E2E for speed**: `scripts/ci-local.sh` accepts `SKIP_E2E=1` or `QUICK=1`; `scripts/ci-local.ps1` accepts `-SkipE2e` or `-Quick`
+4. If ANY step fails, fix root cause — not the symptom
+5. Only push to `dev` after local CI passes
 
 Root cause rule: never push a "guess-fix" and wait for CI to validate. Always validate locally first.
 
