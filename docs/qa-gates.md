@@ -41,6 +41,10 @@ Runs the release gate:
 
 If APK, IPA, or Windows installable artifacts are missing, release certification must fail.
 
+## Release Workflow
+
+`.github/workflows/release.yml` runs `pnpm qa:release` as a required job before any Docker image is built or any GitHub Release is created. The `docker-images` and `create-release` jobs declare `needs: qa-release`, so a tag push cannot bypass the release certification gate.
+
 The web production build artifact verification blocks `.next` outputs that still contain development manifests, `isDev=true` server bundles, or server chunks that reference missing files. This catches the `next start` runtime class of failures where a stale dev `.next` artifact crashes with missing `vendor-chunks/*` modules.
 
 Web development uses `.next-dev` through `pnpm --filter @smart-erp/web dev`, while production build/start uses `.next`. This prevents a running `next dev` process from overwriting production build artifacts during local release checks.

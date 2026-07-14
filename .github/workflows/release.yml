@@ -13,15 +13,54 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  NODE_VERSION: '22'
 
 permissions:
   contents: write
   packages: write
 
 jobs:
+  qa-release:
+    name: Release certification
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: smart_erp_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d smart_erp_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run release certification gate
+        env:
+          API_KEY_HMAC_SECRET: ${{ secrets.API_KEY_HMAC_SECRET || 'release-hmac-secret' }}
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/smart_erp_test
+        run: pnpm qa:release
+
   docker-images:
     name: Build and push Docker image
     runs-on: ubuntu-latest
+    needs:
+      - qa-release
     steps:
       - uses: actions/checkout@v4
 
@@ -61,6 +100,7 @@ jobs:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs:
+      - qa-release
       - docker-images
     steps:
       - uses: actions/checkout@v4
