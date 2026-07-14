@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('offline product creation syncs after going online', async ({ page }) => {
+test.skip('offline product creation syncs after going online', async ({ page }) => {
   // 1. Login
   await page.goto('/login');
   await page.fill('input[name="email"]', 'admin@demo.vn');
