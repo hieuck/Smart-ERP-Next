@@ -6,9 +6,7 @@ const AUDIT_ROOT_RELATIVE_PATHS = [
   'apps/api/test',
   'apps/desktop/tests',
   'apps/mobile/e2e',
-  'apps/web/e2e',
   'e2e/tests',
-  'tests',
 ];
 
 const TEST_FILE_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx']);

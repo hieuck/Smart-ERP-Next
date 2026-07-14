@@ -52,14 +52,13 @@ Jest/unit coverage is intentionally separate from browser and native journey tes
 - `apps/**/src/**/*.spec.ts`, `packages/**/__tests__`, and `scripts/__tests__`: run by `pnpm test:cov`.
 - `apps/api/test`: API end-to-end tests run by `pnpm test:api:e2e`.
 - `e2e/tests`: Playwright release web flows run by `pnpm test:e2e`.
-- `tests`: legacy/root Playwright flows listed by `playwright.config.ts`.
-- `apps/web/e2e`, `apps/mobile/e2e`, and `apps/desktop/tests`: app-local journey tests.
+- `apps/mobile/e2e` and `apps/desktop/tests`: app-local journey tests.
 
 The i18n parity audit is documented in `docs/i18n-parity.md` and runs in both CI and `pnpm qa:commit`.
 
 The committed secret audit is documented in `docs/security/continuous-security-checklist.md` and runs in both CI and `pnpm qa:commit`.
 
-The e2e assertion audit scans every end-user/app-local root above: `apps/api/test`, `apps/desktop/tests`, `apps/mobile/e2e`, `apps/web/e2e`, `e2e/tests`, and `tests`.
+The e2e assertion audit scans every end-user/app-local root above: `apps/api/test`, `apps/desktop/tests`, `apps/mobile/e2e`, and `e2e/tests`.
 
 `pnpm test:cov` ignores `/tests/`, `/e2e/`, and `apps/desktop/tests`, so a Jest coverage percentage must not be read as proof that browser or native journeys passed.
 

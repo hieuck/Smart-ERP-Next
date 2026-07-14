@@ -10,10 +10,13 @@ export async function loginAs(page: Page, email: string, password: string): Prom
 
   // Set localStorage and cookie
   await page.goto('/');
-  await page.evaluate((t) => {
-    localStorage.setItem('access_token', t);
-    localStorage.setItem('user', JSON.stringify({ email }));
-  }, token);
+  await page.evaluate(
+    ([t, userEmail]) => {
+      localStorage.setItem('access_token', t);
+      localStorage.setItem('user', JSON.stringify({ email: userEmail }));
+    },
+    [token, email],
+  );
   await page.context().addCookies([
     { name: 'access_token', value: token, domain: 'localhost', path: '/' },
   ]);
