@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAs } from './helpers/auth';
+import { loginAs } from '../helpers/auth';
 
 test.describe('Accessibility checks', () => {
   test('login page has no critical a11y violations', async ({ page }) => {

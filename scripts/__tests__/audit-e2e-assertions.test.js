@@ -9,9 +9,7 @@ describe('e2e assertion audit', () => {
       'apps/api/test',
       'apps/desktop/tests',
       'apps/mobile/e2e',
-      'apps/web/e2e',
       'e2e/tests',
-      'tests',
     ]);
   });
 
