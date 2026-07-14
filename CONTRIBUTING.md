@@ -25,7 +25,7 @@ pnpm install
 | ------- | ------- | ---------------------------------------- |
 | Docker  | latest  | Cho PostgreSQL (dev.bat tự động start)    |
 | pnpm    | 10.x    | Node.js package manager                  |
-| Node.js | 20+     | Khuyên dùng LTS                          |
+| Node.js | 22 LTS  | CI, Dockerfile, và local dev đều dùng 22 |
 
 ## Common Commands
 
