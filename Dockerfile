@@ -61,6 +61,11 @@ RUN apk upgrade --no-cache && apk add --no-cache curl
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
 COPY --from=build /usr/local/lib/node_modules /usr/local/lib/node_modules
 
+# Remove gosu from the postgres base image: the custom entrypoint uses `su`,
+# and the bundled gosu binary is compiled with an outdated Go stdlib that
+# carries HIGH/CRITICAL CVEs (e.g. CVE-2025-68121).
+RUN rm -f /usr/local/bin/gosu
+
 # Copy complete node_modules (hoisted, no symlinks) and built artifacts
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
