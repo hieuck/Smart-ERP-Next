@@ -35,4 +35,4 @@ test.skip('offline product creation syncs after going online', async ({ page }) 
   // 8. Reload page to ensure persistence
   await page.reload();
   await expect(page.locator('text=Offline Test Product')).toBeVisible();
-});
+}, 'prerequisite: offline sync feature requires dedicated service-worker and local cache setup before enabling in CI.');
