@@ -13,6 +13,17 @@ export interface PrintData {
 export class PrintService {
   constructor(private readonly drizzle: DrizzleService) {}
 
+  /** Escape HTML special characters to prevent stored XSS */
+  private h(str: unknown): string {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   async renderInvoice(tenantId: string, invoiceId: string): Promise<string> {
     const [invoice] = await this.drizzle.db
       .select()
@@ -73,22 +84,22 @@ export class PrintService {
   @media print { body { margin: 20px; } }
 </style></head><body>
   <div class="header">
-    <div><h1>${title}</h1></div>
-    <div><p>Date: ${date}</p></div>
+    <div><h1>${this.h(title)}</h1></div>
+    <div><p>Date: ${this.h(date)}</p></div>
   </div>
-  ${buyerName ? `<div class="buyer-info"><strong>${isInvoice ? 'Bill To' : 'Supplier'}:</strong> ${buyerName}${buyerAddress ? ` &mdash; ${buyerAddress}` : ''}</div>` : ''}
+  ${buyerName ? `<div class="buyer-info"><strong>${isInvoice ? 'Bill To' : 'Supplier'}:</strong> ${this.h(buyerName)}${buyerAddress ? ` &mdash; ${this.h(buyerAddress)}` : ''}</div>` : ''}
   <table>
     <tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
     ${items.map((item: any) => `
-      <tr><td>${item.name || item.itemName || item.productName || ''}</td>
-      <td>${item.quantity ?? ''}</td>
-      <td>$${item.unitPrice ?? item.price ?? 0}</td>
-      <td>$${(item.quantity ?? 0) * (item.unitPrice ?? item.price ?? 0)}</td></tr>
+      <tr><td>${this.h(item.name || item.itemName || item.productName)}</td>
+      <td>${this.h(item.quantity ?? '')}</td>
+      <td>$${this.h(item.unitPrice ?? item.price ?? 0)}</td>
+      <td>$${this.h((item.quantity ?? 0) * (item.unitPrice ?? item.price ?? 0))}</td></tr>
     `).join('')}
   </table>
-  <div class="total">Total: $${total}</div>
+  <div class="total">Total: $${this.h(total)}</div>
   <div class="footer">
-    <p>Smart ERP Next — Generated on ${new Date().toISOString()}</p>
+    <p>Smart ERP Next — Generated on ${this.h(new Date().toISOString())}</p>
   </div>
 </body></html>`;
   }
