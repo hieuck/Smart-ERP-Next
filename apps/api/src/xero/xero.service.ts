@@ -4,20 +4,27 @@ import { xeroConnections, xeroSyncLogs } from '@smart-erp/database/schema';
 import { eq, and, sql } from '@smart-erp/database/drizzle';
 import { XeroClient } from './xero.client';
 import { customers, orders } from '@smart-erp/database/schema';
+import { encrypt, decrypt } from './xero-encryption';
 
 @Injectable()
 export class XeroService {
   async getConnection(tenantId: string) {
     const conn = await db.select().from(xeroConnections).where(eq(xeroConnections.tenantId, tenantId)).then(r => r[0]);
+    if (!conn) return conn;
+    if (conn.clientSecret) conn.clientSecret = decrypt(conn.clientSecret);
+    if (conn.refreshToken) conn.refreshToken = decrypt(conn.refreshToken);
     return conn;
   }
 
   async saveConnection(tenantId: string, data: any) {
+    const toStore = { ...data };
+    if (toStore.clientSecret) toStore.clientSecret = encrypt(toStore.clientSecret);
+    if (toStore.refreshToken) toStore.refreshToken = encrypt(toStore.refreshToken);
     const existing = await this.getConnection(tenantId);
     if (existing) {
-      await db.update(xeroConnections).set(data).where(eq(xeroConnections.id, existing.id));
+      await db.update(xeroConnections).set(toStore).where(eq(xeroConnections.id, existing.id));
     } else {
-      await db.insert(xeroConnections).values({ ...data, tenantId });
+      await db.insert(xeroConnections).values({ ...toStore, tenantId });
     }
   }
 
