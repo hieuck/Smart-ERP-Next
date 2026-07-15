@@ -4,6 +4,7 @@ const API = 'http://localhost:3456';
 let token = '';
 
 function h() { return { Authorization: `Bearer ${token}` }; }
+function u(d: any): any { return d && d.success === true ? d.data : d; }
 
 test.describe('Export Flow', () => {
   test.describe.configure({ mode: 'serial' });
@@ -32,7 +33,7 @@ test.describe('Export Flow', () => {
       data: { format: 'csv', entities: ['products'] },
     });
     expect(res.ok()).toBeTruthy();
-    const body = await res.json();
+    const body = u(await res.json());
     expect(body).toHaveProperty('id');
     expect(body).toHaveProperty('status', 'pending');
     expect(body).toHaveProperty('format', 'csv');
@@ -50,7 +51,7 @@ test.describe('Export Flow', () => {
       data: { format: 'json', entities: ['products'] },
     });
     expect(res.ok()).toBeTruthy();
-    const body = await res.json();
+    const body = u(await res.json());
     expect(body).toHaveProperty('id');
     expect(body).toHaveProperty('status', 'pending');
     expect(body).toHaveProperty('format', 'json');
