@@ -1,3 +1,5 @@
+import { NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { XeroController } from './xero.controller';
 
 describe('XeroController', () => {
@@ -39,7 +41,7 @@ describe('XeroController', () => {
 
   it('sync throws when no connection', async () => {
     svc.getConnection.mockResolvedValue(null);
-    await expect(ctrl.sync(user, { type: 'invoices' })).rejects.toThrow('No Xero connection found');
+    await expect(ctrl.sync(user, { type: 'invoices' })).rejects.toThrow(NotFoundException);
   });
 
   it('sync syncs customers', async () => {

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, NotFoundException } from '@nestjs/common';
 import { XeroService } from './xero.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -23,7 +23,7 @@ export class XeroController {
   @Post('sync')
   async sync(@CurrentUser() user: any, @Body() body: { type: 'customers' | 'invoices' | 'payments' }) {
     const conn = await this.xeroService.getConnection(user.tenantId);
-    if (!conn) throw new Error('No Xero connection found');
+    if (!conn) throw new NotFoundException('No Xero connection found');
     if (body.type === 'customers') await this.xeroService.syncCustomers(conn.id, conn);
     else if (body.type === 'invoices') await this.xeroService.syncInvoices(conn.id, conn);
     return { message: `Synced ${body.type}` };
