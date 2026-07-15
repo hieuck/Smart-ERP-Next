@@ -8,7 +8,9 @@ describe('ExportController', () => {
   beforeEach(() => {
     mockService = {
       getExportableEntities: jest.fn(),
-      exportData: jest.fn(),
+      createExportJob: jest.fn(),
+      getExportStatus: jest.fn(),
+      getExportFile: jest.fn(),
     };
     controller = new (ExportController as any)(mockService) as ExportController;
   });
@@ -29,39 +31,60 @@ describe('ExportController', () => {
   });
 
   describe('POST /exports', () => {
-    it('calls exportData with CSV format and correct params', async () => {
+    it('calls createExportJob with CSV format and correct params', async () => {
       const req = { user: { tenantId: 'tenant-1' } };
       const body = { format: ExportFormat.CSV, entities: ['customers', 'products'] };
       const expected = {
-        data: 'name\nfoo',
-        format: 'csv',
-        filename: 'export.csv',
-        mimeType: 'text/csv',
-        entityCount: 1,
+        id: 'job-1',
+        status: 'pending',
+        tenantId: 'tenant-1',
+        format: ExportFormat.CSV,
+        entities: ['customers', 'products'],
+        createdAt: '2026-05-21T00:00:00.000Z',
       };
-      mockService.exportData.mockResolvedValue(expected);
+      mockService.createExportJob.mockResolvedValue(expected);
 
       const result = await controller.createExport(req as any, body as any);
 
-      expect(mockService.exportData).toHaveBeenCalledWith('tenant-1', ExportFormat.CSV, ['customers', 'products']);
+      expect(mockService.createExportJob).toHaveBeenCalledWith('tenant-1', ExportFormat.CSV, ['customers', 'products'], {
+        dateFrom: undefined,
+        dateTo: undefined,
+      });
       expect(result).toEqual(expected);
     });
 
-    it('calls exportData with JSON format', async () => {
+    it('calls createExportJob with JSON format and date filters', async () => {
       const req = { user: { tenantId: 'tenant-2' } };
-      const body = { format: ExportFormat.JSON, entities: ['orders'] };
+      const body = { format: ExportFormat.JSON, entities: ['orders'], dateFrom: '2024-06-01', dateTo: '2024-06-30' };
       const expected = {
-        data: '{"orders":[]}',
-        format: 'json',
-        filename: 'export.json',
-        mimeType: 'application/json',
-        entityCount: 0,
+        id: 'job-2',
+        status: 'pending',
+        tenantId: 'tenant-2',
+        format: ExportFormat.JSON,
+        entities: ['orders'],
+        createdAt: '2026-05-21T00:00:00.000Z',
       };
-      mockService.exportData.mockResolvedValue(expected);
+      mockService.createExportJob.mockResolvedValue(expected);
 
       const result = await controller.createExport(req as any, body as any);
 
-      expect(mockService.exportData).toHaveBeenCalledWith('tenant-2', ExportFormat.JSON, ['orders']);
+      expect(mockService.createExportJob).toHaveBeenCalledWith('tenant-2', ExportFormat.JSON, ['orders'], {
+        dateFrom: '2024-06-01',
+        dateTo: '2024-06-30',
+      });
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe('GET /:id/status', () => {
+    it('returns status for a job', async () => {
+      const req = { user: { tenantId: 'tenant-1' } };
+      const expected = { id: 'job-1', status: 'completed' };
+      mockService.getExportStatus.mockResolvedValue(expected);
+
+      const result = await controller.getExportStatus(req as any, 'job-1');
+
+      expect(mockService.getExportStatus).toHaveBeenCalledWith('tenant-1', 'job-1');
       expect(result).toEqual(expected);
     });
   });
@@ -70,20 +93,15 @@ describe('ExportController', () => {
     it('returns buffer with correct headers', async () => {
       const req = { user: { tenantId: 'tenant-1' } };
       const res = { setHeader: jest.fn(), send: jest.fn() };
-      const exportResult = {
-        data: 'col1,col2\nval1,val2',
-        format: 'csv',
-        filename: 'export-123.csv',
-        mimeType: 'text/csv',
-        entityCount: 1,
-      };
-      mockService.exportData.mockResolvedValue(exportResult);
+      mockService.getExportFile.mockResolvedValue(Buffer.from('col1,col2\nval1,val2'));
+      mockService.getExportStatus.mockResolvedValue({ id: 'job-1', format: ExportFormat.CSV, status: 'completed' });
 
-      await controller.downloadExport(req as any, 'customers', ExportFormat.CSV, res as any);
+      await controller.downloadExport(req as any, 'job-1', res as any);
 
-      expect(mockService.exportData).toHaveBeenCalledWith('tenant-1', ExportFormat.CSV, ['customers']);
+      expect(mockService.getExportFile).toHaveBeenCalledWith('tenant-1', 'job-1');
+      expect(mockService.getExportStatus).toHaveBeenCalledWith('tenant-1', 'job-1');
       expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
-      expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename="export-123.csv"');
+      expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename="export-job-1.csv"');
       expect(res.send).toHaveBeenCalledWith(Buffer.from('col1,col2\nval1,val2'));
     });
   });
