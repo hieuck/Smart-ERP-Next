@@ -9,6 +9,7 @@ import { ServiceWorkerProvider } from '@/components/providers/ServiceWorkerProvi
 import { SyncConflictModal } from '@/components/SyncConflictModal';
 import ReportBugButton from '@/components/ReportBugButton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AuthProvider } from '@/contexts/auth-context';
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -98,19 +99,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ` }} />
       </head>
       <body className={`${inter.variable} ${beVietnamPro.variable} font-sans antialiased`}>
-        <ErrorBoundary>
-          <I18nProvider>
-            <ToastProvider>
-              <ThemeProvider>
-                <ServiceWorkerProvider>
-                  {children}
-                  <SyncConflictModal />
-                  <ReportBugButton />
-                </ServiceWorkerProvider>
-              </ThemeProvider>
-            </ToastProvider>
-          </I18nProvider>
-        </ErrorBoundary>
+        <AuthProvider>
+          <ErrorBoundary>
+            <I18nProvider>
+              <ToastProvider>
+                <ThemeProvider>
+                  <ServiceWorkerProvider>
+                    {children}
+                    <SyncConflictModal />
+                    <ReportBugButton />
+                  </ServiceWorkerProvider>
+                </ThemeProvider>
+              </ToastProvider>
+            </I18nProvider>
+          </ErrorBoundary>
+        </AuthProvider>
       </body>
     </html>
   );
