@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import * as crypto from 'crypto';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { ExportFormat } from './export.enums';
 import * as schema from '@smart-erp/database/schema';
-import { eq } from '@smart-erp/database/drizzle';
+import { and, eq, gte, lte } from '@smart-erp/database/drizzle';
 
 export interface ExportJob {
   id: string;
@@ -15,6 +16,8 @@ export interface ExportJob {
   createdAt: string;
   completedAt?: string;
   error?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 @Injectable()
@@ -30,10 +33,18 @@ export class DataExportService {
     crm: schema.crmLeads,
   };
 
+  private readonly jobs = new Map<string, ExportJob>();
+  private readonly buffers = new Map<string, Buffer>();
+
   constructor(private readonly drizzle: DrizzleService) {}
 
   /** Export data in the requested format */
-  async exportData(tenantId: string, format: ExportFormat, entities: string[], filters?: any) {
+  async exportData(
+    tenantId: string,
+    format: ExportFormat,
+    entities: string[],
+    filters?: { dateFrom?: string; dateTo?: string },
+  ) {
     const collected: Record<string, any[]> = {};
     let totalCount = 0;
 
@@ -42,7 +53,14 @@ export class DataExportService {
       if (!table) {
         throw new Error(`Unknown entity: ${entity}`);
       }
-      const data = await this.drizzle.db.select().from(table).where(eq(table.tenantId, tenantId));
+      const conditions = [eq(table.tenantId, tenantId)];
+      if (filters?.dateFrom) {
+        conditions.push(gte(table.createdAt, filters.dateFrom));
+      }
+      if (filters?.dateTo) {
+        conditions.push(lte(table.createdAt, filters.dateTo));
+      }
+      const data = await this.drizzle.db.select().from(table).where(and(...conditions));
       collected[entity] = data;
       totalCount += data.length;
     }
@@ -87,42 +105,63 @@ export class DataExportService {
   }
 
   /** Create a new export job */
-  async createExportJob(tenantId: string, format: ExportFormat, entities: string[]) {
-    const job: Partial<ExportJob> = {
+  async createExportJob(
+    tenantId: string,
+    format: ExportFormat,
+    entities: string[],
+    filters?: { dateFrom?: string; dateTo?: string },
+  ) {
+    const job: ExportJob = {
+      id: crypto.randomUUID(),
       tenantId,
       format,
       entities,
       status: 'pending',
       createdAt: new Date().toISOString(),
+      dateFrom: filters?.dateFrom,
+      dateTo: filters?.dateTo,
     };
 
-    // In a real implementation, this would be saved to a jobs table
-    // and processed by a background queue (e.g. BullMQ)
-    return job;
+    this.jobs.set(job.id, job);
+    return { ...job };
   }
 
   /** Get export status */
   async getExportStatus(tenantId: string, jobId: string) {
-    // Placeholder: return mock status
-    return {
-      id: jobId,
-      tenantId,
-      status: 'completed',
-      format: 'json',
-      entities: ['customers', 'products'],
-      fileUrl: '/exports/data-export-2026-05-14.json',
-      fileSize: 1024 * 512,
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-      completedAt: new Date().toISOString(),
-    };
+    const job = this.jobs.get(jobId);
+    if (!job || job.tenantId !== tenantId) {
+      throw new NotFoundException('Export job not found');
+    }
+    return { ...job };
   }
 
   /** Download export file */
   async getExportFile(tenantId: string, jobId: string): Promise<Buffer> {
-    // In a real implementation, this would read from S3/GCS
-    // For now, return mock JSON data
-    const mockData = JSON.stringify({ exportDate: new Date().toISOString(), tenantId });
-    return Buffer.from(mockData);
+    const job = this.jobs.get(jobId);
+    if (!job || job.tenantId !== tenantId) {
+      throw new NotFoundException('Export job not found');
+    }
+
+    if (job.status === 'completed') {
+      const buffer = this.buffers.get(jobId);
+      if (buffer) {
+        return buffer;
+      }
+    }
+
+    const payload = await this.exportData(job.tenantId, job.format, job.entities, {
+      dateFrom: job.dateFrom,
+      dateTo: job.dateTo,
+    });
+
+    const buffer = Buffer.from(payload.data);
+
+    job.status = 'completed';
+    job.fileSize = buffer.length;
+    job.completedAt = new Date().toISOString();
+    this.buffers.set(jobId, buffer);
+
+    return buffer;
   }
 
   /** List available entities for export */

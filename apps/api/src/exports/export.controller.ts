@@ -2,6 +2,7 @@ import { Controller, Get, Post, Param, Body, Query, Res, UseGuards, Request } fr
 import { Response } from 'express';
 import { DataExportService } from './data-export.service';
 import { ExportFormat } from './export.enums';
+import { CreateExportDto } from './dto/create-export.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @Controller('exports')
@@ -15,11 +16,11 @@ export class ExportController {
   }
 
   @Post()
-  async createExport(
-    @Request() req: any,
-    @Body() body: { format: ExportFormat; entities: string[]; dateFrom?: string; dateTo?: string },
-  ) {
-    return this.service.exportData(req.user.tenantId, body.format, body.entities);
+  async createExport(@Request() req: any, @Body() body: CreateExportDto) {
+    return this.service.createExportJob(req.user.tenantId, body.format, body.entities, {
+      dateFrom: body.dateFrom,
+      dateTo: body.dateTo,
+    });
   }
 
   @Get(':id/status')
@@ -35,9 +36,11 @@ export class ExportController {
     @Res() res: Response,
   ) {
     const fmt = format || ExportFormat.JSON;
-    const result = await this.service.exportData(req.user.tenantId, fmt, [id]);
-    res.setHeader('Content-Type', result.mimeType);
-    res.setHeader('Content-Disposition', `attachment; filename="${result.filename}"`);
-    res.send(Buffer.from(result.data));
+    const buffer = await this.service.getExportFile(req.user.tenantId, id);
+    const contentType = fmt === ExportFormat.CSV ? 'text/csv' : 'application/json';
+    const ext = fmt === ExportFormat.CSV ? 'csv' : 'json';
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="export-${id}.${ext}"`);
+    res.send(buffer);
   }
 }
