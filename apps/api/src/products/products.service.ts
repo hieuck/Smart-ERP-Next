@@ -228,46 +228,56 @@ export class ProductsService {
     reference?: string,
     createdBy?: string,
   ) {
-    const product = await this.findOne(tenantId, id);
-    const previousStock = product.stock;
-    const newStock =
-      type === "OUT" ? previousStock - quantity : previousStock + quantity;
+    return await db.transaction(async (trx) => {
+      // Lock the product row to prevent concurrent modifications
+      const [product] = await trx
+        .select()
+        .from(products)
+        .where(and(eq(products.tenantId, tenantId), eq(products.id, id)))
+        .for('update');
 
-    if (newStock < 0) {
-      throw new ConflictException({ message: `Insufficient stock. Available: ${previousStock}, requested: ${quantity}`, errorCode: ErrorCode.INVENTORY_INSUFFICIENT });
-    }
+      const previousStock = product.stock;
+      const newStock =
+        type === "OUT" ? previousStock - quantity : previousStock + quantity;
 
-    const [updated] = await db
-      .update(products)
-      .set({ stock: newStock, updatedAt: new Date() })
-      .where(and(eq(products.tenantId, tenantId), eq(products.id, id)))
-      .returning();
+      if (newStock < 0) {
+        throw new ConflictException({ message: `Insufficient stock. Available: ${previousStock}, requested: ${quantity}`, errorCode: ErrorCode.INVENTORY_INSUFFICIENT });
+      }
 
-    // Record transaction
-    await db.insert(inventoryTransactions).values({
-      tenantId,
-      productId: id,
-      type,
-      quantity,
-      previousStock,
-      newStock,
-      reference: reference ?? null,
-      notes: notes ?? null,
-      createdBy: createdBy ?? null,
+      const [updated] = await trx
+        .update(products)
+        .set({ stock: newStock, updatedAt: new Date() })
+        .where(and(eq(products.tenantId, tenantId), eq(products.id, id)))
+        .returning();
+
+      // Record transaction
+      await trx
+        .insert(inventoryTransactions)
+        .values({
+          tenantId,
+          productId: id,
+          type,
+          quantity,
+          previousStock,
+          newStock,
+          reference: reference ?? null,
+          notes: notes ?? null,
+          createdBy: createdBy ?? null,
+        });
+
+      if (createdBy) {
+        await this.activityService.log(tenantId, createdBy, 'stock_adjusted', 'product', id, {
+          type,
+          quantity,
+          previousStock,
+          newStock,
+          reference,
+          notes,
+        });
+      }
+
+      return updated;
     });
-
-    if (createdBy) {
-      await this.activityService.log(tenantId, createdBy, 'stock_adjusted', 'product', id, {
-        type,
-        quantity,
-        previousStock,
-        newStock,
-        reference,
-        notes,
-      });
-    }
-
-    return updated;
   }
 
   async importFromCsv(tenantId: string, buffer: Buffer) {
