@@ -26,9 +26,12 @@ jest.mock('@smart-erp/database/schema', () => ({ products: {}, customers: {}, or
 jest.mock('@smart-erp/database/drizzle', () => ({
   eq: jest.fn(),
   and: jest.fn(),
+  gte: jest.fn(),
+  lte: jest.fn(),
   sql: jest.fn(),
 }));
 
+import { NotFoundException } from '@nestjs/common';
 import { db } from '@smart-erp/database';
 import { DataExportService } from '../exports/data-export.service';
 import { ExportFormat } from '../exports/export.enums';
@@ -153,7 +156,7 @@ describe('DataExportService (direct instantiation)', () => {
   });
 
   describe('createExportJob', () => {
-    it('returns a job with pending status', async () => {
+    it('returns a persisted job with pending status', async () => {
       const result = await service.createExportJob(TENANT_ID, ExportFormat.CSV, ['products']);
 
       expect(result).toHaveProperty('status', 'pending');
@@ -161,24 +164,37 @@ describe('DataExportService (direct instantiation)', () => {
       expect(result).toHaveProperty('entities', ['products']);
       expect(result).toHaveProperty('format', ExportFormat.CSV);
       expect(result).toHaveProperty('createdAt');
+      expect(result).toHaveProperty('id');
     });
   });
 
   describe('getExportStatus', () => {
-    it('returns status for a given job', async () => {
-      const result = await service.getExportStatus(TENANT_ID, 'job-1');
+    it('returns status for a persisted job', async () => {
+      const job = await service.createExportJob(TENANT_ID, ExportFormat.JSON, ['orders']);
+      const result = await service.getExportStatus(TENANT_ID, job.id);
 
-      expect(result).toHaveProperty('id', 'job-1');
-      expect(result).toHaveProperty('tenantId', TENANT_ID);
-      expect(result).toHaveProperty('status');
+      expect(result.id).toBe(job.id);
+      expect(result.tenantId).toBe(TENANT_ID);
+      expect(result.status).toBe('pending');
+    });
+
+    it('throws NotFoundException for an unknown job', async () => {
+      await expect(service.getExportStatus(TENANT_ID, 'unknown-job')).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('getExportFile', () => {
-    it('returns a Buffer', async () => {
-      const result = await service.getExportFile(TENANT_ID, 'job-1');
+    it('returns a Buffer for a persisted job', async () => {
+      (db as any).then.mockImplementation((resolve: any) => resolve([{ id: 'p-1', name: 'Product A' }]));
+      const job = await service.createExportJob(TENANT_ID, ExportFormat.JSON, ['products']);
+
+      const result = await service.getExportFile(TENANT_ID, job.id);
 
       expect(result).toBeInstanceOf(Buffer);
+    });
+
+    it('throws NotFoundException for an unknown job', async () => {
+      await expect(service.getExportFile(TENANT_ID, 'unknown-job')).rejects.toThrow(NotFoundException);
     });
   });
 });

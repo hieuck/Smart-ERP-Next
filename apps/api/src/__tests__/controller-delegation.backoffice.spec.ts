@@ -72,17 +72,21 @@ describe('backoffice controller delegation coverage', () => {
     expect(usersService.updateProfile).toHaveBeenCalledWith('tenant-1', 'user-1', { name: 'Me' });
 
     const exportService = {
-      exportData: jest.fn().mockResolvedValue({ data: '{}', format: 'json', filename: 'export-1.json', mimeType: 'application/json', entityCount: 0 }),
-      getExportStatus: jest.fn(),
+      createExportJob: jest.fn().mockResolvedValue({ id: 'job-1', status: 'pending', tenantId: 'tenant-1' }),
+      getExportStatus: jest.fn().mockResolvedValue({ id: 'job-1', status: 'pending' }),
+      getExportFile: jest.fn().mockResolvedValue(Buffer.from('{}')),
       getExportableEntities: jest.fn(),
     };
     const exportsController = new ExportController(exportService as any);
     const res = { send: jest.fn(), setHeader: jest.fn() };
     exportsController.getExportableEntities();
-    exportsController.createExport(req, { entities: ['orders'], format: ExportFormat.JSON });
-    exportsController.getExportStatus(req, 'job-1');
-    await exportsController.downloadExport(req, 'customers', ExportFormat.JSON, res as any);
-    expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename="export-1.json"');
+    await exportsController.createExport(req, { entities: ['orders'], format: ExportFormat.JSON });
+    await exportsController.getExportStatus(req, 'job-1');
+    await exportsController.downloadExport(req, 'job-1', ExportFormat.JSON, res as any);
+    expect(exportService.createExportJob).toHaveBeenCalledWith('tenant-1', ExportFormat.JSON, ['orders'], { dateFrom: undefined, dateTo: undefined });
+    expect(exportService.getExportStatus).toHaveBeenCalledWith('tenant-1', 'job-1');
+    expect(exportService.getExportFile).toHaveBeenCalledWith('tenant-1', 'job-1');
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename="export-job-1.json"');
     expect(res.send).toHaveBeenCalledWith(Buffer.from('{}'));
   });
 
