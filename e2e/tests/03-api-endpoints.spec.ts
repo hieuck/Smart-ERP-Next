@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // ═══════════════════════════════════════════════════════════════════
-// Comprehensive API Endpoint Tests — every NestJS route
+// Comprehensive API Endpoint Tests — implemented NestJS routes
 // ═══════════════════════════════════════════════════════════════════
 
 const API = 'http://localhost:3456';
@@ -138,7 +138,7 @@ test.describe('API: Supplier Portal', () => {
   });
   test('GET /supplier-portal/performance', async ({ request }) => {
     const r = await request.get(`${API}/supplier-portal/performance`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
 });
 
@@ -431,50 +431,15 @@ test.describe('API: QMS', () => {
 });
 
 
-test.describe('API: TMS', () => {
-  test('GET /tms/trips', async ({ request }) => {
-    const r = await request.get(`${API}/tms/trips`, auth());
-    expect(r.status()).toBeLessThan(500);
-  });
-  test('GET /tms/vehicles', async ({ request }) => {
-    const r = await request.get(`${API}/tms/vehicles`, auth());
-    expect(r.status()).toBeLessThan(500);
-  });
-});
-
-
-test.describe('API: E-Contracts', () => {
-  test('GET /e-contracts', async ({ request }) => {
-    const r = await request.get(`${API}/e-contracts`, auth());
-    expect(r.status()).toBeLessThan(500);
-  });
-});
-
 // --- Ecommerce ---
 test.describe('API: Ecommerce', () => {
   test('GET /ecommerce/stores', async ({ request }) => {
     const r = await request.get(`${API}/ecommerce/stores`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
   test('GET /ecommerce/logs', async ({ request }) => {
     const r = await request.get(`${API}/ecommerce/logs`, auth());
-    expect(r.status()).toBeLessThan(500);
-  });
-});
-
-
-test.describe('API: Field Service', () => {
-  test('GET /field-service/tickets', async ({ request }) => {
-    const r = await request.get(`${API}/field-service/tickets`, auth());
-    expect(r.status()).toBeLessThan(500);
-  });
-});
-
-
-test.describe('API: Maintenance', () => {
-  test('GET /maintenance/orders', async ({ request }) => {
-    const r = await request.get(`${API}/maintenance/orders`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
 });
 
@@ -482,11 +447,11 @@ test.describe('API: Maintenance', () => {
 test.describe('API: Activity', () => {
   test('GET /activity', async ({ request }) => {
     const r = await request.get(`${API}/activity`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
   test('GET /activity/recent', async ({ request }) => {
     const r = await request.get(`${API}/activity/recent`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
 });
 
@@ -494,15 +459,15 @@ test.describe('API: Activity', () => {
 test.describe('API: Automation', () => {
   test('GET /automation/triggers', async ({ request }) => {
     const r = await request.get(`${API}/automation/triggers`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
   test('GET /automation/actions', async ({ request }) => {
     const r = await request.get(`${API}/automation/actions`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
   test('GET /automation', async ({ request }) => {
     const r = await request.get(`${API}/automation`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
 });
 
@@ -522,7 +487,7 @@ test.describe('API: Search', () => {
 test.describe('API: Sync', () => {
   test('GET /sync/metadata', async ({ request }) => {
     const r = await request.get(`${API}/sync/metadata`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
 });
 
@@ -530,7 +495,7 @@ test.describe('API: Sync', () => {
 test.describe('API: Exports', () => {
   test('GET /exports/entities', async ({ request }) => {
     const r = await request.get(`${API}/exports/entities`, auth());
-    expect(r.status()).toBeLessThan(500);
+    expect(r.ok()).toBeTruthy();
   });
 });
 
