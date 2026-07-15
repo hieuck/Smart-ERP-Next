@@ -38,9 +38,10 @@ export default function AdvancedReportsDashboard() {
         format,
       });
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/reports/${activeReport}/export?${params}`,
-        { headers: { Authorization: `Bearer ${(typeof window !== 'undefined' ? localStorage.getItem('token') : null)}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (!response.ok) throw new Error('Export failed');
