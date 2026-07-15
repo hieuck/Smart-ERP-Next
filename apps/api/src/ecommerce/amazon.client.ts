@@ -7,6 +7,7 @@ export interface AmazonConfig {
   refreshToken: string;
   sellerId: string;      // merchant id
   region: 'na' | 'eu' | 'fe'; // default 'na'
+  marketplaceId?: string; // optional marketplace ID, defaults based on region
   accessToken?: string;
   accessTokenExpiry?: number;
 }
@@ -16,6 +17,12 @@ export class AmazonClient {
   private http: AxiosInstance;
   private tokenEndpoint: string;
   private apiEndpoint: string;
+
+  private static readonly MARKETPLACE_IDS: Record<string, string> = {
+    na: 'ATVPDKIKX0DER',
+    eu: 'A1V9NK253MH1J8',
+    fe: 'A19VAU5U5O7RUS',
+  };
 
   constructor(config: AmazonConfig) {
     this.config = config;
@@ -27,6 +34,10 @@ export class AmazonClient {
     };
     this.apiEndpoint = regions[config.region] || regions.na;
     this.http = axios.create({ baseURL: this.apiEndpoint });
+  }
+
+  private get marketplaceId(): string {
+    return this.config.marketplaceId || AmazonClient.MARKETPLACE_IDS[this.config.region] || AmazonClient.MARKETPLACE_IDS.na;
   }
 
   private async ensureAccessToken(): Promise<void> {
@@ -59,12 +70,12 @@ export class AmazonClient {
 
   async getProducts(page = 1, pageSize = 100) {
     // SP-API uses nextToken pagination
-    const result = await this.request<any>('GET', `/catalog/2022-04-01/items?marketplaceIds=ATVPDKIKX0DER&pageSize=${pageSize}&pageNumber=${page}`);
+    const result = await this.request<any>('GET', `/catalog/2022-04-01/items?marketplaceIds=${this.marketplaceId}&pageSize=${pageSize}&pageNumber=${page}`);
     return result.items || [];
   }
 
   async getOrders(sinceDate?: Date, page = 1, pageSize = 100) {
-    let path = `/orders/v0/orders?MarketplaceIds=ATVPDKIKX0DER&PageSize=${pageSize}&PageNumber=${page}`;
+    let path = `/orders/v0/orders?MarketplaceIds=${this.marketplaceId}&PageSize=${pageSize}&PageNumber=${page}`;
     if (sinceDate) {
       path += `&CreatedAfter=${sinceDate.toISOString()}`;
     }
