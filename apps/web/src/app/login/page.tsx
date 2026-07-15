@@ -52,12 +52,16 @@ export default function LoginPage() {
   };
 
   const fillDemo = () => {
-    // Demo credentials — only for development/demo environments
-    const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL || 'admin@smarterp.vn';
-    const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD || 'admin123';
-    if (emailRef.current) emailRef.current.value = demoEmail;
-    if (passwordRef.current) passwordRef.current.value = demoPassword;
+    const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL;
+    const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
+    if (demoEmail && demoPassword && emailRef.current && passwordRef.current) {
+      emailRef.current.value = demoEmail;
+      passwordRef.current.value = demoPassword;
+    }
   };
+  const enableDemo = process.env.NEXT_PUBLIC_ENABLE_DEMO === 'true' &&
+    process.env.NEXT_PUBLIC_DEMO_EMAIL &&
+    process.env.NEXT_PUBLIC_DEMO_PASSWORD;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
@@ -158,7 +162,8 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo credentials */}
+          {/* Demo credentials — only rendered when explicitly enabled */}
+          {enableDemo && (
           <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
@@ -175,14 +180,15 @@ export default function LoginPage() {
                 {t('auth.fillDemo')}
               </button>
             </div>
-
-            <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
-              {t('auth.haveAccount')}{' '}
-              <Link href="/register" className="font-semibold text-blue-600 hover:underline">
-                {t('auth.register')}
-              </Link>
-            </p>
           </div>
+          )}
+
+          <p className="mt-5 text-center text-sm text-gray-500 dark:text-gray-400">
+            {t('auth.haveAccount')}{' '}
+            <Link href="/register" className="font-semibold text-blue-600 hover:underline">
+              {t('auth.register')}
+            </Link>
+          </p>
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
