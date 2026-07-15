@@ -32,7 +32,7 @@
     "qa:commit": "node scripts/quality-gate.js commit",
     "qa:release": "node scripts/quality-gate.js release",
     "smoke:release-runtime": "node scripts/release-runtime-smoke.js",
-    "test": "jest",
+    "test": "jest --forceExit",
     "test:api:integration": "jest --testPathPattern=\"(auth|users|products|inventory|orders)-integration\" --collectCoverage=false --verbose",
     "test:api:e2e": "node scripts/run-api-e2e.js",
     "test:cov": "jest --coverage",
