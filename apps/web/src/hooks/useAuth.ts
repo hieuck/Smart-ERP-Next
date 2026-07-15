@@ -15,16 +15,5 @@ export interface AuthContextValue {
   logout: () => Promise<void>;
 }
 
-const stubAuth: AuthContextValue = {
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-  token: null,
-  login: async () => {},
-  logout: async () => {},
-};
-
-export function useAuth(): AuthContextValue {
-  return stubAuth;
-}
+export { useAuth } from '@/contexts/auth-context';
 
