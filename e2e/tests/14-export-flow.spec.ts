@@ -38,6 +38,12 @@ test.describe('Export Flow', () => {
     expect(body).toHaveProperty('status', 'pending');
     expect(body).toHaveProperty('format', 'csv');
 
+    const statusRes = await request.get(`${API}/exports/${body.id}/status`, { headers: h() });
+    expect(statusRes.ok()).toBeTruthy();
+    const status = u(await statusRes.json());
+    expect(status).toHaveProperty('id', body.id);
+    expect(status).toHaveProperty('format', 'csv');
+
     const download = await request.get(`${API}/exports/${body.id}/download?format=csv`, { headers: h() });
     expect(download.ok()).toBeTruthy();
     expect(download.headers()['content-type']).toContain('text/csv');
@@ -55,6 +61,12 @@ test.describe('Export Flow', () => {
     expect(body).toHaveProperty('id');
     expect(body).toHaveProperty('status', 'pending');
     expect(body).toHaveProperty('format', 'json');
+
+    const statusRes = await request.get(`${API}/exports/${body.id}/status`, { headers: h() });
+    expect(statusRes.ok()).toBeTruthy();
+    const status = u(await statusRes.json());
+    expect(status).toHaveProperty('id', body.id);
+    expect(status).toHaveProperty('format', 'json');
 
     const download = await request.get(`${API}/exports/${body.id}/download?format=json`, { headers: h() });
     expect(download.ok()).toBeTruthy();

@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import { DrizzleService } from '../drizzle/drizzle.service';
 import { ExportFormat } from './export.enums';
 import * as schema from '@smart-erp/database/schema';
-import { and, eq, gte, lte } from '@smart-erp/database/drizzle';
+import { and, eq, gte, lt } from '@smart-erp/database/drizzle';
 
 export interface ExportJob {
   id: string;
@@ -58,7 +58,8 @@ export class DataExportService {
         conditions.push(gte(table.createdAt, filters.dateFrom));
       }
       if (filters?.dateTo) {
-        conditions.push(lte(table.createdAt, filters.dateTo));
+        // Include the full calendar day by extending the upper bound to end-of-day.
+        conditions.push(lt(table.createdAt, this.endOfDayIso(filters.dateTo)));
       }
       const data = await this.drizzle.db.select().from(table).where(and(...conditions));
       collected[entity] = data;
@@ -102,6 +103,11 @@ export class DataExportService {
       return '"' + str.replace(/"/g, '""') + '"';
     }
     return str;
+  }
+
+  /** Convert a date-only string (YYYY-MM-DD) into an end-of-day ISO timestamp. */
+  private endOfDayIso(date: string): string {
+    return new Date(`${date}T23:59:59.999Z`).toISOString();
   }
 
   /** Create a new export job */

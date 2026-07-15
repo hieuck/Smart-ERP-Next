@@ -27,6 +27,7 @@ jest.mock('@smart-erp/database/drizzle', () => ({
   eq: jest.fn(),
   and: jest.fn(),
   gte: jest.fn(),
+  lt: jest.fn(),
   lte: jest.fn(),
   sql: jest.fn(),
 }));

@@ -6,6 +6,7 @@ jest.mock('@smart-erp/database/drizzle', () => ({
   eq: (col: any, val: any) => ({ op: 'eq', col, val }),
   and: (...conds: any[]) => ({ op: 'and', conds }),
   gte: (col: any, val: any) => ({ op: 'gte', col, val }),
+  lt: (col: any, val: any) => ({ op: 'lt', col, val }),
   lte: (col: any, val: any) => ({ op: 'lte', col, val }),
 }));
 
@@ -90,7 +91,9 @@ describe('DataExportService coverage', () => {
       const values = whereClause.conds.map((c: any) => c.val);
       expect(values).toContain('t1');
       expect(values).toContain('2024-06-01');
-      expect(values).toContain('2024-06-30');
+      // dateTo is converted to end-of-day (23:59:59.999Z) and uses lt
+      expect(whereClause.conds.some((c: any) => c.op === 'lt')).toBe(true);
+      expect(values.some((v: any) => typeof v === 'string' && v.includes('2024-06-30'))).toBe(true);
     });
 
     it('applies only tenant filter when date range is omitted', async () => {

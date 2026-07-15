@@ -94,10 +94,12 @@ describe('ExportController', () => {
       const req = { user: { tenantId: 'tenant-1' } };
       const res = { setHeader: jest.fn(), send: jest.fn() };
       mockService.getExportFile.mockResolvedValue(Buffer.from('col1,col2\nval1,val2'));
+      mockService.getExportStatus.mockResolvedValue({ id: 'job-1', format: ExportFormat.CSV, status: 'completed' });
 
-      await controller.downloadExport(req as any, 'job-1', ExportFormat.CSV, res as any);
+      await controller.downloadExport(req as any, 'job-1', res as any);
 
       expect(mockService.getExportFile).toHaveBeenCalledWith('tenant-1', 'job-1');
+      expect(mockService.getExportStatus).toHaveBeenCalledWith('tenant-1', 'job-1');
       expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
       expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', 'attachment; filename="export-job-1.csv"');
       expect(res.send).toHaveBeenCalledWith(Buffer.from('col1,col2\nval1,val2'));

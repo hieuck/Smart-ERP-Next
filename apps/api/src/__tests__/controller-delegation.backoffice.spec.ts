@@ -82,7 +82,7 @@ describe('backoffice controller delegation coverage', () => {
     exportsController.getExportableEntities();
     await exportsController.createExport(req, { entities: ['orders'], format: ExportFormat.JSON });
     await exportsController.getExportStatus(req, 'job-1');
-    await exportsController.downloadExport(req, 'job-1', ExportFormat.JSON, res as any);
+    await exportsController.downloadExport(req, 'job-1', res as any);
     expect(exportService.createExportJob).toHaveBeenCalledWith('tenant-1', ExportFormat.JSON, ['orders'], { dateFrom: undefined, dateTo: undefined });
     expect(exportService.getExportStatus).toHaveBeenCalledWith('tenant-1', 'job-1');
     expect(exportService.getExportFile).toHaveBeenCalledWith('tenant-1', 'job-1');

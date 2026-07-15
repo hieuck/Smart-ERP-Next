@@ -1,4 +1,4 @@
-import { IsEnum, IsArray, IsString, IsOptional, IsISO8601 } from 'class-validator';
+import { IsEnum, IsArray, ArrayNotEmpty, IsString, IsOptional, IsISO8601 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { ExportFormat } from '../export.enums';
 
@@ -9,6 +9,7 @@ export class CreateExportDto {
 
   @ApiProperty({ type: [String] })
   @IsArray()
+  @ArrayNotEmpty()
   @IsString({ each: true })
   entities: string[];
 

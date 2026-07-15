@@ -66,11 +66,13 @@ describe('ExportController', () => {
   it('downloadExport calls service.getExportFile and streams the returned Buffer', async () => {
     const buffer = Buffer.from('{"hello":"world"}');
     svc.getExportFile.mockResolvedValue(buffer);
+    svc.getExportStatus.mockResolvedValue({ id: 'job-1', format: ExportFormat.JSON, status: 'completed' });
     const res = { setHeader: jest.fn(), send: jest.fn() };
 
-    await ctrl.downloadExport(req, 'job-1', ExportFormat.JSON, res as any);
+    await ctrl.downloadExport(req, 'job-1', res as any);
 
     expect(svc.getExportFile).toHaveBeenCalledWith('t1', 'job-1');
+    expect(svc.getExportStatus).toHaveBeenCalledWith('t1', 'job-1');
     expect(svc.exportData).not.toHaveBeenCalled();
     expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/json');
     expect(res.setHeader).toHaveBeenCalledWith(
@@ -84,7 +86,7 @@ describe('ExportController', () => {
     svc.getExportFile.mockRejectedValue(new NotFoundException('Export job not found'));
     const res = { setHeader: jest.fn(), send: jest.fn(), status: jest.fn().mockReturnThis() };
 
-    await expect(ctrl.downloadExport(req, 'missing-job', ExportFormat.JSON, res as any)).rejects.toThrow(
+    await expect(ctrl.downloadExport(req, 'missing-job', res as any)).rejects.toThrow(
       NotFoundException,
     );
     expect(svc.getExportFile).toHaveBeenCalledWith('t1', 'missing-job');
@@ -121,8 +123,9 @@ describe('ExportController', () => {
     expect(status).toEqual(job);
 
     const res = { setHeader: jest.fn(), send: jest.fn() };
-    await ctrl.downloadExport(req, job.id, ExportFormat.CSV, res as any);
+    await ctrl.downloadExport(req, job.id, res as any);
     expect(svc.getExportFile).toHaveBeenCalledWith('t1', job.id);
+    expect(svc.getExportStatus).toHaveBeenCalledWith('t1', job.id);
     expect(res.send).toHaveBeenCalledWith(buffer);
   });
 });
