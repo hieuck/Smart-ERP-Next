@@ -30,7 +30,15 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       return;
     }
 
-    const parsedUser = JSON.parse(storedUser);
+    let parsedUser;
+    try {
+      parsedUser = JSON.parse(storedUser);
+    } catch {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      router.replace('/login');
+      return;
+    }
     setUser(parsedUser);
     setReady(true);
 
