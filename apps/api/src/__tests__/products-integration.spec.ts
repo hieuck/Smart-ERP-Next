@@ -2,6 +2,8 @@ jest.mock('@smart-erp/database', () => {
   const db: any = () => db;
   const chainFn = jest.fn(() => db);
 
+  db.transaction = jest.fn(async (cb: any) => cb(db));
+  db.for = chainFn;
   db.select = chainFn;
   db.from = chainFn;
   db.where = chainFn;
