@@ -131,7 +131,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check dependency vulnerabilities
-        run: pnpm audit --audit-level=high
+        # npm retired the legacy audit endpoint; ignore transient registry errors
+        # and rely on Trivy filesystem scan + Dependabot for vulnerability signal
+        run: pnpm audit --audit-level=high --ignore-registry-errors
 
       - name: Run Trivy vulnerability scanner
         id: trivy
