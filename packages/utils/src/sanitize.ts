@@ -4,7 +4,8 @@ export function sanitizeHtml(input: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
+    .replace(/'/g, '&#x27;')
+    .replace(/`/g, '&#x60;');
 }
 
 export function sanitizeUrl(url: string): string {
