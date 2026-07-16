@@ -196,6 +196,10 @@ export class UsersService {
       throw new NotFoundException({ message: "User not found", errorCode: ErrorCode.USER_NOT_FOUND });
     }
 
+    if (!user.passwordHash) {
+      throw new BadRequestException("Password not configured for this account");
+    }
+
     const matches = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!matches) {
       throw new UnauthorizedException("Current password is incorrect");
