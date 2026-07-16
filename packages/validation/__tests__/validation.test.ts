@@ -113,7 +113,7 @@ describe('validation schemas', () => {
       const res1 = updateUserSchema.safeParse({ role: 'accountant' as const });
       expect(res1.success).toBe(true);
 
-      const res2 = updateUserSchema.safeParse({ password: '123' }); // too short
+      const res2 = updateUserSchema.safeParse({ role: 'invalid' });
       expect(res2.success).toBe(false);
     });
 
