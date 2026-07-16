@@ -28,7 +28,7 @@ jest.mock('@smart-erp/database/drizzle', () => ({
   sql: jest.fn((strings, ...values) => ({ op: 'sql', strings, values })),
 }));
 
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 
 const selectQueue: any[] = [];
@@ -190,5 +190,60 @@ describe('UsersService coverage', () => {
       total: 3,
       byRole: { admin: 1, user: 2 },
     });
+  });
+
+  it('changePassword throws NotFoundException for missing user', async () => {
+    const chain: any = {
+      from: jest.fn(() => chain),
+      where: jest.fn(() => chain),
+      limit: jest.fn(() => Promise.resolve([])),
+    };
+    mockDb.select.mockReturnValue(chain);
+
+    await expect(service.changePassword('missing', 'pw', 'newpw')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('changePassword throws BadRequestException when passwordHash is null', async () => {
+    mockDb.select.mockReturnValue({
+      from: jest.fn(() => ({
+        where: jest.fn(() => ({
+          limit: jest.fn(() => Promise.resolve([{ id: 'user-1', passwordHash: null }])),
+        })),
+      })),
+    });
+
+    await expect(service.changePassword('user-1', 'pw', 'newpw')).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('changePassword throws UnauthorizedException when current password is wrong', async () => {
+    const hash = require('bcryptjs').hashSync('correctpw', 10);
+    mockDb.select.mockReturnValue({
+      from: jest.fn(() => ({
+        where: jest.fn(() => ({
+          limit: jest.fn(() => Promise.resolve([{ id: 'user-1', passwordHash: hash }])),
+        })),
+      })),
+    });
+
+    await expect(service.changePassword('user-1', 'wrongpw', 'newpw')).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('changePassword succeeds with valid current password', async () => {
+    const hash = require('bcryptjs').hashSync('correctpw', 10);
+    mockDb.select.mockReturnValue({
+      from: jest.fn(() => ({
+        where: jest.fn(() => ({
+          limit: jest.fn(() => Promise.resolve([{ id: 'user-1', passwordHash: hash }])),
+        })),
+      })),
+    });
+    mockDb.update.mockReturnValue({
+      set: jest.fn(() => ({
+        where: jest.fn(() => Promise.resolve(undefined)),
+      })),
+    });
+
+    await expect(service.changePassword('user-1', 'correctpw', 'newpw')).resolves.toBeUndefined();
+    expect(mockDb.update).toHaveBeenCalled();
   });
 });
