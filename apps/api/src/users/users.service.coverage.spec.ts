@@ -118,12 +118,10 @@ describe('UsersService coverage', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
 
     returningQueue.push([{ id: 'user-1', email: 'a@test.com' }]);
-    await expect(service.update('tenant-1', 'user-1', { password: 'newsecret123' } as any)).resolves.toEqual({
-      id: 'user-1',
-      email: 'a@test.com',
-    });
+    await expect(service.update('tenant-1', 'user-1', { password: 'newsecret123' } as any)).rejects.toBeInstanceOf(BadRequestException);
 
-    expect(mockDb.update.mock.results[0].value.set).toHaveBeenCalledWith(
+    // Verify the update was not called (password should be rejected)
+    expect(mockDb.update).not.toHaveBeenCalledWith(
       expect.objectContaining({ passwordHash: expect.any(String) }),
     );
   });
