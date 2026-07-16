@@ -167,7 +167,12 @@ export class ProductsService {
   }
 
   async findByBarcode(tenantId: string, barcode: string) {
-    return this.findBySku(tenantId, barcode);
+    const [product] = await db
+      .select()
+      .from(products)
+      .where(and(eq(products.tenantId, tenantId), eq(products.barcode, barcode)))
+      .limit(1);
+    return product ?? null;
   }
 
   async update(tenantId: string, id: string, dto: UpdateProductDto, userId?: string) {

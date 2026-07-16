@@ -25,6 +25,7 @@ export const products = pgTable(
     reorderQuantity: integer('reorder_quantity').default(0),
     leadTimeDays: integer('lead_time_days').default(7),
     safetyStock: integer('safety_stock').default(0),
+    barcode: text('barcode'),
     isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -36,6 +37,7 @@ export const products = pgTable(
     categoryIdIdx: index('products_category_id_idx').on(table.categoryId),
     categoryIdx: index('products_category_idx').on(table.category),
     activeIdx: index('products_active_idx').on(table.isActive),
+    barcodeIdx: index('products_barcode_idx').on(table.tenantId, table.barcode),
   })
 );
 
