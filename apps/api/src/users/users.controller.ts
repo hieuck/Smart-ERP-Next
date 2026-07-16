@@ -1,10 +1,12 @@
 import {
   Controller, Get, Post, Body, Patch, Param,
   Delete, UseGuards, Request, Query, ParseUUIDPipe,
+  HttpCode, BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { changePasswordSchema } from '@smart-erp/validation';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @Controller('users')
@@ -40,6 +42,16 @@ export class UsersController {
   @Get('stats')
   getStats(@Request() req: any) {
     return this.usersService.getStats(req.user.tenantId);
+  }
+
+  @Post('change-password')
+  @HttpCode(204)
+  async changePassword(@Request() req: any, @Body() body: { currentPassword: string; newPassword: string }) {
+    const parsed = changePasswordSchema.safeParse(body);
+    if (!parsed.success) {
+      throw new BadRequestException(parsed.error.errors.map(e => e.message).join('; '));
+    }
+    await this.usersService.changePassword(req.user.sub, parsed.data.currentPassword, parsed.data.newPassword);
   }
 
   @Get(':id')
