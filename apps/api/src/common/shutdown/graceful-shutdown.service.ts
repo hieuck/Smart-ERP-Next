@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Server } from 'http';
+import { pool } from '@smart-erp/database';
 
 const SHUTDOWN_TIMEOUT = 30000;
 
@@ -34,9 +35,16 @@ export class GracefulShutdownService {
     }, SHUTDOWN_TIMEOUT);
     timer.unref();
 
-    this.server?.close(() => {
+    this.server?.close(async () => {
       clearTimeout(timer);
-      this.logger.log('Server closed, exiting');
+      this.logger.log('Server closed');
+      try {
+        await pool.end();
+        this.logger.log('Database pool closed');
+      } catch (e) {
+        this.logger.error('Failed to close database pool: ' + (e as any).message);
+      }
+      this.logger.log('Exiting');
       process.exit(0);
     });
   }
