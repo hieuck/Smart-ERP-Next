@@ -25,4 +25,5 @@ if (!process.env.DATABASE_URL) {
 const pool = new Pool(buildPoolConfig());
 
 export const db = drizzle(pool, { schema });
+export { pool };
 export type DB = typeof db;
