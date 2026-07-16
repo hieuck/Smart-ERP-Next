@@ -10,6 +10,7 @@ jest.mock("@smart-erp/database/schema", () => ({
     tenantId: "products.tenantId",
     sku: "products.sku",
     name: "products.name",
+    barcode: "products.barcode",
   },
 }));
 
@@ -30,7 +31,9 @@ describe("Barcode integration", () => {
     const makeSelectChain = (rows: any[]) => {
       const chain: any = {
         from: jest.fn(() => chain),
-        where: jest.fn(() => Promise.resolve(rows)),
+        where: jest.fn(() => chain),
+        limit: jest.fn(() => chain),
+        then: jest.fn((onFulfilled: any) => onFulfilled(rows)),
       };
       return chain;
     };
