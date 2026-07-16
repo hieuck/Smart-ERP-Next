@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { ErrorCode } from "../common/errors/error-codes";
 import { db } from "@smart-erp/database";
@@ -175,13 +176,36 @@ export class UsersService {
       );
     }
 
-    const { password, ...rest } = dto as any;
-
-    if (password !== undefined) {
-      (rest as any).passwordHash = await bcrypt.hash(password, 10);
+    if ((dto as any).password !== undefined) {
+      throw new BadRequestException(
+        "password cannot be changed via update endpoint; use the change-password endpoint",
+      );
     }
 
-    return rest;
+    return dto;
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      throw new NotFoundException({ message: "User not found", errorCode: ErrorCode.USER_NOT_FOUND });
+    }
+
+    const matches = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!matches) {
+      throw new UnauthorizedException("Current password is incorrect");
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, userId));
   }
 
   async remove(tenantId: string, id: string) {

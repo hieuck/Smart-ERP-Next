@@ -15,7 +15,11 @@ export const updateUserSchema = z.object({
   role: z
     .enum(["admin", "manager", "accountant", "warehouse", "sales", "user"])
     .optional(),
-  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").optional(),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
 });
 
 export const loginSchema = z.object({
@@ -25,4 +29,5 @@ export const loginSchema = z.object({
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
