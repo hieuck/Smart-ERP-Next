@@ -3,6 +3,7 @@ import { tenants } from './tenants';
 import { suppliers } from './suppliers';
 import { users } from './users';
 import { warehouses } from './warehouses';
+import { products } from './products';
 
 // Đơn nhập hàng
 export const purchaseOrders = pgTable(
@@ -47,7 +48,9 @@ export const purchaseOrderItems = pgTable(
     purchaseOrderId: uuid('purchase_order_id')
       .notNull()
       .references(() => purchaseOrders.id, { onDelete: 'cascade' }),
-    productId: uuid('product_id').notNull(),
+    productId: uuid('product_id')
+      .notNull()
+      .references(() => products.id, { onDelete: 'restrict' }),
     productName: text('product_name').notNull(),
     productSku: text('product_sku').notNull(),
     unit: text('unit').default('piece'),
