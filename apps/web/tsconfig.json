@@ -6,6 +6,9 @@
     "paths": {
       "@/*": [
         "src/*"
+      ],
+      "@smart-erp/utils": [
+        "../../packages/utils/src/index.ts"
       ]
     },
     "allowJs": true,
