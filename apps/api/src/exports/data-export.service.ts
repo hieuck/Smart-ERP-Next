@@ -62,7 +62,8 @@ export class DataExportService {
         conditions.push(lt(table.createdAt, this.endOfDayIso(filters.dateTo)));
       }
       const data = await this.drizzle.db.select().from(table).where(and(...conditions));
-      collected[entity] = data;
+      // Redact PII before storing into collected data to prevent leaking in exports
+      collected[entity] = redactPII(entity, data);
       totalCount += data.length;
     }
 
@@ -183,4 +184,41 @@ export class DataExportService {
       { key: 'crm', label: 'CRM' },
     ];
   }
+}
+
+/**
+ * Mapping of entity keys to PII field names that must be redacted in exports.
+ * Centralized here so redaction policy is easier to audit and test.
+ */
+export const PII_FIELDS_BY_ENTITY: Record<string, readonly string[]> = {
+  customers: ['phone', 'email', 'address', 'ward', 'district', 'province', 'taxCode', 'contactPerson', 'notes'],
+  suppliers: ['phone', 'email', 'address', 'taxCode', 'contactPerson', 'notes'],
+  orders: ['shippingAddress', 'notes', 'tags'],
+  payments: ['notes'],
+  crm: ['email', 'phone', 'address', 'notes'],
+};
+
+export const PII_REDACTION_MASK = '***REDACTED***';
+
+/**
+ * Pure function: redact sensitive PII fields from a list of rows.
+ * Non-null/non-undefined values of declared PII fields are replaced with the mask;
+ * null and undefined stays intact. Unknown entity keys yield rows unchanged.
+ */
+export function redactPII(entity: string, rows: Record<string, any>[]): Record<string, any>[] {
+  const piiFields = PII_FIELDS_BY_ENTITY[entity] || [];
+
+  return rows.map((row) => {
+    const redacted = { ...row };
+    for (const field of piiFields) {
+      if (
+        Object.prototype.hasOwnProperty.call(redacted, field) &&
+        redacted[field] !== null &&
+        redacted[field] !== undefined
+      ) {
+        redacted[field] = PII_REDACTION_MASK;
+      }
+    }
+    return redacted;
+  });
 }
