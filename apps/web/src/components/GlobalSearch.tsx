@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '@/lib/api-client';
 import { SearchResult } from '@/types/search';
+import { sanitizeUrl } from '@smart-erp/utils';
 import {
   Search,
   X,
@@ -118,7 +119,7 @@ export default function GlobalSearch() {
           {results.map((result) => (
             <a
               key={result.id}
-              href={result.url }
+              href={sanitizeUrl(result.url ?? '')}
               onClick={handleSelect}
               className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition group"
             >
