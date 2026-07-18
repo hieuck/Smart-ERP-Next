@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Request, ParseUUIDPipe } from '@nestjs/common';
 import { WarehouseTransferService } from './warehouse-transfer.service';
+import { CreateWarehouseTransferDto } from './dto/create-warehouse-transfer.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @Controller('warehouse-transfers')
@@ -10,7 +11,7 @@ export class WarehouseTransferController {
   @Post()
   async create(
     @Request() req: any,
-    @Body() body: { fromWarehouseId: string; toWarehouseId: string; items: { productId: string; quantity: number }[]; notes?: string },
+    @Body() body: CreateWarehouseTransferDto,
   ) {
     return this.service.createTransfer(
       req.user.tenantId,
@@ -23,17 +24,17 @@ export class WarehouseTransferController {
   }
 
   @Patch(':id/confirm')
-  async confirm(@Request() req: any, @Param('id') id: string) {
+  async confirm(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.confirmTransfer(req.user.tenantId, id);
   }
 
   @Patch(':id/receive')
-  async receive(@Request() req: any, @Param('id') id: string) {
+  async receive(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.receiveTransfer(req.user.tenantId, id, req.user.sub);
   }
 
   @Get(':id')
-  async getById(@Request() req: any, @Param('id') id: string) {
+  async getById(@Request() req: any, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.getTransferById(req.user.tenantId, id);
   }
 
