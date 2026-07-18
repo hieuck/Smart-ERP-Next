@@ -1,5 +1,6 @@
 import { pgTable, uuid, text, timestamp, integer, boolean, index } from 'drizzle-orm/pg-core';
 import { tenants } from './tenants';
+import { customers } from './customers';
 
 export const loyaltyCards = pgTable(
   'loyalty_cards',
@@ -8,7 +9,9 @@ export const loyaltyCards = pgTable(
     tenantId: uuid('tenant_id')
       .notNull()
       .references(() => tenants.id, { onDelete: 'cascade' }),
-    customerId: integer('customer_id').notNull(),
+    customerId: uuid('customer_id')
+      .notNull()
+      .references(() => customers.id, { onDelete: 'cascade' }),
     points: integer('points').notNull().default(0),
     tier: text('tier').notNull().default('bronze'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
