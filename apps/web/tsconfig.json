@@ -1,7 +1,6 @@
 {
   "extends": "@smart-erp/tsconfig/react-library.json",
   "compilerOptions": {
-    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "@/*": [
@@ -33,4 +32,3 @@
     "**/*.test.*"
   ]
 }
-
