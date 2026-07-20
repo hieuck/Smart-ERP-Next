@@ -37,7 +37,7 @@
     "autoprefixer": "^10.5.2",
     "eslint-config-next": "16.2.10",
     "jest-environment-jsdom": "30.4.1",
-    "postcss": "^8.5.17",
+    "postcss": "^8.5.20",
     "@next/bundle-analyzer": "^16.2.10",
     "@tailwindcss/postcss": "^4.3.2",
     "cross-env": "^7.0.3",
