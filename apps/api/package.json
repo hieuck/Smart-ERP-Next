@@ -45,7 +45,7 @@
     "rxjs": "^7.8.2",
     "socket.io": "^4.8.3",
     "uuid": "14.0.1",
-    "@stackline/xlsx": "^1.0.3",
+    "@stackline/xlsx": "^1.0.4",
     "zod": "^3.25.76"
   },
   "devDependencies": {
