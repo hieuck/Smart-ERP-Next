@@ -46,7 +46,7 @@
     "socket.io": "^4.8.3",
     "uuid": "14.0.1",
     "@stackline/xlsx": "^1.0.3",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.24",
