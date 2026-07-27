@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@smart-erp/utils": "workspace:*",
-    "react": "^19.2.7"
+    "react": "^19.2.8"
   },
   "devDependencies": {
     "@smart-erp/tsconfig": "workspace:*",
