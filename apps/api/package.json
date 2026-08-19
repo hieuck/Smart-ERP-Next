@@ -44,7 +44,7 @@
     "reflect-metadata": "0.2.2",
     "rxjs": "^7.8.2",
     "socket.io": "^4.8.3",
-    "uuid": "14.0.1",
+    "uuid": "14.0.2",
     "@stackline/xlsx": "^1.0.3",
     "zod": "^3.25.76"
   },
